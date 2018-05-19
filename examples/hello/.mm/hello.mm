@@ -17,7 +17,6 @@ hello.packages = hello.pkg
 
 # the library meta-data
 hello.lib.stem := hello
-hello.lib.sources := goo foo boo
 
 # show me
 # ${info -- done with hello }

@@ -11,17 +11,17 @@ include make/log/init.mm
 # the list of objects
 model := \
     log mm \
-    platforms hosts users developers targets builder \
+    platforms hosts users developers targets languages builder \
     libraries extensions packages docs tests projects
 
-# the list of methods each object provides
-interface := init info model
+# the categories of methods each object provides
+categories := init info model
 
 # import the interface
 -include \
-    ${foreach method, $(interface), \
-        ${foreach object, $(model), \
-            make/$(object)/$(method).mm \
+    ${foreach category, $(categories), \
+        ${foreach class, $(model), \
+            make/$(class)/$(category).mm \
     } \
 }
 

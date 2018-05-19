@@ -47,12 +47,15 @@ define libraries.init =
     ${eval $(library).tmpdir = $(builder.tmpdir)/$(project)/$($(library).stem)}
 
     # artifacts
-    # the root of the library source tree
+    # the root of the library source tree relative to the project home
     ${eval $(library).root ?= lib/lib$($(library).stem)}
+    # the absolute path to the library source tree
+    ${eval $(library).prefix ?= $($($(library).project).home)/lib/lib$($(library).stem)}
+
     # the directory structure
     ${eval $(library).directories ?= ${call library.directories,$(library)}}
     # the list of sources
-    ${eval $(library).sources ?=}
+    ${eval $(library).sources ?= ${call library.sources,$(library)}}
     # the public headers
     ${eval $(library).headers ?=}
 
@@ -91,7 +94,7 @@ define libraries.init =
     $(library).meta.general := name stem
     $(library).meta.extern := extern.requested extern.supported extern.available
     $(library).meta.locations := incdir libdir tmpdir
-    $(library).meta.artifacts := root directories sources headers
+    $(library).meta.artifacts := root prefix directories sources headers
     $(library).meta.derived := staging.archive staging.objects staging.incdirs staging.headers
     $(library).meta.external := flags defines incpath ldflags libpath libraries
 
@@ -108,7 +111,8 @@ define libraries.init =
     $(library).metadoc.incdir := "the destination of the public headers"
     $(library).metadoc.tmpdir = "the staging area for object modules"
     # artifacts
-    $(library).metadoc.root := "the root of the library source tree"
+    $(library).metadoc.root := "the path to the library sources relative to the project directory"
+    $(library).metadoc.prefix := "the absolute path to the root of the library source tree"
     $(library).metadoc.directories := "the source directory structure"
     $(library).metadoc.sources := "the archive sources"
     $(library).metadoc.headers := "the public headers"
@@ -134,15 +138,18 @@ endef
 #   usage: library.directories {library}
 define library.directories
     ${subst \
-        $($($(library).project).home)/$($(library).root)/,, \
-        ${shell find $($($(library).project).home)/$($(library).root)/* -type d} \
+        $($(library).prefix)/,, \
+        ${shell find $($(library).prefix)/* -type d} \
     }
 endef
 
-# build the set of archihve objects
+# build the set of archihve sources
+#   usage: library.sources {library}
+define library.sources
+endef
+
 #   usage: library.objects {library}
 define library.objects
-    ${info sources: $($(library).sources)}
 endef
 
 # show me
