@@ -16,8 +16,8 @@ hello.extensions := hello.ext
 hello.packages = hello.pkg
 
 # the library meta-data
-hello.lib.name := hello
-hello.lib.root := lib/libhello
+hello.lib.stem := hello
+hello.lib.sources := goo foo boo
 
 # show me
 # ${info -- done with hello }
