@@ -16,6 +16,9 @@ projects ?= ${basename ${notdir ${wildcard $(project.config)/*.mm}}}
 # ${info --   project constructors}
 ${foreach project,$(projects),${eval ${call project.init,$(project)}}}
 
+# load the project files
+include ${wildcard $(project.config)/*.mm}
+
 # invoke the content type constructors on project contents
 # ${info --   project content type constructors}
 ${foreach \
@@ -24,8 +27,12 @@ ${foreach \
     ${foreach \
         project, \
         $(projects), \
-        ${eval \
-            ${call $(type).init,$(project),$($(project).$(type))} \
+        ${foreach \
+            item, \
+            $($(project).$(type)), \
+            ${eval \
+                ${call $(type).init,$(project),$($(project).$(type))} \
+            } \
         } \
     } \
 }
@@ -33,9 +40,8 @@ ${foreach \
 # instantiate the info recipes
 # ${info --   project info recipes}
 ${eval $(project.recipes)}
-
-# load the project files
-include ${wildcard $(project.config)/*.mm}
+# ${info --   library info recipes}
+${eval ${call library.recipes,$(libraries)}}
 
 # ${info -- done with model}
 

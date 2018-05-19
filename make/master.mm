@@ -18,8 +18,11 @@ model := \
 interface := init info model
 
 # import the interface
--include ${foreach object, $(model), \
-    ${foreach method, $(interface), make/$(object)/$(method).mm} \
+-include \
+    ${foreach method, $(interface), \
+        ${foreach object, $(model), \
+            make/$(object)/$(method).mm \
+    } \
 }
 
 # end of file
