@@ -17,30 +17,8 @@ platform := $(platform.os)-$(platform.arch)
 # default compilers
 platform.compilers ?=
 
-# language specific settings
-# c
-platform.c.flags ?=
-platform.c.defines ?=
-platform.c.incpath ?=
-platform.c.ldflags ?=
-platform.c.libpath ?=
-platform.c.libraries ?=
-
-# c++
-platform.c++.flags ?=
-platform.c++.defines ?=
-platform.c++.ldflags ?=
-platform.c++.incpath ?=
-platform.c++.libpath ?=
-platform.c++.libraries ?=
-
-# fortran
-platform.fortran.flags ?=
-platform.fortran.defines ?=
-platform.fortran.ldflags ?=
-platform.fortran.incpath ?=
-platform.fortran.libpath ?=
-platform.fortran.libraries ?=
+# pull the plaform/architecture specific settings
+include make/platforms/$(host.os)/$(host.arch).mm
 
 # show me
 # ${info -- done with platform.init}
