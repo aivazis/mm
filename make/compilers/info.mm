@@ -6,9 +6,9 @@
 #
 
 # show me
-${info -- object.info}
+${info -- compilers.info}
 
 # show me
-${info -- done with object.info}
+${info -- done with compilers.info}
 
 # end of file

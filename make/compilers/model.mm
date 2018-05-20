@@ -8,9 +8,9 @@
 # build the data model
 
 # show me
-${info -- object.model}
+${info -- compilers.model}
 
 # show me
-${info -- done with object.model}
+${info -- done with compilers.model}
 
 # end of file
