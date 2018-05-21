@@ -11,7 +11,8 @@ include make/log/init.mm
 # the list of objects
 model := \
     log mm \
-    languages compilers platforms hosts users developers targets builder \
+    languages platforms hosts users developers targets \
+    compilers builder \
     libraries extensions packages docs tests projects
 
 # the categories of methods each object provides

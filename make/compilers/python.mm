@@ -6,6 +6,6 @@
 #
 
 # python3, by default; override by specifying python/python2 as the compiler
-include compilers/python/python3.mm
+include make/compilers/python/python3.mm
 
 # end of file

@@ -9,14 +9,14 @@
 # ${info -- compilers.info}
 
 # compiler info
-compilers.show:
-	${call show.sec,"compilers", "map of languages to compilers"}
-	${call show.var,c,$(compiler.c)}
-	${call show.var,c++,$(compiler.c++)}
-	${call show.var,cuda,$(compiler.cuda)}
-	${call show.var,f90,$(compiler.fortran)}
-	${call show.var,python,$(compiler.python)}
-	${call show.var,cython,$(compiler.cython)}
+compilers.info:
+	${call log.sec,"compilers", "map of languages to compilers"}
+	${call log.var,c,$(compiler.c)}
+	${call log.var,c++,$(compiler.c++)}
+	${call log.var,cuda,$(compiler.cuda)}
+	${call log.var,f90,$(compiler.fortran)}
+	${call log.var,python,$(compiler.python)}
+	${call log.var,cython,$(compiler.cython)}
 
 # show me
 # ${info -- done with compilers.info}

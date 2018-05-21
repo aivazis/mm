@@ -5,8 +5,8 @@
 # (c) 1998-2018 all rights reserved
 #
 
-include compilers/gcc/gcc.mm
-include compilers/gcc/g++.mm
-include compilers/gcc/gfortran.mm
+include make/compilers/gcc/gcc.mm
+include make/compilers/gcc/g++.mm
+include make/compilers/gcc/gfortran.mm
 
 # end of file
