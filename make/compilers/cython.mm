@@ -5,6 +5,6 @@
 # (c) 1998-2018 all rights reserved
 #
 
-compiler.cython = cython
+compiler.cython := cython
 
 # end of file

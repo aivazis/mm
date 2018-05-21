@@ -15,9 +15,6 @@ compilers := \
     $($(developer).compilers) \
     $(mm.compilers)
 
-# include the compiler specific configuration files
-include $(compilers:%=make/compilers/%.mm)
-
 # show me
 # ${info -- done with compilers.init}
 
