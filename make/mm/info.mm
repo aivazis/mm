@@ -27,7 +27,7 @@ help mm.usage: | mm.banner
 	$(log)
 	$(log) "for details about the build, try one of the following targets:"
 	$(log)
-	${call log.help,"   projects.info","information about the known projects"}
+	${call log.help,"  projects.info","information about the known projects"}
 	${call log.help,"  platform.info","platform specific options"}
 	${call log.help," compilers.info","the list of active compilers"}
 	${call log.help,"  suffixes.info","a map from file suffixes to compilers"}
