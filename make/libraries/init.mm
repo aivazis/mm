@@ -20,15 +20,15 @@ define libraries.init =
 
     # add it to the pile
     ${eval libraries += $(library)}
-    # save the name
-    ${eval $(library).name := $(library)}
     # save the project
     ${eval $(library).project := $(project)}
     # the stem for generating library specific names; it can get used to build the archive
     # name and the include directory with the public headers
     ${eval $(library).stem ?=}
+    # form the name
+    ${eval $(library).name := lib$($(library).stem)}
     # the name of the archive
-    ${eval $(library).archive = lib$($(library).stem)$(builder.ext.lib)}
+    ${eval $(library).archive = $($(library).name)$(builder.ext.lib)}
 
     # dependencies
     # initialize the list of requested project dependencies
@@ -44,7 +44,7 @@ define libraries.init =
     # the destination for the public headers
     ${eval $(library).incdir = $(builder.incdir)/$($(library).stem)}
     # the location of the build transients
-    ${eval $(library).tmpdir = $(builder.tmpdir)/$(project)/$($(library).stem)}
+    ${eval $(library).tmpdir = $(builder.tmpdir)/$(project)/$($(library).name)}
 
     # artifacts
     # the root of the library source tree relative to the project home
@@ -57,13 +57,13 @@ define libraries.init =
     # the list of sources
     ${eval $(library).sources ?= ${call library.sources,$(library)}}
     # the public headers
-    ${eval $(library).headers ?=}
+    ${eval $(library).headers ?=${call library.headers,$(library)}}
 
     # derived artifacts
     # the compile products
     $(library).staging.objects = ${call library.objects,$(library)}
     # the archive
-    $(library).staging.archive = $(builder.tmpdir)/$($(library).archive)
+    $(library).staging.archive = $($(library).libdir)/$($(library).archive)
     # the include directories in the staging area
     $(library).staging.incdirs = $($(library).directories:%=$($(library).incdir)/%)
     # the public headers in the staging area
@@ -77,7 +77,7 @@ define libraries.init =
     # link time
     $(library).ldflags ?=
     $(library).libpath ?= $($(library).libdir) # that's where we put it
-    $(library).libraries ?= $($(library).stem) # that's where we put it
+    $(library).libraries ?= $($(library).stem) # that's what we call it
 
     # documentation
     $(library).meta.categories := general extern locations artifacts derived external
@@ -137,20 +137,77 @@ endef
 # build the set of library directories
 #   usage: library.directories {library}
 define library.directories
-    ${subst \
-        $($(library).prefix)/,, \
-        ${shell find $($(library).prefix)/* -type d} \
+    ${strip
+        ${subst
+            $($(library).prefix)/,,
+            ${shell find $($(library).prefix)/* -type d}
+        }
     }
 endef
 
-# build the set of archihve sources
+# build the set of archive sources
 #   usage: library.sources {library}
 define library.sources
+    ${strip
+        ${foreach
+            directory,
+            $($(library).directories),
+            ${subst
+                $($(library).prefix)/,,
+                ${wildcard
+                    ${addprefix
+                        $($(library).prefix)/$(directory)/*.,
+                        ${foreach language, $(languages), $(languages.$(language).sources)}
+                    }
+                }
+            }
+        }
+    }
 endef
 
+# build the set of archive headers
+#   usage: library.headers {library}
+define library.headers
+    ${strip
+        ${foreach
+            directory,
+            $($(library).directories),
+            ${subst
+                $($(library).prefix)/,,
+                ${wildcard
+                    ${addprefix
+                        $($(library).prefix)/$(directory)/*.,
+                        ${sort
+                            ${foreach language, $(languages), $(languages.$(language).headers)}
+                        }
+                    }
+                }
+            }
+        }
+    }
+endef
+
+
+# build the set of archive objects
 #   usage: library.objects {library}
 define library.objects
+    ${addsuffix
+        $(builder.ext.obj),
+        ${subst
+            /,~,
+            ${basename $($(library).sources)}
+        }
+    }
 endef
+
+
+# mangle the path to a source file to create the filename of an object; single filename version
+# of the above
+#  usage: library.object {source}
+define library.object
+    ${subst /,~,${basename $(1)}}
+endef
+
 
 # show me
 # ${info -- done with libraries.init}
