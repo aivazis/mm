@@ -9,11 +9,14 @@
 include make/log/init.mm
 
 # the list of objects
-model := \
-    log mm \
-    languages platforms hosts users developers targets \
-    compilers builder \
+define model :=
+    log mm
+    languages platforms hosts users developers
+    compilers
+    targets
+    builder
     libraries extensions packages docs tests projects
+endef
 
 # the categories of methods each object provides
 categories := init info model
