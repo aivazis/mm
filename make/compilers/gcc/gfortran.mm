@@ -28,9 +28,7 @@ gfortran.debug := -g
 gfortran.opt := -O3
 gfortran.cov := -coverage
 gfortran.prof := -pg
-
-# relocatable code
-gfortran.compile.shared := -fPIC
+gfortran.shared := -fPIC
 
 # language level
 gfortran.std.f77 :=

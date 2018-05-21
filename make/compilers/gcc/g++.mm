@@ -28,9 +28,7 @@ g++.debug := -g
 g++.opt := -O3
 g++.cov := --coverage
 g++.prof := -pg
-
-# relocatable code
-g++.compile.shared := -fPIC
+g++.shared := -fPIC
 
 # language level
 g++.std.c++98 := -std=c++98

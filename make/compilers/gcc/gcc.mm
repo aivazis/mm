@@ -28,9 +28,7 @@ gcc.debug := -g
 gcc.opt := -O3
 gcc.cov := --coverage
 gcc.prof := -pg
-
-# relocatable code
-gcc.compile.shared := -fPIC
+gcc.shared := -fPIC
 
 # language level
 gcc.std.ansi := -ansi
@@ -40,7 +38,6 @@ gcc.std.c11 := -std=c11
 
 # link time flags
 gcc.link.output := -o
-gcc.link.shared :=
 # link a dynamically loadable library
 gcc.link.dll := -shared
 
