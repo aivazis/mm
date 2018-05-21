@@ -18,6 +18,7 @@ g++.prefix.libpath := -L
 g++.prefix.libraries := -l
 
 # compile time flags
+g++.compile.base := -pipe
 g++.compile.only := -c
 g++.compile.output := -o
 g++.compile.generate-dependencies := -MMD

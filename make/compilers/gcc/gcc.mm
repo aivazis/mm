@@ -18,6 +18,7 @@ gcc.prefix.libpath := -L
 gcc.prefix.libraries := -l
 
 # compile time flags
+gcc.compile.base := -pipe
 gcc.compile.only := -c
 gcc.compile.output := -o
 gcc.compile.generate-dependencies := -MMD

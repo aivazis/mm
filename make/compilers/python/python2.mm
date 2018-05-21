@@ -9,6 +9,6 @@
 compiler.python = python2
 
 # byte compile
-python.compile.flags ?= -b
+python.compile.base ?= -b
 
 # end of file

@@ -18,6 +18,7 @@ gfortran.prefix.libpath := -L
 gfortran.prefix.libraries := -l
 
 # compile time flags
+gfortran.compile.base := -pipe
 gfortran.compile.only := -c
 gfortran.compile.output := -o
 gfortran.compile.generate-dependencies :=
