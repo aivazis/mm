@@ -37,6 +37,14 @@ ${strip
 }
 endef
 
+# invoke the language constructor
+# ${info --   language constructor}
+${foreach \
+    language, \
+    $(languages), \
+    ${eval ${call language.init,$(language)}} \
+}
+
 # build the info recipes
 # ${info --   language info recipes}
 ${foreach \

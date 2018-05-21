@@ -12,10 +12,10 @@
 #  usage: language.init {language}
 define language.init =
 # go through all the registered extensions and create a map from the extension to the language
-    ${foreach \
-        extension, \
-        $($(language).extensions), \
-        ${eval ext.$(extension) := $(language)} \
+    ${foreach
+        extension,
+        $(languages.$(language).extensions),
+        ${eval ext.$(extension) := $(language)}
     }
 endef
 
