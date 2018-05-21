@@ -12,31 +12,20 @@
 developer ?= $(user.username)
 
 # developer choices
-developer.compilers ?=
+developer.$(developer).compilers ?=
 
-# c
-developer.c.flags ?=
-developer.c.defines ?=
-developer.c.incpath ?=
-developer.c.ldflags ?=
-developer.c.libpath ?=
-developer.c.libraries ?=
-
-# c++
-developer.c++.flags ?=
-developer.c++.defines ?=
-developer.c++.incpath ?=
-developer.c++.ldflags ?=
-developer.c++.libpath ?=
-developer.c++.libraries ?=
-
-# fortran
-developer.fortran.flags ?=
-developer.fortran.defines ?=
-developer.fortran.incpath ?=
-developer.fortran.ldflags ?=
-developer.fortran.libpath ?=
-developer.fortran.libraries ?=
+# costructor
+define developer.init =
+    ${foreach
+        language,
+        $(languages),
+        ${foreach
+            category,
+            $(languages.$(language).options.compile) $(languages.$(language).options.link),
+            ${eval developers.$(developer).$(language).$(category) ?=}
+        }
+    }
+endef
 
 # show me
 # ${info -- done with developers.init}
