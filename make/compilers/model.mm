@@ -10,6 +10,13 @@
 # show me
 # ${info -- compilers.model}
 
+# assemble the list of compilers
+#    order: defaults from the platform, then user configuration files, then mm command line
+compilers := \
+    $(platform.compilers) $(target.compilers) \
+    $(developer.$(developer).compilers) \
+    $(mm.compilers)
+
 # include the compiler specific configuration files
 include $(compilers:%=make/compilers/%.mm)
 

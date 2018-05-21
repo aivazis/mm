@@ -8,13 +8,6 @@
 # show me
 # ${info -- compilers.init}
 
-# assemble the list of compilers
-#    order: defaults from the platform, then user configuration files, then mm command line
-compilers := \
-    $(platform.compilers) $(target.compilers) \
-    $($(developer).compilers) \
-    $(mm.compilers)
-
 # show me
 # ${info -- done with compilers.init}
 

@@ -37,9 +37,6 @@ ${strip
 }
 endef
 
-${info compiled: $(languages.compiled)}
-${info interpreted: $(languages.interpreted)}
-
 # build the info recipes
 # ${info --   language info recipes}
 ${foreach \
