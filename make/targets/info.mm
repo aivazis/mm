@@ -13,6 +13,23 @@ target.info:
 	${call log.sec,"target", "target info"}
 	${call log.var,variants,$(target.variants)}
 
+# make a rule to show taret specific info
+#  usage: target.info.flags
+define target.info.flags
+#
+targets.$(1).info:
+	${call log.sec,$(1),$(targets.$(1).description)}
+	${foreach language,$(languages),\
+            ${call log.sec,"  $(language)",$(compiler.$(language))}; \
+            ${foreach \
+                category,  \
+                $(languages.$(language).options.compile) $(languages.$(language).options.link), \
+                ${call log.var,$(category),$(targets.$(1).$(language).$(category))}; \
+            } \
+        }
+#
+endef
+
 # show me
 # ${info -- done with object.info}
 
