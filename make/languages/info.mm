@@ -14,9 +14,10 @@ define language.recipes.info =
 # make the recipe
 $(language).info:
 	${call log.sec,$(language),}
-	${call log.var,extensions,$(languages.$(language).extensions)}
 	${call log.var,compiled,$(languages.$(language).compiled)}
 	${call log.var,interpreted,$(languages.$(language).interpreted)}
+	${call log.var,source extensions,$(languages.$(language).sources)}
+	${call log.var,header extensions,$(languages.$(language).headers)}
 # all done
 endef
 
@@ -26,10 +27,11 @@ define language.recipes.info.suffix =
 # make the recipe
 suffixes.info:
 	${call log.sec,"suffixes","a map of recognized file extensions for each language"}
+	${call log.sec,"  sources",}
 	${foreach \
             language, \
             $(languages), \
-	    ${call log.var,$(language),$(languages.$(language).extensions)}; \
+	    ${call log.var,$(language),$(languages.$(language).sources)}; \
         }
 # all done
 endef

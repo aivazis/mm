@@ -6,7 +6,8 @@
 #
 
 # c++
-languages.c++.extensions := C cc cpp cxx c++
+languages.c++.sources := C cc cpp cxx c++
+languages.c++.headers := H h hpp hxx h++ icc
 
 # language predicates
 languages.c++.compiled := yes

@@ -6,7 +6,8 @@
 #
 
 # cython
-languages.cython.extensions := pxd
+languages.cython.sources := pxd
+languages.cython.headers :=
 
 # language predicates
 languages.cython.compiled := yes

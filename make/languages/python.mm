@@ -6,7 +6,8 @@
 #
 
 # python
-languages.python.extensions := py
+languages.python.sources := py
+languages.python.headers :=
 
 # language predicates
 languages.python.compiled :=

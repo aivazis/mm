@@ -14,7 +14,7 @@ define language.init =
 # go through all the registered extensions and create a map from the extension to the language
     ${foreach
         extension,
-        $(languages.$(language).extensions),
+        $(languages.$(language).sources),
         ${eval ext.$(extension) := $(language)}
     }
 endef
