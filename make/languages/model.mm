@@ -47,12 +47,17 @@ ${foreach \
 
 # build the info recipes
 # ${info --   language info recipes}
+
+# language info
 ${foreach \
     language, \
     $(languages), \
     ${eval compiler.$(language) ?=} \
     ${eval ${call language.recipes.info,$(language)}} \
 }
+
+# the suffix map
+${eval ${call language.recipes.info.suffix}} \
 
 # show me
 # ${info -- done with languages.model}
