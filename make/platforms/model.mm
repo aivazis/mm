@@ -8,41 +8,21 @@
 # build the data model
 
 # show me
-${info -- platforms.model}
+# ${info -- platforms.model}
 
 # language specific settings
+# initialize the platform specific flags for each language option category
 ${foreach \
     language, \
     $(languages), \
-    ${eval platform.$(language).flags ?=} \
+    ${foreach \
+        category, \
+        $(languages.$(language).options.compile) $(languages.$(language).options.link), \
+        ${eval platform.$(language).$(category) ?=} \
+    } \
 }
 
-# c
-platform.c.flags ?=
-platform.c.defines ?=
-platform.c.incpath ?=
-platform.c.ldflags ?=
-platform.c.libpath ?=
-platform.c.libraries ?=
-
-# c++
-platform.c++.flags ?=
-platform.c++.defines ?=
-platform.c++.ldflags ?=
-platform.c++.incpath ?=
-platform.c++.libpath ?=
-platform.c++.libraries ?=
-
-# fortran
-platform.fortran.flags ?=
-platform.fortran.defines ?=
-platform.fortran.ldflags ?=
-platform.fortran.incpath ?=
-platform.fortran.libpath ?=
-platform.fortran.libraries ?=
-
-
 # show me
-${info -- done with platforms.model}
+# ${info -- done with platforms.model}
 
 # end of file

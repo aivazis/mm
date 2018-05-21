@@ -8,7 +8,12 @@
 # cython
 languages.cython.extensions := pxd
 
-languages.cython.compiled :=
-languages.cython.interpreted := yes
+# language predicates
+languages.cython.compiled := yes
+languages.cython.interpreted :=
+
+# flags
+languages.cython.options.compile := flags defines incpath
+languages.cython.options.link := ldflags libpath libraries
 
 # end of file

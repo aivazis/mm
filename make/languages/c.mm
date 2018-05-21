@@ -8,7 +8,12 @@
 # c
 languages.c.extensions := c
 
+# language predicates
 languages.c.compiled := yes
 languages.c.interpreted :=
+
+# flags
+languages.c.options.compile := flags defines incpath
+languages.c.options.link := ldflags libpath libraries
 
 # end of file
