@@ -34,6 +34,11 @@ log.help = \
 log.info = $(log) $(1)
 
 # render a build action
+log.asset = \
+    $(log) \
+    $(palette.purple)"  [$(1)]"$(palette.normal) \
+    $(2)
+
 log.action = \
     $(log) \
     $(palette.blue)"  [$(1)]"$(palette.normal) \
