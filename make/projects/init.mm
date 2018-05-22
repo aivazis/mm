@@ -12,7 +12,8 @@
 project.contentTypes := libraries extensions packages docs tests
 
 # the project constructor
-#   usage: project.init {name}
+#   usage: project.init {project/ame}
+#   assumes it was invoked with $(project) bound to the project name
 define project.init =
     # save the name
     $(project).name := $(project)
@@ -98,6 +99,24 @@ define project.init =
     $(project).metadoc.tests := "the project test suite"
 # all done
 endef
+
+
+# instantiate the project assets
+#  usage: project.init.assets {project}
+#   assumes it was invoked with $(project) bound to the project name
+define project.init.assets =
+    # go through all types of project assets
+    ${foreach type,$(project.contentTypes),
+        # and assets of the given {type}
+        ${foreach item, $($(project).$(type)),
+            # invoke their constructors
+            ${call $(type).init,$(project),$($(project).$(type))}
+        }
+    }
+# all done
+endef
+
+
 
 # scan through the project contents and collect all the requested dependencies
 # usage project.requestedDependencies {names}
