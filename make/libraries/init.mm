@@ -169,7 +169,7 @@ endef
 #   usage: library.headers {library}
 define library.headers
     ${strip
-        ${foreach directory,$($(library).directories),
+        ${foreach directory, $($(library).directories),
             ${subst
                 $($(library).prefix)/,,
                 ${wildcard

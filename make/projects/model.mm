@@ -25,7 +25,6 @@ define project.boot =
     ${eval ${call project.workflows,$(project)}}
     # build the library workflows
     ${foreach library,$($(project).libraries),${eval ${call library.workflows,$(library)}}}
-
 # all done
 endef
 

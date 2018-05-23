@@ -14,8 +14,7 @@
 #  usage: library.workflows {libraries}
 define library.workflows =
     # build recipes
-    ${call library.main,$(library)}
-    ${call library.headers,$(library)}
+    ${call library.workflow,$(library)}
     # info recipes: show values
     ${call library.workflows.info,$(library)}
     ${call library.workflows.info.directories,$(library)}
@@ -31,7 +30,7 @@ endef
 
 # build targets
 # targetfactory for building a library
-define library.main =
+define library.workflow =
 # the main recipe
 $(library): $(library).directories $(library).assets
 	${call log.asset,"library",$(library)}
@@ -44,6 +43,13 @@ $($(library).libdir) $($(library).staging.incdirs) $($(library).tmpdir):
 
 $(library).assets: $(library).headers $(library).archive
 
+$(library).headers: $($(library).staging.headers)
+
+# make the rules that publish the exported headers
+${foreach header, $($(library).headers), \
+    ${eval ${call library.workflow.header $(library),$(header)}}
+}
+
 $(library).archive:
 	${call log.action,"ar",archive}
 
@@ -51,11 +57,15 @@ $(library).archive:
 endef
 
 
+# helpers
 # library headers
-define library.headers =
-
-
-
+define library.workflow.header =
+# publish public headers
+$($(library).incdir)/$(header): \
+                                $($(library).prefix)/$(header) \
+                                ${dir $($(library).incdir)/$(header)}
+	$(cp) $$< $$@
+	${call log.action,"publish",$(header)}
 # all done
 endef
 
