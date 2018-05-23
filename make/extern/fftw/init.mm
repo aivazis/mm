@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += fftw
+extern += ${if ${findstring fftw,$(extern)},,fftw}
 
 # compiler flags
 fftw.flags ?=

@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += openblas
+extern += ${if ${findstring openblas,$(extern)},,openblas}
 
 # compiler flags
 openblas.flags ?=

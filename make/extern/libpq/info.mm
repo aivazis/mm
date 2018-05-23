@@ -18,7 +18,7 @@ libpq.info:
 	${call log.var,"libpath",$(libpq.libpath)}
 	${call log.var,"libraries",$(libpq.libraries)}
 	${call log.var,"dependencies",$(libpq.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,libpq}}
-	${call log.var,"c++ link line",${call package.link.options,c++,libpq}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,libpq}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,libpq}}
 
 # end of file

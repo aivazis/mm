@@ -17,7 +17,7 @@ mpi.info:
 	${call log.var,"linker flags",$(mpi.ldflags)}
 	${call log.var,"libpath",$(mpi.libpath)}
 	${call log.var,"libraries",$(mpi.libraries)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,mpi}}
-	${call log.var,"c++ link line",${call package.link.options,c++,mpi}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,mpi}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,mpi}}
 
 # end of file

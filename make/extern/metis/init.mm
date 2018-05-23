@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += metis
+extern += ${if ${findstring metis,$(extern)},,metis}
 
 # compiler flags
 metis.flags ?=

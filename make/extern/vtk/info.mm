@@ -18,7 +18,7 @@ vtk.info:
 	${call log.var,"libpath",$(vtk.libpath)}
 	${call log.var,"requested libraries",$(vtk.required)}
 	${call log.var,"transformed libraries",$(vtk.libraries)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,vtk}}
-	${call log.var,"c++ link line",${call package.link.options,c++,vtk}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,vtk}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,vtk}}
 
 # end of file

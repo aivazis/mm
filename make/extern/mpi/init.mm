@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += mpi
+extern += ${if ${findstring mpi,$(extern)},,mpi}
 
 # users set this variable to communicate which libraries they want
 mpi.required ?=

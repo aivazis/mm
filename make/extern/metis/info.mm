@@ -18,7 +18,7 @@ metis.info:
 	${call log.var,"libpath",$(metis.libpath)}
 	${call log.var,"libraries",$(metis.libraries)}
 	${call log.var,"dependencies",$(metis.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,metis}}
-	${call log.var,"c++ link line",${call package.link.options,c++,metis}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,metis}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,metis}}
 
 # end of file

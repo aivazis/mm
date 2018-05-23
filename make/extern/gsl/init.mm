@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += gsl
+extern += ${if ${findstring gsl,$(extern)},,gsl}
 
 # compiler flags
 gsl.flags ?=
@@ -29,7 +29,7 @@ gsl.dependencies =
 gsl.blas ?=
 # if it exists, add it to my dependencies, otherwise add my blas implementation to my libraries
 ${if \
-    ${call package.exists,$(gsl.blas)}, \
+    ${call extern.exists,$(gsl.blas)}, \
     ${eval gsl.dependencies = $(gsl.blas)}, \
     ${eval gsl.libraries += gslcblas} \
 }

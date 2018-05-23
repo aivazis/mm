@@ -18,7 +18,7 @@ gmsh.info:
 	${call log.var,"libpath",$(gmsh.libpath)}
 	${call log.var,"libraries",$(gmsh.libraries)}
 	${call log.var,"dependencies",$(gmsh.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,gmsh}}
-	${call log.var,"c++ link line",${call package.link.options,c++,gmsh}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,gmsh}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,gmsh}}
 
 # end of file

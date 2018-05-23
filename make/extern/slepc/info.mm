@@ -18,7 +18,7 @@ slepc.info:
 	${call log.var,"libpath",$(slepc.libpath)}
 	${call log.var,"libraries",$(slepc.libraries)}
 	${call log.var,"dependencies",$(slepc.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,slepc}}
-	${call log.var,"c++ link line",${call package.link.options,c++,slepc}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,slepc}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,slepc}}
 
 # end of file

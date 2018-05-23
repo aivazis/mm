@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+${info -- vtk.init}
+
 # add me to the pile
-packages += vtk
+extern += ${if ${findstring vtk,$(extern)},,vtk}
 
 # users set this variable to communicate which libraries they want
 vtk.required ?=
@@ -29,5 +32,8 @@ vtk.libraries := \
         $(vtk.required), \
         vtk$(library)-$(vtk.version) \
     }
+
+# show me
+${info -- done with vtk.init}
 
 # end of file

@@ -18,7 +18,7 @@ petsc.info:
 	${call log.var,"libpath",$(petsc.libpath)}
 	${call log.var,"libraries",$(petsc.libraries)}
 	${call log.var,"dependencies",$(petsc.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,petsc}}
-	${call log.var,"c++ link line",${call package.link.options,c++,petsc}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,petsc}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,petsc}}
 
 # end of file

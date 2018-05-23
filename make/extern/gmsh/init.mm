@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += gmsh
+extern += ${if ${findstring gmsh,$(extern)},,gmsh}
 
 # compiler flags
 gmsh.flags ?=

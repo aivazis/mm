@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += libpq
+extern += ${if ${findstring libpq,$(extern)},,libpq}
 
 # compiler flags
 libpq.flags ?=

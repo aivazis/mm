@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += petsc
+extern += ${if ${findstring petsc,$(extern)},,petsc}
 
 # compiler flags
 petsc.flags ?=

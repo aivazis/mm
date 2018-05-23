@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += pyre
+extern += ${if ${findstring pyre,$(extern)},,pyre}
 
 # compiler flags
 pyre.flags ?=

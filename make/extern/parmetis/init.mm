@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += parmetis
+extern += ${if ${findstring parmetis,$(extern)},,parmetis}
 
 # compiler flags
 parmetis.flags ?=

@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += hdf5
+extern += ${if ${findstring hdf5,$(extern)},,hdf5}
 
 # compiler flags
 hdf5.flags ?=

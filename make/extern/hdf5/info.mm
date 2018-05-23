@@ -18,7 +18,7 @@ hdf5.info:
 	${call log.var,"libpath",$(hdf5.libpath)}
 	${call log.var,"libraries",$(hdf5.libraries)}
 	${call log.var,"dependencies",$(hdf5.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,hdf5}}
-	${call log.var,"c++ link line",${call package.link.options,c++,hdf5}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,hdf5}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,hdf5}}
 
 # end of file

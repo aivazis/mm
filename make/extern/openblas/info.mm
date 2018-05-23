@@ -18,7 +18,7 @@ openblas.info:
 	${call log.var,"linker flags",$(openblas.ldflags)}
 	${call log.var,"libpath",$(openblas.libpath)}
 	${call log.var,"libraries",$(openblas.libraries)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,openblas}}
-	${call log.var,"c++ link line",${call package.link.options,c++,openblas}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,openblas}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,openblas}}
 
 # end of file

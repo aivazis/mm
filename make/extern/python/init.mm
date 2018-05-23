@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += python
+extern += ${if ${findstring python,$(extern)},,python}
 
 # the version
 python.version ?=

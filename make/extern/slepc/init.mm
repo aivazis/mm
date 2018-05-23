@@ -6,7 +6,7 @@
 #
 
 # add me to the pile
-packages += slepc
+extern += ${if ${findstring slepc,$(extern)},,slepc}
 
 # compiler flags
 slepc.flags ?=

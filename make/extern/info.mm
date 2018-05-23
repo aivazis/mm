@@ -6,9 +6,15 @@
 #
 
 # show me
-# ${info -- packages.info}
+${info -- extern.info}
+
+extern.info: load vtk.info
+	${call log.sec,"extern","information about external packages"}
+
+load:
+	${eval include make/extern/vtk/info.mm}
 
 # show me
-# ${info -- done with packages.info}
+${info -- done with extern.info}
 
 # end of file

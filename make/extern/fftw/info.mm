@@ -18,7 +18,7 @@ fftw.info:
 	${call log.var,"libpath",$(fftw.libpath)}
 	${call log.var,"libraries",$(fftw.libraries)}
 	${call log.var,"dependencies",$(fftw.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,fftw}}
-	${call log.var,"c++ link line",${call package.link.options,c++,fftw}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,fftw}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,fftw}}
 
 # end of file

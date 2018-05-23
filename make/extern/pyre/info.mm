@@ -18,7 +18,7 @@ pyre.info:
 	${call log.var,"libpath",$(pyre.libpath)}
 	${call log.var,"libraries",$(pyre.libraries)}
 	${call log.var,"dependencies",$(pyre.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,pyre}}
-	${call log.var,"c++ link line",${call package.link.options,c++,pyre}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,pyre}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,pyre}}
 
 # end of file

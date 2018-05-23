@@ -19,7 +19,7 @@ gsl.info:
 	${call log.var,"libpath",$(gsl.libpath)}
 	${call log.var,"libraries",$(gsl.libraries)}
 	${call log.var,"dependencies",$(gsl.dependencies)}
-	${call log.var,"c++ compile line",${call package.compile.options,c++,gsl}}
-	${call log.var,"c++ link line",${call package.link.options,c++,gsl}}
+	${call log.var,"c++ compile line",${call extern.compile.options,c++,gsl}}
+	${call log.var,"c++ link line",${call extern.link.options,c++,gsl}}
 
 # end of file
