@@ -188,12 +188,10 @@ endef
 
 # build the set of archive objects
 #   usage: library.objects {library}
-define library.objects
-    ${addsuffix
-        $(builder.ext.obj),
-        ${subst
-            /,~,
-            ${basename $($(library).sources)}
+define library.objects =
+    ${addprefix $($(library).tmpdir)/,
+        ${addsuffix $(builder.ext.obj),
+            ${subst /,~,${basename $($(library).sources)}}
         }
     }
 endef
@@ -202,9 +200,7 @@ endef
 # mangle the path to a source file to create the filename of an object; single filename version
 # of the above
 #  usage: library.object {source}
-define library.object
-    ${subst /,~,${basename $(1)}}
-endef
+library.object = ${addsuffix $(builder.ext.obj),${subst /,~,${basename $(1)}}}
 
 
 # show me

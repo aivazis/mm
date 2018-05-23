@@ -50,8 +50,16 @@ ${foreach header, $($(library).headers), \
     ${eval ${call library.workflow.header $(library),$(header)}}
 }
 
-$(library).archive:
+$(library).archive: $($(library).staging.archive)
+
+$($(library).staging.archive): $($(library).staging.objects)
+	$(ar.create) $$@ $($(library).staging.objects)
 	${call log.action,"ar",archive}
+
+# make the rules that compile the archive sources
+${foreach source,$($(library).sources), \
+    ${eval ${call library.workflow.object,$(library),$(source)}}
+}
 
 # all done
 endef
@@ -61,11 +69,29 @@ endef
 # library headers
 define library.workflow.header =
 # publish public headers
-$($(library).incdir)/$(header): \
-                                $($(library).prefix)/$(header) \
+$($(library).incdir)/$(header): $($(library).prefix)/$(header) \
                                 ${dir $($(library).incdir)/$(header)}
 	$(cp) $$< $$@
 	${call log.action,"publish",$(header)}
+# all done
+endef
+
+
+# library objects
+define library.workflow.object =
+
+    # compute the absolute path of the source
+    ${eval source.path := $($(library).prefix)/$(source)}
+    # and the path to the object module
+    ${eval source.object := $($(library).tmpdir)/${call library.object,$(source)}}
+    # figure out the source language
+    ${eval source.language := $(ext${suffix $(source)})}
+
+# compile source files
+$(source.object): $(source.path)
+	${call log.action,"$(source.language)","$(source)"}
+	${call $(source.language).compile,$(source.object),$(source.path)}
+
 # all done
 endef
 
