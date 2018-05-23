@@ -5,6 +5,14 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# user configuration
+# look for a generic configuration file
+-include config.mm
+# developer choices
+-include $(user.username).mm
+# and a user/host specific configuration file
+-include $(user.username)@$(host.name).mm
+
 # load the logger
 include make/log/init.mm
 
@@ -15,7 +23,7 @@ define model :=
     compilers
     targets
     builder
-    libraries extensions packages docs tests projects
+    libraries extensions extern docs tests projects
 endef
 
 # the categories of methods each object provides
