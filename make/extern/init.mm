@@ -6,42 +6,63 @@
 #
 
 # show me
-${info -- extern.init}
-
-# initialize the pile of external packages
-extern :=
-
+# ${info -- extern.init}
 
 # locate the configuration file of a package
 #  usage: extern.config {package-names}
 extern.config = \
-    ${foreach name,$(1), \
-        ${and \
-            ${value $(name).dir}, \
-            ${realpath $($(name).dir)}, \
-            ${realpath $(mm.home)/make/extern/$(name)/init.mm} \
+    ${strip \
+        ${foreach name,$(1), \
+            ${and \
+                ${value $(name).dir}, \
+                ${realpath $($(name).dir)}, \
+                ${realpath $(extern.home)/$(name)/init.mm} \
+            } \
         } \
     }
+
 
 # existence test
 #   usage: extern.exists {package-name}
 extern.exists = \
-    ${and \
-        ${call extern.config,$(1)}, \
-        $(1) \
+    ${strip \
+        ${if ${call extern.config,$(1)},$(1),} \
     }
 
 
 # construct the contribution of an external package to the compile line
 #   usage: extern.compile.options {language} {package}
-extern.compile.options = \
+extern.compile.options.this = \
     ${foreach category, $(languages.$(1).options.compile), \
         ${addprefix $($(compiler.$(1)).prefix.$(category)),$($(2).$(category))} \
     }
 
 
+# build the contribution to the compile command line from a set of packages
+#  usage: extern.compile.options {language} {packages}
+extern.compile.options = \
+    ${foreach package, $(2), \
+        ${call extern.compile.options.this,$(1),$(package)} \
+    }
+
+
+# construct the contribution of an external package to the link line
+#   usage: extern.link.options {language} {package}
+extern.link.options.this = \
+    ${foreach category, $(languages.$(1).options.link), \
+        ${addprefix $($(compiler.$(1)).prefix.$(category)),$($(2).$(category))} \
+    }
+
+
+# build the contribution to the link command line from a set of packages
+#  usage: extern.link.options {language} {packages}
+extern.link.options = \
+    ${foreach package, $(2), \
+        ${call extern.link.options.this,$(1),$(package)} \
+    }
+
 
 # show me
-${info -- done with extern.init}
+# ${info -- done with extern.init}
 
 # end of file

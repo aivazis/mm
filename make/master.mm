@@ -20,10 +20,9 @@ include make/log/init.mm
 define model :=
     log mm
     languages platforms hosts users developers
-    compilers
-    targets
+    compilers targets extern
     builder
-    libraries extensions extern docs tests projects
+    libraries extensions docs tests projects
 endef
 
 # the categories of methods each object provides

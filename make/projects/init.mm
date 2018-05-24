@@ -39,14 +39,6 @@ define project.init =
     # the project configuration file
     $(project).config := ${wildcard $(project.config)/$(project).mm}
 
-    # dependencies
-    # initialize the list of requested project dependencies
-    $(project).extern.requested ?=
-    # the list of external dependencies that we have support for
-    $(project).extern.supported ?=
-    # the list of dependecies in the order they affect the compiler command lines
-    $(project).extern.available ?=
-
     # contents
     # initialize the list of libraries
     $(project).libraries ?=
@@ -58,6 +50,14 @@ define project.init =
     $(project).docs ?=
     # and the list of tests
     $(project).tests ?=
+
+    # dependencies
+    # initialize the list of requested project dependencies
+    $(project).extern.requested ?=
+    # the list of external dependencies that we have support for
+    $(project).extern.supported ?=
+    # the list of dependecies in the order they affect the compiler command lines
+    $(project).extern.available ?=
 
     # documentation
     # the project metedata categories
@@ -117,7 +117,6 @@ define project.init.assets =
 endef
 
 
-
 # scan through the project contents and collect all the requested dependencies
 # usage project.requestedDependencies {names}
 define project.requestedDependencies =
@@ -134,11 +133,13 @@ define project.requestedDependencies =
 # all done
 endef
 
+
 # identify the list of dependencies for which there is support
 # usage project.supportedDependencies {name}
 define project.supportedDependencies =
 # all done
 endef
+
 
 # show me
 # ${info -- done with project.init}

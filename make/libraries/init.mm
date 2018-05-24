@@ -70,13 +70,14 @@ define libraries.init =
     $(library).staging.headers = $($(library).headers:%=$($(library).incdir)/%)
 
     # implement the external protocol
+    $(library).dir ?= $(builder.root)
     # compile time
     $(library).flags ?=
     $(library).defines ?=
     $(library).incpath ?= $(builder.incdir) # note: NOT ($(library).incdir)
     # link time
     $(library).ldflags ?=
-    $(library).libpath ?= $($(library).libdir) # that's where we put it
+    $(library).libpath ?= $($(builder).libdir) # that's where we put it
     $(library).libraries ?= $($(library).stem) # that's what we call it
 
     # documentation

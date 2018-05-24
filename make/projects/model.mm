@@ -15,6 +15,7 @@ projects ?= ${basename ${notdir ${wildcard $(project.config)/*.mm}}}
 # load the project files
 include ${wildcard $(project.config)/*.mm}
 
+
 # bootstrap a project
 define project.boot =
     # call the project constructor
@@ -37,7 +38,9 @@ ${foreach project,$(projects), ${eval ${call project.boot, $(project)}}}
 # set the default goal
 .DEFAULT_GOAL := ${if $(projects),projects,help}
 
+# target that builds all known projects
 projects: $(projects)
+
 
 # ${info -- done with model}
 
