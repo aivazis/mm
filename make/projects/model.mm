@@ -26,6 +26,16 @@ define project.boot =
     ${eval ${call project.workflows,$(project)}}
     # build the library workflows
     ${foreach library,$($(project).libraries),${eval ${call library.workflows,$(library)}}}
+
+    # assemble the project contents
+    ${eval $(project).contents := ${foreach asset,$(project.contentTypes),$($(project).$(asset))}}
+    # collect the requested external dependencies
+    ${eval $(project).extern.requested := ${call project.extern.requested,$(project)}}
+    # collect the supported external dependencies
+    ${eval $(project).extern.supported := ${call project.extern.supported,$(project)}}
+    # collect the available external dependencies
+    ${eval $(project).extern.available := ${call project.extern.available,$(project)}}
+
 # all done
 endef
 
@@ -34,13 +44,18 @@ endef
 # ${info --   project constructors}
 ${foreach project,$(projects), ${eval ${call project.boot, $(project)}}}
 
+# ${info --   loading support for external packages}
+${foreach \
+    dependency, \
+    ${sort ${foreach project,$(projects),$($(project).extern.available)}}, \
+    ${eval include $(extern.home)/$(dependency)/init.mm $(extern.home)/$(dependency)/info.mm} \
+}
 
-# set the default goal
+# ${info --   computing the default goal}
 .DEFAULT_GOAL := ${if $(projects),projects,help}
 
 # target that builds all known projects
 projects: $(projects)
-
 
 # ${info -- done with model}
 

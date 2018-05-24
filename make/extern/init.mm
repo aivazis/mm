@@ -30,6 +30,28 @@ extern.exists = \
     }
 
 
+# filter the set of external dependencies that are supported
+#  usage extern.requested {dependencies}
+define extern.is.supported =
+    ${strip
+        ${foreach dependency, $(1),
+            ${findstring $(dependency),$(extern.supported)}
+        }
+    }
+endef
+
+
+# filter the set of external dependencies that are available
+#  usage extern.requested {library}
+define extern.is.available =
+    ${strip
+        ${foreach dependency, $(1),
+            ${findstring $(dependency),$(extern.available)}
+        }
+    }
+endef
+
+
 # construct the contribution of an external package to the compile line
 #   usage: extern.compile.options {language} {package}
 extern.compile.options.this = \

@@ -30,13 +30,14 @@ define libraries.init =
     # the name of the archive
     ${eval $(library).archive = $($(library).name)$(builder.ext.lib)}
 
-    # dependencies
+    # the list of dependencies as requested by the user
+    ${eval $(library).extern ?=}
     # initialize the list of requested project dependencies
-    ${eval $(library).extern.requested ?=}
+    ${eval $(library).extern.requested := ${call library.extern.requested,$(library)}}
     # the list of external dependencies that we have support for
-    ${eval $(library).extern.supported ?=}
+    ${eval $(library).extern.supported ?= ${call library.extern.supported,$(library)}}
     # the list of dependecies in the order they affect the compiler command lines
-    ${eval $(library).extern.available ?=}
+    ${eval $(library).extern.available ?= ${call library.extern.available,$(library)}}
 
     # build locations
     # the destination for the archive
@@ -77,7 +78,7 @@ define libraries.init =
     $(library).incpath ?= $(builder.incdir) # note: NOT ($(library).incdir)
     # link time
     $(library).ldflags ?=
-    $(library).libpath ?= $($(builder).libdir) # that's where we put it
+    $(library).libpath ?= $(builder.libdir) # that's where we put it
     $(library).libraries ?= $($(library).stem) # that's what we call it
 
     # documentation
@@ -195,6 +196,27 @@ define library.objects =
             ${subst /,~,${basename $($(library).sources)}}
         }
     }
+endef
+
+
+# build the set of library external dependencies requested by the user
+#  usage library.extern.requested {library}
+define library.extern.requested =
+    ${strip $($(library).extern)}
+endef
+
+
+# build the set of library external dependencies that are supported
+#  usage library.extern.requested {library}
+define library.extern.supported =
+    ${call extern.is.supported,$($(library).extern.requested)}
+endef
+
+
+# build the set of library external dependencies that are available
+#  usage library.extern.requested {library}
+define library.extern.available =
+    ${call extern.is.available,$($(library).extern.supported)}
 endef
 
 

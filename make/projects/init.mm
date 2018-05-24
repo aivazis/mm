@@ -40,6 +40,7 @@ define project.init =
     $(project).config := ${wildcard $(project.config)/$(project).mm}
 
     # contents
+    $(project).contents ?=
     # initialize the list of libraries
     $(project).libraries ?=
     # the list of python extenions
@@ -118,17 +119,30 @@ endef
 
 
 # scan through the project contents and collect all the requested dependencies
-# usage project.requestedDependencies {names}
-define project.requestedDependencies =
-    # go through the list of project names
-    ${foreach project, $(1),
-        ${eval $(1).extern.requested :=
-            # and the types of contents
-            ${foreach item, $($(1).meta.contents),
-                # asking each one for the requested external packages
-                $($(1).$(item).extern.requested)
-            }
-        }
+# usage project.extern.requested {project}
+define project.extern.requested =
+    ${sort
+        ${foreach asset,$($(project).contents),$($(asset).extern.requested)}
+    }
+# all done
+endef
+
+
+# scan through the project contents and collect all the supported dependencies
+# usage project.extern.supported {project}
+define project.extern.supported =
+    ${sort
+        ${foreach asset,$($(project).contents),$($(asset).extern.supported)}
+    }
+# all done
+endef
+
+
+# scan through the project contents and collect all the available dependencies
+# usage project.extern.available {project}
+define project.extern.available =
+    ${sort
+        ${foreach asset,$($(project).contents),$($(asset).extern.available)}
     }
 # all done
 endef

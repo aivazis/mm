@@ -83,6 +83,12 @@ $(project).info:
 	$(log)
 	$(log) "    mm $(project).help"
 	$(log)
+
+# make a recipe that displays the project assets
+$(project).info.contents:
+	${call log.sec,$(project),}
+	${call log.var,"contents",$$($(project).contents)}
+
 # all done
 endef
 
