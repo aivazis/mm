@@ -62,7 +62,7 @@ $(library).archive: $($(library).staging.archive)
 
 $($(library).staging.archive): $($(library).staging.objects)
 	$(ar.create) $$@ $($(library).staging.objects)
-	${call log.action,"ar",archive}
+	${call log.action,"ar",$($(library).archive)}
 
 # make the rules that compile the archive sources
 ${foreach source,$($(library).sources), \
@@ -83,7 +83,7 @@ define library.workflows.header =
 # publish public headers
 ${call library.staging.header,$(header)}: $(header) | ${call library.staging.incdir,$(header)}
 	$(cp) $$< $$@
-	${call log.action,"publish",$(header)}
+	${call log.action,"publish",${subst $($($(library).project).home)/,,$(header)}}
 # all done
 endef
 
@@ -101,7 +101,7 @@ define library.workflows.object =
 
 # compile source files
 $(source.object): $(source.path)
-	${call log.action,"$(source.language)","$(source)"}
+	${call log.action,"$(source.language)",${subst $($($(library).project).home)/,,$(source)}}
 	${call languages.$(source.language).compile,$(library),$(source.object),$(source.path)}
 	${if $($(compiler.$(source.language)).compile.generate-dependencies), \
             $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
