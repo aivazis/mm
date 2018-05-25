@@ -22,4 +22,10 @@ languages.c++.categories := \
     $(languages.c++.categories.link)
 
 
+# the compile command line;
+#  usage: c++.compile {library} {target-object) {source-file}
+languages.c++.compile = \
+    ${call compiler.compile,c++,$(compiler.c++),$(2),$(3),$($(library).extern.available)}
+
+
 # end of file

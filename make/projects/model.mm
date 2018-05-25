@@ -22,11 +22,6 @@ define project.boot =
     ${eval ${call project.init,$(project)}}
     # call the constructors of the various project assets
     ${eval ${call project.init.assets,$(project)}}
-    # build the project workflows
-    ${eval ${call project.workflows,$(project)}}
-    # build the library workflows
-    ${foreach library,$($(project).libraries),${eval ${call library.workflows,$(library)}}}
-
     # assemble the project contents
     ${eval $(project).contents := ${foreach asset,$(project.contentTypes),$($(project).$(asset))}}
     # collect the requested external dependencies
@@ -35,6 +30,15 @@ define project.boot =
     ${eval $(project).extern.supported := ${call project.extern.supported,$(project)}}
     # collect the available external dependencies
     ${eval $(project).extern.available := ${call project.extern.available,$(project)}}
+
+# all done
+endef
+
+define project.boot.workflows =
+    # build the project workflows
+    ${eval ${call project.workflows,$(project)}}
+    # build the library workflows
+    ${foreach library,$($(project).libraries),${eval ${call library.workflows,$(library)}}}
 
 # all done
 endef
@@ -50,6 +54,9 @@ ${foreach \
     ${sort ${foreach project,$(projects),$($(project).extern.available)}}, \
     ${eval include $(extern.home)/$(dependency)/init.mm $(extern.home)/$(dependency)/info.mm} \
 }
+
+# ${info --   project workflows}
+${foreach project,$(projects), ${eval ${call project.boot.workflows, $(project)}}}
 
 # ${info --   computing the default goal}
 .DEFAULT_GOAL := ${if $(projects),projects,help}

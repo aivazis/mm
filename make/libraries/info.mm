@@ -9,19 +9,27 @@
 # ${info -- libraries.info}
 
 
+# library help
+# make the recipe
+libraries.info: mm.banner
+	$(log) "known libraries: "$(palette.purple)$(libraries)$(palette.normal)
+	$(log)
+	$(log) "to build one of them, use its name as a target"
+	$(log) "    mm ${firstword $(libraries)}"
+	$(log)
+	$(log) "to get more information about a specific library, use"
+	$(log) "    mm ${firstword $(libraries)}.info"
+	$(log)
+
+
 # bootstrap
 # make the library specific targets
 #  usage: library.workflows {libraries}
 define library.workflows =
     # build recipes
-    ${call library.workflow,$(library)}
+    ${call library.workflows.build,$(library)}
     # info recipes: show values
     ${call library.workflows.info,$(library)}
-    ${call library.workflows.info.directories,$(library)}
-    ${call library.workflows.info.sources,$(library)}
-    ${call library.workflows.info.headers,$(library)}
-    ${call library.workflows.info.incdirs,$(library)}
-    ${call library.workflows.info.objects,$(library)}
     # help recipes: show documentation
     ${call library.workflows.help,$(library)}
 # all done
@@ -29,8 +37,8 @@ endef
 
 
 # build targets
-# targetfactory for building a library
-define library.workflow =
+# target factory for building a library
+define library.workflows.build =
 # the main recipe
 $(library): $(library).directories $(library).assets
 	${call log.asset,"library",$(library)}
@@ -47,7 +55,7 @@ $(library).headers: $($(library).staging.headers)
 
 # make the rules that publish the exported headers
 ${foreach header, $($(library).headers), \
-    ${eval ${call library.workflow.header $(library),$(header)}}
+    ${eval ${call library.workflows.header $(library),$(header)}}
 }
 
 $(library).archive: $($(library).staging.archive)
@@ -58,7 +66,7 @@ $($(library).staging.archive): $($(library).staging.objects)
 
 # make the rules that compile the archive sources
 ${foreach source,$($(library).sources), \
-    ${eval ${call library.workflow.object,$(library),$(source)}}
+    ${eval ${call library.workflows.object,$(library),$(source)}}
 }
 
 # all done
@@ -67,7 +75,8 @@ endef
 
 # helpers
 # library headers
-define library.workflow.header =
+#  usage: library.workflows.header {library} {header}
+define library.workflows.header =
 # publish public headers
 $($(library).incdir)/$(header): $($(library).prefix)/$(header) \
                                 ${dir $($(library).incdir)/$(header)}
@@ -78,35 +87,37 @@ endef
 
 
 # library objects
-define library.workflow.object =
+#  usage: library.workflows.object {library} {source}
+define library.workflows.object =
 
     # compute the absolute path of the source
-    ${eval source.path := $($(library).prefix)/$(source)}
+    ${eval source.path := $($(library).prefix)/$(2)}
     # and the path to the object module
-    ${eval source.object := $($(library).tmpdir)/${call library.object,$(source)}}
+    ${eval source.object := $($(library).tmpdir)/${call library.object,$(2)}}
     # figure out the source language
-    ${eval source.language := $(ext${suffix $(source)})}
+    ${eval source.language := $(ext${suffix $(2)})}
 
 # compile source files
 $(source.object): $(source.path)
 	${call log.action,"$(source.language)","$(source)"}
-	${call $(source.language).compile,$(source.object),$(source.path)}
+	${call languages.$(source.language).compile,$(library),$(source.object),$(source.path)}
+	${if $($(compiler.$(source.language)).compile.generate-dependencies), \
+            $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
+            $(sed) \
+                -e 's/\#.*//' \
+                -e 's/^[^:]*: *//' \
+                -e 's/ *\\$$$$//' \
+                -e '/^$$$$/d' \
+                -e 's/$$$$/ :/' \
+                $$(@:$(builder.ext.obj)=$(builder.ext.dep)) \
+                    < $$(@:$(builder.ext.obj)=$(builder.ext.dep)) >> $$@.$$$$ ; \
+            $(mv) $$@.$$$$ $$(@:$(builder.ext.obj)=$(builder.ext.dep)), \
+        }
+
+-include $($(library).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
 
 # all done
 endef
-
-
-# library help
-# make the recipe
-libraries.info: mm.banner
-	$(log) "known libraries: "$(palette.purple)$(libraries)$(palette.normal)
-	$(log)
-	$(log) "to build one of them, use its name as a target"
-	$(log) "    mm ${firstword $(libraries)}"
-	$(log)
-	$(log) "to get more information about a specific library, use"
-	$(log) "    mm ${firstword $(libraries)}.info"
-	$(log)
 
 
 # make a recipe to log the metadata of a specific library
@@ -134,76 +145,52 @@ $(1).info:
 	${call log.help,$(1).info.headers,"the header files"}
 	${call log.help,$(1).info.incdirs,"the include directories in the staging area"}
 	${call log.help,$(1).info.objects,"the object files in the staging area"}
-# all done
-endef
 
 
 # make a recipe that prints the directory layout of the sources of a library
-# usage: library.workflows.info.directories
-define library.workflows.info.directories =
-# make the recipe
 $(1).info.directories:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.sec,"  source directories",}
 	${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
-# all done
-endef
 
 
 # make a recipe that prints the set of sources that comprise a library
-# usage: library.workflows.info.sources
-define library.workflows.info.sources =
-# make the recipe
 $(1).info.sources:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.sec,"  sources",}
 	${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
-# all done
-endef
 
 
 # make a recipe that prints the set of public headers of a library
-# usage: library.workflows.info.headers
-define library.workflows.info.headers =
-# make the recipe
 $(1).info.headers:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.sec,"  headers",}
 	${foreach header,$($(1).headers),$(log) $(log.indent)$(header);}
 # all done
-endef
-
 
 # make a recipe that prints the set of objects of a library
-# usage: library.workflows.info.objects
-define library.workflows.info.objects =
-# make the recipe
 $(1).info.objects:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.var,"tmpdir",$($(1).tmpdir)}
 	${call log.sec,"  objects",}
 	${foreach object,$($(1).staging.objects), \
            $(log) $(log.indent)${subst $($(1).tmpdir)/,,$(object)} ; }
-# all done
-endef
 
 
 # make a recipe that prints the set of includes of a library
-# usage: library.workflows.info.includes
-define library.workflows.info.incdirs =
-# make the recipe
 $(1).info.incdirs:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.var,"incdir",$($(1).incdir)}
 	${call log.sec,"  include directory structure",}
 	${foreach directory,$($(1).staging.incdirs), \
            $(log) $(log.indent)${subst $($(1).incdir)/,,$(directory)} ; }
+
 # all done
 endef
 
 
 # make a recipe to show the metadata documentation of a specific library
-# usage: library.workflows.info {library}
+# usage: library.workflows.help {library}
 define library.workflows.help =
 # make the recipe
 $(1).help:

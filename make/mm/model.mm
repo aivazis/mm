@@ -79,6 +79,9 @@ rsync = rsync
 rsync.recurse = $(rsync) $(rsync.flags.recurse)
 rsync.flags.recurse = -ruavz --progress --stats
 
+# sed
+sed = sed
+
 # ssh
 ssh = ssh
 scp = scp

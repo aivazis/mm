@@ -66,7 +66,7 @@ define libraries.init =
     # the archive
     $(library).staging.archive = $($(library).libdir)/$($(library).archive)
     # the include directories in the staging area
-    $(library).staging.incdirs = $($(library).directories:%=$($(library).incdir)/%)
+    $(library).staging.incdirs = $($(library).directories:%=$($(library).incdir)/%/)
     # the public headers in the staging area
     $(library).staging.headers = $($(library).headers:%=$($(library).incdir)/%)
 

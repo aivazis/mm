@@ -30,6 +30,7 @@ define builder.init =
 
     # extensions for products
     builder.ext.obj := .o
+    builder.ext.dep := .d
     builder.ext.lib := .a
     builder.ext.dll := .so
 
