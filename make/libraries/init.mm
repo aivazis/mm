@@ -66,9 +66,9 @@ define libraries.init =
     # the archive
     $(library).staging.archive = $($(library).libdir)/$($(library).archive)
     # the include directories in the staging area
-    $(library).staging.incdirs = $($(library).directories:%=$($(library).incdir)/%/)
+    $(library).staging.incdirs = ${call library.staging.incdirs,$(library)}
     # the public headers in the staging area
-    $(library).staging.headers = $($(library).headers:%=$($(library).incdir)/%)
+    $(library).staging.headers = ${call library.staging.headers,$(library)}
 
     # implement the external protocol
     $(library).dir ?= $(builder.root)
@@ -140,10 +140,7 @@ endef
 #   usage: library.directories {library}
 define library.directories
     ${strip
-        ${subst
-            $($(library).prefix)/,,
-            ${shell find $($(library).prefix)/* -type d}
-        }
+        ${shell find $($(library).prefix) -type d}
     }
 endef
 
@@ -151,17 +148,9 @@ endef
 #   usage: library.sources {library}
 define library.sources
     ${strip
-        ${foreach
-            directory,
-            $($(library).directories),
-            ${subst
-                $($(library).prefix)/,,
-                ${wildcard
-                    ${addprefix
-                        $($(library).prefix)/$(directory)/*.,
-                        ${foreach language, $(languages), $(languages.$(language).sources)}
-                    }
-                }
+        ${foreach directory, $($(library).directories),
+            ${wildcard
+                ${addprefix $(directory)/*.,$(languages.sources)}
             }
         }
     }
@@ -172,16 +161,8 @@ endef
 define library.headers
     ${strip
         ${foreach directory, $($(library).directories),
-            ${subst
-                $($(library).prefix)/,,
-                ${wildcard
-                    ${addprefix
-                        $($(library).prefix)/$(directory)/*.,
-                        ${sort
-                            ${foreach language, $(languages), $(languages.$(language).headers)}
-                        }
-                    }
-                }
+            ${wildcard
+                ${addprefix $(directory)/*.,$(languages.headers)}
             }
         }
     }
@@ -193,9 +174,49 @@ endef
 define library.objects =
     ${addprefix $($(library).tmpdir)/,
         ${addsuffix $(builder.ext.obj),
-            ${subst /,~,${basename $($(library).sources)}}
+            ${subst /,~,
+                ${basename
+                    ${subst $($(library).prefix)/,,$($(library).sources)}
+                }
+            }
         }
     }
+endef
+
+
+# build the name of an object given the name of a source
+#   usage library.staging.object: {library} {source}
+library.staging.object = \
+    $($(1).tmpdir)/${subst /,~,${basename ${subst $($(1).prefix)/,,$(2)}}}$(builder.ext.obj)
+
+
+# build the list of staging directories for the public headers
+#   usage: library.staging.incdirs {library}
+define library.staging.incdirs
+    ${subst $($(library).prefix),$($(library).incdir),$($(library).directories)}
+endef
+
+
+# build the path of the staging directory for a public header
+#   usage: library.staging.incdir {library} {header}
+define library.staging.incdir
+    ${dir
+        ${subst $($(library).prefix),$($(library).incdir),$(header)}
+    }
+endef
+
+
+# build the list of the paths of the library public headers
+#   usage: library.staging.headers {library}
+define library.staging.headers
+    ${subst $($(library).prefix),$($(library).incdir),$($(library).headers)}
+endef
+
+
+# build the path to the library public header
+#   usage: library.staging.header {library} {header}
+define library.staging.header
+    ${subst $($(library).prefix),$($(library).incdir),$(header)}
 endef
 
 
@@ -218,12 +239,6 @@ endef
 define library.extern.available =
     ${call extern.is.available,$($(library).extern.supported)}
 endef
-
-
-# mangle the path to a source file to create the filename of an object; single filename version
-# of the above
-#  usage: library.object {source}
-library.object = ${addsuffix $(builder.ext.obj),${subst /,~,${basename $(1)}}}
 
 
 # show me

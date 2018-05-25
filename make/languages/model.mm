@@ -57,7 +57,19 @@ ${foreach \
 }
 
 # the suffix map
-${eval ${call language.recipes.info.suffix}} \
+${eval ${call language.recipes.info.suffix}}
+
+# collect the set of known source extensions
+languages.sources := \
+    ${sort \
+        ${foreach language, $(languages), $(languages.$(language).sources)} \
+    }
+
+# collect the set of known header extensions
+languages.headers := \
+    ${sort \
+        ${foreach language, $(languages), $(languages.$(language).headers)} \
+    }
 
 # show me
 # ${info -- done with languages.model}

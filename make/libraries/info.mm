@@ -69,6 +69,9 @@ ${foreach source,$($(library).sources), \
     ${eval ${call library.workflows.object,$(library),$(source)}}
 }
 
+# include the dependency files
+-include $($(library).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
+
 # all done
 endef
 
@@ -78,8 +81,7 @@ endef
 #  usage: library.workflows.header {library} {header}
 define library.workflows.header =
 # publish public headers
-$($(library).incdir)/$(header): $($(library).prefix)/$(header) \
-                                ${dir $($(library).incdir)/$(header)}
+${call library.staging.header,$(header)}: $(header) | ${call library.staging.incdir,$(header)}
 	$(cp) $$< $$@
 	${call log.action,"publish",$(header)}
 # all done
@@ -91,9 +93,9 @@ endef
 define library.workflows.object =
 
     # compute the absolute path of the source
-    ${eval source.path := $($(library).prefix)/$(2)}
+    ${eval source.path := $(2)}
     # and the path to the object module
-    ${eval source.object := $($(library).tmpdir)/${call library.object,$(2)}}
+    ${eval source.object := ${call library.staging.object,$(1),$(2)}}
     # figure out the source language
     ${eval source.language := $(ext${suffix $(2)})}
 
@@ -114,8 +116,6 @@ $(source.object): $(source.path)
             $(mv) $$@.$$$$ $$(@:$(builder.ext.obj)=$(builder.ext.dep)), \
         }
 
--include $($(library).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
-
 # all done
 endef
 
@@ -127,12 +127,12 @@ define library.workflows.info =
 $(1).info:
 	${call log.sec,$(1),"a library in project '$($(library).project)'"}
 	$(log)
-	${foreach category,$($(library).meta.categories),\
-            ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
-            ${foreach var,$($(1).meta.$(category)), \
-                ${call log.var,$(1).$(var),$$($(1).$(var))}; \
-             } \
-        } \
+	${call log.var,headers,$($(1).incdir)}
+	${call log.var,archive,$($(1).staging.archive)}
+	${call log.var,source root,$($(1).prefix)}
+	${call log.var,requested packages,$($(1).extern.requested)}
+	${call log.var,supported packages,$($(1).extern.supported)}
+	${call log.var,available packages,$($(1).extern.available)}
 	$(log)
 	$(log) "for an explanation of their purpose, try"
 	$(log)
@@ -144,6 +144,7 @@ $(1).info:
 	${call log.help,$(1).info.sources,"the source files"}
 	${call log.help,$(1).info.headers,"the header files"}
 	${call log.help,$(1).info.incdirs,"the include directories in the staging area"}
+	${call log.help,$(1).info.api,"the exported public headers"}
 	${call log.help,$(1).info.objects,"the object files in the staging area"}
 
 
@@ -173,8 +174,7 @@ $(1).info.objects:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.var,"tmpdir",$($(1).tmpdir)}
 	${call log.sec,"  objects",}
-	${foreach object,$($(1).staging.objects), \
-           $(log) $(log.indent)${subst $($(1).tmpdir)/,,$(object)} ; }
+	${foreach object,$($(1).staging.objects),$(log) $(log.indent)$(object);}
 
 
 # make a recipe that prints the set of includes of a library
@@ -182,8 +182,14 @@ $(1).info.incdirs:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	${call log.var,"incdir",$($(1).incdir)}
 	${call log.sec,"  include directory structure",}
-	${foreach directory,$($(1).staging.incdirs), \
-           $(log) $(log.indent)${subst $($(1).incdir)/,,$(directory)} ; }
+	${foreach directory,$($(1).staging.incdirs),$(log) $(log.indent)$(directory);}
+
+# make a recipe that prints the set of exported public headers
+$(1).info.api:
+	${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	${call log.var,"incdir",$($(1).incdir)}
+	${call log.sec,"  exported public headers",}
+	${foreach header,$($(1).staging.headers),$(log) $(log.indent)$(header);}
 
 # all done
 endef
