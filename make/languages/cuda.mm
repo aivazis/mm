@@ -18,9 +18,9 @@ languages.cuda.categories.compile := flags defines incpath
 languages.cuda.categories.link := ldflags libpath libraries
 
 # all together
-languages.cuda.categories.link := \
-    $(languages.cuda.categories.compile)
-    $(languages.cuda.categories.compile)
+languages.cuda.categories := \
+    $(languages.cuda.categories.compile) \
+    $(languages.cuda.categories.link)
 
 
 # end of file

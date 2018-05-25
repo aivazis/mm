@@ -17,8 +17,8 @@ languages.c.interpreted :=
 languages.c.categories.compile := flags defines incpath
 languages.c.categories.link := ldflags libpath libraries
 # all together
-languages.c.categories.link := \
-    $(languages.c.categories.compile)
-    $(languages.c.categories.compile)
+languages.c.categories := \
+    $(languages.c.categories.compile) \
+    $(languages.c.categories.link)
 
 # end of file

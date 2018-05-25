@@ -17,9 +17,9 @@ languages.python.interpreted := yes
 languages.python.categories.compile := flags
 languages.python.categories.link :=
 # all together
-languages.python.categories.link := \
-    $(languages.python.categories.compile)
-    $(languages.python.categories.compile)
+languages.python.categories := \
+    $(languages.python.categories.compile) \
+    $(languages.python.categories.link)
 
 
 # end of file

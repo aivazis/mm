@@ -17,9 +17,9 @@ languages.fortran.interpreted :=
 languages.fortran.categories.compile := flags defines incpath
 languages.fortran.categories.link := ldflags libpath libraries
 # all together
-languages.fortran.categories.link := \
-    $(languages.fortran.categories.compile)
-    $(languages.fortran.categories.compile)
+languages.fortran.categories := \
+    $(languages.fortran.categories.compile) \
+    $(languages.fortran.categories.link)
 
 
 # end of file
