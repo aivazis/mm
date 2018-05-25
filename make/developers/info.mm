@@ -10,7 +10,7 @@
 
 # developer info
 developer.info:
-	${call log.sec,"developer", "user specific options and overrides"}
+	${call log.sec,"developer", "options and overrides from '$(developer)'"}
 	${call log.var,compiler choices,$(developer.$(developer).compilers)}
 	${foreach \
             language, \
