@@ -8,11 +8,20 @@
 
 // externals
 #include <string>
+#include <pyre/journal.h>
 // declarations
 #include "alec.h"
 
 // friends
 std::string alec() {
+    // make a channel
+    pyre::journal::info_t channel("hello.friends");
+    // show me
+    channel
+        << pyre::journal::at(__HERE__)
+        << "friend: Alec"
+        << pyre::journal::endl;
+
     // easy enough
     return "Alec";
 }
