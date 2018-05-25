@@ -21,7 +21,7 @@ define developer.init =
         $(languages),
         ${foreach
             category,
-            $(languages.$(language).categories)
+            $(languages.$(language).categories),
             ${eval developers.$(developer).$(language).$(category) ?=}
         }
     }
