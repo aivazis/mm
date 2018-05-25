@@ -26,7 +26,7 @@ define target.init =
         $(languages),
         ${foreach
             category,
-            $(languages.$(language).options.compile) $(languages.$(language).options.link),
+            $(languages.$(language).categories),
             ${eval targets.$(1).$(language).$(category) ?=}
         }
     }

@@ -14,7 +14,11 @@ languages.cython.compiled := yes
 languages.cython.interpreted :=
 
 # flags
-languages.cython.options.compile := flags defines incpath
-languages.cython.options.link := ldflags libpath libraries
+languages.cython.categories.compile := flags defines incpath
+languages.cython.categories.link := ldflags libpath libraries
+# all together
+languages.cython.categories.link := \
+    $(languages.cython.categories.compile)
+    $(languages.cython.categories.compile)
 
 # end of file

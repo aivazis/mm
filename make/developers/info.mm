@@ -18,7 +18,7 @@ developer.info:
             ${call log.sec, "  $(language) options",}; \
             ${foreach \
                 category, \
-                $(languages.$(language).options.compile) $(languages.$(language).options.link), \
+                $(languages.$(language).categories), \
                 ${call log.var,$(category), $(developers.$(developer).$(language).$(category))}; \
             } \
         }

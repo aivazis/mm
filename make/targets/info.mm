@@ -23,7 +23,7 @@ targets.$(1).info:
             ${call log.sec,"  $(language)",$(compiler.$(language))}; \
             ${foreach \
                 category,  \
-                $(languages.$(language).options.compile) $(languages.$(language).options.link), \
+                $(languages.$(language).categories), \
                 ${call log.var,$(category),$(targets.$(1).$(language).$(category))}; \
             } \
         }

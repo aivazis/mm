@@ -14,7 +14,12 @@ languages.fortran.compiled := yes
 languages.fortran.interpreted :=
 
 # flags
-languages.fortran.options.compile := flags defines incpath
-languages.fortran.options.link := ldflags libpath libraries
+languages.fortran.categories.compile := flags defines incpath
+languages.fortran.categories.link := ldflags libpath libraries
+# all together
+languages.fortran.categories.link := \
+    $(languages.fortran.categories.compile)
+    $(languages.fortran.categories.compile)
+
 
 # end of file

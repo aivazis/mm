@@ -6,15 +6,20 @@
 #
 
 # c++
-languages.c++.sources := C cc cpp cxx c++
-languages.c++.headers := H h hpp hxx h++ icc
+languages.c++.sources := cc cpp cxx c++
+languages.c++.headers := h hpp hxx h++ icc
 
 # language predicates
 languages.c++.compiled := yes
 languages.c++.interpreted :=
 
 # flags
-languages.c++.options.compile := flags defines incpath
-languages.c++.options.link := ldflags libpath libraries
+languages.c++.categories.compile := flags defines incpath
+languages.c++.categories.link := ldflags libpath libraries
+# all together
+languages.c++.categories.link := \
+    $(languages.c++.categories.compile)
+    $(languages.c++.categories.compile)
+
 
 # end of file
