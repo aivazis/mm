@@ -25,7 +25,7 @@ libraries.info: mm.banner
 # bootstrap
 # make the library specific targets
 #  usage: library.workflows {libraries}
-define library.workflows =
+define libraries.workflows =
     # build recipes
     ${call library.workflows.build,$(library)}
     # info recipes: show values
