@@ -51,7 +51,7 @@ define libraries.init =
     # the root of the library source tree relative to the project home
     ${eval $(library).root ?= lib/lib$($(library).stem)}
     # the absolute path to the library source tree
-    ${eval $(library).prefix ?= $($($(library).project).home)/lib/lib$($(library).stem)}
+    ${eval $(library).prefix ?= $($($(library).project).home)/$($(library).root)}
 
     # the directory structure
     ${eval $(library).directories ?= ${call library.directories,$(library)}}
