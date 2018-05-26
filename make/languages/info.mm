@@ -14,6 +14,7 @@ define language.recipes.info =
 # make the recipe
 $(language).info:
 	${call log.sec,$(language),}
+	${call log.var,compiler,$$(compiler.$(language))}
 	${call log.var,compiled,$(languages.$(language).compiled)}
 	${call log.var,interpreted,$(languages.$(language).interpreted)}
 	${call log.var,source extensions,$(languages.$(language).sources)}
