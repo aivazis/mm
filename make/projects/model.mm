@@ -37,8 +37,12 @@ endef
 define project.boot.workflows =
     # build the project workflows
     ${eval ${call project.workflows,$(project)}}
-    # build the library workflows
-    ${foreach library,$($(project).libraries),${eval ${call library.workflows,$(library)}}}
+    # build the asset workflows
+    ${foreach category, $(project.contentTypes),
+        ${foreach asset, $($(project).$(category)),
+            ${eval ${call $(category).workflows,$(asset)}}
+        }
+    }
 
 # all done
 endef
