@@ -22,4 +22,10 @@ languages.fortran.categories := \
     $(languages.fortran.categories.link)
 
 
+# the compile command line;
+#  usage: fortran.compile {library} {target-object) {source-file}
+languages.fortran.compile = \
+    ${call compiler.compile,fortran,$(compiler.fortran),$(2),$(3),$($(library).extern.available)}
+
+
 # end of file
