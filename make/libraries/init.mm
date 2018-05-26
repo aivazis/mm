@@ -22,9 +22,9 @@ define libraries.init =
     ${eval libraries += $(library)}
     # save the project
     ${eval $(library).project := $(project)}
-    # the stem for generating library specific names; it can get used to build the archive
-    # name and the include directory with the public headers
-    ${eval $(library).stem ?=}
+    # the stem for generating library specific names; it gets used to build the archive name
+    # and the include directory with the public headers
+    ${eval $(library).stem ?= $(project)}
     # form the name
     ${eval $(library).name := lib$($(library).stem)}
     # the name of the archive
