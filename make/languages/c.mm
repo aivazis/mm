@@ -25,7 +25,7 @@ languages.c.categories := \
 # the compile command line;
 #  usage: c.compile {library} {target-object) {source-file}
 languages.c.compile = \
-    ${call compiler.compile,c,$(compiler.c),$(2),$(3),$($(library).extern.available)}
+    ${call compiler.compile,c,$(compiler.c),$(2),$(3),$($(1).extern.available)}
 
 
 # end of file
