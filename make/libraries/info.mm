@@ -24,14 +24,14 @@ libraries.info: mm.banner
 
 # bootstrap
 # make the library specific targets
-#  usage: library.workflows {libraries}
+#  usage: library.workflows {library}
 define libraries.workflows =
     # build recipes
-    ${call library.workflows.build,$(library)}
+    ${call library.workflows.build,$(1)}
     # info recipes: show values
-    ${call library.workflows.info,$(library)}
+    ${call library.workflows.info,$(1)}
     # help recipes: show documentation
-    ${call library.workflows.help,$(library)}
+    ${call library.workflows.help,$(1)}
 # all done
 endef
 
@@ -40,37 +40,37 @@ endef
 # target factory for building a library
 define library.workflows.build =
 # the main recipe
-$(library): $(library).directories $(library).assets
-	${call log.asset,"library",$(library)}
+$(1): $(1).directories $(1).assets
+	${call log.asset,"library",$(1)}
 
-$(library).directories: $($(library).libdir) $($(library).staging.incdirs) $($(library).tmpdir)
+$(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
 
-$($(library).libdir) $($(library).staging.incdirs) $($(library).tmpdir):
+$($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(library).assets: $(library).headers $(library).archive
+$(1).assets: $(1).headers $(1).archive
 
-$(library).headers: $($(library).staging.headers)
+$(1).headers: $($(1).staging.headers)
 
 # make the rules that publish the exported headers
-${foreach header, $($(library).headers), \
-    ${eval ${call library.workflows.header $(library),$(header)}}
+${foreach header, $($(1).headers), \
+    ${eval ${call library.workflows.header,$(1),$(header)}}
 }
 
-$(library).archive: $($(library).staging.archive)
+$(1).archive: $($(1).staging.archive)
 
-$($(library).staging.archive): $($(library).staging.objects)
-	$(ar.create) $$@ $($(library).staging.objects)
-	${call log.action,"ar",$($(library).archive)}
+$($(1).staging.archive): $($(1).staging.objects)
+	$(ar.create) $$@ $($(1).staging.objects)
+	${call log.action,"ar",$($(1).archive)}
 
 # make the rules that compile the archive sources
-${foreach source,$($(library).sources), \
-    ${eval ${call library.workflows.object,$(library),$(source)}}
+${foreach source,$($(1).sources), \
+    ${eval ${call library.workflows.object,$(1),$(source)}}
 }
 
 # include the dependency files
--include $($(library).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
+-include $($(1).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
 
 # all done
 endef
@@ -81,9 +81,9 @@ endef
 #  usage: library.workflows.header {library} {header}
 define library.workflows.header =
 # publish public headers
-${call library.staging.header,$(header)}: $(header) | ${call library.staging.incdir,$(header)}
+${call library.staging.header,$(1),$(2)}: $(2) | ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	${call log.action,"publish",${subst $($($(library).project).home)/,,$(header)}}
+	${call log.action,"publish",${subst $($($(1).project).home)/,,$(2)}}
 # all done
 endef
 
@@ -101,8 +101,8 @@ define library.workflows.object =
 
 # compile source files
 $(source.object): $(source.path)
-	${call log.action,"$(source.language)",${subst $($($(library).project).home)/,,$(source)}}
-	${call languages.$(source.language).compile,$(library),$(source.object),$(source.path)}
+	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
+	${call languages.$(source.language).compile,$(1),$(source.object),$(source.path)}
 	${if $($(compiler.$(source.language)).compile.generate-dependencies), \
             $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
             $(sed) \
@@ -125,7 +125,7 @@ endef
 define library.workflows.info =
 # make the recipe
 $(1).info:
-	${call log.sec,$(1),"a library in project '$($(library).project)'"}
+	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	$(log)
 	${call log.var,headers,$($(1).incdir)}
 	${call log.var,archive,$($(1).staging.archive)}
@@ -203,7 +203,7 @@ $(1).help:
 	$(log)
 	${call log.sec,$(1),library attributes}
 	$(log)
-	${foreach category,$($(library).meta.categories),\
+	${foreach category,$($(1).meta.categories),\
             ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
             ${foreach var,$($(1).meta.$(category)), \
                 ${call log.help,$(1).$(var),$($(1).metadoc.$(var))}; \
