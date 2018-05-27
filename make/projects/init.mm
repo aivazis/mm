@@ -57,7 +57,7 @@ define project.init =
     $(project).extern.requested ?=
     # the list of external dependencies that we have support for
     $(project).extern.supported ?=
-    # the list of dependecies in the order they affect the compiler command lines
+    # the list of dependencies in the order they affect the compiler command lines
     $(project).extern.available ?=
 
     # documentation
