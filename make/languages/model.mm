@@ -56,9 +56,6 @@ ${foreach \
     ${eval ${call language.recipes.info,$(language)}} \
 }
 
-# the suffix map
-${eval ${call language.recipes.info.suffix}}
-
 # collect the set of known source extensions
 languages.sources := \
     ${sort \
