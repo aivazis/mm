@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- gsl.info}
+
 # display the gsl configuration
-gsl.info:
+extern.gsl.info:
 	${call log.sec,"gsl",}
 	${call log.var,"version",$(gsl.version)}
 	${call log.var,"blas",$(gsl.blas)}
@@ -21,5 +24,8 @@ gsl.info:
 	${call log.var,"dependencies",$(gsl.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,gsl}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,gsl}}
+
+# show me
+# ${info -- done with gsl.info}
 
 # end of file

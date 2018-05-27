@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- mpi.info}
+
 # display the mpi configuration
-mpi.info:
+extern.mpi.info:
 	${call log.sec,"mpi",}
 	${call log.var,"version",$(mpi.version)}
 	${call log.var,"configuration file",$(mpi.config)}
@@ -19,5 +22,8 @@ mpi.info:
 	${call log.var,"libraries",$(mpi.libraries)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,mpi}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,mpi}}
+
+# show me
+# ${info -- done with mpi.info}
 
 # end of file

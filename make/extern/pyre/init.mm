@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- pyre.init}
+
 # add me to the pile
 extern += ${if ${findstring pyre,$(extern)},,pyre}
 
@@ -24,5 +27,8 @@ pyre.libraries := pyre journal
 
 # my dependencies
 pyre.dependencies =
+
+# show me
+# ${info -- done with pyre.init}
 
 # end of file

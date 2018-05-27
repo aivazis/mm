@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- libpq.info}
+
 # display the libpq configuration
-libpq.info:
+extern.libpq.info:
 	${call log.sec,"libpq",}
 	${call log.var,"version",$(libpq.version)}
 	${call log.var,"configuration file",$(libpq.config)}
@@ -20,5 +23,8 @@ libpq.info:
 	${call log.var,"dependencies",$(libpq.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,libpq}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,libpq}}
+
+# show me
+# ${info -- done with libpq.info}
 
 # end of file

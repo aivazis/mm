@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- slepc.info}
+
 # display the slepc configuration
-slepc.info:
+extern.slepc.info:
 	${call log.sec,"slepc",}
 	${call log.var,"version",$(slepc.version)}
 	${call log.var,"configuration file",$(slepc.config)}
@@ -20,5 +23,8 @@ slepc.info:
 	${call log.var,"dependencies",$(slepc.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,slepc}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,slepc}}
+
+# show me
+# ${info -- done with slepc.info}
 
 # end of file

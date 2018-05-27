@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- pyre.info}
+
 # display the pyre configuration
-pyre.info:
+extern.pyre.info:
 	${call log.sec,"pyre",}
 	${call log.var,"version",$(pyre.version)}
 	${call log.var,"configuration file",$(pyre.config)}
@@ -20,5 +23,8 @@ pyre.info:
 	${call log.var,"dependencies",$(pyre.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,pyre}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,pyre}}
+
+# show me
+# ${info -- done with pyre.info}
 
 # end of file

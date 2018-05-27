@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- python.init}
+
 # add me to the pile
 extern += ${if ${findstring python,$(extern)},,python}
 
@@ -31,5 +34,8 @@ python.libraries ?= $(python.interpreter)
 
 # now include some platform specific settings
 include make/extern/python/$(platform).mm
+
+# show me
+# ${info -- done with python.init}
 
 # end of file

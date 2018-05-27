@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- gsl.init}
+
 # add me to the pile
 extern += ${if ${findstring gsl,$(extern)},,gsl}
 
@@ -33,5 +36,8 @@ ${if \
     ${eval gsl.dependencies = $(gsl.blas)}, \
     ${eval gsl.libraries += gslcblas} \
 }
+
+# show me
+# ${info -- done with gsl.init}
 
 # end of file

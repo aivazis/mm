@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- openblas.init}
+
 # add me to the pile
 extern += ${if ${findstring openblas,$(extern)},,openblas}
 
@@ -21,5 +24,8 @@ openblas.ldflags ?=
 openblas.libpath ?= $(openblas.dir)/lib
 # the name of the library
 openblas.libraries := openblas
+
+# show me
+# ${info -- done with openblas.init}
 
 # end of file

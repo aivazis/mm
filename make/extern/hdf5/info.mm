@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- hdf5.info}
+
 # display the hdf5 configuration
-hdf5.info:
+extern.hdf5.info:
 	${call log.sec,"hdf5",}
 	${call log.var,"version",$(hdf5.version)}
 	${call log.var,"configuration file",$(hdf5.config)}
@@ -20,5 +23,8 @@ hdf5.info:
 	${call log.var,"dependencies",$(hdf5.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,hdf5}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,hdf5}}
+
+# show me
+# ${info -- done with hdf5.info}
 
 # end of file

@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- petsc.info}
+
 # display the petsc configuration
-petsc.info:
+extern.petsc.info:
 	${call log.sec,"petsc",}
 	${call log.var,"version",$(petsc.version)}
 	${call log.var,"configuration file",$(petsc.config)}
@@ -20,5 +23,8 @@ petsc.info:
 	${call log.var,"dependencies",$(petsc.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,petsc}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,petsc}}
+
+# show me
+# ${info -- done with petsc.init}
 
 # end of file

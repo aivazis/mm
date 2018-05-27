@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- metis.init}
+
 # add me to the pile
 extern += ${if ${findstring metis,$(extern)},,metis}
 
@@ -24,5 +27,8 @@ metis.libraries := metis
 
 # my dependencies
 metis.dependencies =
+
+# show me
+# ${info -- done with metis.init}
 
 # end of file

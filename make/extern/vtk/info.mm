@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- vtk.info}
+
 # display the vtk configuration
-vtk.info:
+extern.vtk.info:
 	${call log.sec,"vtk",}
 	${call log.var,"version",$(vtk.version)}
 	${call log.var,"configuration file",$(vtk.config)}
@@ -20,5 +23,8 @@ vtk.info:
 	${call log.var,"transformed libraries",$(vtk.libraries)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,vtk}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,vtk}}
+
+# show me
+# ${info -- done with vtk.info}
 
 # end of file

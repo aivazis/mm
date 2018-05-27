@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- libpq.init}
+
 # add me to the pile
 extern += ${if ${findstring libpq,$(extern)},,libpq}
 
@@ -24,5 +27,8 @@ libpq.libraries := libpq
 
 # my dependencies
 libpq.dependencies =
+
+# show me
+# ${info -- done with libpq.init}
 
 # end of file

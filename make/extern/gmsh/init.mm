@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- gmsh.init}
+
 # add me to the pile
 extern += ${if ${findstring gmsh,$(extern)},,gmsh}
 
@@ -24,5 +27,8 @@ gmsh.libraries := gmsh gl2ps
 
 # my dependencies
 gmsh.dependencies =
+
+# show me
+# ${info -- done with gmsh.init}
 
 # end of file

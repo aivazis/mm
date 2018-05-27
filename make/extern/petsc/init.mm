@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- petsc.init}
+
 # add me to the pile
 extern += ${if ${findstring petsc,$(extern)},,petsc}
 
@@ -24,5 +27,8 @@ petsc.libraries := petsc
 
 # my dependencies
 petsc.dependencies =
+
+# show me
+# ${info -- done with petsc.init}
 
 # end of file

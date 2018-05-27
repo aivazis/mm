@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- openblas.info}
+
 # display the openblas configuration
-openblas.info:
+extern.openblas.info:
 	${call log.sec,"openblas",}
 	${call log.var,"version",$(openblas.version)}
 	${call log.var,"blas",$(openblas.blas)}
@@ -20,5 +23,8 @@ openblas.info:
 	${call log.var,"libraries",$(openblas.libraries)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,openblas}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,openblas}}
+
+# show me
+# ${info -- done with openblas.info}
 
 # end of file

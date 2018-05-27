@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- parmetis.info}
+
 # display the parmetis configuration
-parmetis.info:
+extern.parmetis.info:
 	${call log.sec,"parmetis",}
 	${call log.var,"version",$(parmetis.version)}
 	${call log.var,"configuration file",$(parmetis.config)}
@@ -20,5 +23,8 @@ parmetis.info:
 	${call log.var,"dependencies",$(parmetis.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,parmetis}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,parmetis}}
+
+# show me
+# ${info -- done with parmetis.info}
 
 # end of file

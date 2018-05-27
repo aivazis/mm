@@ -5,6 +5,9 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- hdf5.init}
+
 # add me to the pile
 extern += ${if ${findstring hdf5,$(extern)},,hdf5}
 
@@ -24,5 +27,8 @@ hdf5.libraries := hdf5_cpp hdf5
 
 # my dependencies
 hdf5.dependencies =
+
+# show me
+# ${info -- done with hdf5.init}
 
 # end of file

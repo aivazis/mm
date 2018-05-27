@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- python.info}
+
 # display the python configuration
-python.info:
+extern.python.info:
 	${call log.sec,"python",}
 	${call log.var,"version",$(python.version)}
 	${call log.var,"configuration file",$(python.config)}
@@ -20,5 +23,8 @@ python.info:
 	${call log.var,"dependencies",$(python.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,python}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,python}}
+
+# show me
+# ${info -- done with python.info}
 
 # end of file

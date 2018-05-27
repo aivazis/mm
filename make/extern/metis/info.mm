@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- metis.info}
+
 # display the metis configuration
-metis.info:
+extern.metis.info:
 	${call log.sec,"metis",}
 	${call log.var,"version",$(metis.version)}
 	${call log.var,"configuration file",$(metis.config)}
@@ -20,5 +23,8 @@ metis.info:
 	${call log.var,"dependencies",$(metis.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,metis}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,metis}}
+
+# show me
+# ${info -- done with metis.info}
 
 # end of file

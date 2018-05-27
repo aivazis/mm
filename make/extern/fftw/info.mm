@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- fftw.info}
+
 # display the fftw configuration
-fftw.info:
+extern.fftw.info:
 	${call log.sec,"fftw",}
 	${call log.var,"version",$(fftw.version)}
 	${call log.var,"configuration file",$(fftw.config)}
@@ -20,5 +23,8 @@ fftw.info:
 	${call log.var,"dependencies",$(fftw.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,fftw}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,fftw}}
+
+# show me
+# ${info -- done with fftw.info}
 
 # end of file

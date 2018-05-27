@@ -5,8 +5,14 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- fftw.init}
+
 # add me to the pile
 extern += ${if ${findstring fftw,$(extern)},,fftw}
+
+# the flavor: single or double precision
+fftw.flavor =? f
 
 # compiler flags
 fftw.flags ?=
@@ -24,5 +30,8 @@ fftw.libraries := fftw$(fftw.flavor)
 
 # my dependencies
 fftw.dependencies =
+
+# show me
+# ${info -- done with fftw.init}
 
 # end of file

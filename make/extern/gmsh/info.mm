@@ -5,8 +5,11 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# show me
+# ${info -- gmsh.info}
+
 # display the gmsh configuration
-gmsh.info:
+extern.gmsh.info:
 	${call log.sec,"gmsh",}
 	${call log.var,"version",$(gmsh.version)}
 	${call log.var,"configuration file",$(gmsh.config)}
@@ -20,5 +23,8 @@ gmsh.info:
 	${call log.var,"dependencies",$(gmsh.dependencies)}
 	${call log.var,"c++ compile line",${call extern.compile.options,c++,gmsh}}
 	${call log.var,"c++ link line",${call extern.link.options,c++,gmsh}}
+
+# show me
+# ${info -- done with gmsh.info}
 
 # end of file

@@ -6,7 +6,7 @@
 #
 
 # show me
-${info -- vtk.init}
+# ${info -- vtk.init}
 
 # add me to the pile
 extern += ${if ${findstring vtk,$(extern)},,vtk}
@@ -34,6 +34,6 @@ vtk.libraries := \
     }
 
 # show me
-${info -- done with vtk.init}
+# ${info -- done with vtk.init}
 
 # end of file
