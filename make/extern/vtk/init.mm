@@ -28,9 +28,9 @@ vtk.libpath ?= $(vtk.dir)/lib
 # the way library names are formed is version dependent; we support 6.x and higher
 vtk.libraries := \
     ${foreach \
-        library, \
+        requirement, \
         $(vtk.required), \
-        vtk$(library)-$(vtk.version) \
+        vtk$(requirement)-$(vtk.version) \
     }
 
 # show me
