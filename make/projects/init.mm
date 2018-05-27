@@ -148,13 +148,6 @@ define project.extern.available =
 endef
 
 
-# identify the list of dependencies for which there is support
-# usage project.supportedDependencies {name}
-define project.supportedDependencies =
-# all done
-endef
-
-
 # show me
 # ${info -- done with project.init}
 
