@@ -46,7 +46,8 @@ $(1): $(1).directories $(1).assets
 
 $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
 
-$($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir):
+${if ${findstring $($(1).libdir),$(builder.libdir)},,$($(1).libdir)} \
+$($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 

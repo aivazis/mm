@@ -32,11 +32,11 @@ define libraries.init =
     # the list of dependencies as requested by the user
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies
-    ${eval $(2).extern.requested := ${call library.extern.requested,$(2)}}
+    ${eval $(2).extern.requested := $($(2).extern)}
     # the list of external dependencies that we have support for
-    ${eval $(2).extern.supported ?= ${call library.extern.supported,$(2)}}
+    ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
     # the list of dependecies in the order they affect the compiler command lines
-    ${eval $(2).extern.available ?= ${call library.extern.available,$(2)}}
+    ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
     # build locations
     # the destination for the archive
@@ -57,7 +57,7 @@ define libraries.init =
     # the list of sources
     ${eval $(2).sources ?= ${call library.sources,$(2)}}
     # the public headers
-    ${eval $(2).headers ?=${call library.headers,$(2)}}
+    ${eval $(2).headers ?= ${call library.headers,$(2)}}
 
     # derived artifacts
     # the compile products
@@ -223,20 +223,6 @@ endef
 #  usage library.extern.requested {library}
 define library.extern.requested =
     ${strip $($(1).extern)}
-endef
-
-
-# build the set of library external dependencies that are supported
-#  usage library.extern.requested {library}
-define library.extern.supported =
-    ${call extern.is.supported,$($(1).extern.requested)}
-endef
-
-
-# build the set of library external dependencies that are available
-#  usage library.extern.requested {library}
-define library.extern.available =
-    ${call extern.is.available,$($(1).extern.supported)}
 endef
 
 
