@@ -5,7 +5,7 @@
 // (c) 1998-2018 all rights reserved
 //
 
-#include <portinfo>
+// #include <portinfo>
 #include <Python.h>
 
 // the module method declarations
@@ -24,12 +24,22 @@ namespace hello {
             { copyright__name__, copyright, METH_VARARGS, copyright__doc__ },
             { version__name__, version, METH_VARARGS, version__doc__ },
 
+            // friends
+            { alec__name__, alec, METH_VARARGS, alec__doc__ },
+            { ally__name__, ally, METH_VARARGS, ally__doc__ },
+            { mac__name__, mac, METH_VARARGS, mac__doc__ },
+            { mat__name__, mat, METH_VARARGS, mat__doc__ },
+
+            // greetings
+            { hello__name__, hello, METH_VARARGS, hello__doc__ },
+            { goodbye__name__, goodbye, METH_VARARGS, goodbye__doc__ },
+
             // sentinel
             { 0, 0, 0, 0 }
         };
 
         // the module documentation string
-        const char * const __doc__ = "sample project documentation string";
+        const char * const __doc__ = "an example of a python extension";
 
         // the module definition structure
         PyModuleDef module_definition = {
