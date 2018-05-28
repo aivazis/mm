@@ -61,13 +61,13 @@ define libraries.init =
 
     # derived artifacts
     # the compile products
-    $(2).staging.objects = ${call library.objects,$(2)}
+    $(2).staging.objects = $${call library.objects,$(2)}
     # the archive
-    $(2).staging.archive = $($(2).libdir)/$($(2).archive)
+    $(2).staging.archive = $$($(2).libdir)/$($(2).archive)
     # the include directories in the staging area
-    $(2).staging.incdirs = ${call library.staging.incdirs,$(2)}
+    $(2).staging.incdirs = $${call library.staging.incdirs,$(2)}
     # the public headers in the staging area
-    $(2).staging.headers = ${call library.staging.headers,$(2)}
+    $(2).staging.headers = $${call library.staging.headers,$(2)}
 
     # implement the external protocol
     $(2).dir ?= $(builder.root)
