@@ -11,7 +11,7 @@
 # hello builds a library
 hello.libraries := hello.lib
 # a python extension
-# hello.extensions := hello.ext
+hello.extensions := hello.ext
 
 # and a python package
 # hello.packages = hello.pkg
@@ -19,6 +19,10 @@ hello.libraries := hello.lib
 # the library meta-data
 hello.lib.stem := hello
 hello.lib.extern := pyre
+
+# the extension meta-data
+hello.ext.stem := hello
+hello.ext.extern := hello.lib pyre python
 
 # show me
 # ${info -- done with hello }
