@@ -6,8 +6,9 @@
 #
 
 # fortran
-languages.fortran.sources := f f77 f90 f95 f03 F F77 F90 F95 F03
-languages.fortran.headers := h inc
+languages.fortran.sources := .f .f77 .f90 .f95 .f03 .F .F77 .F90 .F95 .F03
+languages.fortran.headers := .h .inc
+languages.fortran.modules := .mod
 
 # language predicates
 languages.fortran.compiled := yes

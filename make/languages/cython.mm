@@ -6,7 +6,7 @@
 #
 
 # cython
-languages.cython.sources := pxd
+languages.cython.sources := .pxd
 languages.cython.headers :=
 
 # language predicates

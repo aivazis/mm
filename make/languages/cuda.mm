@@ -6,8 +6,8 @@
 #
 
 # cuda
-languages.cuda.sources := cu
-languages.cuda.headers := h
+languages.cuda.sources := .cu
+languages.cuda.headers := .h
 
 # language predicates
 languages.cuda.compiled := yes

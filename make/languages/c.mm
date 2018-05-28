@@ -6,8 +6,8 @@
 #
 
 # c
-languages.c.sources := c
-languages.c.headers := h
+languages.c.sources := .c
+languages.c.headers := .h
 
 # language predicates
 languages.c.compiled := yes

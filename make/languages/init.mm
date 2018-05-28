@@ -15,7 +15,7 @@ define language.init =
     ${foreach
         extension,
         $(languages.$(1).sources),
-        ${eval ext.$(extension) := $(1)}
+        ${eval ext$(extension) := $(1)}
     }
     # assemble the option categories in
     ${eval languages.$(1).categories := \
