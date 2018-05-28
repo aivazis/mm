@@ -17,6 +17,16 @@ builder.info: mm.banner
 	${call log.var,"libdir",$(builder.libdir)}
 	${call log.var,"tmpdir",$(builder.tmpdir)}
 
+
+define builder.workflows
+
+$(builder.incdir) $(builder.libdir) $(builder.tmpdir):
+	$(mkdirp) $$@
+	${call log.action,"mkdir",$$@}
+
+endef
+
+
 # show me
 # ${info -- done with builder.info}
 
