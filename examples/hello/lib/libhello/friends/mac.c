@@ -6,9 +6,6 @@
 //
 
 
-// declarations
-#include "mac.h"
-
 // friends
 const char * mac() {
     // easy enough

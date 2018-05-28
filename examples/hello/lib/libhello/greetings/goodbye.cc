@@ -12,7 +12,7 @@
 #include "goodbye.h"
 
 // goodbye
-std::string goodbye() {
+std::string hello::goodbye() {
     // easy enough
     return "goodbye";
 }

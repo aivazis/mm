@@ -5,7 +5,14 @@
 // (c) 1998-2018 all rights reserved
 //
 
-// mac
-const char * mac();
+// declare the C implementation
+extern "C" {
+    const char * mac();
+}
+
+namespace hello {
+    // mac
+    inline const char * mac() { return ::mac(); }
+}
 
 // end of file

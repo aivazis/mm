@@ -13,7 +13,7 @@
 #include "alec.h"
 
 // friends
-std::string alec() {
+std::string hello::alec() {
     // make a channel
     pyre::journal::info_t channel("hello.friends");
     // show me

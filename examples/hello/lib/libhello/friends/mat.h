@@ -5,7 +5,14 @@
 // (c) 1998-2018 all rights reserved
 //
 
-// mat
-const char * mat();
+// declare the fortran implementation
+extern "C" {
+    const char * mat();
+}
+
+namespace hello {
+    // mat
+    inline const char * mat() { return ::mat(); }
+}
 
 // end of file

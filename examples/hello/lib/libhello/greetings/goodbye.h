@@ -5,7 +5,9 @@
 // (c) 1998-2018 all rights reserved
 //
 
-// goodbye
-std::string goodbye();
+namespace hello {
+    // goodbye
+    std::string goodbye();
+}
 
 // end of file

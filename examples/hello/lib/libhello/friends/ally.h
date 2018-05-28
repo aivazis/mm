@@ -5,7 +5,9 @@
 // (c) 1998-2018 all rights reserved
 //
 
-// ally
-std::string ally();
+namespace hello {
+    // ally
+    std::string ally();
+}
 
 // end of file

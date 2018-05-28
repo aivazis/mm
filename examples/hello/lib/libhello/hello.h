@@ -12,5 +12,7 @@
 // and the friends
 #include "friends/alec.h"
 #include "friends/ally.h"
+#include "friends/mac.h"
+#include "friends/mat.h"
 
 // end of file

@@ -6,6 +6,8 @@
 //
 
 // alec
-std::string alec();
+namespace hello {
+    std::string alec();
+}
 
 // end of file
