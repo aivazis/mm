@@ -16,32 +16,18 @@ ar.flags.extract = x
 ar.flags.remove = d
 ar.flags.update = ru
 
-# ranlib
-ranlib = ranlib
-ranlib.flags =
+# bzr
+bzr = bzr
+bzr.revno = $(bzr) revno
 
-# loader
-ld = ld
-ld.out = $(ld) $(ld.flags.out)
-ld.shared = $(ld) $(ld.flags.shared)
-ld.flags.out =  -o
-ld.flags.shared =  -shared
-
-# copy
-cp = cp
-cp.f = $(cp) $(cp.flags.force)
-cp.r = $(cp) $(cp.flags.recurse)
-cp.fr = $(cp) $(cp.flags.force-recurse)
-cp.flags.force = -f
-cp.flags.recurse = -r
-cp.flags.force-recurse = -fr
-
-# move
-mv = mv
-mv.f = $(mv) $(mv.flags.force)
-mv.flags.force = -f
+# cwd
+cd = cd
 
 # file attributes
+chgrp = chgrp
+chgrp.recurse = $(chgrp) $(chgrp.flags.recurse)
+chgrp.flags.recurse = -R
+
 chmod = chmod
 chmod.recurse = $(chmod) $(chmod.flags.recurse)
 chmod.write = $(chmod) $(chmod.flags.write)
@@ -53,15 +39,39 @@ chown = chown
 chown.recurse = $(chown) $(chown.flags.recurse)
 chown.flags.recurse = -R
 
-chgrp = chgrp
-chgrp.recurse = $(chgrp) $(chgrp.flags.recurse)
-chgrp.flags.recurse = -R
+# copy
+cp = cp
+cp.f = $(cp) $(cp.flags.force)
+cp.r = $(cp) $(cp.flags.recurse)
+cp.fr = $(cp) $(cp.flags.force-recurse)
+cp.flags.force = -f
+cp.flags.recurse = -r
+cp.flags.force-recurse = -fr
+
+# git
+git = git
+git.hash = $(git) log --format=format:"%h" -n 1
+
+# loader
+ld = ld
+ld.out = $(ld) $(ld.flags.out)
+ld.shared = $(ld) $(ld.flags.shared)
+ld.flags.out =  -o
+ld.flags.shared =  -shared
 
 # directories
-cd = cd
 mkdir = mkdir
-mkdirp = $(mkdir) $(mkdir.flags.make-parents)
 mkdir.flags.make-parents = -p
+mkdirp = $(mkdir) $(mkdir.flags.make-parents)
+
+# move
+mv = mv
+mv.f = $(mv) $(mv.flags.force)
+mv.flags.force = -f
+
+# ranlib
+ranlib = ranlib
+ranlib.flags =
 
 # remove
 rm = rm
