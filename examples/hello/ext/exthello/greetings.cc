@@ -10,8 +10,10 @@
 // externals
 #include <Python.h>
 #include <pyre/journal.h>
+// my api
+#include <hello/hello.h>
 // my declarations
-#include "hello/hello.h"
+#include "greetings.h"
 
 
 // hello
@@ -28,7 +30,7 @@ hello::extension::
 hello(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":hello", &size);
+    int ok = PyArg_ParseTuple(args, ":hello");
     // if something went wrong
     if (!ok) {
         // complain
@@ -36,7 +38,7 @@ hello(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", hello());
+    return Py_BuildValue("s", hello::hello());
 }
 
 // goodbye
@@ -53,7 +55,7 @@ hello::extension::
 goodbye(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":goodbye", &size);
+    int ok = PyArg_ParseTuple(args, ":goodbye");
     // if something went wrong
     if (!ok) {
         // complain
@@ -61,7 +63,7 @@ goodbye(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", goodbye());
+    return Py_BuildValue("s", hello::goodbye());
 }
 
 // end of file

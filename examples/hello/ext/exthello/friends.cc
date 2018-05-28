@@ -10,8 +10,10 @@
 // externals
 #include <Python.h>
 #include <pyre/journal.h>
+// my api
+#include <hello/hello.h>
 // my declarations
-#include "hello/hello.h"
+#include "friends.h"
 
 
 // alec
@@ -28,7 +30,7 @@ hello::extension::
 alec(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":alec", &size);
+    int ok = PyArg_ParseTuple(args, ":alec");
     // if something went wrong
     if (!ok) {
         // complain
@@ -36,7 +38,7 @@ alec(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", alec());
+    return Py_BuildValue("s", hello::alec());
 }
 
 // ally
@@ -53,7 +55,7 @@ hello::extension::
 ally(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":ally", &size);
+    int ok = PyArg_ParseTuple(args, ":ally");
     // if something went wrong
     if (!ok) {
         // complain
@@ -61,7 +63,7 @@ ally(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", ally());
+    return Py_BuildValue("s", hello::ally());
 }
 
 // mac
@@ -78,7 +80,7 @@ hello::extension::
 mac(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":mac", &size);
+    int ok = PyArg_ParseTuple(args, ":mac");
     // if something went wrong
     if (!ok) {
         // complain
@@ -86,7 +88,7 @@ mac(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", mac());
+    return Py_BuildValue("s", hello::mac());
 }
 
 // mat
@@ -103,7 +105,7 @@ hello::extension::
 mat(PyObject *, PyObject * args)
 {
     // parse the arguments
-    int ok = PyArg_ParseTuple(args, ":mat", &size);
+    int ok = PyArg_ParseTuple(args, ":mat");
     // if something went wrong
     if (!ok) {
         // complain
@@ -111,7 +113,7 @@ mat(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", mat());
+    return Py_BuildValue("s", hello::mat());
 }
 
 // end of file
