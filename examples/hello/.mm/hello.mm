@@ -17,7 +17,7 @@ hello.libraries := hello.lib
 # a python extension
 hello.extensions := hello.ext
 # and a python package
-hello.packages = hello.pkg
+hello.packages := hello.pkg
 
 # the package meta-data
 hello.pkg.stem := hello
