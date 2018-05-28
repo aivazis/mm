@@ -48,6 +48,11 @@ cp.flags.force = -f
 cp.flags.recurse = -r
 cp.flags.force-recurse = -fr
 
+# date
+date = date
+date.year = $(date) '+%Y'
+date.stamp = $(date) -u
+
 # git
 git = git
 git.hash = $(git) log --format=format:"%h" -n 1
