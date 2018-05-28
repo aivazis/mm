@@ -70,7 +70,7 @@ endef
 define extension.module.init
     ${strip
         ${foreach suffix,$(languages.sources),
-            ${wildcard $($(1).prefix)/$($(1).module).$(suffix)}
+            ${wildcard $($(1).prefix)/$($(1).module)$(suffix)}
         }
     }
 endef

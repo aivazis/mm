@@ -46,7 +46,7 @@ $(1): $(1).directories $(1).assets
 
 $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
 
-${if ${findstring $($(1).libdir),$(builder.libdir)},,$($(1).libdir)} \
+${if ${findstring $($(1).libdir),$(builder.dest.lib)},,$($(1).libdir)} \
 $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
@@ -67,7 +67,7 @@ $($(1).staging.archive): $($(1).staging.objects)
 	${call log.action,"ar",$($(1).archive)}
 
 # make the rules that compile the archive sources
-${foreach source,$($(1).sources), \
+${foreach source,$($(1).sources),
     ${eval ${call library.workflows.object,$(1),$(source)}}
 }
 

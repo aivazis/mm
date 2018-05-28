@@ -9,7 +9,7 @@
 # ${info -- project.init}
 
 # meta-data for all projects
-project.contentTypes := libraries extensions packages docs tests
+project.contentTypes := packages libraries extensions docs tests
 
 # the project constructor
 #   usage: project.init {project/ame}
@@ -33,7 +33,7 @@ define project.init =
     # the installation target directory
     $(project).prefix := $(project.prefix)
     # the staging area for the build intermediate products
-    $(project).tmpdir := $(builder.tmpdir)/$(project)
+    $(project).tmpdir := $(builder.dest.staging)/$(project)
 
     # make
     # the directory from where {make} was invoked, i.e. the nearest parent with a local

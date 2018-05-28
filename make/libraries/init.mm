@@ -14,9 +14,6 @@ libraries ?=
 # the libraries constructor
 #  usage: libraries.init {project instance} {library name}
 define libraries.init =
-    # local assignments
-    ${eval library := $(2)}
-
     # add it to the pile
     ${eval libraries += $(2)}
     # save the project
@@ -40,11 +37,11 @@ define libraries.init =
 
     # build locations
     # the destination for the archive
-    ${eval $(2).libdir = $(builder.libdir)}
+    ${eval $(2).libdir = $(builder.dest.lib)}
     # the destination for the public headers
-    ${eval $(2).incdir = $(builder.incdir)/$($(2).stem)}
+    ${eval $(2).incdir = $(builder.dest.inc)/$($(2).stem)}
     # the location of the build transients
-    ${eval $(2).tmpdir = $(builder.tmpdir)/$(1)/$($(2).name)}
+    ${eval $(2).tmpdir = $(builder.dest.staging)/$(1)/$($(2).name)}
 
     # artifacts
     # the root of the library source tree relative to the project home
@@ -70,14 +67,14 @@ define libraries.init =
     $(2).staging.headers = $${call library.staging.headers,$(2)}
 
     # implement the external protocol
-    $(2).dir ?= $(builder.root)
+    $(2).dir ?= ${abspath $($(2).libdir)/..}
     # compile time
     $(2).flags ?=
     $(2).defines ?=
-    $(2).incpath ?= $(builder.incdir) # note: NOT ($(2).incdir)
+    $(2).incpath ?= $(builder.dest.inc) # note: NOT ($(2).incdir)
     # link time
     $(2).ldflags ?=
-    $(2).libpath ?= $(builder.libdir) # that's where we put it
+    $(2).libpath ?= $(builder.dest.lib) # that's where we put it
     $(2).libraries ?= $($(2).stem) # that's what we call it
 
     # documentation
@@ -92,7 +89,7 @@ define libraries.init =
     $(2).metadoc.external := "how to compile and link against this library"
 
     # build a list of all project attributes by category
-    $(2).meta.general := name stem
+    $(2).meta.general := project name stem
     $(2).meta.extern := extern.requested extern.supported extern.available
     $(2).meta.locations := incdir libdir tmpdir
     $(2).meta.artifacts := root prefix directories sources headers
@@ -101,6 +98,7 @@ define libraries.init =
 
     # document each one
     # general
+    $(2).metadoc.project := "the name of the project to which this library belongs"
     $(2).metadoc.name := "the name of the library"
     $(2).metadoc.stem := "the stem for generating product names"
     # dependencies
@@ -149,7 +147,7 @@ define library.sources
     ${strip
         ${foreach directory, $($(1).directories),
             ${wildcard
-                ${addprefix $(directory)/*.,$(languages.sources)}
+                ${addprefix $(directory)/*,$(languages.sources)}
             }
         }
     }
@@ -161,7 +159,7 @@ define library.headers
     ${strip
         ${foreach directory, $($(1).directories),
             ${wildcard
-                ${addprefix $(directory)/*.,$(languages.headers)}
+                ${addprefix $(directory)/*,$(languages.headers)}
             }
         }
     }
