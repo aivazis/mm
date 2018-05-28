@@ -18,6 +18,13 @@ define project.init =
     # save the name
     $(project).name := $(project)
 
+    # meta-data
+    $(project).major ?= 1
+    $(project).minor ?= 0
+    $(project).revision ?= ${strip ${shell $(git.hash)}}
+    $(project).now.year ?= ${strip ${shell $(date.year)}}
+    $(project).now.date ?= ${strip ${shell $(date.stamp)}}
+
     # directories
     # the top-most directory where we found {.mm}
     $(project).home := $(project.home)
