@@ -11,12 +11,17 @@
 # the language constructor
 #  usage: language.init {language}
 define language.init =
-# go through all the registered extensions and create a map from the extension to the language
+    # go through all the registered suffixes and create a map from the suffix to the language
     ${foreach
         extension,
-        $(languages.$(language).sources),
-        ${eval ext.$(extension) := $(language)}
+        $(languages.$(1).sources),
+        ${eval ext.$(extension) := $(1)}
     }
+    # assemble the option categories in
+    ${eval languages.$(1).categories := \
+        $(languages.$(1).categories.compile) $(languages.$(1).categories.link) \
+    }
+# all done
 endef
 
 # show me

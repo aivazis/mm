@@ -16,16 +16,21 @@ languages.c++.interpreted :=
 # flags
 languages.c++.categories.compile := flags defines incpath
 languages.c++.categories.link := ldflags libpath libraries
-# all together
-languages.c++.categories := \
-    $(languages.c++.categories.compile) \
-    $(languages.c++.categories.link)
 
 
-# the compile command line;
-#  usage: c++.compile {library} {target-object) {source-file}
-languages.c++.compile = \
-    ${call compiler.compile,c++,$(compiler.c++),$(2),$(3),$($(1).extern)}
+# build a compile command line
+#  usage: languages.c++.compile {source-file} {target-object} {dependencies}
+languages.c++.compile = ${call compiler.compile,c++,$(compiler.c++),$(1),$(2),$(3)}
+
+
+# build a link command line
+#  usage: languages.c++.link {source-file} {executable} {dependencies}
+languages.c++.link = ${call compiler.link,c++,$(compiler.c++),$(1),$(2),$(3)}
+
+
+# build a link command line that builds a dll
+#  usage: languages.c++.dll {source-file} {dll} {dependencies}
+languages.c++.dll = ${call compiler.dll,c++,$(compiler.c++),$(1),$(2),$(3)}
 
 
 # end of file
