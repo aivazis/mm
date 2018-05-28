@@ -58,7 +58,7 @@ define extensions.init =
     # construct it
     ${call libraries.init,$(1),$(2).lib}
     # adjust its sources
-    ${eval $(2).lib.sources ?= ${call extension.sources,$(2),$(2).lib}}
+    ${eval $(2).lib.sources := ${call extension.sources,$(2),$(2).lib}}
 
 endef
 
