@@ -10,20 +10,26 @@
 
 builder.info: mm.banner
 	${call log.sec,"builder directory layout",}
-	${call log.var,"root",$(builder.root)}
-	${call log.var,"bindir",$(builder.bindir)}
-	${call log.var,"docdir",$(builder.docdir)}
-	${call log.var,"incdir",$(builder.incdir)}
-	${call log.var,"libdir",$(builder.libdir)}
-	${call log.var,"tmpdir",$(builder.tmpdir)}
+	${call log.var,"prefix",$(builder.dest.prefix)}
+	${call log.var,"root",$(builder.dest.root)}
+	${call log.var,"bindir",$(builder.dest.bin)}
+	${call log.var,"docdir",$(builder.dest.doc)}
+	${call log.var,"incdir",$(builder.dest.inc)}
+	${call log.var,"libdir",$(builder.dest.lib)}
+	${call log.var,"libdir",$(builder.dest.pyc)}
+	${call log.var,"tmpdir",$(builder.dest.staging)}
 
 
+# create the builder targets
+#   usage: builder.workflows
 define builder.workflows
 
-$(builder.incdir) $(builder.libdir) $(builder.tmpdir):
+# rule to create the builder directories
+$(builder.directories):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
+# all done
 endef
 
 
