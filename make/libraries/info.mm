@@ -104,7 +104,10 @@ define library.workflows.object =
 # compile source files
 $(source.object): $(source.path)
 	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
-	${call languages.$(source.language).compile,$(1),$(source.object),$(source.path)}
+	${call \
+            languages.$(source.language).compile, \
+            $(source.path),$(source.object),$($(1).extern)\
+        }
 	${if $($(compiler.$(source.language)).compile.generate-dependencies), \
             $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
             $(sed) \
