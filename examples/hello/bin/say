@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# -*- Python -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# parasim
+# (c) 1998-2018 all rights reserved
+#
+
+
+# get the package
+import hello
+
+# build an instance of the plexus
+app = hello.plexus(name='hello.plexus')
+# and run it
+status = app.run()
+# pass the status on to the shell
+raise SystemExit(status)
+
+
+# end of file
