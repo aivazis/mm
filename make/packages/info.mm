@@ -50,12 +50,27 @@ $($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(1).assets: $($(1).staging.pyc)
+$(1).assets: $($(1).staging.pyc) $($(1).staging.meta.pyc)
 
 # make rules that byte compile the sources
 ${foreach source,$($(1).sources),
     ${eval ${call package.workflows.pyc,$(1),$(source)}}
 }
+
+# make the rule that generates the package meta-data file
+$($(1).staging.meta.pyc): $($(1).staging.meta)
+	${call log.action,sed,$$<}
+	$(sed) \
+          -e "s:PROJECT:$(project):g" \
+          -e "s:MAJOR:$($(project).major):g" \
+          -e "s:MINOR:$($(project).minor):g" \
+          -e "s:REVISION:$($(project).revision):g" \
+          -e "s|YEAR|$($(project).now.year)|g" \
+          -e "s|TODAY|$($(project).now.date)|g" \
+          $($(1).staging.meta) > $($(1).staging.meta.py)
+	${call log.action,python,$($(1).staging.meta.py)}
+	$(python.compile) $($(1).staging.meta.py)
+	$(rm) $($(1).staging.meta.py)
 
 # all done
 endef
@@ -74,8 +89,8 @@ define package.workflows.pyc =
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
 	${call log.action,python,$$<}
-	$(compiler.python) -m compileall -b -q $$<
-	$(mv) $$(<:.py=.pyc) $$@
+	$(python.compile) $(path.py)
+	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
 # all done
 endef

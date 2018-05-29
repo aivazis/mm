@@ -24,7 +24,7 @@ define packages.init
     ${eval $(2).name := $($(2).stem)}
 
     # external dependencies: packages do not typically list these explicitly, for now; their
-    # meanings are define in {make/projects/init.mm}
+    # meanings are defined in {make/projects/init.mm}
     ${eval $(2).extern ?=}
     ${eval $(2).extern.requested ?=}
     ${eval $(2).extern.supported ?=}
@@ -32,11 +32,15 @@ define packages.init
 
     # build locations
     # the package destination
-    ${eval $(2).pycdir = ${builder.dest.pyc}}
+    ${eval $(2).pycdir = ${builder.dest.pyc}/$($(2).name)}
 
     # artifacts
     # the root of the package relative to the project home
     ${eval $(2).root ?= pkg/$($(2).name)}
+    # the file with the package meta-data, relative to the package root
+    ${eval $(2).meta ?= meta}
+    # the directory where extensions get parked, relative to the package root}
+    ${eval $(2).ext ?= ext}
     # the absolute path to the package source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
@@ -46,10 +50,19 @@ define packages.init
     ${eval $(2).sources ?= ${call package.sources,$(2)}}
 
     # derived artifacts
-    # the compile products
+    # the compiled products
     ${eval $(2).staging.pyc = ${call package.pyc,$(2)}}
     # the set of directories that house the compiled products
     ${eval $(2).staging.pycdirs = ${call package.pycdirs,$(2)}}
+    # the directory where extensions are delivered
+    ${eval $(2).staging.ext = $($(2).pycdir)/$($(2).ext)}
+
+    # the raw meta-data file
+    ${eval $(2).staging.meta = $($(2).prefix)/$($(2).meta)}
+    # the generated meta-data file
+    ${eval $(2).staging.meta.py = $($(2).pycdir)/$($(2).meta)$(languages.python.sources)}
+    # the byt-compiled meta-data file
+    ${eval $(2).staging.meta.pyc = $($(2).pycdir)/$($(2).meta)$(languages.python.pyc)}
 
     # documentation
     $(2).meta.categories := general
@@ -95,7 +108,7 @@ endef
 # build the set of byte compiled sources
 #   usage: package.pyc {package}
 define package.pyc =
-    ${addprefix $($(1).pycdir)/$($(1).name)/,
+    ${addprefix $($(1).pycdir)/,
         ${addsuffix $(languages.python.pyc),
             ${subst $($(1).prefix)/,,${basename $($(1).sources)}}
         }
@@ -107,7 +120,7 @@ endef
 # compute the absolute path to the byte compiled file given its source
 #   usage: package.staging.pyc {package} {source}
 define package.staging.pyc =
-    $($(1).pycdir)/$($(1).name)/${subst $($(1).prefix)/,,${basename $(2)}}$(languages.python.pyc)
+    $($(1).pycdir)/${subst $($(1).prefix)/,,${basename $(2)}}$(languages.python.pyc)
 # all done
 endef
 
@@ -115,7 +128,7 @@ endef
 # build the set of directories with the byte compiled files
 #   usage: package.staging.pycdirs {package}
 define package.pycdirs =
-    ${subst $($(1).prefix),$($(1).pycdir)/$($(1).name),$($(1).directories)}
+    ${subst $($(1).prefix),$($(1).pycdir),$($(1).directories)}
 # all done
 endef
 
