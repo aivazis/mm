@@ -13,7 +13,10 @@ compiler.python = python2
 # compute the module suffix
 python.suffix.module ?= ${shell $(compiler.python)-config --extension-suffix}
 # byte compile
-python.compile.base ?= -b
+python.compile.base ?= -m compileall -b -q
+
+# compile
+python.compile := $(compiler.python) $(python.compile.base)
 
 # show me
 # ${info -- done with python2}
