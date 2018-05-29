@@ -10,7 +10,7 @@
 date = "TODAY"
 major = MAJOR
 minor = MINOR
-revision = REVISION
+revision = "REVISION"
 
 
 # assemble the version tuple
@@ -18,7 +18,7 @@ version = (major, minor, revision)
 
 
 # decorations for the help system
-copyright = "copyright (c) 1998-2018 all rights reserved"
+copyright = "copyright (c) 1998-YEAR all rights reserved"
 
 banner = f"""
     hello {major}.{minor} revision {revision}
