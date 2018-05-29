@@ -38,7 +38,7 @@ alec(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", hello::alec());
+    return Py_BuildValue("s", hello::alec().data());
 }
 
 // ally
@@ -63,7 +63,7 @@ ally(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", hello::ally());
+    return Py_BuildValue("s", hello::ally().data());
 }
 
 // mac

@@ -9,7 +9,7 @@
 // friends
 const char * mac() {
     // easy enough
-    return "Mac";
+    return "MacKenzie";
 }
 
 // end of file
