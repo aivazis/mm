@@ -12,12 +12,12 @@
 hello.major := 1
 hello.minor := 0
 
-# hello builds a library
-hello.libraries := hello.lib
-# a python extension
-hello.extensions := hello.ext
-# and a python package
+# hello builds a python package
 hello.packages := hello.pkg
+# a library
+hello.libraries := hello.lib
+# and a python extension
+hello.extensions := hello.ext
 
 # the package meta-data
 hello.pkg.stem := hello
@@ -28,6 +28,7 @@ hello.lib.extern := pyre
 
 # the extension meta-data
 hello.ext.stem := hello
+hello.ext.pkg := hello.pkg
 hello.ext.extern := hello.lib pyre python
 
 # show me
