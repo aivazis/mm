@@ -18,6 +18,8 @@ define extensions.init =
     ${eval extensions += $(2)}
     # save the project
     ${eval $(2).project := $(1)}
+    # connect to my package
+    ${eval $(2).pkg ?= $($(2).project).pkg}
 
     # the stem for generating extension specific names; it gets used to build the extension
     # archive name, the include directory with the public headers, and the name of the module
@@ -42,8 +44,10 @@ define extensions.init =
     ${eval $(2).module ?= $($(2).stem)}
     # the source file with the python initialization routine
     ${eval $(2).module.init ?= ${call extension.module.init,$(2)}}
+    # the language of the initialization routine determines the compiler to use
+    ${eval $(2).module.language ?= $(ext${suffix $($(2).module.init)})}
     # the name of the shared object
-    ${eval $(2).module.so ?= $($(2).module)$(python.suffix.module)}
+    ${eval $(2).module.so ?= ${call extension.module.dll,$(2)}}
 
     # the name of the support archive
     ${eval $(2).lib ?= $(2).lib}
@@ -73,6 +77,13 @@ define extension.module.init
             ${wildcard $($(1).prefix)/$($(1).module)$(suffix)}
         }
     }
+endef
+
+
+# build the path to where the module dll gets deposited
+#   usage: extension.module.dll {extension}
+define extension.module.dll
+    $($($(1).pkg).pycdir)/$($($(1).pkg).ext)/$($(1).module)$(python.suffix.module)
 endef
 
 
