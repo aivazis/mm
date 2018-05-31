@@ -88,7 +88,7 @@ endef
 #   usage: package.directories {package}
 define package.directories =
     ${strip
-        ${shell find $($(1).prefix) -type d}
+        ${addsuffix /,${shell find $($(1).prefix) -type d}}
     }
 # all done
 endef
@@ -98,7 +98,7 @@ endef
 define package.sources =
     ${strip
         ${foreach directory, $($(1).directories),
-            ${wildcard ${addprefix $(directory)/*,$(languages.python.sources)}}
+            ${wildcard ${addprefix $(directory)*,$(languages.python.sources)}}
         }
     }
 # all done
