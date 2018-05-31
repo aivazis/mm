@@ -83,7 +83,7 @@ endef
 #  usage: library.workflows.header {library} {header}
 define library.workflows.header =
 # publish public headers
-${call library.staging.header,$(1),$(2)}: $(2) | ${call library.staging.incdir,$(1),$(2)}
+${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	${call log.action,"publish",${subst $($($(1).project).home)/,,$(2)}}
 # all done

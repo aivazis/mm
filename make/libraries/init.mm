@@ -137,7 +137,7 @@ endef
 #   usage: library.directories {library}
 define library.directories
     ${strip
-        ${shell find $($(1).prefix) -type d}
+        ${addsuffix /,${shell find $($(1).prefix) -type d}}
     }
 endef
 
@@ -147,7 +147,7 @@ define library.sources
     ${strip
         ${foreach directory, $($(1).directories),
             ${wildcard
-                ${addprefix $(directory)/*,$(languages.sources)}
+                ${addprefix $(directory)*,$(languages.sources)}
             }
         }
     }
@@ -159,7 +159,7 @@ define library.headers
     ${strip
         ${foreach directory, $($(1).directories),
             ${wildcard
-                ${addprefix $(directory)/*,$(languages.headers)}
+                ${addprefix $(directory)*,$(languages.headers)}
             }
         }
     }
