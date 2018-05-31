@@ -46,7 +46,7 @@ $(1): $(1).directories $(1).assets
 $(1).directories: $($(1).pycdir) $($(1).staging.pycdirs)
 
 # make the directories with the byte compiled files
-$($(1).staging.pycdirs):
+$($(1).pycdir) $($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
@@ -61,12 +61,12 @@ ${foreach source,$($(1).sources),
 $($(1).staging.meta.pyc): $($(1).staging.meta)
 	${call log.action,sed,$$<}
 	$(sed) \
-          -e "s:PROJECT:$(project):g" \
-          -e "s:MAJOR:$($(project).major):g" \
-          -e "s:MINOR:$($(project).minor):g" \
-          -e "s:REVISION:$($(project).revision):g" \
-          -e "s|YEAR|$($(project).now.year)|g" \
-          -e "s|TODAY|$($(project).now.date)|g" \
+          -e "s:PROJECT:$($(1).project):g" \
+          -e "s:MAJOR:$($($(1).project).major):g" \
+          -e "s:MINOR:$($($(1).project).minor):g" \
+          -e "s:REVISION:$($($(1).project).revision):g" \
+          -e "s|YEAR|$($($(1).project).now.year)|g" \
+          -e "s|TODAY|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
 	${call log.action,python,$($(1).staging.meta.py)}
 	$(python.compile) $($(1).staging.meta.py)
