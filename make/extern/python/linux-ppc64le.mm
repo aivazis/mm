@@ -6,7 +6,7 @@
 #
 
 # on linux, there are additional dependencies
-python.libraries += thread dl util
+python.libraries += pthread dl util
 
 # no extra dependencies
 python.dependencies =
