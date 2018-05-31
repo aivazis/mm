@@ -19,38 +19,36 @@ include ${wildcard $(project.config)/*.mm}
 # bootstrap a project
 define project.boot =
     # call the project constructor
-    ${eval ${call project.init,$(project)}}
+    ${eval ${call project.init,$(1)}}
     # call the constructors of the various project assets
-    ${eval ${call project.init.assets,$(project)}}
+    ${eval ${call project.init.assets,$(1)}}
     # assemble the project contents
-    ${eval $(project).contents := ${foreach asset,$(project.contentTypes),$($(project).$(asset))}}
+    ${eval $(1).contents := ${foreach asset,$(project.contentTypes),$($(1).$(asset))}}
     # collect the requested external dependencies
-    ${eval $(project).extern.requested := ${call project.extern.requested,$(project)}}
+    ${eval $(1).extern.requested := ${call project.extern.requested,$(1)}}
     # collect the supported external dependencies
-    ${eval $(project).extern.supported := ${call project.extern.supported,$(project)}}
+    ${eval $(1).extern.supported := ${call project.extern.supported,$(1)}}
     # collect the available external dependencies
-    ${eval $(project).extern.available := ${call project.extern.available,$(project)}}
-
+    ${eval $(1).extern.available := ${call project.extern.available,$(1)}}
 # all done
 endef
 
 define project.boot.workflows =
     # build the project workflows
-    ${eval ${call project.workflows,$(project)}}
+    ${eval ${call project.workflows,$(1)}}
     # build the asset workflows
     ${foreach category, $(project.contentTypes),
-        ${foreach asset, $($(project).$(category)),
+        ${foreach asset, $($(1).$(category)),
             ${eval ${call $(category).workflows,$(asset)}}
         }
     }
-
 # all done
 endef
 
 
 # bootstrap
 # ${info --   project constructors}
-${foreach project,$(projects), ${eval ${call project.boot, $(project)}}}
+${foreach project,$(projects), ${eval ${call project.boot,$(project)}}}
 
 # ${info --   loading support for external packages}
 ${foreach \
@@ -60,7 +58,7 @@ ${foreach \
 }
 
 # ${info --   project workflows}
-${foreach project,$(projects), ${eval ${call project.boot.workflows, $(project)}}}
+${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}}
 
 # ${info --   computing the default goal}
 .DEFAULT_GOAL := ${if $(projects),projects,help}

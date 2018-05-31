@@ -12,113 +12,111 @@
 project.contentTypes := packages libraries extensions docs tests
 
 # the project constructor
-#   usage: project.init {project/ame}
-#   assumes it was invoked with $(project) bound to the project name
+#   usage: project.init {project}
 define project.init =
     # save the name
-    $(project).name := $(project)
+    $(1).name := $(1)
 
     # meta-data
-    $(project).major ?= 1
-    $(project).minor ?= 0
-    $(project).revision ?= $${strip $${shell $(git.hash)}}
-    $(project).now.year ?= $${strip $${shell $(date.year)}}
-    $(project).now.date ?= $${strip $${shell $(date.stamp)}}
+    ${eval $(1).major ?= 1}
+    ${eval $(1).minor ?= 0}
+    ${eval $(1).revision ?= $${strip $${shell $(git.hash)}}}
+    ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
+    ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
 
     # directories
     # the top-most directory where we found {.mm}
-    $(project).home := $(project.home)
+    ${eval $(1).home := $(project.home)}
     # the directory for build products
-    $(project).bldroot := $(project.bldroot)
+    ${eval $(1).bldroot := $(project.bldroot)}
     # the installation target directory
-    $(project).prefix := $(project.prefix)
+    ${eval $(1).prefix := $(project.prefix)}
     # the staging area for the build intermediate products
-    $(project).tmpdir := $(builder.dest.staging)/$(project)
+    ${eval $(1).tmpdir := $(builder.dest.staging)/$(1)}
 
     # make
     # the directory from where {make} was invoked, i.e. the nearest parent with a local
     # makefile
-    $(project).base := $(project.anchor)
+    ${eval $(1).base := $(project.anchor)}
     # the user's {cwd} when they invoked mm
-    $(project).origin := $(project.origin)
+    ${eval $(1).origin := $(project.origin)}
     # the local makefile
-    $(project).makefile := $(project.makefile)
+    ${eval $(1).makefile := $(project.makefile)}
     # the project configuration file
-    $(project).config := ${wildcard $(project.config)/$(project).mm}
+    ${eval $(1).config := ${wildcard $(project.config)/$(1).mm}}
 
     # contents
-    $(project).contents ?=
+    ${eval $(1).contents ?=}
     # initialize the list of libraries
-    $(project).libraries ?=
-    # the list of python extenions
-    $(project).extensions ?=
+    ${eval $(1).libraries ?=}
+    # the list of python extensions
+    ${eval $(1).extensions ?=}
     # the list of python packages
-    $(project).packages ?=
+    ${eval $(1).packages ?=}
     # documentation
-    $(project).docs ?=
+    ${eval $(1).docs ?=}
     # and the list of tests
-    $(project).tests ?=
+    ${eval $(1).tests ?=}
 
     # dependencies
     # initialize the list of requested project dependencies
-    $(project).extern.requested ?=
+    ${eval $(1).extern.requested ?=}
     # the list of external dependencies that we have support for
-    $(project).extern.supported ?=
+    ${eval $(1).extern.supported ?=}
     # the list of dependencies in the order they affect the compiler command lines
-    $(project).extern.available ?=
+    ${eval $(1).extern.available ?=}
 
     # documentation
     # the project metedata categories
-    $(project).meta.categories := contents extern directories make
+    $(1).meta.categories := contents extern directories make
 
     # build a list of all the project attributes by category
-    $(project).meta.directories := home bldroot prefix tmpdir
-    $(project).meta.make := base origin makefile config
-    $(project).meta.extern := extern.requested extern.supported extern.available
-    $(project).meta.contents := $(project.contentTypes)
+    $(1).meta.directories := home bldroot prefix tmpdir
+    $(1).meta.make := base origin makefile config
+    $(1).meta.extern := extern.requested extern.supported extern.available
+    $(1).meta.contents := $(project.contentTypes)
 
     # category documentation
-    $(project).metadoc.directories := "the layout of the build directories"
-    $(project).metadoc.contents := "categories of build products"
-    $(project).metadoc.extern := "dependencies to external packages"
-    $(project).metadoc.make := "information about the builder"
+    $(1).metadoc.directories := "the layout of the build directories"
+    $(1).metadoc.contents := "categories of build products"
+    $(1).metadoc.extern := "dependencies to external packages"
+    $(1).metadoc.make := "information about the builder"
 
     # document each one
-    $(project).metadoc.name := "the name of the project"
+    $(1).metadoc.name := "the name of the project"
     # directories
-    $(project).metadoc.home := "the top level project directory"
-    $(project).metadoc.bldroot := "the directory where build products get delivered"
-    $(project).metadoc.prefix := "the install target directory"
-    $(project).metadoc.tmpdir := "the directory with the intermediate build products"
+    $(1).metadoc.home := "the top level project directory"
+    $(1).metadoc.bldroot := "the directory where build products get delivered"
+    $(1).metadoc.prefix := "the install target directory"
+    $(1).metadoc.tmpdir := "the directory with the intermediate build products"
     # make
-    $(project).metadoc.base := "the directory from which mm invoked make"
-    $(project).metadoc.origin := "the directory from which you invoked mm"
-    $(project).metadoc.makefile := "the local makefile"
-    $(project).metadoc.config := "the project configuration file"
+    $(1).metadoc.base := "the directory from which mm invoked make"
+    $(1).metadoc.origin := "the directory from which you invoked mm"
+    $(1).metadoc.makefile := "the local makefile"
+    $(1).metadoc.config := "the project configuration file"
     # dependencies
-    $(project).metadoc.extern.requested := "requested dependencies"
-    $(project).metadoc.extern.supported := "the dependencies for which there is mm support"
-    $(project).metadoc.extern.available := "dependencies that were actually found and used"
+    $(1).metadoc.extern.requested := "requested dependencies"
+    $(1).metadoc.extern.supported := "the dependencies for which there is mm support"
+    $(1).metadoc.extern.available := "dependencies that were actually found and used"
     # contents
-    $(project).metadoc.libraries := "the project libraries"
-    $(project).metadoc.extensions := "the python extensions built by this project"
-    $(project).metadoc.packages := "the python pyckages built by this project"
-    $(project).metadoc.docs := "documentation for this project"
-    $(project).metadoc.tests := "the project test suite"
+    $(1).metadoc.libraries := "the project libraries"
+    $(1).metadoc.extensions := "the python extensions built by this project"
+    $(1).metadoc.packages := "the python pyckages built by this project"
+    $(1).metadoc.docs := "documentation for this project"
+    $(1).metadoc.tests := "the project test suite"
 # all done
 endef
 
 
 # instantiate the project assets
 #  usage: project.init.assets {project}
-#   assumes it was invoked with $(project) bound to the project name
 define project.init.assets =
     # go through all types of project assets
     ${foreach type,$(project.contentTypes),
         # and assets of the given {type}
-        ${foreach item, $($(project).$(type)),
+        ${foreach item, $($(1).$(type)),
             # invoke their constructors
-            ${call $(type).init,$(project),$($(project).$(type))}
+            ${call $(type).init,$(1),$($(1).$(type))}
         }
     }
 # all done
@@ -129,7 +127,7 @@ endef
 # usage project.extern.requested {project}
 define project.extern.requested =
     ${sort
-        ${foreach asset,$($(project).contents),$($(asset).extern.requested)}
+        ${foreach asset,$($(1).contents),$($(asset).extern.requested)}
     }
 # all done
 endef
@@ -139,7 +137,7 @@ endef
 # usage project.extern.supported {project}
 define project.extern.supported =
     ${sort
-        ${foreach asset,$($(project).contents),$($(asset).extern.supported)}
+        ${foreach asset,$($(1).contents),$($(asset).extern.supported)}
     }
 # all done
 endef
@@ -149,7 +147,7 @@ endef
 # usage project.extern.available {project}
 define project.extern.available =
     ${sort
-        ${foreach asset,$($(project).contents),$($(asset).extern.available)}
+        ${foreach asset,$($(1).contents),$($(asset).extern.available)}
     }
 # all done
 endef
