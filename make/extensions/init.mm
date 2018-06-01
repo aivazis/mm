@@ -20,6 +20,8 @@ define extensions.init =
     ${eval $(2).project := $(1)}
     # connect to my package
     ${eval $(2).pkg ?= $($(2).project).pkg}
+    # and the (optional) library whose python bindings these are
+    ${eval $(2).wraps ?=}
 
     # the stem for generating extension specific names; it gets used to build the extension
     # archive name, the include directory with the public headers, and the name of the module
@@ -57,6 +59,8 @@ define extensions.init =
     ${eval $(2).lib.root ?= ext/ext$($(2).stem)}
     # its external dependencies
     ${eval $(2).lib.extern ?= $($(2).extern)}
+    # add the library it wraps to its prerequisites
+    ${eval $(2).lib.prerequisites += $($(2).wraps)}
     # in general, extensions have no public headers
     ${eval $(2).lib.headers ?=}
     # construct it
