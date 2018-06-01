@@ -29,6 +29,7 @@ hello.lib.extern := pyre
 # the extension meta-data
 hello.ext.stem := hello
 hello.ext.pkg := hello.pkg
+hello.ext.wraps := hello.lib
 hello.ext.extern := hello.lib pyre python
 
 # show me
