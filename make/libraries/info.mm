@@ -41,7 +41,7 @@ endef
 #   usage: library.workflows.build {library}
 define library.workflows.build =
 # the main recipe
-$(1): $(1).directories $(1).assets
+$(1): $($(1).prerequisites) $(1).directories $(1).assets
 	${call log.asset,"lib",$(1)}
 
 $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)

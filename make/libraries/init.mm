@@ -26,7 +26,7 @@ define libraries.init =
     # the name of the archive
     ${eval $(2).archive = $($(2).name)$(builder.ext.lib)}
 
-    # the list of dependencies as requested by the user
+    # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies
     ${eval $(2).extern.requested := $($(2).extern)}
@@ -34,6 +34,9 @@ define libraries.init =
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
     # the list of dependecies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
+
+    # a list of additional prerequisites for the top target
+    ${eval $(2).prerequisites ?=}
 
     # build locations
     # the destination for the archive
