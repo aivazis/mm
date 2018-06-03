@@ -41,7 +41,7 @@ endef
 #   usage: library.workflows.build {library}
 define library.workflows.build =
 # the main recipe
-$(1): $($(1).prerequisites) $(1).directories $(1).assets
+$(1): $(1).directories $(1).assets
 	${call log.asset,"lib",$(1)}
 
 $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
@@ -103,7 +103,7 @@ define library.workflows.object =
 
 # compile source files
 $(source.object): $(source.path) \
-    ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive}
+    | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive}
 	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
 	${call \
             languages.$(source.language).compile, \
