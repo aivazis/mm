@@ -96,6 +96,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     cfgdir = pyre.properties.str(default='.mm')
     cfgdir.doc = "the name of directories with project configuration settings"
 
+    # grant access to the current build environment
+    paths = pyre.properties.str(default=None)
+    paths.doc = "publish the current build environment to other mm based projects"
+    paths.validators = pyre.constraints.isMember("sh", "csh")
 
     # host info
     host = pyre.platforms.platform()
@@ -259,6 +263,48 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # plus whatever the user put on the command line
         ] + list(self.argv)
+
+        # if the user is only interested in publishing the build environment
+        if self.paths:
+            # compute the current target tag
+            tag = ",".join(self.target) + "-" + host.platform + "-" + host.cpus.architecture
+            # build the products directory
+            prefix = os.path.join(prefix, tag)
+
+            # pull variables from the environment and adjust them
+            path = self.adjust(var="PATH", prefix=prefix, dir="bin")
+            ldpath = self.adjust(var="LD_LIBRARY_PATH", prefix=prefix, dir="lib")
+            incpath = self.adjust(var="MM_INCLUDES", prefix=prefix, dir="include")
+            libpath = self.adjust(var="MM_LIBPATH", prefix=prefix, dir="lib")
+
+            # grab the shell setting
+            shell = self.paths
+
+            # figure out the template to use
+            # for sh compatible shells
+            if shell == "sh":
+                # template
+                template = 'export {var}="{value}"'
+            # for csh compatible shells
+            elif shell == "csh":
+                # template
+                template = 'setenv {var} "{value}"'
+            # otherwise
+            else:
+                # this is a bug: the trait validators were adjusted to include a new shell, but
+                # there is no support for this shell yet
+                self.firewall.log(f'{shell}: unsupported shell')
+                # and bail
+                return 1
+
+            # print the values
+            print(template.format(var="PATH", value=path))
+            print(template.format(var="LD_LIBRARY_PATH", value=ldpath))
+            print(template.format(var="MM_INCLUDES", value=incpath))
+            print(template.format(var="MM_LIBPATH", value=libpath))
+
+            # and bail
+            return 0
 
         # if the user wants to see
         if self.show:
@@ -492,10 +538,39 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         return None
 
 
-    def createDirectories(self, prefix, buildroot):
+    def adjust(self, var, prefix, dir):
         """
-        Create the necessary directores
+        Prefix the path in {var} with the a local folder
         """
+        # get the separator
+        sep = os.pathsep
+        # get the current setting of the {var} and turn it into a list
+        var = list(filter(None, os.environ.get(var, "").split(sep)))
+        # augment it by prepending the target folder
+        var.insert(0, os.path.join(prefix,dir))
+        # trim
+        var = self.uniq(var)
+        # splice
+        var = sep.join(var)
+        # and return
+        return var
+
+
+    def uniq(self, seq):
+        """
+        Remove repeated occurrences of items in {seq}
+        """
+        # trim
+        # initialize the known set
+        known = set()
+        # go through the items in sequence
+        for item in seq:
+            # skip this one if we have seen it before
+            if item in known: continue
+            # otherwise hand it to the caller
+            yield item
+            # and add it to the known pile
+            known.add(item)
         # all done
         return
 
