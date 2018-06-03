@@ -116,7 +116,7 @@ define project.init.assets =
         # and assets of the given {type}
         ${foreach item, $($(1).$(type)),
             # invoke their constructors
-            ${call $(type).init,$(1),$($(1).$(type))}
+            ${call $(type).init,$(1),$(item)}
         }
     }
 # all done
