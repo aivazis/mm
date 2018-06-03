@@ -102,7 +102,8 @@ define library.workflows.object =
     ${eval source.language := $(ext${suffix $(2)})}
 
 # compile source files
-$(source.object): $(source.path)
+$(source.object): $(source.path) \
+    ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive}
 	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
 	${call \
             languages.$(source.language).compile, \
