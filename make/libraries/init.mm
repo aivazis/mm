@@ -52,6 +52,11 @@ define libraries.init =
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
+    # source exclusions
+    ${eval $(2).sources.exclude ?=}
+    # header exclusions
+    ${eval $(2).headers.exclude ?=}
+
     # the directory structure
     ${eval $(2).directories ?= ${call library.directories,$(2)}}
     # the list of sources
@@ -148,9 +153,11 @@ endef
 #   usage: library.sources {library}
 define library.sources
     ${strip
-        ${foreach directory, $($(1).directories),
-            ${wildcard
-                ${addprefix $(directory)*,$(languages.sources)}
+        ${filter-out $($(1).sources.exclude),
+            ${foreach directory, $($(1).directories),
+                ${wildcard
+                    ${addprefix $(directory)*,$(languages.sources)}
+                }
             }
         }
     }
@@ -160,9 +167,11 @@ endef
 #   usage: library.headers {library}
 define library.headers
     ${strip
-        ${foreach directory, $($(1).directories),
-            ${wildcard
-                ${addprefix $(directory)*,$(languages.headers)}
+        ${filter-out $($(1).sources.exclude),
+            ${foreach directory, $($(1).directories),
+                ${wildcard
+                    ${addprefix $(directory)*,$(languages.headers)}
+                }
             }
         }
     }
