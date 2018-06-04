@@ -12,7 +12,7 @@
 #   usage: builder.init {project-prefix} {project-bldroot} {target-variants}
 define builder.init =
     # the build tag
-    ${eval builder.tid := ${if $(3),${subst $(space),$(comma),$(3)}-,}}
+    ${eval builder.tid := ${if $(3),${subst $(space),$(comma),${sort $(3)}}-,}}
 
     # construct the name of the top level directory
     ${eval builder.dest.prefix := $(1)/$(builder.tid)$(target)}
