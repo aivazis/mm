@@ -22,6 +22,13 @@ ${foreach \
     } \
 }
 
+# fine adjustments
+platform.c.defines := MM_PLATFORM="$(platform)"
+platform.c++.defines := MM_PLATFORM="$(platform)"
+platform.cuda.defines := MM_PLATFORM="$(platform)"
+platform.fortran.defines := MM_PLATFORM="$(platform)"
+
+
 # show me
 # ${info -- done with platforms.model}
 
