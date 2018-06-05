@@ -21,9 +21,12 @@ mm.master ?=
 mm.compilers ?=
 
 # contributions to the build
-# only {incpath} and {libpath} seem to be useful
-mm.incpath ?=
+mm.flags ?=
+mm.defines ?=
+mm.incpath ?= $(mm.home)
+mm.ldflags ?=
 mm.libpath ?=
+mm.libraries ?=
 
 # influence the build
 # add an include path to the build to facilitate compiling products against specific targets
