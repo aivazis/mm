@@ -32,7 +32,7 @@ define project.init =
     # the installation target directory
     ${eval $(1).prefix := $(project.prefix)}
     # the staging area for the build intermediate products
-    ${eval $(1).tmpdir := $(builder.dest.staging)/$(1)}
+    ${eval $(1).tmpdir := $(builder.dest.staging)$(1)}
 
     # make
     # the directory from where {make} was invoked, i.e. the nearest parent with a local

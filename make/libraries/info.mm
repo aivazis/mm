@@ -133,9 +133,9 @@ define library.workflows.info =
 $(1).info:
 	${call log.sec,$(1),"a library in project '$($(1).project)'"}
 	$(log)
+	${call log.var,source root,$($(1).prefix)}
 	${call log.var,headers,$($(1).incdir)}
 	${call log.var,archive,$($(1).staging.archive)}
-	${call log.var,source root,$($(1).prefix)}
 	${call log.var,requested packages,$($(1).extern.requested)}
 	${call log.var,supported packages,$($(1).extern.supported)}
 	${call log.var,available packages,$($(1).extern.available)}

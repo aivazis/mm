@@ -42,13 +42,13 @@ define libraries.init =
     # the destination for the archive
     ${eval $(2).libdir = $(builder.dest.lib)}
     # the destination for the public headers
-    ${eval $(2).incdir = $(builder.dest.inc)/$($(2).stem)}
+    ${eval $(2).incdir = $(builder.dest.inc)$($(2).stem)/}
     # the location of the build transients
-    ${eval $(2).tmpdir = $(builder.dest.staging)/$(1)/$($(2).name)}
+    ${eval $(2).tmpdir = $(builder.dest.staging)$(1)/$($(2).name)/}
 
     # artifacts
     # the root of the library source tree relative to the project home
-    ${eval $(2).root ?= lib/lib$($(2).stem)}
+    ${eval $(2).root ?= lib/lib$($(2).stem)/}
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
@@ -68,14 +68,14 @@ define libraries.init =
     # the compile products
     $(2).staging.objects = $${call library.objects,$(2)}
     # the archive
-    $(2).staging.archive = $$($(2).libdir)/$($(2).archive)
+    $(2).staging.archive = $$($(2).libdir)$($(2).archive)
     # the include directories in the staging area
     $(2).staging.incdirs = $${call library.staging.incdirs,$(2)}
     # the public headers in the staging area
     $(2).staging.headers = $${call library.staging.headers,$(2)}
 
     # implement the external protocol
-    $(2).dir ?= ${abspath $($(2).libdir)/..}
+    $(2).dir ?= ${abspath $($(2).libdir)..}
     # compile time
     $(2).flags ?=
     $(2).defines ?=
@@ -145,7 +145,7 @@ endef
 #   usage: library.directories {library}
 define library.directories
     ${strip
-        ${addsuffix /,${shell find $($(1).prefix) -type d}}
+        ${addsuffix /,${shell find ${realpath $($(1).prefix)} -type d}}
     }
 endef
 
@@ -181,11 +181,11 @@ endef
 # build the set of archive objects
 #   usage: library.objects {library}
 define library.objects =
-    ${addprefix $($(1).tmpdir)/,
+    ${addprefix $($(1).tmpdir),
         ${addsuffix $(builder.ext.obj),
             ${subst /,~,
                 ${basename
-                    ${subst $($(1).prefix)/,,$($(1).sources)}
+                    ${subst $($(1).prefix),,$($(1).sources)}
                 }
             }
         }
@@ -196,7 +196,7 @@ endef
 # build the name of an object given the name of a source
 #   usage library.staging.object: {library} {source}
 library.staging.object = \
-    $($(1).tmpdir)/${subst /,~,${basename ${subst $($(1).prefix)/,,$(2)}}}$(builder.ext.obj)
+    $($(1).tmpdir)${subst /,~,${basename ${subst $($(1).prefix),,$(2)}}}$(builder.ext.obj)
 
 
 # build the list of staging directories for the public headers
