@@ -274,6 +274,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # pull variables from the environment and adjust them
             path = self.adjust(var="PATH", prefix=prefix, dir="bin")
             ldpath = self.adjust(var="LD_LIBRARY_PATH", prefix=prefix, dir="lib")
+            pythonpath = self.adjust(var="PYTHONPATH", prefix=prefix, dir="packages")
             incpath = self.adjust(var="MM_INCLUDES", prefix=prefix, dir="include")
             libpath = self.adjust(var="MM_LIBPATH", prefix=prefix, dir="lib")
 
@@ -300,6 +301,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # print the values
             print(template.format(var="PATH", value=path))
             print(template.format(var="LD_LIBRARY_PATH", value=ldpath))
+            print(template.format(var="PYTHONPATH", value=pythonpath))
             print(template.format(var="MM_INCLUDES", value=incpath))
             print(template.format(var="MM_LIBPATH", value=libpath))
 
