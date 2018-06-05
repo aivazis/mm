@@ -48,7 +48,9 @@ $(1).directories:
 
 $(1).assets: $($(1).pkg) $($(1).lib) $(1).extension
 
-$(1).extension: $($(1).module.init) $($($(1).lib).staging.archive)
+$(1).extension: $($(1).module.so)
+
+$($(1).module.so): $($(1).module.init) $($($(1).lib).staging.archive)
 	${call log.action,"dll",$($(1).module.init)}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
