@@ -21,6 +21,7 @@ hello.extensions := hello.ext
 
 # the package meta-data
 hello.pkg.stem := hello
+hello.pkg.drivers := say
 
 # the library meta-data
 hello.lib.stem := hello
