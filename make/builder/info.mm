@@ -10,14 +10,14 @@
 
 builder.info: mm.banner
 	${call log.sec,"builder directory layout",}
+	${call log.var,"  root",$(builder.dest.root)}
 	${call log.var,"prefix",$(builder.dest.prefix)}
-	${call log.var,"root",$(builder.dest.root)}
-	${call log.var,"bindir",$(builder.dest.bin)}
-	${call log.var,"docdir",$(builder.dest.doc)}
-	${call log.var,"incdir",$(builder.dest.inc)}
-	${call log.var,"libdir",$(builder.dest.lib)}
-	${call log.var,"libdir",$(builder.dest.pyc)}
-	${call log.var,"tmpdir",$(builder.dest.staging)}
+	${call log.var,"   bin",$(builder.dest.bin)}
+	${call log.var,"   doc",$(builder.dest.doc)}
+	${call log.var,"   inc",$(builder.dest.inc)}
+	${call log.var,"   lib",$(builder.dest.lib)}
+	${call log.var,"   pyc",$(builder.dest.pyc)}
+	${call log.var,"   tmp",$(builder.dest.staging)}
 
 
 # create the builder targets

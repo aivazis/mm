@@ -15,14 +15,14 @@ define builder.init =
     ${eval builder.tid := ${if $(3),${subst $(space),$(comma),${sort $(3)}}-,}}
 
     # construct the name of the top level directory
-    ${eval builder.dest.prefix := $(1)/$(builder.tid)$(target)}
-    ${eval builder.dest.root := $(2)/$(builder.tid)$(target)}
-    ${eval builder.dest.bin := $(builder.dest.prefix)/bin}
-    ${eval builder.dest.doc := $(builder.dest.prefix)/doc}
-    ${eval builder.dest.inc := $(builder.dest.prefix)/include}
-    ${eval builder.dest.lib := $(builder.dest.prefix)/lib}
-    ${eval builder.dest.pyc := $(builder.dest.prefix)/packages}
-    ${eval builder.dest.staging := $(builder.dest.root)/tmp}
+    ${eval builder.dest.prefix := $(1)/$(builder.tid)$(target)/}
+    ${eval builder.dest.root := $(2)/$(builder.tid)$(target)/}
+    ${eval builder.dest.bin := $(builder.dest.prefix)bin/}
+    ${eval builder.dest.doc := $(builder.dest.prefix)doc/}
+    ${eval builder.dest.inc := $(builder.dest.prefix)include/}
+    ${eval builder.dest.lib := $(builder.dest.prefix)lib/}
+    ${eval builder.dest.pyc := $(builder.dest.prefix)packages/}
+    ${eval builder.dest.staging := $(builder.dest.root)tmp/}
 
     # make a pile out for all the relevant directories; this gets used by the rulemaker that makes
     # sure these directories exist, so make sure you add new ones here as well
