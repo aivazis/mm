@@ -43,18 +43,23 @@ $(1): $(1).directories $(1).assets
 	${call log.asset,"pkg",$(1)}
 
 # make all relevant directories
-$(1).directories: $($(1).pycdir) $($(1).staging.pycdirs)
+$(1).directories: $($(1).staging.pycdirs)
 
 # make the directories with the byte compiled files
-$($(1).pycdir) $($(1).staging.pycdirs):
+$($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(1).assets: $($(1).staging.pyc) $($(1).staging.meta.pyc)
+$(1).assets: $($(1).staging.pyc) $($(1).staging.meta.pyc) $($(1).staging.drivers)
 
 # make rules that byte compile the sources
 ${foreach source,$($(1).sources),
     ${eval ${call package.workflows.pyc,$(1),$(source)}}
+}
+
+# make rules that copy the drivers
+${foreach driver,$($(1).drivers),
+    ${eval ${call package.workflows.driver,$(1),$(driver)}}
 }
 
 # make the rule that generates the package meta-data file
@@ -95,13 +100,29 @@ $(path.pyc): $(path.py) | ${dir $(path.pyc)}
 # all done
 endef
 
+# make a target for each driver
+#   usage: package.workflows.pyc {package} {source}
+define package.workflows.driver =
+
+    # local variables
+    # the absolute path to the source
+    ${eval path.source := bin/$(2)}
+    # the absolute path to the byte compiled file
+    ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
+
+$(path.destination): $(path.source) | ${dir $(path.destination)}
+	${call log.action,publish,$(path.source)}
+	$(cp) $(path.source) $(path.destination)
+
+# all done
+endef
+
 # make a recipe to log the metadata of a specific package
 # usage: package.workflows.info {package}
 define package.workflows.info =
 # make the recipe
 $(1).info:
 	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	$(log)
 	$(log)
 	$(log) "for an explanation of their purpose, try"
 	$(log)
@@ -110,6 +131,9 @@ $(1).info:
 	$(log) "related targets:"
 	$(log)
 	${call log.help,$(1).info.directories,"the layout of the source directories"}
+	${call log.help,$(1).info.sources,"the source files"}
+	${call log.help,$(1).info.pyc,"the byte compiled files"}
+	${call log.help,$(1).info.pycdirs,"the locations of the byte compiled files"}
 
 
 # make a recipe that prints the directory layout of the sources of a package

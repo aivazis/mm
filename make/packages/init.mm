@@ -32,11 +32,13 @@ define packages.init
 
     # build locations
     # the package destination
-    ${eval $(2).pycdir = ${builder.dest.pyc}/$($(2).name)}
+    ${eval $(2).pycdir = $(builder.dest.pyc)$($(2).name)/}
+    # the destination for drivers
+    ${eval $(2).bindir = $(builder.dest.bin)
 
     # artifacts
     # the root of the package relative to the project home
-    ${eval $(2).root ?= pkg/$($(2).name)}
+    ${eval $(2).root ?= pkg/$($(2).name)/}
     # the file with the package meta-data, relative to the package root
     ${eval $(2).meta ?= meta}
     # the directory where extensions get parked, relative to the package root}
@@ -48,6 +50,8 @@ define packages.init
     ${eval $(2).directories ?= ${call package.directories,$(2)}}
     # the list of sources
     ${eval $(2).sources ?= ${call package.sources,$(2)}}
+    # the list of scripts
+    ${eval $(2).drivers ?=}
 
     # derived artifacts
     # the compiled products
@@ -55,14 +59,16 @@ define packages.init
     # the set of directories that house the compiled products
     ${eval $(2).staging.pycdirs = ${call package.pycdirs,$(2)}}
     # the directory where extensions are delivered
-    ${eval $(2).staging.ext = $($(2).pycdir)/$($(2).ext)}
+    ${eval $(2).staging.ext = $($(2).pycdir)$($(2).ext)}
 
     # the raw meta-data file
-    ${eval $(2).staging.meta = $($(2).prefix)/$($(2).meta)}
+    ${eval $(2).staging.meta = $($(2).prefix)$($(2).meta)}
     # the generated meta-data file
-    ${eval $(2).staging.meta.py = $($(2).pycdir)/$($(2).meta)$(languages.python.sources)}
-    # the byt-compiled meta-data file
-    ${eval $(2).staging.meta.pyc = $($(2).pycdir)/$($(2).meta)$(languages.python.pyc)}
+    ${eval $(2).staging.meta.py = $($(2).pycdir)$($(2).meta)$(languages.python.sources)}
+    # the byte-compiled meta-data file
+    ${eval $(2).staging.meta.pyc = $($(2).pycdir)$($(2).meta)$(languages.python.pyc)}
+    # the drivers
+    ${eval $(2).staging.drivers = ${addprefix $($(2).bindir),$($(2).drivers)}}
 
     # documentation
     $(2).meta.categories := general
@@ -88,7 +94,7 @@ endef
 #   usage: package.directories {package}
 define package.directories =
     ${strip
-        ${addsuffix /,${shell find $($(1).prefix) -type d}}
+        ${addsuffix /,${shell find ${realpath $($(1).prefix)} -type d}}
     }
 # all done
 endef
@@ -108,9 +114,9 @@ endef
 # build the set of byte compiled sources
 #   usage: package.pyc {package}
 define package.pyc =
-    ${addprefix $($(1).pycdir)/,
+    ${addprefix $($(1).pycdir),
         ${addsuffix $(languages.python.pyc),
-            ${subst $($(1).prefix)/,,${basename $($(1).sources)}}
+            ${subst $($(1).prefix),,${basename $($(1).sources)}}
         }
     }
 # all done
@@ -120,7 +126,15 @@ endef
 # compute the absolute path to the byte compiled file given its source
 #   usage: package.staging.pyc {package} {source}
 define package.staging.pyc =
-    $($(1).pycdir)/${subst $($(1).prefix)/,,${basename $(2)}}$(languages.python.pyc)
+    $($(1).pycdir)${subst $($(1).prefix),,${basename $(2)}}$(languages.python.pyc)
+# all done
+endef
+
+
+# compute the absolute path to the installed copy of a driver script
+#   usage: package.staging.driver {package} {driver}
+define package.staging.driver =
+    $($(1).bindir)$(2)
 # all done
 endef
 
