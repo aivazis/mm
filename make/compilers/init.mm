@@ -57,6 +57,7 @@ endef
 # assemble the compile time options from the various sources
 #   usage: compiler.compile.options {language} {compiler} {dependencies}
 define compiler.compile.options =
+    $($(2).prefix.incpath)$(mm.home)
     ${call compiler.options,compile,$(1),$(2),$(3)}
 endef
 
