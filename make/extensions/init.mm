@@ -87,7 +87,7 @@ endef
 # build the path to where the module dll gets deposited
 #   usage: extension.module.dll {extension}
 define extension.module.dll
-    $($($(1).pkg).pycdir)/$($($(1).pkg).ext)/$($(1).module)$(python.suffix.module)
+    $($($(1).pkg).pycdir)$($($(1).pkg).ext)$($(1).module)$(python.suffix.module)
 endef
 
 
