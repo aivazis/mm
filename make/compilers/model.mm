@@ -20,6 +20,25 @@ compilers := \
 # include the compiler specific configuration files
 include $(compilers:%=make/compilers/%.mm)
 
+# language specific settings
+# initialize the compiler specific flags for each language option category
+${foreach \
+    language, \
+    $(languages), \
+    ${foreach \
+        category, \
+        $(languages.$(language).categories), \
+        ${eval $(compiler.$(language)).$(category) ?=} \
+    } \
+}
+
+# make some fine adjustments
+${foreach language,c c++ cuda fortran, \
+    ${eval \
+        $(compiler.$(language)).defines := MM_COMPILER="$(compiler.$(language))" \
+    } \
+}
+
 # show me
 # ${info -- done with compilers.model}
 
