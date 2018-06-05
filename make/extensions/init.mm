@@ -56,7 +56,7 @@ define extensions.init =
     # its stem
     ${eval $(2).lib.stem ?= $($(2).stem)module}
     # its location
-    ${eval $(2).lib.root ?= ext/ext$($(2).stem)}
+    ${eval $(2).lib.root ?= ext/ext$($(2).stem)/}
     # its external dependencies
     ${eval $(2).lib.extern ?= $($(2).extern)}
     # add the library it wraps to its prerequisites
