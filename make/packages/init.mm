@@ -42,7 +42,7 @@ define packages.init
     # the file with the package meta-data, relative to the package root
     ${eval $(2).meta ?= meta}
     # the directory where extensions get parked, relative to the package root}
-    ${eval $(2).ext ?= ext}
+    ${eval $(2).ext ?= ext/}
     # the absolute path to the package source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
