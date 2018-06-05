@@ -57,7 +57,6 @@ endef
 # assemble the compile time options from the various sources
 #   usage: compiler.compile.options {language} {compiler} {dependencies}
 define compiler.compile.options =
-    $($(2).prefix.incpath)$(mm.home)
     ${call compiler.options,compile,$(1),$(2),$(3)}
 endef
 
@@ -86,7 +85,9 @@ endef
 #   usage: compiler.option.sources {language} {dependencies}
 define compiler.option.sources =
 ${strip
+    mm
     platform.$(1)
+    $(compiler.$(1))
     $(target.variants:%=targets.%.$(1))
     $(developer:%=developers.%.$(1))
     $(2)
