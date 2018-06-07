@@ -30,9 +30,16 @@ define project.main =
 $(1): $(1).directories $(1).assets
 	${call log.asset,"project",$(1)}
 
+# the required directories
 $(1).directories: $($(1).prefix) $($(1).tmpdir)
 
-$(1).assets: ${foreach type,$(project.contentTypes),$($(1).$(type))}
+# the asset category target
+$(1).assets: ${foreach type,$(project.contentTypes),$(1).$(type)}
+
+# asset targets by category
+${foreach type,$(project.contentTypes), \
+    ${eval $(1).$(type): $($(1).$(type))} \
+}
 
 $($(1).tmpdir):
 	$(mkdirp) $$@
@@ -41,6 +48,7 @@ $($(1).tmpdir):
 $(1).clean:
 	$(rm.force-recurse) $($(1).tmpdir)
 	${call log.action,"rm",$($(1).tmpdir)}
+
 # all done
 endef
 
