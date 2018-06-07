@@ -16,8 +16,10 @@ hello.minor := 0
 hello.packages := hello.pkg
 # a library
 hello.libraries := hello.lib
-# and a python extension
+# a python extension
 hello.extensions := hello.ext
+# and a test suite
+hello.tests := hello.tst.hello hello.tst.libhello
 
 # the package meta-data
 hello.pkg.stem := hello
@@ -32,6 +34,14 @@ hello.ext.stem := hello
 hello.ext.pkg := hello.pkg
 hello.ext.wraps := hello.lib
 hello.ext.extern := hello.lib pyre python
+
+# the libhello test suite
+hello.tst.libhello.stem := libhello
+hello.tst.libhello.extern := hello.lib pyre
+
+# the hello package test suite
+hello.tst.hello.stem := hello
+hello.tst.hello.extern :=
 
 # show me
 # ${info -- done with hello }
