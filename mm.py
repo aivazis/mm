@@ -173,10 +173,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # find the master makefile
         master = self.locateMasterMakefile(home=home)
-        # hunt down the local makefile; after this {origin} is the original {cwd}, {anchor} is
-        # the new one; after this call, the process {cwd} is guaranteed to be {anchor},
-        # i.e. where the local makefile lives, if any
-        origin, anchor = self.locateAnchor()
+        # hunt down the local makefile; after this call, {origin} is the original {cwd},
+        # {anchor} is the new one; the process {cwd} is guaranteed to be {anchor}, i.e. where
+        # the local makefile lives, if any, or project {root} if we can't find a makefile
+        origin, anchor = self.locateAnchor(root=root)
 
         # locate the build directory
         bldroot = self.locateBuildRoot(projectRoot=root)
@@ -434,7 +434,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         return None
 
 
-    def locateAnchor(self):
+    def locateAnchor(self, root):
         """
         Locate the nearest directory that contains a local makefile
         """
@@ -444,9 +444,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         origin = pyre.primitives.path.cwd()
         # hunt down the local makefile
         anchor = self.locate(marker=local)
-        # if we found a makefile
+        # if we found it
         if anchor:
-            # if that's not where we found the makefile
+            # if the {cwd} is not where we found the makefile
             if anchor != origin and not self.quiet:
                 # pick a channel
                 channel = self.warning
@@ -454,16 +454,21 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 channel.line(f"no '{local}' in '{origin}'")
                 channel.line(f"--  found one in '{anchor}'")
                 channel.log("--  launching from there")
-            # go there
-            os.chdir(anchor)
         # if we couldn't find a makefile
         else:
-            # and we were not told to be quiet
+            # set {anchor} to the project {root} directory
+            anchor = root
+            # and if we were not told to be quiet
             if not self.quiet:
                 # pick a channel
                 channel = self.warning
                 # complain
-                # channel.log(f"could not find a '{local}'")
+                channel.log(f"'{local}' not found; launching the build from '{anchor}'")
+
+        # if {anchor} is an actual directory
+        if anchor.isDirectory():
+            # adjust the process working directory to launch the build from this location
+            anchor.chdir()
 
         # all done
         return origin, anchor
