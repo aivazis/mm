@@ -38,10 +38,20 @@ hello.ext.extern := hello.lib pyre python
 # the libhello test suite
 hello.tst.libhello.stem := libhello
 hello.tst.libhello.extern := hello.lib pyre
+hello.tst.libhello.prerequisites := hello.lib
 
 # the hello package test suite
 hello.tst.hello.stem := hello
-hello.tst.hello.extern :=
+hello.tst.hello.prerequisites := hello.pkg hello.ext
+
+
+# testsuite
+
+# the foo/sanity.py test cases
+hello.tst.hello.foo.sanity.cases := foo.sanity.help foo.sanity.friend
+# command lines
+foo.sanity.help := --help
+foo.sanity.friend := --friend=ally
 
 # show me
 # ${info -- done with hello }
