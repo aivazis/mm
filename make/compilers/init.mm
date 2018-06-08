@@ -25,7 +25,7 @@ endef
 
 
 # build the linker command line
-#   usage: compiler.compile {language} {compiler} {source} {executable} {dependencies}
+#   usage: compiler.link {language} {compiler} {source} {executable} {dependencies}
 define compiler.link =
 ${strip
     $(2)
@@ -39,7 +39,7 @@ endef
 
 
 # build a linker command line that creates a shared object
-#   usage: compiler.compile {language} {compiler} {source} {dll} {dependencies}
+#   usage: compiler.dll {language} {compiler} {source} {dll} {dependencies}
 define compiler.dll =
 ${strip
     $(2)
