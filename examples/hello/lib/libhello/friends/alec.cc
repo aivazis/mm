@@ -15,7 +15,7 @@
 // friends
 std::string hello::alec() {
     // make a channel
-    pyre::journal::info_t channel("hello.friends");
+    pyre::journal::debug_t channel("hello.friends");
     // show me
     channel
         << pyre::journal::at(__HERE__)
