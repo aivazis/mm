@@ -9,7 +9,11 @@
 # ${info -- project.init}
 
 # meta-data for all projects
-project.contentTypes := packages libraries extensions docs tests
+project.assetTypes := packages libraries extensions
+project.testTypes := tests
+project.extraTypes := docs
+# put it all together
+project.contentTypes := $(project.assetTypes) $(project.testTypes) $(project.extraTypes)
 
 # the project constructor
 #   usage: project.init {project}
