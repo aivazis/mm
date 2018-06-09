@@ -51,9 +51,16 @@ $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(1).assets: $(1).headers $(1).archive
+$(1).assets: $(1).headers.master $(1).headers $(1).archive
+
+$(1).headers.master: $($(1).staging.headers.master)
 
 $(1).headers: $($(1).staging.headers)
+
+# make the rules that publish the master headers
+${foreach header, $($(1).headers.master), \
+    ${eval ${call library.workflows.header.master,$(1),$(header)}}
+}
 
 # make the rules that publish the exported headers
 ${foreach header, $($(1).headers), \
@@ -79,6 +86,17 @@ endef
 
 
 # helpers
+# library master headers
+#  usage: library.workflows.header.master {library} {header}
+define library.workflows.header.master =
+# publish public headers
+${call library.staging.header.master,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
+	$(cp) $$< $$@
+	${call log.action,"publish",${subst $($($(1).project).home)/,,$(2)}}
+# all done
+endef
+
+
 # library headers
 #  usage: library.workflows.header {library} {header}
 define library.workflows.header =

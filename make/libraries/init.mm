@@ -40,17 +40,20 @@ define libraries.init =
 
     # build locations
     # the destination for the archive
-    ${eval $(2).libdir = $(builder.dest.lib)}
+    ${eval $(2).libdir ?= $(builder.dest.lib)}
     # the destination for the public headers
-    ${eval $(2).incdir = $(builder.dest.inc)$($(2).stem)/}
+    ${eval $(2).incdir ?= $(builder.dest.inc)$($(2).stem)/}
     # the location of the build transients
-    ${eval $(2).tmpdir = $(builder.dest.staging)$(1)/$($(2).name)/}
+    ${eval $(2).tmpdir ?= $(builder.dest.staging)$(1)/$($(2).name)/}
 
     # artifacts
     # the root of the library source tree relative to the project home
     ${eval $(2).root ?= lib/lib$($(2).stem)/}
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
+    # the path  to the top level headers relative to the library prefix
+    # these headers get deposited one level above {incdir}
+    ${eval $(2).master ?=}
 
     # source exclusions
     ${eval $(2).sources.exclude ?=}
@@ -61,6 +64,8 @@ define libraries.init =
     ${eval $(2).directories ?= ${call library.directories,$(2)}}
     # the list of sources
     ${eval $(2).sources ?= ${call library.sources,$(2)}}
+    # the master headers
+    ${eval $(2).headers.master ?= ${call library.headers.master,$(2)}}
     # the public headers
     ${eval $(2).headers ?= ${call library.headers,$(2)}}
 
@@ -71,6 +76,8 @@ define libraries.init =
     $(2).staging.archive = $$($(2).libdir)$($(2).archive)
     # the include directories in the staging area
     $(2).staging.incdirs = $${call library.staging.incdirs,$(2)}
+    # the master headers in the staging area
+    $(2).staging.headers.master = $${call library.staging.headers.master,$(2)}
     # the public headers in the staging area
     $(2).staging.headers = $${call library.staging.headers,$(2)}
 
@@ -163,11 +170,18 @@ define library.sources
     }
 endef
 
+# build the set of master headers
+#   usage: library.headers {library}
+define library.headers.master
+    ${addprefix $($(1).prefix),$($(1).master)}
+endef
+
+
 # build the set of archive headers
 #   usage: library.headers {library}
 define library.headers
     ${strip
-        ${filter-out $($(1).sources.exclude),
+        ${filter-out $($(1).headers.exclude) $($(1).headers.master),
             ${foreach directory, $($(1).directories),
                 ${wildcard
                     ${addprefix $(directory)*,$(languages.headers)}
@@ -219,6 +233,20 @@ endef
 #   usage: library.staging.headers {library}
 define library.staging.headers
     ${subst $($(1).prefix),$($(1).incdir),$($(1).headers)}
+endef
+
+
+# build the list of the paths of the library master headers
+#   usage: library.staging.headers {library}
+define library.staging.headers.master
+    ${subst $($(1).prefix),${abspath $($(1).incdir)..}/,$($(1).headers.master)}
+endef
+
+
+# build the path to the library master header
+#   usage: library.staging.header.master {library} {header}
+define library.staging.header.master
+    ${subst $($(1).prefix),${abspath $($(1).incdir)..}/,$(2)}
 endef
 
 
