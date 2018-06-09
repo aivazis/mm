@@ -49,6 +49,13 @@ mm.info:
 	${call log.var,origin,$(project.origin)}
 	${call log.var,anchor,$(project.anchor)}
 	${call log.var,local,$(project.makefile)}
+	${call log.sec,"contributions to the compile/link command line",}
+	${call log.var,flags,$(mm.flags)}
+	${call log.var,defines,$(mm.defines)}
+	${call log.var,incpath,$(mm.incpath)}
+	${call log.var,ldflags,$(mm.ldflags)}
+	${call log.var,libpath,$(mm.libpath)}
+	${call log.var,libraries,$(mm.libraries)}
 
 # make
 make.info:
