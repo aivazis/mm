@@ -13,6 +13,7 @@ comma := ,
 empty :=
 space := $(empty) $(empty)
 
+# some of these may be set already by the {mm.py} driver
 # mm info
 mm ?=
 mm.version ?=
@@ -23,7 +24,7 @@ mm.compilers ?=
 # contributions to the build
 mm.flags ?=
 mm.defines ?=
-mm.incpath ?= $(mm.home)
+mm.incpath ?=
 mm.ldflags ?=
 mm.libpath ?=
 mm.libraries ?=
