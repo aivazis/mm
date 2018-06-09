@@ -121,7 +121,8 @@ define library.workflows.object =
 
 # compile source files
 $(source.object): $(source.path) \
-    | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive}
+    | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} \
+    $($(1).tmpdir)
 	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
 	${call \
             languages.$(source.language).compile, \
