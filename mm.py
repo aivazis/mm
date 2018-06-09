@@ -121,6 +121,23 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     trace = pyre.properties.bool(default=False)
     trace.doc = "ask make to print trace information"
 
+    # important environment variables
+    PATH = pyre.properties.envpath(variable="PATH")
+    PATH.doc = "the PATH environment variable"
+
+    LD_LIBRARY_PATH = pyre.properties.envpath(variable="LD_LIBRARY_PATH")
+    LD_LIBRARY_PATH.doc = "the LD_LIBRARY_PATH environment variable"
+
+    PYTHONPATH = pyre.properties.envpath(variable="PYTHONPATH")
+    PYTHONPATH.doc = "the PYTHONPATH environment variable"
+
+    MM_INCLUDES = pyre.properties.envpath(variable="MM_INCLUDES")
+    MM_INCLUDES.doc = "the MM_INCLUDES environment variable"
+
+    MM_LIBPATH = pyre.properties.envpath(variable="MM_LIBPATH")
+    MM_LIBPATH.doc = "the MM_LIBPATH environment variable"
+
+
     # constants
     version = "4.0"
 
@@ -197,6 +214,27 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # assemble the list of compilers
         compilers = " ".join(self.compilers)
 
+        # compute the target
+        target = host.platform + "-" + host.cpus.architecture
+        # assemble the variants
+        variants = ",".join(self.target)
+        # compute the current target tag
+        tag = "-".join(filter(None, (variants, target)))
+
+        # pull variables from the environment and adjust them
+        path = self.adjust(var=self.PATH, path=(prefix / tag / "bin"))
+        ldpath = self.adjust(var=self.LD_LIBRARY_PATH, path=(prefix / tag / "lib"))
+        pythonpath = self.adjust(var=self.PYTHONPATH, path=(prefix / tag / "packages"))
+        incpath = self.adjust(var=self.MM_INCLUDES, path=(prefix / tag / "include"))
+        libpath = self.adjust(var=self.MM_LIBPATH, path=(prefix / tag / "lib"))
+
+        # splice them together
+        path = os.pathsep.join(path)
+        ldpath = os.pathsep.join(ldpath)
+        pythonpath = os.pathsep.join(pythonpath)
+        incpath = " ".join(incpath)
+        libpath = " ".join(libpath)
+
         # build the command line options to GNU make
         argv = [
             # the executable
@@ -238,6 +276,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             "project.makefile={}".format(self.local if anchor else ''),
 
             # target info
+            f"target={target}",
+            f"target.tag={tag}",
             "target.variants={}".format(" ".join(self.target)),
 
             # user info
@@ -260,27 +300,17 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             f"mm.home={home}",
             f"mm.master={master}",
             f"mm.compilers={compilers}",
+            f"mm.incpath={home} {incpath}",
+            f"mm.libpath={libpath}",
 
         # plus whatever the user put on the command line
         ] + list(self.argv)
 
-        # if the user is only interested in publishing the build environment
+        # if the user is only interested in publishing the build environment and i have
+        # something to say
         if self.paths:
-            # compute the current target tag
-            tag = ",".join(self.target) + "-" + host.platform + "-" + host.cpus.architecture
-            # build the products directory
-            prefix = os.path.join(prefix, tag)
-
-            # pull variables from the environment and adjust them
-            path = self.adjust(var="PATH", prefix=prefix, dir="bin")
-            ldpath = self.adjust(var="LD_LIBRARY_PATH", prefix=prefix, dir="lib")
-            pythonpath = self.adjust(var="PYTHONPATH", prefix=prefix, dir="packages")
-            incpath = self.adjust(var="MM_INCLUDES", prefix=prefix, dir="include")
-            libpath = self.adjust(var="MM_LIBPATH", prefix=prefix, dir="lib")
-
             # grab the shell setting
             shell = self.paths
-
             # figure out the template to use
             # for sh compatible shells
             if shell == "sh":
@@ -292,8 +322,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 template = 'setenv {var} "{value}"'
             # otherwise
             else:
-                # this is a bug: the trait validators were adjusted to include a new shell, but
-                # there is no support for this shell yet
+                # N.B.: this is a bug: the trait validators were adjusted to include a new
+                # shell, but there is no support for this shell yet
+                # complain
                 self.firewall.log(f'{shell}: unsupported shell')
                 # and bail
                 return 1
@@ -312,6 +343,15 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         if self.show:
             # show the command line
             self.info.log('make: ' + ' '.join(argv))
+
+        # our updates to the environment variables
+        env = {
+            "PATH": path,
+            "LD_LIBRARY_PATH": ldpath,
+            "PYTHONPATH": pythonpath,
+        }
+        # adjust the envvironment
+        os.environ.update(env)
 
         # set up the subprocess settings
         settings = {
@@ -476,7 +516,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
     def locateBuildRoot(self, projectRoot):
         """
-        Locate the folder in which to place the build products
+        Locate the directory in which to place the build intermediate products
         """
         # get the user's opinion
         bldroot = self.bldroot
@@ -495,14 +535,14 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # pick a channel
             channel = self.error
             # complain
-            channel.log('could not figure out where to install the build products')
+            channel.log('could not figure out where to put the intermediate build products')
         # give up
         return None
 
 
     def locateInstallDirectory(self, projectRoot):
         """
-        Locate the directory where the build products are to be deposited
+        Locate the directory where the build products are to be installed
         """
         # get the user's opinion
         prefix = self.prefix
@@ -521,7 +561,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # pick a channel
             channel = self.error
             # complain
-            channel.log('could not figure out where to place the build products')
+            channel.log('could not figure out where to install the build products')
         # give up
         return None
 
@@ -545,22 +585,14 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         return None
 
 
-    def adjust(self, var, prefix, dir):
+    def adjust(self, var, path):
         """
         Prefix the path in {var} with the a local folder
         """
-        # get the separator
-        sep = os.pathsep
-        # get the current setting of the {var} and turn it into a list
-        var = list(filter(None, os.environ.get(var, "").split(sep)))
-        # augment it by prepending the target folder
-        var.insert(0, os.path.join(prefix,dir))
-        # trim
-        var = self.uniq(var)
-        # splice
-        var = sep.join(var)
-        # and return
-        return var
+        # augment the path list in {var} by prepending the target folder
+        var.insert(0, path)
+        # eliminate duplicates, convert to strings, and return the adjusted list
+        return self.uniq(var)
 
 
     def uniq(self, seq):
@@ -572,6 +604,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         known = set()
         # go through the items in sequence
         for item in seq:
+            # convert to a string
+            item = str(item)
             # skip this one if we have seen it before
             if item in known: continue
             # otherwise hand it to the caller
