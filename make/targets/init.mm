@@ -9,9 +9,10 @@
 # ${info -- target.init}
 
 # user info
-target := $(host.os)-$(host.arch)
-
-# additional targets
+target ?= $(host.os)-$(host.arch)
+# target tag
+target.tag ?=
+# variants are user specified confiugrations, such shared, debug, opt, cov, etc
 target.variants ?=
 # target-specific compiler choices
 target.compilers ?=
