@@ -9,14 +9,14 @@
 # ${info -- builder.init}
 
 # the builder constructor
-#   usage: builder.init {project-prefix} {project-bldroot} {target-variants}
+#   usage: builder.init {project-prefix} {project-bldroot}
 define builder.init =
     # the build tag
-    ${eval builder.tid := ${if $(3),${subst $(space),$(comma),${sort $(3)}}-,}}
+    ${eval builder.tid := $(target.tag)}
 
     # construct the name of the top level directory
-    ${eval builder.dest.prefix := $(1)/$(builder.tid)$(target)/}
-    ${eval builder.dest.root := $(2)/$(builder.tid)$(target)/}
+    ${eval builder.dest.prefix := $(1)/$(builder.tid)/}
+    ${eval builder.dest.root := $(2)/$(builder.tid)/}
     ${eval builder.dest.bin := $(builder.dest.prefix)bin/}
     ${eval builder.dest.doc := $(builder.dest.prefix)doc/}
     ${eval builder.dest.inc := $(builder.dest.prefix)include/}
