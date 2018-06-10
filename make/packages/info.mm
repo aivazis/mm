@@ -106,13 +106,13 @@ define package.workflows.driver =
 
     # local variables
     # the absolute path to the source
-    ${eval path.source := bin/$(2)}
+    ${eval path.source := $($($(1).project).home)/$($(1).bin)$(2)}
     # the absolute path to the byte compiled file
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
 	${call log.action,publish,$(path.source)}
-	$(cp) $(path.source) $(path.destination)
+	echo $(cp) $(path.source) $(path.destination)
 
 # all done
 endef

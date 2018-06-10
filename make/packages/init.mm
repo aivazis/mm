@@ -41,6 +41,8 @@ define packages.init
     ${eval $(2).root ?= pkg/$($(2).name)/}
     # the file with the package meta-data, relative to the package root
     ${eval $(2).meta ?= meta}
+    # the directory with the driver script sources relative to the project home
+    ${eval $(2).bin ?= bin/}
     # the directory where extensions get parked, relative to the package root}
     ${eval $(2).ext ?= ext/}
     # the absolute path to the package source tree
