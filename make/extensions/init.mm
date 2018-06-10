@@ -38,7 +38,7 @@ define extensions.init =
 
     # layout
     # the root of the extension source tree relative to the project home
-    ${eval $(2).root ?= ext/ext$($(2).stem)}
+    ${eval $(2).root ?= ext/$($(2).stem)/}
     # the absolute path to the extension source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
@@ -56,7 +56,7 @@ define extensions.init =
     # its stem
     ${eval $(2).lib.stem ?= $($(2).stem)module}
     # its location
-    ${eval $(2).lib.root ?= ext/ext$($(2).stem)/}
+    ${eval $(2).lib.root ?= $($(2).root)}
     # its external dependencies
     ${eval $(2).lib.extern ?= $($(2).extern)}
     # add the library it wraps to its prerequisites
@@ -78,7 +78,7 @@ endef
 define extension.module.init
     ${strip
         ${foreach suffix,$(languages.sources),
-            ${wildcard $($(1).prefix)/$($(1).module)$(suffix)}
+            ${wildcard $($(1).prefix)$($(1).module)$(suffix)}
         }
     }
 endef
