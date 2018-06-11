@@ -112,7 +112,7 @@ define package.workflows.driver =
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
 	${call log.action,publish,$(path.source)}
-	echo $(cp) $(path.source) $(path.destination)
+	$(cp) $(path.source) $(path.destination)
 
 # all done
 endef
