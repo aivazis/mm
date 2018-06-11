@@ -43,7 +43,8 @@ define target.adjust =
             category,
             $(3),
             ${eval
-                targets.$(1).$(language).$(category) := $($(compiler.$(language)).$(1))
+                targets.$(1).$(language).$(category) := \
+                    ${if $(compiler.$(language)),$($(compiler.$(language)).$(1)),}
             }
         }
     }
