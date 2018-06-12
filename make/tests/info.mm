@@ -69,7 +69,8 @@ $(1): $(1).cases $(1).clean
 
 # invoking the driver for each registered test case
 $(1).cases: $($($(1).suite).prerequisites)
-	${if $($(1).cases), \
+	$(cd) $${dir $($(1).source)} ; \
+        ${if $($(1).cases), \
             ${foreach argv, $($(1).cases), \
                 ${call log.action,test,$($(1).source) $($(argv))}; \
                 $(compiler.$($(1).language)) $($(1).source) $($(argv)); \
