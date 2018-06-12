@@ -112,7 +112,7 @@ endef
 #   usage: test.staging.target {testsuite} {driver}
 define test.staging.target =
     ${strip
-        ${eval _trgt := $(1).${subst /,.,${basename $(driver:$($(1).prefix)%=%)}}}
+        ${eval _trgt := ${subst /,.,$($(1).root)${basename $(2:$($(1).prefix)%=%)}}}
         ${eval $(_trgt).name := $(_trgt)}
         ${eval $(_trgt).source := $(2)}
         ${eval $(_trgt).base := ${basename $($(_trgt).source)}}
