@@ -42,15 +42,23 @@ define package.workflows.build
 $(1): $(1).directories $(1).assets
 	${call log.asset,"pkg",$(1)}
 
+# second level targets
 # make all relevant directories
 $(1).directories: $($(1).staging.pycdirs)
+# make all assets
+$(1).assets: $(1).pyc $(1).meta $(1).drivers
+# byte compile all sources
+$(1).pyc: $($(1).staging.pyc)
+# build the package meta-data file
+$(1).meta: $($(1).staging.meta.pyc)
+# export all driver scripts
+$(1).drivers: $($(1).staging.drivers)
 
+# individual assets
 # make the directories with the byte compiled files
 $($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
-
-$(1).assets: $($(1).staging.pyc) $($(1).staging.meta.pyc) $($(1).staging.drivers)
 
 # make rules that byte compile the sources
 ${foreach source,$($(1).sources),
@@ -63,7 +71,7 @@ ${foreach driver,$($(1).drivers),
 }
 
 # make the rule that generates the package meta-data file
-$($(1).staging.meta.pyc): $($(1).staging.meta)
+$($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
 	${call log.action,sed,$$<}
 	$(sed) \
           -e "s:PROJECT:$($(1).project):g" \
@@ -73,9 +81,12 @@ $($(1).staging.meta.pyc): $($(1).staging.meta)
           -e "s|YEAR|$($($(1).project).now.year)|g" \
           -e "s|TODAY|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
-	${call log.action,python,$($(1).staging.meta.py)}
+	${call log.action,meta,$($(1).root)$($(1).meta)}
 	$(python.compile) $($(1).staging.meta.py)
 	$(rm) $($(1).staging.meta.py)
+
+# mark the package meta-data product as phony so it gets made unconditionally
+.PHONY: $($(1).staging.meta.pyc)
 
 # all done
 endef
