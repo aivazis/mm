@@ -92,7 +92,7 @@ define library.workflows.header.master =
 # publish public headers
 ${call library.staging.header.master,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	${call log.action,"publish",${subst $($($(1).project).home)/,,$(2)}}
+	${call log.action,"copy",${subst $($($(1).project).home)/,,$(2)}}
 # all done
 endef
 
@@ -103,7 +103,7 @@ define library.workflows.header =
 # publish public headers
 ${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	${call log.action,"publish",${subst $($($(1).project).home)/,,$(2)}}
+	${call log.action,"copy",${subst $($($(1).project).home)/,,$(2)}}
 # all done
 endef
 
