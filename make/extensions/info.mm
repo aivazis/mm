@@ -52,7 +52,7 @@ $(1).extension: $($(1).module.so)
 
 $($(1).module.so): $($(1).module.init) $($($(1).lib).staging.archive) \
     ${foreach lib,$($(1).wraps), $($(lib).staging.archive)}
-	${call log.action,"dll",$($(1).module.init)}
+	${call log.action,"dll",${subst $($($(1).project).home)/,,$($(1).module.init)}}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
             $($(1).module.so), \
