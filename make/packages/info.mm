@@ -122,7 +122,7 @@ define package.workflows.driver =
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
-	${call log.action,copy,${subst $($($(1).project).home)/,,$(path.source)}}
+	${call log.action,"cp",${subst $($($(1).project).home)/,,$(path.source)}}
 	$(cp) $(path.source) $(path.destination)
 
 # all done
