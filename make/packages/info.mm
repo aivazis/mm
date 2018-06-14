@@ -72,7 +72,7 @@ ${foreach driver,$($(1).drivers),
 
 # make the rule that generates the package meta-data file
 $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
-	${call log.action,sed,$$<}
+	${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
           -e "s:PROJECT:$($(1).project):g" \
           -e "s:MAJOR:$($($(1).project).major):g" \
@@ -81,7 +81,7 @@ $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
           -e "s|YEAR|$($($(1).project).now.year)|g" \
           -e "s|TODAY|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
-	${call log.action,meta,$($(1).root)$($(1).meta)}
+	${call log.action,python,$($(1).root)$($(1).meta)}
 	$(python.compile) $($(1).staging.meta.py)
 	$(rm) $($(1).staging.meta.py)
 
@@ -104,7 +104,7 @@ define package.workflows.pyc =
     ${eval path.pyc := ${call package.staging.pyc,$(1),$(path.py)}}
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
-	${call log.action,python,$$<}
+	${call log.action,python,${subst $($($(1).project).home)/,,$(path.py)}}
 	$(python.compile) $(path.py)
 	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
@@ -122,7 +122,7 @@ define package.workflows.driver =
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
-	${call log.action,publish,$(path.source)}
+	${call log.action,copy,${subst $($($(1).project).home)/,,$(path.source)}}
 	$(cp) $(path.source) $(path.destination)
 
 # all done
