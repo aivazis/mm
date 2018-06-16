@@ -216,7 +216,11 @@ library.staging.object = \
 # build the list of staging directories for the public headers
 #   usage: library.staging.incdirs {library}
 define library.staging.incdirs
-    ${subst $($(1).prefix),$($(1).incdir),$($(1).directories)}
+    ${strip
+        ${subst $($(1).prefix),$($(1).incdir),
+            ${sort ${dir $($(1).headers) $($(1).headers.master)}}
+        }
+    }
 endef
 
 
