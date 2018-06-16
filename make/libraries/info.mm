@@ -114,6 +114,8 @@ define library.workflows.object =
 
     # compute the absolute path of the source
     ${eval source.path := $(2)}
+    # compute the path of the source relative to the project home
+    ${eval source.relpath := ${subst $($($(1).project).home)/,,$(source)}}
     # and the path to the object module
     ${eval source.object := ${call library.staging.object,$(1),$(2)}}
     # figure out the source language
@@ -123,12 +125,19 @@ define library.workflows.object =
 $(source.object): $(source.path) \
     | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} \
     $($(1).tmpdir)
-	${call log.action,"$(source.language)",${subst $($($(1).project).home)/,,$(source)}}
-	${call \
-            languages.$(source.language).compile, \
-            $(source.path),$(source.object),$($(1).extern)\
+	${call log.action,"$(source.language)",$(source.relpath)}
+	${if $(compiler.$(source.language)), \
+            ${call \
+                languages.$(source.language).compile, \
+                $(source.path),$(source.object),$($(1).extern)\
+            }, \
+            ${call log.error,"$(source.relpath): no $(source.language) compiler available"} \
         }
-	${if $($(compiler.$(source.language)).compile.generate-dependencies), \
+	${if \
+            ${and \
+	        $(compiler.$(source.language)), \
+                $($(compiler.$(source.language)).compile.generate-dependencies)\
+            }, \
             $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
             $(sed) \
                 -e 's/\#.*//' \
