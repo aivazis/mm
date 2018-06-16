@@ -33,6 +33,11 @@ log.help = \
 # text
 log.info = $(log) $(1)
 
+log.error = \
+    $(log) \
+    $(palette.light-red)"  [error]"$(palette.normal) \
+    $(palette.red)$(1)$(palette.normal) \
+
 # render a build action
 log.asset = \
     $(log) \
