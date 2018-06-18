@@ -12,7 +12,7 @@ targets.cov.description := compiling with coverage information
 ${eval ${call target.init,cov}}
 
 # adjust
-${call target.adjust,cov,c c++ fortran,flags ldflags}
+${call target.adjust,cov,$(languages.compiled),flags ldflags}
 
 # build my info target
 ${eval ${call target.info.flags,cov}}

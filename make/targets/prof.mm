@@ -12,7 +12,7 @@ targets.prof.description := compiling with profiling support
 ${eval ${call target.init,prof}}
 
 # adjust
-${call target.adjust,prof,c c++ fortran,flags ldflags}
+${call target.adjust,prof,$(languages.compiled),flags ldflags}
 
 # build my info target
 ${eval ${call target.info.flags,prof}}

@@ -12,7 +12,7 @@ targets.debug.description := compiling with support for debugging
 ${eval ${call target.init,debug}}
 
 # adjust
-${call target.adjust,debug,c c++ cuda fortran,flags ldflags}
+${call target.adjust,debug,$(languages.compiled),flags ldflags}
 # define the DEBUG macro
 ${foreach language,c c++ cuda cython fortran, \
     ${eval targets.debug.$(language).defines += DEBUG} \

@@ -12,7 +12,7 @@ targets.shared.description := building relocatable symbols suitable for a shared
 ${eval ${call target.init,shared}}
 
 # adjust
-${call target.adjust,shared,c c++ fortran,flags ldflags}
+${call target.adjust,shared,$(languages.compiled),flags ldflags}
 
 # build my info target
 ${eval ${call target.info.flags,shared}}

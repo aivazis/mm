@@ -12,7 +12,7 @@ targets.opt.description := optimized build
 ${eval ${call target.init,opt}}
 
 # adjust
-${call target.adjust,opt,c c++ fortran,flags}
+${call target.adjust,opt,$(languages.compiled),flags}
 
 # build my info target
 ${eval ${call target.info.flags,opt}}
