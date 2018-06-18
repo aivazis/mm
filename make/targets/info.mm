@@ -9,9 +9,10 @@
 # ${info -- object.info}
 
 # target info
-target.info:
+targets.info:
 	${call log.sec,"target", "target info"}
 	${call log.var,variants,$(target.variants)}
+	${call log.var,compilers,$(target.compilers)}
 
 # make a rule to show taret specific info
 #  usage: target.info.flags
