@@ -11,12 +11,10 @@
 # compiler info
 compilers.info:
 	${call log.sec,"compilers", "map of languages to compilers"}
-	${call log.var,c,$(compiler.c)}
-	${call log.var,c++,$(compiler.c++)}
-	${call log.var,cuda,$(compiler.cuda)}
-	${call log.var,f90,$(compiler.fortran)}
-	${call log.var,python,$(compiler.python)}
-	${call log.var,cython,$(compiler.cython)}
+	${foreach language,$(languages),\
+            ${call log.var,$(language),${call compiler.available,$(language)}} ;\
+        }
+
 
 # show me
 # ${info -- done with compilers.info}

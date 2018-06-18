@@ -94,6 +94,14 @@ ${strip
 }
 endef
 
+# utility that produces compiler info suitable for user messages
+#   usage: compiler.available {language}
+define compiler.available =
+${strip
+    ${if $(compiler.$(1)),$(compiler.$(1)),"not available"}
+}
+endef
+
 
 # show me
 # ${info -- done with compilers.init}
