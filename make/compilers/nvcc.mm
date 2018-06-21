@@ -20,7 +20,6 @@ nvcc.prefix.libraries := -l
 nvcc.compile.base :=
 nvcc.compile.only := -c
 nvcc.compile.output := -o
-nvcc.compile.generate-dependencies :=
 
 # symbols and optimization
 nvcc.debug := -g

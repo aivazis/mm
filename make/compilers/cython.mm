@@ -20,7 +20,6 @@ cython.prefix.libraries := -l
 cython.compile.base :=
 cython.compile.only := -c
 cython.compile.output := -o
-cython.compile.generate-dependencies :=
 
 # symbols and optimization
 cython.debug := -g
