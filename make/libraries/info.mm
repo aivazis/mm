@@ -116,15 +116,16 @@ define library.workflows.object =
     ${eval source.path := $(2)}
     # compute the path of the source relative to the project home
     ${eval source.relpath := ${subst $($($(1).project).home)/,,$(source)}}
-    # and the path to the object module
+    # the path to the object module
     ${eval source.object := ${call library.staging.object,$(1),$(2)}}
+    # and the path to the generated dependency fil
+    ${eval source.dep := $(source.object:$(builder.ext.obj)=$(builder.ext.dep))}
     # figure out the source language
     ${eval source.language := $(ext${suffix $(2)})}
 
 # compile source files
 $(source.object): $(source.path) \
-    | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} \
-    $($(1).tmpdir)
+    | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} $($(1).tmpdir)
 	${call log.action,"$(source.language)",$(source.relpath)}
 	${if $(compiler.$(source.language)), \
             ${call \
@@ -138,16 +139,15 @@ $(source.object): $(source.path) \
 	        $(compiler.$(source.language)), \
                 $($(compiler.$(source.language)).compile.generate-dependencies)\
             }, \
-            $(cp) $$(@:$(builder.ext.obj)=$(builder.ext.dep)) $$@.$$$$ ; \
+            $(cp) $(source.dep) $(source.object).$$$$ ; \
             $(sed) \
                 -e 's/\#.*//' \
                 -e 's/^[^:]*: *//' \
                 -e 's/ *\\$$$$//' \
                 -e '/^$$$$/d' \
                 -e 's/$$$$/ :/' \
-                $$(@:$(builder.ext.obj)=$(builder.ext.dep)) \
-                    < $$(@:$(builder.ext.obj)=$(builder.ext.dep)) >> $$@.$$$$ ; \
-            $(mv) $$@.$$$$ $$(@:$(builder.ext.obj)=$(builder.ext.dep)), \
+                $(source.dep) >> $(source.object).$$$$ ; \
+            $(mv) $(source.object).$$$$ $(source.dep), \
         }
 
 # all done
