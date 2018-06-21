@@ -68,6 +68,31 @@ languages.headers := \
         ${foreach language, $(languages), $(languages.$(language).headers)} \
     }
 
+
+# dispatch a compile event to the registered compiler for a given language
+#   usage: languages.compile {language} {source} {object} {external dependencies}
+define languages.compile =
+${strip
+    ${if $(compiler.$(1)),
+        ${call languages.$(1).compile,$(2),$(3),$(4)},
+        ${call log.error,"no $(1) compiler available"}
+    }
+}
+endef
+
+
+# ask the compiler to generate a file with the include dependencies of a translation unit and
+# convert it in to a makefil
+#   usage: languages.makedep {language} {source} {depfile} {external dependencies}
+define languages.makedep =
+${strip
+    ${if $(compiler.$(1)),
+        ${call $(compiler.$(1)).makedep,$(2),$(3),$(4)},
+    }
+}
+endef
+
+
 # show me
 # ${info -- done with languages.model}
 
