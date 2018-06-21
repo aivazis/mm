@@ -18,7 +18,7 @@ nvcc.prefix.libraries := -l
 
 # compile time flags
 nvcc.compile.base :=
-nvcc.compile.only := -c
+nvcc.compile.only := -dc
 nvcc.compile.output := -o
 
 # symbols and optimization
