@@ -31,12 +31,30 @@ log.help = \
     $(palette.normal)$(2)$(palette.normal)
 
 # text
-log.info = $(log) $(1)
+log.info = \
+    $(log) \
+    $(palette.info)"  [info]"$(palette.normal) \
+    $(palette.info)$(1)$(palette.normal) \
+
+log.warning = \
+    $(log) \
+    $(palette.warning)"  [warning]"$(palette.normal) \
+    $(palette.warning)$(1)$(palette.normal) \
 
 log.error = \
     $(log) \
-    $(palette.light-red)"  [error]"$(palette.normal) \
-    $(palette.red)$(1)$(palette.normal) \
+    $(palette.error)"  [error]"$(palette.normal) \
+    $(palette.error)$(1)$(palette.normal) \
+
+log.debug = \
+    $(log) \
+    $(palette.debug)"  [debug]"$(palette.normal) \
+    $(palette.debug)$(1)$(palette.normal) \
+
+log.firewall = \
+    $(log) \
+    $(palette.firewall)"  [firewall]"$(palette.normal) \
+    $(palette.firewall)$(1)$(palette.normal) \
 
 # render a build action
 log.asset = \

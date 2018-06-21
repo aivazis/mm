@@ -26,4 +26,11 @@ palette.light-purple :=
 palette.light-cyan :=
 palette.white :=
 
+# purpose
+palette.info :=
+palette.warning :=
+palette.error :=
+palette.debug :=
+palette.firewall :=
+
 # end of file
