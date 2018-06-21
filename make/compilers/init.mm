@@ -18,7 +18,6 @@ ${strip
         $($(2).compile.only) $(3)
         $($(2).compile.output) $(4)
         $($(2).compile.base)
-        $($(2).compile.generate-dependencies)
         ${call compiler.compile.options,$(1),$(2),$(5)}
 }
 endef
@@ -93,6 +92,7 @@ ${strip
     $(2)
 }
 endef
+
 
 # utility that produces compiler info suitable for user messages
 #   usage: compiler.available {language}
