@@ -79,7 +79,7 @@ ${foreach source,$($(1).sources),
 }
 
 # include the dependency files
--include $($(1).staging.objects:$(builder.ext.obj)=$(builder.ext.dep)) \
+-include $($(1).staging.objects:$(builder.ext.obj)=$(builder.ext.dep))
 
 # all done
 endef
@@ -127,29 +127,12 @@ define library.workflows.object =
 $(source.object): $(source.path) \
     | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} $($(1).tmpdir)
 	${call log.action,"$(source.language)",$(source.relpath)}
-	${if $(compiler.$(source.language)), \
-            ${call \
-                languages.$(source.language).compile, \
-                $(source.path),$(source.object),$($(1).extern)\
-            }, \
-            ${call log.error,"$(source.relpath): no $(source.language) compiler available"} \
+	${call \
+            languages.compile,$(source.language),$(source.path),$(source.object),$($(1).extern) \
         }
-	${if \
-            ${and \
-	        $(compiler.$(source.language)), \
-                $($(compiler.$(source.language)).compile.generate-dependencies)\
-            }, \
-            $(cp) $(source.dep) $(source.object).$$$$ ; \
-            $(sed) \
-                -e 's/\#.*//' \
-                -e 's/^[^:]*: *//' \
-                -e 's/ *\\$$$$//' \
-                -e '/^$$$$/d' \
-                -e 's/$$$$/ :/' \
-                $(source.dep) >> $(source.object).$$$$ ; \
-            $(mv) $(source.object).$$$$ $(source.dep), \
+	${call \
+            languages.makedep,$(source.language),$(source.path),$(source.dep),$($(1).extern) \
         }
-
 # all done
 endef
 
