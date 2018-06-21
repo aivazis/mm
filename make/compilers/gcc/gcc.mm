@@ -18,10 +18,10 @@ gcc.prefix.libpath := -L
 gcc.prefix.libraries := -l
 
 # compile time flags
-gcc.compile.base := -pipe
 gcc.compile.only := -c
 gcc.compile.output := -o
-gcc.compile.generate-dependencies := -MMD
+gcc.compile.makedep := -MMD
+gcc.compile.base := -pipe $(gcc.compile.makedep)
 
 # symbols and optimization
 gcc.debug := -g
@@ -40,5 +40,22 @@ gcc.std.c11 := -std=c11
 gcc.link.output := -o
 # link a dynamically loadable library
 gcc.link.dll := -shared
+
+# dependency generation
+# gcc does this in one pass: the dependency file gets generated during the compilation phase so
+# there is no extra step necessary to build it
+#   usage: gcc.makedep {source} {depfile} {external dependencies}
+define gcc.makedep =
+    $(cp) $(2) $(2).tmp ; \
+    $(sed) \
+        -e 's/\#.*//' \
+        -e 's/^[^:]*: *//' \
+        -e 's/ *\\$$$$//' \
+        -e '/^$$$$/d' \
+        -e 's/$$$$/ :/' \
+        $(2) >> $(2).tmp ; \
+    $(mv) $(2).tmp $(2)
+endef
+
 
 # end of file

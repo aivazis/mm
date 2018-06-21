@@ -21,7 +21,7 @@ gfortran.prefix.libraries := -l
 gfortran.compile.base := -pipe
 gfortran.compile.only := -c
 gfortran.compile.output := -o
-gfortran.compile.generate-dependencies :=
+gfortran.compile.makedep :=
 
 # symbols and optimization
 gfortran.debug := -g
@@ -38,5 +38,10 @@ gfortran.link.output := -o
 gfortran.link.shared :=
 # link a dynamically loadable library
 gfortran.link.dll := -shared
+
+# dependency generation
+# gfortran cannot generate dependencies
+define gfortran.makedep =
+endef
 
 # end of file

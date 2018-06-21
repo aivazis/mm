@@ -18,10 +18,10 @@ g++.prefix.libpath := -L
 g++.prefix.libraries := -l
 
 # compile time flags
-g++.compile.base := -pipe
 g++.compile.only := -c
 g++.compile.output := -o
-g++.compile.generate-dependencies := -MMD
+g++.compile.makedep := -MMD
+g++.compile.base := -pipe $(g++.compile.makedep)
 
 # symbols and optimization
 g++.debug := -g
@@ -41,5 +41,22 @@ g++.link.output := -o
 g++.link.shared :=
 # link a dynamically loadable library
 g++.link.dll := -shared
+
+# dependency generation
+# g++ does this in one pass: the dependency file gets generated during the compilation phase so
+# there is no extra step necessary to build it
+#   usage: g++.makedep {source} {depfile} {external dependencies}
+define g++.makedep =
+    $(cp) $(2) $(2).tmp ; \
+    $(sed) \
+        -e 's/\#.*//' \
+        -e 's/^[^:]*: *//' \
+        -e 's/ *\\$$$$//' \
+        -e '/^$$$$/d' \
+        -e 's/$$$$/ :/' \
+        $(2) >> $(2).tmp ; \
+    $(mv) $(2).tmp $(2)
+endef
+
 
 # end of file
