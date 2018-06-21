@@ -23,7 +23,7 @@ languages.$(language).info:
 endef
 
 
-# make a recipe that display the known languages
+# make a recipe that displays the known languages
 languages.info:
 	${call log.var,"languages",$(languages)}
 

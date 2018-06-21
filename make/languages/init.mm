@@ -17,7 +17,7 @@ define language.init =
         $(languages.$(1).sources),
         ${eval ext$(extension) := $(1)}
     }
-    # assemble the option categories in
+    # assemble the option categories in one pile
     ${eval languages.$(1).categories := \
         $(languages.$(1).categories.compile) $(languages.$(1).categories.link) \
     }
