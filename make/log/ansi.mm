@@ -5,26 +5,36 @@
 # (c) 1998-2018 all rights reserved
 #
 
+# control sequences
+csi8 = "[$(1)m"
+csi256 = "[$(1);5;$(2)m"
+
 # colors
-csi = "[$(1)m"
-palette.normal := ${call csi,0}
-palette.black := ${call csi,0;30}
-palette.red := ${call csi,0;31}
-palette.green := ${call csi,0;32}
-palette.brown := ${call csi,0;33}
-palette.blue := ${call csi,0;34}
-palette.purple := ${call csi,0;35}
-palette.cyan := ${call csi,0;36}
-palette.light-gray := ${call csi,0;37}
+palette.normal := ${call csi8,0}
+palette.black := ${call csi8,0;30}
+palette.red := ${call csi8,0;31}
+palette.green := ${call csi8,0;32}
+palette.brown := ${call csi8,0;33}
+palette.blue := ${call csi8,0;34}
+palette.purple := ${call csi8,0;35}
+palette.cyan := ${call csi8,0;36}
+palette.light-gray := ${call csi8,0;37}
 
 # bright-colors
-palette.dark-gray := ${call csi,1;30}
-palette.light-red := ${call csi,1;31}
-palette.light-green := ${call csi,1;32}
-palette.yellow := ${call csi,1;33}
-palette.light-blue := ${call csi,1;34}
-palette.light-purple := ${call csi,1;35}
-palette.light-cyan := ${call csi,1;36}
-palette.white := ${call csi,1;37}
+palette.dark-gray := ${call csi8,1;30}
+palette.light-red := ${call csi8,1;31}
+palette.light-green := ${call csi8,1;32}
+palette.yellow := ${call csi8,1;33}
+palette.light-blue := ${call csi8,1;34}
+palette.light-purple := ${call csi8,1;35}
+palette.light-cyan := ${call csi8,1;36}
+palette.white := ${call csi8,1;37}
+
+# purpose
+palette.info := ${call csi256,38,28}
+palette.warning := ${call csi256,38,214}
+palette.error := ${call csi256,38,196}
+palette.debug := ${call csi256,38,75}
+palette.firewall := $(palette.light-red)
 
 # end of file
