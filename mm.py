@@ -350,7 +350,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # if the user wants to see
         if self.show:
             # show the command line
-            self.info.log('make: ' + ' '.join(argv))
+            self.info.log('make: ' + ' '.join(map(str, argv)))
 
         # our updates to the environment variables
         env = {
