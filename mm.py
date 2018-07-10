@@ -76,6 +76,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     quiet = pyre.properties.bool(default=False)
     quiet.doc = "suppress all non-critical output"
 
+    ignore = pyre.properties.bool(default=False)
+    ignore.doc = "ignore target failures and keep going"
+
     # parallelism
     serial = pyre.properties.bool(default=False)
     serial.doc = "control whether to run make in parallel"
@@ -242,6 +245,11 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # complain about typos
             "--warn-undefined-variables",
         ]
+
+        # if the user asked to ignore target failures and keep going
+        if self.ignore:
+            # ask make to comply
+            argv.append("--keep-going")
 
         # suppress make output, unless the user asked to see action details
         if not self.verbose:
