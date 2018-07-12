@@ -14,7 +14,7 @@ extern += ${if ${findstring pyre,$(extern)},,pyre}
 # compiler flags
 pyre.flags ?=
 # enable {pyre} aware code
-pyre.defines := WITH_PYRE WITH_JOURNAL
+pyre.defines += WITH_PYRE WITH_JOURNAL
 # the canonical form of the include directory
 pyre.incpath ?= $(pyre.dir)/include
 
