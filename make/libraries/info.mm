@@ -128,10 +128,12 @@ $(source.object): $(source.path) \
     | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} $($(1).tmpdir)
 	${call log.action,"$(source.language)",$(source.relpath)}
 	${call \
-            languages.compile,$(source.language),$(source.path),$(source.object),$($(1).extern) \
+            languages.compile,$(source.language),$(source.path),$(source.object),\
+                 $(1).$(source.language) $($(1).extern) \
         }
 	${call \
-            languages.makedep,$(source.language),$(source.path),$(source.dep),$($(1).extern) \
+            languages.makedep,$(source.language),$(source.path),$(source.dep),\
+                 $(1).$(source.language) $($(1).extern) \
         }
 # all done
 endef
@@ -147,6 +149,7 @@ $(1).info:
 	${call log.var,source root,$($(1).prefix)}
 	${call log.var,headers,$($(1).incdir)}
 	${call log.var,archive,$($(1).staging.archive)}
+	${call log.var,source languages,$($(1).languages)}
 	${call log.var,requested packages,$($(1).extern.requested)}
 	${call log.var,supported packages,$($(1).extern.supported)}
 	${call log.var,available packages,$($(1).extern.available)}

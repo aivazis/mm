@@ -69,6 +69,11 @@ define libraries.init =
     # the public headers
     ${eval $(2).headers ?= ${call library.headers,$(2)}}
 
+    # build the language specific option detabase
+    ${eval $(2).languages ?= ${call library.languages,$(2)}}
+    # initialize the option database for each source language
+    ${call library.languages.options,$(2)}
+
     # derived artifacts
     # the compile products
     $(2).staging.objects = $${call library.objects,$(2)}
@@ -202,6 +207,26 @@ define library.objects =
                     ${subst $($(1).prefix),,$($(1).sources)}
                 }
             }
+        }
+    }
+endef
+
+
+# analyze the set of sources of a library and deduce the set of source languages
+#   usage library.languages {library}
+define library.languages =
+    ${strip
+        ${foreach extension,${sort ${suffix $($(1).sources)}},$(ext$(extension))}
+    }
+endef
+
+
+# build defaults values for the language specific option database
+#   usage library.languages.options {library}
+define library.languages.options =
+    ${foreach language,$($(1).languages),
+        ${foreach category,$(languages.$(language).categories),
+            ${eval $(1).$(language).$(category) ?=}
         }
     }
 endef
