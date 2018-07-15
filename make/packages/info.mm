@@ -46,11 +46,9 @@ $(1): $(1).directories $(1).assets
 # make all relevant directories
 $(1).directories: $($(1).staging.pycdirs)
 # make all assets
-$(1).assets: $(1).pyc $(1).meta $(1).drivers
+$(1).assets: $(1).pyc ${if $($(1).meta),$(1).meta,} $(1).drivers
 # byte compile all sources
 $(1).pyc: $($(1).staging.pyc)
-# build the package meta-data file
-$(1).meta: $($(1).staging.meta.pyc)
 # export all driver scripts
 $(1).drivers: $($(1).staging.drivers)
 
@@ -59,6 +57,9 @@ $(1).drivers: $($(1).staging.drivers)
 $($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
+
+# build the package meta-data, if available
+${if $($(1).meta),${call package.workflows.meta,$(1)}}
 
 # make rules that byte compile the sources
 ${foreach source,$($(1).sources),
@@ -69,6 +70,14 @@ ${foreach source,$($(1).sources),
 ${foreach driver,$($(1).drivers),
     ${eval ${call package.workflows.driver,$(1),$(driver)}}
 }
+
+# all done
+endef
+
+
+define package.workflows.meta =
+# build the package meta-data file
+$(1).meta: $($(1).staging.meta.pyc)
 
 # make the rule that generates the package meta-data file
 $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
@@ -88,7 +97,6 @@ $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
 # mark the package meta-data product as phony so it gets made unconditionally
 .PHONY: $($(1).staging.meta.pyc)
 
-# all done
 endef
 
 

@@ -66,9 +66,11 @@ define packages.init
     # the raw meta-data file
     ${eval $(2).staging.meta = $($(2).prefix)$($(2).meta)}
     # the generated meta-data file
-    ${eval $(2).staging.meta.py = $($(2).pycdir)$($(2).meta)$(languages.python.sources)}
+    ${eval $(2).staging.meta.py = \
+        ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.sources),}}
     # the byte-compiled meta-data file
-    ${eval $(2).staging.meta.pyc = $($(2).pycdir)$($(2).meta)$(languages.python.pyc)}
+    ${eval $(2).staging.meta.pyc = \
+        ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.pyc),}}
     # the drivers
     ${eval $(2).staging.drivers = ${addprefix $($(2).bindir),$($(2).drivers)}}
 
