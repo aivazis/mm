@@ -18,14 +18,14 @@ cython.prefix.libraries := -l
 
 # compile time flags
 cython.compile.base += -3 --cplus --line-directives
-cython.compile.only := -c
+cython.compile.only :=
 cython.compile.output := -o
 
-# symbols and optimization
-cython.debug := -g
-cython.opt := -O3
-cython.cov := --coverage
-cython.prof := -pg
+# symbols and optimization; not {cython}'s job really, but the compiler protocol requires them
+cython.debug :=
+cython.opt :=
+cython.cov :=
+cython.prof :=
 cython.shared :=
 
 # link time flags
