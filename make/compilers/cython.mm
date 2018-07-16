@@ -17,7 +17,7 @@ cython.prefix.libpath := -L
 cython.prefix.libraries := -l
 
 # compile time flags
-cython.compile.base :=
+cython.compile.base += -3 --cplus --line-directives
 cython.compile.only := -c
 cython.compile.output := -o
 
