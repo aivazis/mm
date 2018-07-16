@@ -25,7 +25,10 @@ define extensions.init =
 
     # the stem for generating extension specific names; it gets used to build the extension
     # archive name, the include directory with the public headers, and the name of the module
+    # shared object
     ${eval $(2).stem ?= $(1)}
+    # form the name
+    ${eval $(2).name ?= ext$($(2).stem)}
 
     # the list of external dependencies
     ${eval $(2).extern ?=}
@@ -41,9 +44,13 @@ define extensions.init =
     ${eval $(2).root ?= ext/$($(2).stem)/}
     # the absolute path to the extension source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
+    # a temporary area
+    ${eval $(2).tmpdir ?= $(builder.dest.staging)$(1)/$($(2).name)/}
 
-    # the name of the module
+    # the name of the main module file
     ${eval $(2).module ?= $($(2).stem)}
+    # the translation unit with the python initialization file
+    ${eval $(2).module.main ?= ${call extension.module.main,$(2)}}
     # the source file with the python initialization routine
     ${eval $(2).module.init ?= ${call extension.module.init,$(2)}}
     # the language of the initialization routine determines the compiler to use
@@ -75,7 +82,7 @@ endef
 
 # identify the extension init file
 #   usage: extension.module.init {extension}
-define extension.module.init
+define extension.module.main
     ${strip
         ${foreach suffix,$(languages.sources),
             ${wildcard $($(1).prefix)$($(1).module)$(suffix)}
@@ -84,10 +91,24 @@ define extension.module.init
 endef
 
 
+# identify the extension init file
+#   usage: extension.module.init {extension}
+define extension.module.init =
+    ${strip
+	${if ${filter $(languages.cython.sources),${suffix $($(1).module.main)}},
+            ${addprefix $($(1).tmpdir),
+                ${notdir $($(1).module.main:$(languages.cython.sources)=.cc)}
+            },
+            $($(1).module.main)
+        }
+    }
+endef
+
+
 # build the path to where the module dll gets deposited
 #   usage: extension.module.dll {extension}
 define extension.module.dll
-    $($($(1).pkg).pycdir)$($($(1).pkg).ext)$($(1).module)$(python.suffix.module)
+    $($($(1).pkg).pycdir)$($($(1).pkg).ext)$($(1).stem)$(python.suffix.module)
 endef
 
 
