@@ -53,7 +53,7 @@ $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(1).assets: $(1).headers.master $(1).headers $(1).archive
+$(1).assets: $(1).headers.master $(1).headers $(1).archive ${if $($(1).dll),$(1).dll,}
 
 $(1).headers.master: $($(1).staging.headers.master)
 
@@ -74,6 +74,9 @@ $(1).archive: $($(1).staging.archive)
 $($(1).staging.archive): $($(1).staging.objects)
 	$(ar.create) $$@ $($(1).staging.objects)
 	${call log.action,"ar",$($(1).archive)}
+
+# if the user asked for a shared object, make the rules that build it
+${if $($(1).dll),${call library.workflows.dll,$(1)},}
 
 # make the rules that compile the archive sources
 ${foreach source,$($(1).sources),
@@ -106,6 +109,20 @@ define library.workflows.header =
 ${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
+# all done
+endef
+
+
+# shared objects
+#   usage: library.workflows.dll
+define library.workflows.dll =
+#if we are here, the user has asked for a shared object
+$(1).dll: $($(1).staging.dll)
+
+$($(1).staging.dll): $($(1).staging.archive)
+	${call log.action,"dll",$($(1).dll)}
+	${call languages.dll,c++,,$($(1).staging.dll),$(1) $($(1).extern)}
+
 # all done
 endef
 
