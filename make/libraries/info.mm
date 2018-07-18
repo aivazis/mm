@@ -121,7 +121,7 @@ $(1).dll: $($(1).staging.dll)
 
 $($(1).staging.dll): $($(1).staging.archive)
 	${call log.action,"dll",$($(1).dll)}
-	${call languages.dll,c++,$($(1).staging.objects),$($(1).staging.dll),$(1) $($(1).extern)}
+	${call languages.dll,c++,$($(1).staging.objects),$($(1).staging.dll),$($(1).extern)}
 
 # all done
 endef
