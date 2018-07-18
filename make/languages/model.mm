@@ -93,6 +93,30 @@ ${strip
 endef
 
 
+# dispatch a link event to the registered compiler for a given language
+#   usage: languages.link {language} {source} {executable} {external dependencies}
+define languages.link =
+${strip
+    ${if $(compiler.$(1)),
+        ${call languages.$(1).link,$(2),$(3),$(4)},
+        ${call log.error,"no $(1) compiler available"}
+    }
+}
+endef
+
+
+# dispatch a dll event to the registered compiler for a given language
+#   usage: languages.dll {language} {source} {dll} {external dependencies}
+define languages.dll =
+${strip
+    ${if $(compiler.$(1)),
+        ${call languages.$(1).dll,$(2),$(3),$(4)},
+        ${call log.error,"no $(1) compiler available"}
+    }
+}
+endef
+
+
 # show me
 # ${info -- done with languages.model}
 
