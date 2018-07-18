@@ -45,7 +45,6 @@ $(1): $(1).prerequisites $(1).directories $(1).assets
 	${call log.asset,"ext",$(1)}
 
 $(1).prerequisites: $($(1).prerequisites)
-	@echo what? what?
 
 $(1).directories: $($(1).tmpdir)
 
