@@ -23,7 +23,7 @@ libpq.ldflags ?=
 # the canonical form of the lib directory
 libpq.libpath ?= $(libpq.dir)/lib
 # the names of the libraries
-libpq.libraries := libpq
+libpq.libraries := pq
 
 # my dependencies
 libpq.dependencies =
