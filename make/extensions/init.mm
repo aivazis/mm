@@ -39,6 +39,9 @@ define extensions.init =
     # the list of dependecies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
+    # a list of additional prerequisites for the top target
+    ${eval $(2).prerequisites ?=}
+
     # layout
     # the root of the extension source tree relative to the project home
     ${eval $(2).root ?= ext/$($(2).stem)/}

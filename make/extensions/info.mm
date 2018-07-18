@@ -41,8 +41,11 @@ endef
 define extension.workflows.build =
 
 # the main recipe
-$(1): $(1).directories $(1).assets
+$(1): $(1).prerequisites $(1).directories $(1).assets
 	${call log.asset,"ext",$(1)}
+
+$(1).prerequisites: $($(1).prerequisites)
+	@echo what? what?
 
 $(1).directories: $($(1).tmpdir)
 
