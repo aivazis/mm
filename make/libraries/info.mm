@@ -230,6 +230,17 @@ $(1).info.api:
 	${call log.sec,"  exported public headers",}
 	${foreach header,$($(1).staging.headers),$(log) $(log.indent)$(header);}
 
+# make a recipe that prints the set of source languages
+$(1).info.languages:
+	${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	${call log.var,"languages",$($(1).languages)}
+	${foreach language,$($(1).languages),\
+            ${call log.sec,"  $(language)","flags and options"}; \
+            ${foreach category,$(languages.$(language).categories), \
+                ${call log.var,$(category),$($(1).$(language).$(category))}; \
+            } \
+        }
+
 # all done
 endef
 
