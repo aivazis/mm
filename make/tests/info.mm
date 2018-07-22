@@ -105,7 +105,7 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
             languages.$($(1).language).link, \
             $($(1).source), \
             $($(1).base), \
-            $($(1).extern) }
+            $($(1).suite).$($(1).language) $($(1).extern) }
 
 
 $(1).cases: $(1).driver
@@ -194,6 +194,17 @@ $(1).info.drivers:
 	${call log.sec,"  drivers",}
 	${foreach driver,$($(1).drivers),$(log) $(log.indent)$(driver);}
 
+
+# make a recipe that prints the set of source languages
+$(1).info.languages:
+	${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
+	${call log.var,"languages",$($(1).languages)}
+	${foreach language,$($(1).languages),\
+            ${call log.sec,"  $(language)","flags and options"}; \
+            ${foreach category,$(languages.$(language).categories), \
+                ${call log.var,$(category),$($(1).$(language).$(category))}; \
+            } \
+        }
 
 # make a recipe that prints the set of make targets for individual test cases
 $(1).info.staging.targets:

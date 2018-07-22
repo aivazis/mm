@@ -48,6 +48,11 @@ define tests.init =
     ${eval $(2).directories ?= ${call test.directories,$(2)}}
     ${eval $(2).drivers ?= ${call test.drivers,$(2)}}
 
+    # build the language specific option detabase
+    ${eval $(2).languages ?= ${call test.languages,$(2)}}
+    # initialize the option database for each source language
+    ${call test.languages.options,$(2)}
+
     # derived quantities
     ${eval $(2).staging.targets ?= ${call test.staging.targets,$(2)}}
 
@@ -96,6 +101,26 @@ define test.drivers =
             ${foreach directory, $($(1).directories),
                 ${wildcard ${addprefix $(directory)*,$(languages.sources)}}
             }
+        }
+    }
+endef
+
+
+# analyze the set of drivers of a testsuite and deduce the set of source languages
+#   usage test.languages {testsuite}
+define test.languages =
+    ${strip
+        ${foreach extension,${sort ${suffix $($(1).drivers)}},$(ext$(extension))}
+    }
+endef
+
+
+# build defaults values for the language specific option database
+#   usage test.languages.options {testsuite}
+define test.languages.options =
+    ${foreach language,$($(1).languages),
+        ${foreach category,$(languages.$(language).categories),
+            ${eval $(1).$(language).$(category) ?=}
         }
     }
 endef
