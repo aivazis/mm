@@ -109,12 +109,13 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
 
 
 $(1).cases: $(1).driver
+	$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
             ${foreach argv, $($(1).cases), \
-                ${call log.action,test,$($(1).source) $($(argv))}; \
+                ${call log.action,test,$($(1).base) $($(argv))}; \
                 $($(1).base) $($(argv)); \
                 }, \
-	    ${call log.action,test,$($(1).source)}; \
+	    ${call log.action,test,$($(1).base)}; \
                 $($(1).base) \
         }
 
