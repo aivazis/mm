@@ -21,7 +21,7 @@ define packages.init
     # the stem for generating package specific names
     ${eval $(2).stem ?= $(1)}
     # form the name
-    ${eval $(2).name := $($(2).stem)}
+    ${eval $(2).name ?= $($(2).stem)}
 
     # external dependencies: packages do not typically list these explicitly, for now; their
     # meanings are defined in {make/projects/init.mm}
@@ -32,9 +32,9 @@ define packages.init
 
     # build locations
     # the package destination
-    ${eval $(2).pycdir = $(builder.dest.pyc)$($(2).name)/}
+    ${eval $(2).pycdir ?= $(builder.dest.pyc)$($(2).name)/}
     # the destination for drivers
-    ${eval $(2).bindir = $(builder.dest.bin)
+    ${eval $(2).bindir ?= $(builder.dest.bin)
 
     # artifacts
     # the root of the package relative to the project home
@@ -57,22 +57,22 @@ define packages.init
 
     # derived artifacts
     # the compiled products
-    ${eval $(2).staging.pyc = ${call package.pyc,$(2)}}
+    ${eval $(2).staging.pyc ?= ${call package.pyc,$(2)}}
     # the set of directories that house the compiled products
-    ${eval $(2).staging.pycdirs = ${call package.pycdirs,$(2)}}
+    ${eval $(2).staging.pycdirs ?= ${call package.pycdirs,$(2)}}
     # the directory where extensions are delivered
-    ${eval $(2).staging.ext = $($(2).pycdir)$($(2).ext)}
+    ${eval $(2).staging.ext ?= $($(2).pycdir)$($(2).ext)}
 
     # the raw meta-data file
-    ${eval $(2).staging.meta = $($(2).prefix)$($(2).meta)}
+    ${eval $(2).staging.meta ?= $($(2).prefix)$($(2).meta)}
     # the generated meta-data file
-    ${eval $(2).staging.meta.py = \
+    ${eval $(2).staging.meta.py ?= \
         ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.sources),}}
     # the byte-compiled meta-data file
-    ${eval $(2).staging.meta.pyc = \
+    ${eval $(2).staging.meta.pyc ?= \
         ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.pyc),}}
     # the drivers
-    ${eval $(2).staging.drivers = ${addprefix $($(2).bindir),$($(2).drivers)}}
+    ${eval $(2).staging.drivers ?= ${addprefix $($(2).bindir),$($(2).drivers)}}
 
     # documentation
     $(2).meta.categories := general
