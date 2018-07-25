@@ -23,10 +23,10 @@ ${foreach \
 }
 
 # fine adjustments
-platform.c.defines := MM_PLATFORM="$(platform)"
-platform.c++.defines := MM_PLATFORM="$(platform)"
-platform.cuda.defines := MM_PLATFORM="$(platform)"
-platform.fortran.defines := MM_PLATFORM="$(platform)"
+platform.c.defines := MM_PLATFORM_${subst -,_,$(platform)}
+platform.c++.defines := MM_PLATFORM_${subst -,_,$(platform)}
+platform.cuda.defines := MM_PLATFORM_${subst -,_,$(platform)}
+platform.fortran.defines := MM_PLATFORM_${subst -,_,$(platform)}
 
 
 # show me
