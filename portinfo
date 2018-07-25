@@ -5,4 +5,20 @@
 // (c) 1998-2018 all rights reserved
 //
 
+// platform redirects
+
+#if MM_PLATFORM == darwin-x86_64
+#include "make/platforms/darwin/x86_64.h"
+
+#elif MM_PLATFORM == linux-x86_64
+#include "make/platforms/linux/x86_64.h"
+
+#elif MM_PLATFORM == linux-ppc64le
+#include "make/platforms/linux/ppc64le.h"
+
+#else
+#error MM_PLATFORM is not supported
+
+#endif
+
 // end of file
