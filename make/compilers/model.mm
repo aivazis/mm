@@ -32,13 +32,6 @@ ${foreach \
     } \
 }
 
-# make some fine adjustments
-${foreach language,c c++ cuda fortran, \
-    ${eval \
-        $(compiler.$(language)).defines := MM_COMPILER="$(compiler.$(language))" \
-    } \
-}
-
 # show me
 # ${info -- done with compilers.model}
 
