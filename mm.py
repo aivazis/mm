@@ -73,6 +73,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     show = pyre.properties.bool(default=False)
     show.doc = "display details about the invocation of make"
 
+    dry = pyre.properties.bool(default=False)
+    dry.doc = "do everything except invoke make"
+
     quiet = pyre.properties.bool(default=False)
     quiet.doc = "suppress all non-critical output"
 
@@ -368,12 +371,18 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             'universal_newlines': True,
             'shell': False
             }
-        # invoke GNU make
+
+        # if this is a dry run
+        if self.dry:
+            # all done
+            return 0
+
+        # otherwise, invoke GNU make
         with subprocess.Popen(**settings) as child:
-            # wait for it to finish
+            # wait for it to finish and harvest its exit code
             status = child.wait()
 
-        # and return its status
+        # share with the shell...
         return status
 
 
