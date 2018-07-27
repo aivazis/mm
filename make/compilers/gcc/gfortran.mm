@@ -39,6 +39,14 @@ gfortran.link.shared :=
 # link a dynamically loadable library
 gfortran.link.dll := -shared
 
+# mixed language programming
+gfortran.mixed.flags ?=
+gfortran.mixed.defines ?=
+gfortran.mixed.incpath ?=
+gfortran.mixed.ldflags ?=
+gfortran.mixed.libpath ?=
+gfortran.mixed.libraries += gfortran
+
 # dependency generation
 # gfortran cannot generate dependencies
 define gfortran.makedep =
