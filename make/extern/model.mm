@@ -10,6 +10,9 @@
 # show me
 # ${info -- extern.model}
 
+# the list of special packages that don't need actual install locations to be available
+fortran.self := true
+
 # initialize the pile of external packages
 extern :=
 

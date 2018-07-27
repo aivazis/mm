@@ -13,10 +13,13 @@
 extern.config = \
     ${strip \
         ${foreach name,$(1), \
-            ${and \
-                ${value $(name).dir}, \
-                ${realpath $($(name).dir)}, \
-                ${realpath $(extern.home)/$(name)/init.mm} \
+            ${or \
+                ${and \
+                    ${value $(name).dir}, \
+                    ${realpath $($(name).dir)}, \
+                    ${realpath $(extern.home)/$(name)/init.mm} \
+                }, \
+                ${value $(name).self} \
             } \
         } \
     }
