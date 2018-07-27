@@ -53,7 +53,7 @@ $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
-$(1).assets: $(1).headers.master $(1).headers $(1).archive ${if $($(1).dll),$(1).dll,}
+$(1).assets: $(1).headers.master $(1).headers ${call library.workflows.assets.archives,$(1)}
 
 $(1).headers.master: $($(1).staging.headers.master)
 
@@ -69,14 +69,14 @@ ${foreach header, $($(1).headers), \
     ${eval ${call library.workflows.header,$(1),$(header)}}
 }
 
-$(1).archive: $($(1).staging.archive)
+# if the library has sources, make archive targets
+${if $($(1).sources), \
+    ${call library.workflows.archive,$(1)}, \
+    ${call library.workflows.archive.empty,$(1)}, \
+}
 
-$($(1).staging.archive): $($(1).staging.objects)
-	$(ar.create) $$@ $($(1).staging.objects)
-	${call log.action,"ar",$($(1).archive)}
-
-# if the user asked for a shared object, make the rules that build it
-${if $($(1).dll),${call library.workflows.dll,$(1)},}
+# if the library has sources and the user asked for a shared object, make the rules that build it
+${if ${and $($(1).sources), $($(1).dll)},${call library.workflows.dll,$(1)},}
 
 # make the rules that compile the archive sources
 ${foreach source,$($(1).sources),
@@ -113,8 +113,41 @@ ${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1
 endef
 
 
+# archive assets
+#   usage library.workflows.assets.archives {library}
+define library.workflows.assets.archives =
+${strip
+    ${if $($(1).sources), $(1).archive,}
+    ${if ${and $($(1).sources), $($(1).dll)}, $(1).dll,}
+}
+endef
+
+# archives
+#   usage: library.workflows.archive {library}
+define library.workflows.archive =
+$(1).archive: $($(1).staging.archive)
+
+$($(1).staging.archive): $($(1).staging.objects)
+	$(ar.create) $$@ $($(1).staging.objects)
+	${call log.action,"ar",$($(1).archive)}
+
+# all done
+endef
+
+
+# archives: empty archive targets
+#   usage: library.workflows.archive {library}
+define library.workflows.archive.empty =
+$(1).archive:
+
+$($(1).staging.archive):
+
+# all done
+endef
+
+
 # shared objects
-#   usage: library.workflows.dll
+#   usage: library.workflows.dll {library}
 define library.workflows.dll =
 #if we are here, the user has asked for a shared object
 $(1).dll: $($(1).staging.dll)
