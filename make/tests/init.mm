@@ -37,9 +37,9 @@ define tests.init =
 
     # artifacts
     # the root of the testsuite relative to the project home
-    ${eval $(2).root := tests/$($(2).stem)/}
+    ${eval $(2).root ?= tests/$($(2).stem)/}
     # the absolute path to the testsuite directory
-    ${eval $(2).prefix := $($($(2).project).home)/$($(2).root)}
+    ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
 
     # exclusions
     ${eval $(2).drivers.exclude ?=}
