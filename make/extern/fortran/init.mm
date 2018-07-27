@@ -12,18 +12,18 @@
 extern += ${if ${findstring fortran,$(extern)},,fortran}
 
 # compiler flags
-fortran.flags ?= $($(compiler.fortran).flags)
+fortran.flags ?= $($(compiler.fortran).mixed.flags)
 # enable {fortran} aware code
-fortran.defines ?= $($(compiler.fortran).defines)
+fortran.defines ?= $($(compiler.fortran).mixed.defines)
 # the canonical form of the include directory
-fortran.incpath ?= $($(compiler.fortran).incpath)
+fortran.incpath ?= $($(compiler.fortran).mixed.incpath)
 
 # linker flags
-fortran.ldflags ?= $($(compiler.fortran).ldflags)
+fortran.ldflags ?= $($(compiler.fortran).mixed.ldflags)
 # the canonical form of the lib directory
-fortran.libpath ?= $($(compiler.fortran).libpath)
+fortran.libpath ?= $($(compiler.fortran).mixed.libpath)
 # the names of the libraries
-fortran.libraries ?= $($(compiler.fortran).libraries)
+fortran.libraries ?= $($(compiler.fortran).mixed.libraries)
 
 # my dependencies
 fortran.dependencies =
