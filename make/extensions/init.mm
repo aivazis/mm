@@ -77,6 +77,8 @@ define extensions.init =
     ${call libraries.init,$(1),$(2).lib}
     # adjust its sources
     ${eval $(2).lib.sources := ${call extension.sources,$(2),$(2).lib}}
+    # suppress the creatoin of the support dll
+    ${eval $(2).lib.dll :=}
 
 endef
 
