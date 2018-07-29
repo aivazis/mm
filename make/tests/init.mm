@@ -110,7 +110,9 @@ endef
 #   usage test.languages {testsuite}
 define test.languages =
     ${strip
-        ${foreach extension,${sort ${suffix $($(1).drivers)}},$(ext$(extension))}
+        ${sort
+            ${foreach extension,${sort ${suffix $($(1).drivers)}},$(ext$(extension))}
+        }
     }
 endef
 
