@@ -41,6 +41,9 @@ gcc.link.output := -o
 # link a dynamically loadable library
 gcc.link.dll := -shared
 
+# command line options
+gcc.defines = MM_COMPILER_gcc
+
 # dependency generation
 # gcc does this in one pass: the dependency file gets generated during the compilation phase so
 # there is no extra step necessary to build it

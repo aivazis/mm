@@ -5,8 +5,10 @@
 // (c) 1998-2018 all rights reserved
 //
 
-// platform redirects
+#if !defined(mm_portinfo)
+#define mm_portinfo
 
+// platform redirects
 #if defined(MM_PLATFORM_darwin_x86_64)
 #include "make/platforms/darwin/x86_64.h"
 
@@ -16,9 +18,18 @@
 #elif defined(MM_PLATFORM_linux_ppc64le)
 #include "make/platforms/linux/ppc64le.h"
 
-#else
-#error unsupported platform
+#endif
 
+// compiler redirects
+#if defined(MM_COMPILER_gcc)
+#include "make/compilers/gcc/gcc.h"
+
+#if defined(MM_COMPILER_clang)
+#include "make/compilers/clang/clang.h"
+
+#endif
+
+// all done
 #endif
 
 // end of file

@@ -41,6 +41,9 @@ clang++.link.shared :=
 # link a dynamically loadable library
 clang++.link.dll := -shared
 
+# command line options
+clang++.defines = MM_COMPILER_clang
+
 # dependency generation
 # clang++ does this in one pass: the dependency file gets generated during the compilation
 # phase so there is no extra step necessary to build it

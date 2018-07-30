@@ -42,6 +42,9 @@ g++.link.shared :=
 # link a dynamically loadable library
 g++.link.dll := -shared
 
+# command line options
+g++.defines = MM_COMPILER_gcc
+
 # dependency generation
 # g++ does this in one pass: the dependency file gets generated during the compilation phase so
 # there is no extra step necessary to build it
