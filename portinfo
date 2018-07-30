@@ -24,7 +24,7 @@
 #if defined(MM_COMPILER_gcc)
 #include "make/compilers/gcc/gcc.h"
 
-#if defined(MM_COMPILER_clang)
+#elif defined(MM_COMPILER_clang)
 #include "make/compilers/clang/clang.h"
 
 #endif
