@@ -34,7 +34,7 @@ extern.exists = \
 
 
 # filter the set of external dependencies that are supported
-#  usage extern.requested {dependencies}
+#  usage extern.is.supported {dependencies}
 define extern.is.supported =
     ${strip
         ${foreach dependency, $(1),
@@ -45,7 +45,7 @@ endef
 
 
 # filter the set of external dependencies that are available
-#  usage extern.requested {library}
+#  usage extern.is.available {library}
 define extern.is.available =
     ${strip
         ${foreach dependency, $(1),
