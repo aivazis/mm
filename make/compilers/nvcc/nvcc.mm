@@ -17,10 +17,15 @@ nvcc.prefix.libpath := -L
 nvcc.prefix.libraries := -l
 
 # compile time flags
+nvcc.compile.base :=
 nvcc.compile.only := -dc
 nvcc.compile.output := -o
 nvcc.compile.makedep := -M
-nvcc.compile.base :=
+
+# language selection
+nvcc.force.c := --x c
+nvcc.force.c++ := --x c++
+nvcc.force.cu := --x cu
 
 # symbols and optimization
 nvcc.debug := -g
@@ -30,9 +35,9 @@ nvcc.prof := -pg
 nvcc.shared := -Xcompiler -fPIC
 
 # language level
-nvcc.std.c++03 := -std=c++03
-nvcc.std.c++11 := -std=c++11
-nvcc.std.c++14 := -std=c++14
+nvcc.std.c++03 := --std=c++03
+nvcc.std.c++11 := --std=c++11
+nvcc.std.c++14 := --std=c++14
 
 # link time flags
 nvcc.link.output := -o
