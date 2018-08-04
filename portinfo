@@ -27,6 +27,9 @@
 #elif defined(MM_COMPILER_clang)
 #include "make/compilers/clang/clang.h"
 
+#elif defined(MM_COMPILER_nvcc)
+#include "make/compilers/nvcc/nvcc.h"
+
 #endif
 
 // all done
