@@ -223,7 +223,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # compute the target
         target = host.platform + "-" + host.cpus.architecture
         # assemble the variants
-        variants = ",".join(self.target)
+        variants = "-".join(self.target)
         # compute the current target tag
         tag = "-".join(filter(None, (variants, target)))
 
