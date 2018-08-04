@@ -98,8 +98,8 @@ define libraries.init =
     $(2).incpath ?= $(builder.dest.inc) # note: NOT ($(2).incdir)
     # link time
     $(2).ldflags ?=
-    $(2).libpath ?= $(builder.dest.lib) # that's where we put it
-    $(2).libraries ?= $($(2).stem) # that's what we call it
+    $(2).libpath ?= ${if $($(2).sources),$(builder.dest.lib),} # that's where we put it
+    $(2).libraries ?= ${if $($(2).sources),$($(2).stem),} # that's what we call it
 
     # documentation
     $(2).meta.categories := general extern locations artifacts derived external
