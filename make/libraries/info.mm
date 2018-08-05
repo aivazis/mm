@@ -118,7 +118,7 @@ endef
 define library.workflows.assets.archives =
 ${strip
     ${if $($(1).sources), $(1).archive,}
-    ${if ${and $($(1).sources), $($(1).dll)}, $(1).dll,}
+    ${if ${and $($(1).sources), $($(1).dll), ${findstring shared,$(target.variants)}}, $(1).dll,}
 }
 endef
 
