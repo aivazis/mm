@@ -24,9 +24,9 @@ define libraries.init =
     # form the name
     ${eval $(2).name := lib$($(2).stem)}
     # the name of the archive
-    ${eval $(2).archive = $($(2).name)$(builder.ext.lib)}
+    ${eval $(2).archive ?= $($(2).name)$(builder.ext.lib)}
     # the name of the shared object
-    ${eval $(2).dll = $($(2).name)$(builder.ext.dll)}
+    ${eval $(2).dll ?= $($(2).name)$(builder.ext.dll)}
 
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
