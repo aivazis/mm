@@ -67,6 +67,8 @@ ${if ${filter-out $($(1).module.main),$($(1).module.init)},\
     ${call extension.workflows.makeinit,$(1)}, \
 }
 
+${if $($(1).capsule), ${call extension.workflows.capsule,$(1)},}
+
 # all done
 endef
 
@@ -77,6 +79,7 @@ define extension.workflows.assets =
 ${strip
     $($(1).pkg)
     ${if $($(1).lib.sources),$($(1).lib),}
+    ${if $($(1).capsule),$(1).capsule}
     $(1).extension
 }
 endef
@@ -94,7 +97,7 @@ endef
 
 
 # build a rule to generate the extension {init} from its {main}, if necessary
-#   usage extension.workflows.makeinit {extension}
+#   usage: extension.workflows.makeinit {extension}
 define extension.workflows.makeinit
 
     # alias the module
@@ -105,8 +108,6 @@ define extension.workflows.makeinit
     ${eval module.relpath := ${subst $($($(1).project).home)/,,$(module)}}
     # figure out the module language
     ${eval module.language := $(ext${suffix $($(1).module.main)})}
-    # compute the path of the module relative to the project home
-    ${eval module.relpath := ${subst $($($(1).project).home)/,,$(module)}}
 
     # compute the directory structure of the module
     ${eval module.directories := ${addsuffix /,${shell find ${realpath ${dir $(module)}}}}}
@@ -130,6 +131,24 @@ $($(1).module.init) : $($(1).tmpdir) $(module.sources)
 	${call languages.compile,$(module.language),$(module),$(module.target),}
 
 endef
+
+
+# build rules that publish the extension capsules
+#   usage: extension.workflows.capsule {extension}
+define extension.workflows.capsule =
+    # alias the source
+    ${eval capsule.source := $($(1).prefix)$($(1).capsule)}
+    # alias the destination
+    ${eval capsule.destination := $($($(1).wraps).incdir)$($(1).capsule)}
+
+$(1).capsule : $(capsule.destination)
+
+$(capsule.destination) : $(capsule.source)
+	$(cp) $(capsule.source) $(capsule.destination)
+	${call log.action,"cp",$(capsule.source)}
+
+endef
+
 
 
 # make a recipe to log the metadata of a specific extension
