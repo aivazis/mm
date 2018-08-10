@@ -63,6 +63,14 @@ $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
             $($(1).module.so), \
             $($(1).lib).$($(1).module.language) $($(1).lib) $($(1).extern)}
 
+# typically, extensions have no headers to export; this target is needed when an extension is
+# used as a prerequisite
+$(1).headers:
+
+# typically, extensions have no archives to build; this target is needed when an extension is
+# used as a prerequisite
+$(1).archive:
+
 ${if ${filter-out $($(1).module.main),$($(1).module.init)},\
     ${call extension.workflows.makeinit,$(1)}, \
 }
