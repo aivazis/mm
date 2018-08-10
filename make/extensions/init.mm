@@ -60,8 +60,11 @@ define extensions.init =
     ${eval $(2).module.language ?= $(ext${suffix $($(2).module.init)})}
     # the name of the shared object
     ${eval $(2).module.so ?= ${call extension.module.dll,$(2)}}
+
     # extensions may share their capsules
     ${eval $(2).capsule ?= capsules.h}
+    # and publish them here, relative to (builder.dest.inc)
+    ${eval $(2).capsule.destination ?=}
 
     # the name of the support archive
     ${eval $(2).lib ?= $(2).lib}

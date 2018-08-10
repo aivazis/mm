@@ -146,14 +146,27 @@ endef
 define extension.workflows.capsule =
     # alias the source
     ${eval capsule.source := $($(1).prefix)$($(1).capsule)}
+    # compute the destination directory
+    ${eval capsule.incdir := ${strip \
+        ${if $($(1).capsule.destination), \
+            $(builder.dest.inc)$($(1).capsule.destination), \
+            $($($(1).wraps).incdir) \
+        } \
+    }}
     # alias the destination
-    ${eval capsule.destination := $($($(1).wraps).incdir)$($(1).capsule)}
+    ${eval capsule.destination := $(capsule.incdir)$($(1).capsule)}
 
 $(1).capsule : $(capsule.destination)
 
-$(capsule.destination) : $(capsule.source)
+$(capsule.destination) : $(capsule.incdir) $(capsule.source)
 	$(cp) $(capsule.source) $(capsule.destination)
-	${call log.action,"cp",$(capsule.source)}
+	${call log.action,"cp",${subst $($($(1).project).home)/,,$(capsule.source)}}
+
+${if $($(1).wraps),,\
+    ${eval $(capsule.incdir) : ; \
+	$(mkdirp) $(capsule.incdir) ; ${call log.action,"mkdir",$(capsule.incdir)} \
+    } \
+}
 
 endef
 
