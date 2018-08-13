@@ -207,8 +207,13 @@ define library.objects =
     ${addprefix $($(1).tmpdir),
         ${addsuffix $(builder.ext.obj),
             ${subst /,~,
-                ${basename
-                    ${subst $($(1).prefix),,$($(1).sources)}
+                ${subst $($(1).prefix),,
+                    ${foreach source, $($(1).sources),
+                        ${basename $(source)}
+                        ${if ${findstring cuda,$(ext${suffix $(source)})},
+                            ${basename $(source)}.dlink,
+                        }
+                    }
                 }
             }
         }
@@ -240,6 +245,11 @@ endef
 #   usage library.staging.object: {library} {source}
 library.staging.object = \
     $($(1).tmpdir)${subst /,~,${basename ${subst $($(1).prefix),,$(2)}}}$(builder.ext.obj)
+
+# build the name of a device object given the name of a source
+#   usage library.staging.object.dlink: {library} {source}
+library.staging.object.dlink = \
+    $($(1).tmpdir)${subst /,~,${basename ${subst $($(1).prefix),,$(2)}}}.dlink$(builder.ext.obj)
 
 
 # build the list of staging directories for the public headers

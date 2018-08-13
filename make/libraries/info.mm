@@ -174,6 +174,12 @@ define library.workflows.object =
     ${eval source.dep := $(source.object:$(builder.ext.obj)=$(builder.ext.dep))}
     # figure out the source language
     ${eval source.language := $(ext${suffix $(2)})}
+    # and if its cuda, we have some extra work to do
+    ${eval source.device := ${strip \
+        ${if ${findstring cuda,$(source.language)}, \
+            ${call library.staging.object.dlink,$(1),$(source.path)}, \
+        } \
+    }}
 
 # compile source files
 $(source.object): $(source.path) \
@@ -187,6 +193,16 @@ $(source.object): $(source.path) \
             languages.makedep,$(source.language),$(source.path),$(source.dep),\
                  $(1).$(source.language) $($(1).extern) \
         }
+
+${if $(source.device), \
+    $(source.device) : $(source.path) ; \
+	${call log.action,"dlink",$(source.relpath)} ; \
+	${call \
+            languages.dlink,cuda,$(source.path),$(source.device),\
+                 $(1).cuda $($(1).extern) \
+        }
+}
+
 # all done
 endef
 

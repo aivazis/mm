@@ -23,6 +23,18 @@ ${strip
 endef
 
 
+# build a device linker command line
+#   usage: compiler.dlink {language} {compiler} {source} {executable} {dependencies}
+define compiler.dlink =
+${strip
+    $(2)
+        $($(2).link.device) $(3)
+        $($(2).compile.output) $(4)
+        ${call compiler.compile.options,$(1),$(2),$(5)}
+}
+endef
+
+
 # build the linker command line
 #   usage: compiler.link {language} {compiler} {source} {executable} {dependencies}
 define compiler.link =

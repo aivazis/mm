@@ -23,6 +23,11 @@ languages.cuda.categories.link := ldflags libpath libraries
 languages.cuda.compile = ${call compiler.compile,cuda,$(compiler.cuda),$(1),$(2),$(3)}
 
 
+# build a device link command line
+#  usage: languages.cuda.dlink {source-file} {executable} {dependencies}
+languages.cuda.dlink = ${call compiler.dlink,cuda,$(compiler.cuda),$(1),$(2),$(3)}
+
+
 # build a link command line
 #  usage: languages.cuda.link {source-file} {executable} {dependencies}
 languages.cuda.link = ${call compiler.link,cuda,$(compiler.cuda),$(1),$(2),$(3)}

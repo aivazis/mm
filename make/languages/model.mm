@@ -81,6 +81,18 @@ ${strip
 endef
 
 
+# dispatch a device link event to the registered compiler for a given language
+#   usage: languages.dlink {language} {source} {object} {external dependencies}
+define languages.dlink =
+${strip
+    ${if $(compiler.$(1)),
+        ${call languages.$(1).dlink,$(2),$(3),$(4)},
+        ${call log.error,"no $(1) compiler available"}
+    }
+}
+endef
+
+
 # ask the compiler to generate a file with the include dependencies of a translation unit and
 # convert it in to a makefil
 #   usage: languages.makedep {language} {source} {depfile} {external dependencies}

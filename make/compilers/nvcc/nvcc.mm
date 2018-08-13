@@ -42,6 +42,7 @@ nvcc.std.c++14 := --std=c++14
 # link time flags
 nvcc.link.output := -o
 nvcc.link.shared :=
+nvcc.link.device := -dlink
 # link a dynamically loadable library
 nvcc.link.dll := -shared
 
