@@ -195,10 +195,10 @@ $(source.object): $(source.path) \
         }
 
 ${if $(source.device), \
-    $(source.device) : $(source.path) ; \
+    $(source.device) : $(source.object) ; \
 	${call log.action,"dlink",$(source.relpath)} ; \
 	${call \
-            languages.dlink,cuda,$(source.path),$(source.device),\
+            languages.dlink,cuda,$(source.object),$(source.device),\
                  $(1).cuda $($(1).extern) \
         }
 }

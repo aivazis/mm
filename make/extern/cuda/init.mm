@@ -22,7 +22,7 @@ cuda.incpath ?= $(cuda.dir)/include
 cuda.ldflags ?=
 # the canonical form of the lib directory
 cuda.libpath ?= $(cuda.dir)/lib
-# the way library names are formed is version dependent; we support 6.x and higher
+# the set of cuda libraries to link against
 cuda.libraries ?=
 
 # show me
