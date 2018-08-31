@@ -22,7 +22,7 @@ define libraries.init =
     # and the include directory with the public headers
     ${eval $(2).stem ?= $(1)}
     # form the name
-    ${eval $(2).name := lib$($(2).stem)}
+    ${eval $(2).name ?= lib$($(2).stem)}
     # the name of the archive
     ${eval $(2).archive ?= $($(2).name)$(builder.ext.lib)}
     # the name of the shared object
@@ -46,7 +46,7 @@ define libraries.init =
     # the destination for the public headers
     ${eval $(2).incdir ?= $(builder.dest.inc)$($(2).stem)/}
     # the location of the build transients
-    ${eval $(2).tmpdir ?= $(builder.dest.staging)$(1)/$($(2).name)/}
+    ${eval $(2).tmpdir ?= $($(1).tmpdir)$($(2).name)/}
 
     # artifacts
     # the root of the library source tree relative to the project home
