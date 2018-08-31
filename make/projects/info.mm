@@ -42,8 +42,8 @@ ${foreach type,$(project.contentTypes), \
 }
 
 $($(1).tmpdir):
-	$(mkdirp) $$@
-	${call log.action,"mkdir",$$@}
+	$(mkdirp) $($(1).tmpdir)
+	${call log.action,"mkdir",$($(1).tmpdir)}
 
 $(1).clean:
 	$(rm.force-recurse) $($(1).tmpdir)
