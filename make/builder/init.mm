@@ -22,13 +22,17 @@ define builder.init =
     ${eval builder.dest.inc := $(builder.dest.prefix)include/}
     ${eval builder.dest.lib := $(builder.dest.prefix)lib/}
     ${eval builder.dest.pyc := $(builder.dest.prefix)packages/}
-    ${eval builder.dest.staging := $(builder.dest.root)/}
+    ${eval builder.dest.staging := $(builder.dest.root)}
 
     # make a pile out for all the relevant directories; this gets used by the rulemaker that makes
     # sure these directories exist, so make sure you add new ones here as well
     ${eval builder.dirs := prefix root bin doc inc lib pyc staging}
     # put them all on a pile
-    ${eval builder.directories := ${foreach directory,$(builder.dirs),$(builder.dest.$(directory))}}
+    ${eval builder.directories := \
+        ${sort \
+            ${foreach directory,$(builder.dirs),$(builder.dest.$(directory))} \
+        } \
+    }
 
     # extensions for products
     builder.ext.obj := .o

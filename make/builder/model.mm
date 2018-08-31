@@ -14,7 +14,7 @@
 # we need project.bldroot and target.variants to have their final value by now....
 ${eval ${call builder.init,$(project.prefix),$(project.bldroot)}}
 
-# make the bulder targets
+# make the builder targets
 ${eval ${call builder.workflows}}
 
 # show me
