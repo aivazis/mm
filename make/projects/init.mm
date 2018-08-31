@@ -30,24 +30,24 @@ define project.init =
 
     # directories
     # the top-most directory where we found {.mm}
-    ${eval $(1).home := $(project.home)}
+    ${eval $(1).home ?= $(project.home)}
     # the directory for build products
-    ${eval $(1).bldroot := $(project.bldroot)}
+    ${eval $(1).bldroot ?= $(project.bldroot)}
     # the installation target directory
-    ${eval $(1).prefix := $(project.prefix)}
+    ${eval $(1).prefix ?= $(project.prefix)}
     # the staging area for the build intermediate products
-    ${eval $(1).tmpdir := $(builder.dest.staging)$(1)}
+    ${eval $(1).tmpdir ?= $(builder.dest.staging)$(1)/}
 
     # make
     # the directory from where {make} was invoked, i.e. the nearest parent with a local
     # makefile
-    ${eval $(1).base := $(project.anchor)}
+    ${eval $(1).base ?= $(project.anchor)}
     # the user's {cwd} when they invoked mm
-    ${eval $(1).origin := $(project.origin)}
+    ${eval $(1).origin ?= $(project.origin)}
     # the local makefile
-    ${eval $(1).makefile := $(project.makefile)}
+    ${eval $(1).makefile ?= $(project.makefile)}
     # the project configuration file
-    ${eval $(1).config := ${wildcard $(project.config)/$(1).mm}}
+    ${eval $(1).config ?= ${wildcard $(project.config)/$(1).mm}}
 
     # contents
     ${eval $(1).contents ?=}
