@@ -33,7 +33,7 @@ define extensions.init =
     # the list of external dependencies
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies
-    ${eval $(2).extern.requested := $($(2).extern)}
+    ${eval $(2).extern.requested ?= $($(2).extern)}
     # the list of external dependencies that we have support for
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
     # the list of dependecies in the order they affect the compiler command lines
@@ -48,7 +48,7 @@ define extensions.init =
     # the absolute path to the extension source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
     # a temporary area
-    ${eval $(2).tmpdir ?= $(builder.dest.staging)$(1)/$($(2).name)/}
+    ${eval $(2).tmpdir ?= $($(1).tmpdir)$($(2).name)/}
 
     # the name of the main module file
     ${eval $(2).module ?= $($(2).stem)}
