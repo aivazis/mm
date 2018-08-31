@@ -66,6 +66,10 @@ ${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}
 # target that builds all known projects
 projects: $(projects)
 
+# clean everything
+clean: ${addsuffix .clean,$(projects)}
+
+
 # ${info -- done with model}
 
 # end of file
