@@ -33,6 +33,7 @@ hello.lib.extern := pyre
 hello.ext.stem := hello
 hello.ext.pkg := hello.pkg
 hello.ext.wraps := hello.lib
+hello.ext.capsule :=
 hello.ext.extern := hello.lib pyre python
 
 # the libhello test suite
