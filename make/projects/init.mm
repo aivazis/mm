@@ -105,7 +105,7 @@ define project.init =
     # contents
     $(1).metadoc.libraries := "the project libraries"
     $(1).metadoc.extensions := "the python extensions built by this project"
-    $(1).metadoc.packages := "the python pyckages built by this project"
+    $(1).metadoc.packages := "the python packages built by this project"
     $(1).metadoc.docs := "documentation for this project"
     $(1).metadoc.tests := "the project test suite"
 # all done
