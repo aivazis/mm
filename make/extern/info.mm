@@ -10,7 +10,9 @@
 
 extern.info:
 	${call log.sec,"extern","support for external packages"}
-	${call log.var,"home",$(extern.home)}
+	${call log.sec,"  locations",}
+	${call log.var,"built in",$(extern.mm)}
+	${call log.sec,"  packages",}
 	${call log.var,"supported",$(extern.supported)}
 	${call log.var,"available",$(extern.available)}
 

@@ -16,13 +16,13 @@ fortran.self := true
 # initialize the pile of external packages
 extern :=
 
-# the path to here
-extern.home := $(mm.home)/make/extern
+# the locations where package definitions may live
+extern.mm := $(mm.home)/make/extern
 
 # the set of known packages
 extern.supported := \
-    ${subst $(extern.home)/,, \
-        ${shell find $(extern.home)/* -type d -prune} \
+    ${subst $(extern.mm)/,, \
+        ${shell find $(extern.mm)/* -type d -prune} \
     }
 
 # the set of available packages, i.e. the ones we know where they live

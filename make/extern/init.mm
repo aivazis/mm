@@ -17,7 +17,7 @@ extern.config = \
                 ${and \
                     ${value $(name).dir}, \
                     ${realpath $($(name).dir)}, \
-                    ${realpath $(extern.home)/$(name)/init.mm} \
+                    ${realpath $(extern.mm)/$(name)/init.mm} \
                 }, \
                 ${value $(name).self} \
             } \

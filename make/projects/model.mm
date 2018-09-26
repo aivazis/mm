@@ -54,7 +54,7 @@ ${foreach project,$(projects), ${eval ${call project.boot,$(project)}}}
 ${foreach \
     dependency, \
     ${sort ${foreach project,$(projects),$($(project).extern.available)}}, \
-    ${eval include $(extern.home)/$(dependency)/init.mm $(extern.home)/$(dependency)/info.mm} \
+    ${eval include $(extern.mm)/$(dependency)/init.mm $(extern.mm)/$(dependency)/info.mm} \
 }
 
 # ${info --   project workflows}
