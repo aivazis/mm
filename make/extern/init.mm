@@ -56,7 +56,7 @@ endef
 
 
 # construct the contribution of an external package to the compile line
-#   usage: extern.compile.options {language} {package}
+#   usage: extern.compile.options.this {language} {package}
 extern.compile.options.this = \
     ${foreach category, $(languages.$(1).categories.compile), \
         ${addprefix $($(compiler.$(1)).prefix.$(category)),$($(2).$(category))} \
@@ -72,7 +72,7 @@ extern.compile.options = \
 
 
 # construct the contribution of an external package to the link line
-#   usage: extern.link.options {language} {package}
+#   usage: extern.link.options.this {language} {package}
 extern.link.options.this = \
     ${foreach category, $(languages.$(1).categories.link), \
         ${addprefix $($(compiler.$(1)).prefix.$(category)),$($(2).$(category))} \

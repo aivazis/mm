@@ -80,7 +80,7 @@ endef
 
 
 # assemble the options from the various sources for a given phase
-#   usage: compiler.link.options {phase} {language} {compiler} {dependencies}
+#   usage: compiler.options {phase} {language} {compiler} {dependencies}
 define compiler.options =
 ${strip
     ${foreach source, ${call compiler.option.sources,$(2),$(4)},
