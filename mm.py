@@ -113,7 +113,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
     # makefiles
     local = pyre.properties.str(default="Make.mm")
-    local.doc = "the name of the your makefile"
+    local.doc = "the name of your makefile"
 
     master = pyre.properties.str(default="master.mm")
     master.doc = "the name of the master makefile; caveat emptor..."
