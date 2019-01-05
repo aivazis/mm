@@ -13,9 +13,6 @@
 # and a user/host specific configuration file
 -include $(user.username)@$(host.name).mm
 
-# load the logger
-include make/log/init.mm
-
 # the list of objects
 define model :=
     log mm
