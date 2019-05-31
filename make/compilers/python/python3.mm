@@ -9,7 +9,7 @@
 # ${info -- python3}
 
 # the name of the interpreter
-compiler.python ?= python3
+compiler.python = python3
 # compute the module suffix
 python.suffix.module ?= ${shell $(compiler.python)-config --extension-suffix}
 # byte compile
