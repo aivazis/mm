@@ -3,6 +3,9 @@
 # junk
 *~
 
+# the temporary pyre install dir
+/.mm
+
 # the default build locations
 /examples/hello/builds
 /examples/hello/products
