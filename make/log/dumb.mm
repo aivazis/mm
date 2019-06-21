@@ -26,6 +26,11 @@ palette.light-purple :=
 palette.light-cyan :=
 palette.white :=
 
+# pretty
+palette.amber :=
+palette.lavender :=
+palette.sage :=
+
 # purpose
 palette.info :=
 palette.warning :=
