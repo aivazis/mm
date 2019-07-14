@@ -18,6 +18,8 @@ extern :=
 
 # the locations where package definitions may live
 extern.mm := $(mm.home)/make/extern
+extern.user := $(user.config)/extern
+extern.project := $(project.config)/extern
 
 # the set of known packages
 extern.supported := \
