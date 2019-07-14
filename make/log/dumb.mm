@@ -16,7 +16,7 @@ palette.purple :=
 palette.cyan :=
 palette.light-gray :=
 
-# bright-colors
+# bright colors
 palette.dark-gray :=
 palette.light-red :=
 palette.light-green :=
