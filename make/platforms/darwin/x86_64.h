@@ -2,7 +2,7 @@
 //
 // michael a.g. aïvázis
 // parasim
-// (c) 1998-2018 all rights reserved
+// (c) 1998-2019 all rights reserved
 //
 
 #if !defined(mm_platforms_darwin_x86_64)

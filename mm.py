@@ -3,7 +3,7 @@
 #
 # michael a.g. aïvázis
 # parasim
-# (c) 1998-2018 all rights reserved
+# (c) 1998-2019 all rights reserved
 #
 
 # externals
@@ -53,7 +53,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     """
     mm 4.0
     Michael Aïvázis <michael.aivazis@para-sim.com>
-    copyright 1998-2018 all rights reserved
+    copyright 1998-2019 all rights reserved
     """
 
     # user configurable state
