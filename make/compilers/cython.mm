@@ -30,6 +30,7 @@ cython.shared :=
 
 # link time flags
 cython.link.output := -o
+cython.link.shared :=
 # link a dynamically loadable library
 cython.link.dll :=
 

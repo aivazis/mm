@@ -19,11 +19,7 @@ languages.cython.categories.link :=
 
 # build a compile command line
 #  usage: languages.cython.compile {source-file} {target-object} {dependencies}
-define languages.cython.compile =
-${strip
-    cython $(1) $(cython.compile.output) $(2)
-}
-endef
+languages.cython.compile = ${call compiler.compile,cython,$(compiler.cython),$(1),$(2),$(3)}
 
 
 # end of file
