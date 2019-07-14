@@ -21,7 +21,7 @@ g++.prefix.libraries := -l
 g++.compile.only := -c
 g++.compile.output := -o
 g++.compile.makedep := -MMD
-g++.compile.base := -pipe $(g++.compile.makedep)
+g++.compile.base := -fno-diagnostics-color -pipe $(g++.compile.makedep)
 
 # symbols and optimization
 g++.debug := -g

@@ -21,7 +21,7 @@ gcc.prefix.libraries := -l
 gcc.compile.only := -c
 gcc.compile.output := -o
 gcc.compile.makedep := -MMD
-gcc.compile.base := -pipe $(gcc.compile.makedep)
+gcc.compile.base := -fno-diagnostics-color -pipe $(gcc.compile.makedep)
 
 # symbols and optimization
 gcc.debug := -g
