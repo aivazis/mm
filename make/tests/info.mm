@@ -45,6 +45,9 @@ $(1): $($(1).prerequisites) $(1).testcases
 # the testcases depend on the indivisual test targets
 $(1).testcases: $($(1).staging.targets)
 
+# clean up
+$(1).clean: ${addsuffix .clean,$($(1).staging.targets)}
+
 # make recipes for the individual test targets
 ${foreach target, $($(1).staging.targets), \
     ${eval
@@ -80,7 +83,7 @@ $(1).cases: $($($(1).suite).prerequisites)
         }
 
 # clean up
-$(1).clean: | $(1).cases
+$(1).clean: # | $(1).cases
 	${call log.action,clean,$(1)}
 	$(rm.force-recurse) $($(1).clean)
 
@@ -120,7 +123,7 @@ $(1).cases: $(1).driver
         }
 
 # clean up
-$(1).clean: | $(1).cases
+$(1).clean: #| $(1).cases
 	${call log.action,clean,$(1)}
 	$(rm.force-recurse) $($(1).clean) $($(1).base) ${call platform.clean,$($(1).base)}
 
