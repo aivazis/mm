@@ -14,19 +14,19 @@ log.indent = "    "
 # sections
 log.sec = \
     $(log) \
-    $(palette.cyan)$(1)$(palette.normal): $(2)
+    $(palette.amber)$(1)$(palette.normal): $(2)
 
 # variables
 log.var = \
     $(log) \
-    $(palette.blue)$(log.indent)$(1)$(palette.normal) \
+    $(palette.sage)$(log.indent)$(1)$(palette.normal) \
     = \
     $(palette.normal)$(2)$(palette.normal)
 
 # commands and targets
 log.help = \
     $(log) \
-    $(palette.blue)$(log.indent)$(1)$(palette.normal) \
+    $(palette.lavender)$(log.indent)$(1)$(palette.normal) \
     : \
     $(palette.normal)$(2)$(palette.normal)
 
