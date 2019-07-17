@@ -21,8 +21,11 @@ define libraries.init =
     # the stem for generating library specific names; it gets used to build the archive name
     # and the include directory with the public headers
     ${eval $(2).stem ?= $(1)}
+    # but the user may override either one explictly
+    ${eval $(2).libstem ?= $($(2).stem)}
+    ${eval $(2).incstem ?= $($(2).stem)}
     # form the name
-    ${eval $(2).name ?= lib$($(2).stem)}
+    ${eval $(2).name ?= lib$($(2).libstem)}
     # the name of the archive
     ${eval $(2).archive ?= $($(2).name)$(builder.ext.lib)}
     # the name of the shared object
@@ -44,13 +47,13 @@ define libraries.init =
     # the destination for the archive
     ${eval $(2).libdir ?= $(builder.dest.lib)}
     # the destination for the public headers
-    ${eval $(2).incdir ?= $(builder.dest.inc)$($(2).stem)/}
+    ${eval $(2).incdir ?= $(builder.dest.inc)$($(2).incstem)/}
     # the location of the build transients
     ${eval $(2).tmpdir ?= $($(1).tmpdir)$($(2).name)/}
 
     # artifacts
     # the root of the library source tree relative to the project home
-    ${eval $(2).root ?= lib/lib$($(2).stem)/}
+    ${eval $(2).root ?= lib/$($(2).name)/}
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
     # the path  to the top level headers relative to the library prefix
@@ -99,7 +102,7 @@ define libraries.init =
     # link time
     $(2).ldflags ?=
     $(2).libpath ?= ${if $($(2).sources),$(builder.dest.lib),} # that's where we put it
-    $(2).libraries ?= ${if $($(2).sources),$($(2).stem),} # that's what we call it
+    $(2).libraries ?= ${if $($(2).sources),$($(2).libstem),} # that's what we call it
 
     # documentation
     $(2).meta.categories := general extern locations artifacts derived external
