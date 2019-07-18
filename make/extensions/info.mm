@@ -40,6 +40,14 @@ endef
 #   usage: extension.workflows.build {extension}
 define extension.workflows.build =
 
+# check whether we need to generate the module main initialization file, e.g. by running cython
+${if ${filter-out $($(1).module.main),$($(1).module.init)},\
+    ${call extension.workflows.makeinit,$(1)}, \
+}
+
+# if the module has capsules, make rules to export them
+${if $($(1).capsule), ${call extension.workflows.capsule,$(1)},}
+
 # the main recipe
 $(1): $(1).prerequisites $(1).directories $(1).assets
 	${call log.asset,"ext",$(1)}
@@ -70,12 +78,6 @@ $(1).headers:
 # typically, extensions have no archives to build; this target is needed when an extension is
 # used as a prerequisite
 $(1).archive:
-
-${if ${filter-out $($(1).module.main),$($(1).module.init)},\
-    ${call extension.workflows.makeinit,$(1)}, \
-}
-
-${if $($(1).capsule), ${call extension.workflows.capsule,$(1)},}
 
 # all done
 endef
@@ -133,6 +135,9 @@ define extension.workflows.makeinit
             } \
         } \
     }
+
+    # give the compiler access to the original location of the {main} module
+    ${eval $(1).lib.incpath += ${dir $(module)}}
 
 # build {init} from {main}
 $($(1).module.init) : $($(1).tmpdir) $(module.sources)

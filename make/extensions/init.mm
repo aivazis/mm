@@ -82,7 +82,7 @@ define extensions.init =
     ${call libraries.init,$(1),$(2).lib}
     # adjust its sources
     ${eval $(2).lib.sources := ${call extension.sources,$(2),$(2).lib}}
-    # suppress the creatoin of the support dll
+    # suppress the creation of the support dll
     ${eval $(2).lib.dll :=}
 
 endef
@@ -90,8 +90,8 @@ endef
 
 # helpers
 
-# identify the extension init file
-#   usage: extension.module.init {extension}
+# identify the extension main file
+#   usage: extension.module.main {extension}
 define extension.module.main
     ${strip
         ${foreach suffix,$(languages.sources),
