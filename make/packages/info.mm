@@ -120,9 +120,8 @@ $(path.pyc): $(path.py) | ${dir $(path.pyc)}
 endef
 
 # make a target for each driver
-#   usage: package.workflows.pyc {package} {source}
+#   usage: package.workflows.driver {package} {source}
 define package.workflows.driver =
-
     # local variables
     # the absolute path to the source
     ${eval path.source := $($($(1).project).home)/$($(1).bin)$(2)}
