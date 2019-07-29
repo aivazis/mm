@@ -71,6 +71,11 @@ $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
             $($(1).module.so), \
             $($(1).lib).$($(1).module.language) $($(1).lib) $($(1).extern)}
 
+# clean up
+$(1).clean:
+	${call log.action,"rm",$($(1).module.so)}
+	$(rm.force) $($(1).module.so)
+
 # typically, extensions have no headers to export; this target is needed when an extension is
 # used as a prerequisite
 $(1).headers:
@@ -182,7 +187,6 @@ ${if $($(1).wraps),,\
 }
 
 endef
-
 
 
 # make a recipe to log the metadata of a specific extension
