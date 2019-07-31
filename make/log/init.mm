@@ -59,7 +59,7 @@ log.firewall = \
 # render a build action
 log.asset = \
     $(log) \
-    $(palette.amber)"  [$(1)]"$(palette.normal) \
+    $(palette.steel-blue)"  [$(1)]"$(palette.normal) \
     $(2)
 
 log.action = \

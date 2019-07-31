@@ -30,6 +30,7 @@ palette.white :=
 palette.amber :=
 palette.lavender :=
 palette.sage :=
+palette.steel-blue :=
 
 # purpose
 palette.info :=

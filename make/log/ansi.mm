@@ -35,6 +35,7 @@ palette.white := ${call csi3,1;37}
 palette.amber := ${call csi24,38,255,191,0}
 palette.lavender := ${call csi24,38,192,176,224}
 palette.sage := ${call csi24,38,176,208,176}
+palette.steel-blue := ${call csi24,38,70,130,180}
 
 # purpose
 palette.info := ${call csi8,38,28}
