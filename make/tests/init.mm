@@ -117,7 +117,7 @@ define test.languages =
 endef
 
 
-# build defaults values for the language specific option database
+# build default values for the language specific option database
 #   usage test.languages.options {testsuite}
 define test.languages.options =
     ${foreach language,$($(1).languages),

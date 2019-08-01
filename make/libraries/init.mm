@@ -233,7 +233,7 @@ define library.languages =
 endef
 
 
-# build defaults values for the language specific option database
+# build default values for the language specific option database
 #   usage library.languages.options {library}
 define library.languages.options =
     ${foreach language,$($(1).languages),
