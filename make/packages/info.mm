@@ -44,17 +44,24 @@ $(1): $(1).directories $(1).assets
 
 # second level targets
 # make all relevant directories
-$(1).directories: $($(1).staging.pycdirs)
+$(1).directories: $($(1).staging.pycdirs) $($(1).staging.config.dirs)
 # make all assets
-$(1).assets: $(1).pyc ${if $($(1).meta),$(1).meta,} $(1).drivers
+$(1).assets: $(1).pyc ${if $($(1).meta),$(1).meta,} $(1).drivers $(1).config
 # byte compile all sources
 $(1).pyc: $($(1).staging.pyc)
 # export all driver scripts
 $(1).drivers: $($(1).staging.drivers)
+# export all configuration files
+$(1).config: $($(1).staging.config.dirs) $($(1).staging.config)
 
 # individual assets
 # make the directories with the byte compiled files
 $($(1).staging.pycdirs):
+	$(mkdirp) $$@
+	${call log.action,"mkdir",$$@}
+
+# make the diretcories where the configuration files go
+$($(1).staging.config.dirs):
 	$(mkdirp) $$@
 	${call log.action,"mkdir",$$@}
 
@@ -69,6 +76,11 @@ ${foreach source,$($(1).sources),
 # make rules that copy the drivers
 ${foreach driver,$($(1).drivers),
     ${eval ${call package.workflows.driver,$(1),$(driver)}}
+}
+
+# make rules that copy the configuration files
+${foreach config,$($(1).config.sources),
+    ${eval ${call package.workflows.config,$(1),$(config)}}
 }
 
 # all done
@@ -112,7 +124,7 @@ define package.workflows.pyc =
     ${eval path.pyc := ${call package.staging.pyc,$(1),$(path.py)}}
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
-	${call log.action,python,${subst $($($(1).project).home)/,,$(path.py)}}
+	${call log.action,python,${subst $($(1).home)/,,$(path.py)}}
 	$(python.compile) $(path.py)
 	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
@@ -124,13 +136,29 @@ endef
 define package.workflows.driver =
     # local variables
     # the absolute path to the source
-    ${eval path.source := $($($(1).project).home)/$($(1).bin)$(2)}
+    ${eval path.source := $($(1).home)/$($(1).bin)$(2)}
     # the absolute path to the byte compiled file
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
-	${call log.action,"cp",${subst $($($(1).project).home)/,,$(path.source)}}
+	${call log.action,"cp",${subst $($(1).home)/,,$(path.source)}}
 	$(cp) $(path.source) $(path.destination)
+
+# all done
+endef
+
+
+# make a target for each configuration file
+define package.workflows.config =
+    # local variables
+    # the absolute path to the source
+    ${eval config.source := $(2)}
+    # the absolute path to the destination
+    ${eval config.destination := ${call package.staging.config.file,$(1),$(config.source)}}
+
+$(config.destination): $(config.source) | ${dir $(config.destination)}
+	${call log.action,"cp",${subst $($(1).home)/,,$(config.source)}}
+	$(cp) $(config.source) $(config.destination)
 
 # all done
 endef
@@ -180,6 +208,17 @@ $(1).info.pycdirs:
 	${call log.sec,$(1),"a package in project '$($(1).project)'"}
 	${call log.sec,"  directories with byte compiled files",}
 	${foreach dir,$($(1).staging.pycdirs),$(log) $(log.indent)$(dir);}
+
+# make a recipe that shows how the package configuration files get built
+$(1).info.config:
+	${call log.sec, $(1),"configuration files"}
+	${call log.var,"dir",$($(1).defaults)}
+	${call log.var,"root",$($(1).config.root)}
+	${call log.var,"destination",$($(1).staging.defaults)}
+	${call log.var,"stems",$($(1).config)}
+	${call log.var,"sources",$($(1).config.sources)}
+	${call log.var,"destinations",$($(1).staging.config)}
+	${call log.var,"directories",$($(1).staging.config.dirs)}
 
 
 # make a recipe that prints the directory layout of the sources of a package

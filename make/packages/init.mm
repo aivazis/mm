@@ -18,6 +18,8 @@ define packages.init
     ${eval packages += $(2)}
     # save the project
     ${eval $(2).project := $(1)}
+    # and its home
+    ${eval $(2).home = $($($(2).project).home)}
     # the stem for generating package specific names
     ${eval $(2).stem ?= $(1)}
     # form the name
@@ -34,7 +36,7 @@ define packages.init
     # the package destination
     ${eval $(2).pycdir ?= $(builder.dest.pyc)$($(2).name)/}
     # the destination for drivers
-    ${eval $(2).bindir ?= $(builder.dest.bin)
+    ${eval $(2).bindir ?= $(builder.dest.bin)}
 
     # artifacts
     # the root of the package relative to the project home
@@ -43,10 +45,13 @@ define packages.init
     ${eval $(2).meta ?= meta}
     # the directory with the driver script sources relative to the project home
     ${eval $(2).bin ?= bin/}
-    # the directory where extensions get parked, relative to the package root}
+    # the directory where extensions get parked, relative to the package root
     ${eval $(2).ext ?= ext/}
+    # the directory with the configuration files, relative to the package root
+    ${eval $(2).defaults ?= defaults/}
+
     # the absolute path to the package source tree
-    ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
+    ${eval $(2).prefix ?= $($(2).home)/$($(2).root)}
 
     # the directory structure
     ${eval $(2).directories ?= ${call package.directories,$(2)}}
@@ -55,6 +60,14 @@ define packages.init
     # the list of scripts
     ${eval $(2).drivers ?=}
 
+    # the list of configuration file stems
+    ${eval $(2).config ?= $($(2).stem)}
+    # the home of the configuration files
+    ${eval $(2).config.root ?= $($(1).home)/$($(2).defaults)}
+    # the actual list of files derivable from the stems
+    ${eval $(2).config.sources := ${call package.config,$(2)}}
+
+
     # derived artifacts
     # the compiled products
     ${eval $(2).staging.pyc ?= ${call package.pyc,$(2)}}
@@ -62,6 +75,13 @@ define packages.init
     ${eval $(2).staging.pycdirs ?= ${call package.pycdirs,$(2)}}
     # the directory where extensions are delivered
     ${eval $(2).staging.ext ?= $($(2).pycdir)$($(2).ext)}
+
+    # the directory where configuration files are delivevered
+    ${eval $(2).staging.defaults ?= ${builder.dest.defaults}}
+    # the list of files to deliver there
+    ${eval $(2).staging.config ?= ${call package.staging.config,$(2),$($(2).config.sources)}}
+    # and the list of directories that must exist
+    ${eval $(2).staging.config.dirs ?= ${call package.staging.config.dirs,$(2)}}
 
     # the raw meta-data file
     ${eval $(2).staging.meta ?= $($(2).prefix)$($(2).meta)}
@@ -148,6 +168,45 @@ endef
 define package.pycdirs =
     ${subst $($(1).prefix),$($(1).pycdir),$($(1).directories)}
 # all done
+endef
+
+# build the set of configuration files
+#   usage: package.config {package}
+define package.config =
+    ${strip
+        ${eval root := $($(1).config.root)}
+
+        ${foreach stem,$($(1).config),
+            ${realpath $(root)$(stem).pfg}
+            ${if ${realpath $(root)$(stem)},
+                ${shell find ${realpath $(root)$(stem)} -type f},
+            }
+        }
+    }
+endef
+
+# build the destination name for a configuration file
+#   usage package.staging.config {package} {config-file}
+define package.staging.config.file =
+    ${addprefix $($(1).staging.defaults),
+        ${subst $($(1).config.root),,$(2)}
+    }
+endef
+
+# build the list of staged configuration files
+#   usage package.staging.config {package} {config-files}
+define package.staging.config =
+    ${strip
+        ${foreach file,$(2),${call package.staging.config.file,$(1),$(file)}}
+    }
+endef
+
+# build the list of staging directories for configuration files
+#   usage package.staging.config.directories {package}
+define package.staging.config.dirs =
+    ${strip
+        ${filter-out $($(1).staging.defaults),${sort ${dir $($(1).staging.config)}}}
+    }
 endef
 
 
