@@ -231,6 +231,7 @@ $(1).info.general:
 # all done
 endef
 
+
 # make a recipe to show the metadata documentation of a specific package
 # usage: package.workflows.help {package}
 define package.workflows.help =
@@ -252,7 +253,6 @@ $(1).help:
 	$(log)
 # all done
 endef
-
 
 
 # show me

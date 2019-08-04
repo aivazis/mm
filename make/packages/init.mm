@@ -170,6 +170,7 @@ define package.pycdirs =
 # all done
 endef
 
+
 # build the set of configuration files
 #   usage: package.config {package}
 define package.config =
@@ -185,6 +186,7 @@ define package.config =
     }
 endef
 
+
 # build the destination name for a configuration file
 #   usage package.staging.config {package} {config-file}
 define package.staging.config.file =
@@ -193,6 +195,7 @@ define package.staging.config.file =
     }
 endef
 
+
 # build the list of staged configuration files
 #   usage package.staging.config {package} {config-files}
 define package.staging.config =
@@ -200,6 +203,7 @@ define package.staging.config =
         ${foreach file,$(2),${call package.staging.config.file,$(1),$(file)}}
     }
 endef
+
 
 # build the list of staging directories for configuration files
 #   usage package.staging.config.directories {package}
