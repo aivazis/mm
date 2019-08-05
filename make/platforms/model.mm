@@ -22,11 +22,14 @@ ${foreach \
     } \
 }
 
+# build the environment variable
+platform.macro := MM_PLATFORM_${subst -,_,$(platform)}
+
 # fine adjustments
-platform.c.defines := MM_PLATFORM_${subst -,_,$(platform)}
-platform.c++.defines := MM_PLATFORM_${subst -,_,$(platform)}
-platform.cuda.defines := MM_PLATFORM_${subst -,_,$(platform)}
-platform.fortran.defines := MM_PLATFORM_${subst -,_,$(platform)}
+platform.c.defines := $(platform.macro)
+platform.c++.defines := $(platform.macro)
+platform.cuda.defines := $(platform.macro)
+platform.fortran.defines := $(platform.macro)
 
 
 # show me
