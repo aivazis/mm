@@ -6,7 +6,7 @@
 //
 
 // configuration
-// #include <portinfo>
+#include <portinfo>
 // externals
 #include <Python.h>
 #include <pyre/journal.h>
@@ -38,7 +38,7 @@ hello(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", hello::hello());
+    return Py_BuildValue("s", hello::hello().data());
 }
 
 // goodbye
@@ -63,7 +63,7 @@ goodbye(PyObject *, PyObject * args)
     }
 
     // all done
-    return Py_BuildValue("s", hello::goodbye());
+    return Py_BuildValue("s", hello::goodbye().data());
 }
 
 // end of file

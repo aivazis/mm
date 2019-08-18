@@ -36,23 +36,32 @@ hello.ext.wraps := hello.lib
 hello.ext.capsule :=
 hello.ext.extern := hello.lib pyre python
 
+
 # the libhello test suite
+# the C++ library test cases are built implicitlty by considering all source files to be test
+# drivers; in this case, there are no command line arguments needed, so mm does not need any
+# extra information to build a full testsuite
 hello.tst.libhello.stem := libhello
 hello.tst.libhello.extern := hello.lib pyre
 hello.tst.libhello.prerequisites := hello.lib
 
+
 # the hello package test suite
+# similarly, all source files here are expected to be test drivers; the ones that don't require
+# command line arguments do not have to be mentioned as they will be tested implicitly; the
+# rest must be dscribed explicitly
 hello.tst.hello.stem := hello
 hello.tst.hello.prerequisites := hello.pkg hello.ext
 
-
-# testsuite
-
-# the foo/sanity.py test cases
-hello.tst.hello.foo.sanity.cases := foo.sanity.help foo.sanity.friend
-# command lines
-foo.sanity.help := --help
-foo.sanity.friend := --friend=ally
+# the {say.py} driver does application testing and needs command line arguments, so we have to
+# describe test cases
+tests.hello.say.cases := say.hello.alec say.hello.ally say.goodbye.matthias
+# say hello to alec
+say.hello.alec := hello alec
+# say hello to ally
+say.hello.ally := hello ally
+# say goodbye to matthias
+say.goodbye.matthias := goodbye mat
 
 # show me
 # ${info -- done with hello }

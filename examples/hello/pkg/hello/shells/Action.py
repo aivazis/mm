@@ -11,9 +11,9 @@ import pyre
 
 
 # protocol declaration
-class Action(pyre.action, family='hello.actions'):
+class Action(pyre.action, family='hello.cli'):
     """
-    Protocol declaration for hello commands
+    Protocol for hello commands
     """
 
 

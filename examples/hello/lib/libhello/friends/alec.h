@@ -5,8 +5,8 @@
 // (c) 1998-2019 all rights reserved
 //
 
-// alec
 namespace hello {
+// alec
     std::string alec();
 }
 

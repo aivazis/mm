@@ -7,7 +7,7 @@
 #
 
 
-# pull the extension modules
+# pull the extension module
 from . import hello as libhello
 
 

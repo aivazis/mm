@@ -6,19 +6,21 @@
 #
 
 
+# my package
+import hello
 # superclass
 from .Greet import Greet
 
 
 # declaration
-class Hello(Greet, family='hello.actions.hello'):
+class Goodbye(Greet, family='hello.cli.goodbye'):
     """
-    Say "hello" to a friend
+    Say "goodbye" to a friend
     """
 
 
     # my greeting
-    greeting = hello.ext.libhello.hello()
+    greeting = hello.ext.libhello.goodbye()
 
 
 # end of file

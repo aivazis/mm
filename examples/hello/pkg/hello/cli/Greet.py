@@ -11,9 +11,12 @@ import hello
 
 
 # declaration
-class Goodbye(hello.command, family='hello.actions.greet'):
+class Greet(hello.command, family='hello.cli.greet'):
     """
-    Greet a friend
+    This is the base class for command that greet my friends
+
+    N.B.: This command is not directly usable since it doesn't have a valid definition of the
+    greeting to extend
     """
 
 
@@ -24,7 +27,7 @@ class Goodbye(hello.command, family='hello.actions.greet'):
         Greet Alec
         """
         # get the friend name
-        firend = hello.ext.libhello.alec()
+        friend = hello.ext.libhello.alec()
         # do it
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success
@@ -37,7 +40,7 @@ class Goodbye(hello.command, family='hello.actions.greet'):
         Greet Ally
         """
         # get the friend name
-        firend = hello.ext.libhello.ally()
+        friend = hello.ext.libhello.ally()
         # do it
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success
@@ -50,7 +53,7 @@ class Goodbye(hello.command, family='hello.actions.greet'):
         Greet Mac
         """
         # get the friend name
-        firend = hello.ext.libhello.mac()
+        friend = hello.ext.libhello.mac()
         # do it
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success
@@ -63,7 +66,7 @@ class Goodbye(hello.command, family='hello.actions.greet'):
         Greet Mat
         """
         # get the friend name
-        firend = hello.ext.libhello.mat()
+        friend = hello.ext.libhello.mat()
         # do it
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success

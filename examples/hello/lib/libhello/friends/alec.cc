@@ -6,6 +6,8 @@
 //
 
 
+// configuration
+#include <portinfo>
 // externals
 #include <string>
 #include <pyre/journal.h>

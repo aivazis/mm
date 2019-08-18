@@ -6,6 +6,8 @@
 //
 
 
+// configuration
+#include <portinfo>
 // externals
 #include <string>
 // declarations

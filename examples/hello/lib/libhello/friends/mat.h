@@ -12,7 +12,7 @@ extern "C" {
 
 namespace hello {
     // mat
-    inline const char * mat() { return ::mat(); }
+    inline auto mat() { return ::mat(); }
 }
 
 // end of file

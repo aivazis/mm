@@ -12,7 +12,7 @@ extern "C" {
 
 namespace hello {
     // mac
-    inline const char * mac() { return ::mac(); }
+    inline auto mac() { return ::mac(); }
 }
 
 // end of file
