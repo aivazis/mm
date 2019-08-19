@@ -6,7 +6,7 @@
 #
 
 # show me
-${info -- summit.info}
+# ${info -- summit.info}
 
 # display the summit configuration
 extern.summit.info:
@@ -25,6 +25,6 @@ extern.summit.info:
 	${call log.var,"c++ link line",${call extern.link.options,c++,summit}}
 
 # show me
-${info -- done with summit.info}
+# ${info -- done with summit.info}
 
 # end of file
