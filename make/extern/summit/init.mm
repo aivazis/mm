@@ -14,7 +14,7 @@ extern += ${if ${findstring summit,$(extern)},,summit}
 # compiler flags
 summit.flags ?=
 # enable {summit} aware code
-summit.defines :=
+summit.defines ?=
 # the canonical form of the include directory
 summit.incpath ?= $(summit.dir)/include
 
@@ -23,10 +23,10 @@ summit.ldflags ?=
 # the canonical form of the lib directory
 summit.libpath ?= $(summit.dir)/lib
 # the names of the libraries
-summit.libraries := summit
+summit.libraries ?= summit tetra
 
 # my dependencies
-summit.dependencies = gsl slepc petsc metis parmetis hdf5 mpi vtk fortran
+summit.dependencies := gmsh gsl slepc petsc metis parmetis hdf5 mpi vtk fortran
 
 # show me
 # ${info -- done with summit.init}
