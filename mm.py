@@ -107,6 +107,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     paths.doc = "publish the current build environment to other mm based projects"
     paths.validators = pyre.constraints.isMember("sh", "csh")
 
+    clear = pyre.properties.bool(default=False)
+    clear.doc = "remove the presence of the current build environment from the relevant variables"
+
     # host info
     host = pyre.platforms.platform()
     host.doc = "information about the current host"
@@ -227,13 +230,20 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # compute the current target tag
         tag = "-".join(filter(None, (variants, target)))
 
+        # if we are injecting the build layout into the user's environment
+        if self.clear is False:
+            # process with the injector
+            setenv = self.inject
+        # otherwise
+        else:
+            # remove our setting
+            setenv = self.eject
         # pull variables from the environment and adjust them
-        path = self.adjust(var=self.PATH, path=(prefix / tag / "bin"))
-        ldpath = self.adjust(var=self.LD_LIBRARY_PATH, path=(prefix / tag / "lib"))
-        pythonpath = self.adjust(var=self.PYTHONPATH, path=(prefix / tag / "packages"))
-        incpath = self.adjust(var=self.MM_INCLUDES, path=(prefix / tag / "include"))
-        libpath = self.adjust(var=self.MM_LIBPATH, path=(prefix / tag / "lib"))
-
+        path = setenv(var=self.PATH, path=(prefix / tag / "bin"))
+        ldpath = setenv(var=self.LD_LIBRARY_PATH, path=(prefix / tag / "lib"))
+        pythonpath = setenv(var=self.PYTHONPATH, path=(prefix / tag / "packages"))
+        incpath = setenv(var=self.MM_INCLUDES, path=(prefix / tag / "include"))
+        libpath = setenv(var=self.MM_LIBPATH, path=(prefix / tag / "lib"))
         # splice them together
         path = os.pathsep.join(path)
         ldpath = os.pathsep.join(ldpath)
@@ -602,14 +612,32 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         return None
 
 
-    def adjust(self, var, path):
+    def inject(self, var, path):
         """
         Prefix the path in {var} with the a local folder
         """
         # augment the path list in {var} by prepending the target folder
         var.insert(0, path)
         # eliminate duplicates, convert to strings, and return the adjusted list
-        return self.uniq(var)
+        yield from self.uniq(var)
+        # all done
+        return
+
+
+    def eject(self, var, path):
+        """
+        Remove path from {var}
+        """
+        # go through the values in {var}
+        for item in var:
+            # if it matches what we put there
+            if item == path:
+                # skip it
+                continue
+            # otherwise, make it available as a tring
+            yield str(item)
+        # all done
+        return var
 
 
     def uniq(self, seq):
