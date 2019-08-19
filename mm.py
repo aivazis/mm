@@ -248,8 +248,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         path = os.pathsep.join(path)
         ldpath = os.pathsep.join(ldpath)
         pythonpath = os.pathsep.join(pythonpath)
-        incpath = " ".join(incpath)
-        libpath = " ".join(libpath)
+        incpath = os.pathsep.join(incpath)
+        libpath = os.pathsep.join(libpath)
 
         # build the command line options to GNU make
         argv = [
@@ -321,8 +321,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             f"mm.home={home}",
             f"mm.master={master}",
             f"mm.compilers={compilers}",
-            f"mm.incpath={home} {incpath}",
-            f"mm.libpath={libpath}",
+            f"mm.incpath={home} " + ' '.join(incpath.split(os.pathsep)),
+            f"mm.libpath=" + ' '.join(libpath.split(os.pathsep)),
 
         # plus whatever the user put on the command line
         ] + list(self.argv)
@@ -634,7 +634,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             if item == path:
                 # skip it
                 continue
-            # otherwise, make it available as a tring
+            # otherwise, make it available as a string
             yield str(item)
         # all done
         return var
