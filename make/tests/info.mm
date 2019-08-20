@@ -52,8 +52,8 @@ $(1).clean: ${addsuffix .clean,$($(1).staging.targets)}
 ${foreach target, $($(1).staging.targets), \
     ${eval
         ${if $($(target).compiled),
-            ${call test.workflows.target.compiled,$(target)}, \
-            ${call test.workflows.target.interpreted,$(target)} \
+            ${call test.workflows.target.compiled,$(target),$(1)}, \
+            ${call test.workflows.target.interpreted,$(target),$(1)} \
         }
     }
 }
@@ -64,7 +64,7 @@ endef
 
 # build targets
 # target factory that builds a target for an interpreted test case
-#   usage: test.workflows.target.interpreted {target}
+#   usage: test.workflows.target.interpreted {target} {testsuite}
 define test.workflows.target.interpreted =
 
 # the aggregator
@@ -87,6 +87,19 @@ $(1).clean: # | $(1).cases
 	${call log.action,clean,$(1)}
 	$(rm.force-recurse) $($(1).clean)
 
+# show info
+$(1).info:
+	${call log.sec,$(1),"a test driver in testsuite '$(2)' of project '$($(2).project)'"}
+	${call log.var,source,$($(1).source)}
+	${call log.var,interpreted,yes}
+	${call log.var,language,$($(1).language)}
+	${call log.var,compiler,$(compiler.$($(1).language))}
+	${call log.sec,$(log.indent)cases,}
+	${if $($(1).cases), \
+            ${foreach case,$($(1).cases),\
+                ${call log.var,$(log.indent)$(case),$($(1).base) $($(case))};}, \
+            $(log) $(log.indent)$(log.indent)$($(1).base)}
+
 # just in case...
 .PHONY: $(1) $(1).cases $(1).clean
 
@@ -95,7 +108,7 @@ endef
 
 
 # target factory that builds a target for a compiled test case
-#   usage: test.workflows.target.compiled {target}
+#   usage: test.workflows.target.compiled {target} {testsuite}
 define test.workflows.target.compiled =
 
 $(1): $(1).driver $(1).cases $(1).clean
@@ -126,6 +139,20 @@ $(1).cases: $(1).driver
 $(1).clean: #| $(1).cases
 	${call log.action,clean,$(1)}
 	$(rm.force-recurse) $($(1).clean) $($(1).base) ${call platform.clean,$($(1).base)}
+
+# show info
+$(1).info:
+	${call log.sec,$(1),"a test driver in testsuite '$(2)' of project '$($(2).project)'"}
+	${call log.var,source,$($(1).source)}
+	${call log.var,compiled,yes}
+	${call log.var,language,$($(1).language)}
+	${call log.var,compiler,$(compiler.$($(1).language))}
+	${call log.var,extern,$($(1).extern)}
+	${call log.sec,$(log.indent)cases,}
+	${if $($(1).cases), \
+            ${foreach case,$($(1).cases), \
+                ${call log.var,$(log.indent)$(case),$($(1).base) $($(case))};}, \
+            $(log) $(log.indent)$(log.indent)$($(1).base)}
 
 # just in case...
 .PHONY: $(1) $(1).driver $(1).cases $(1).clean
