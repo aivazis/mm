@@ -145,12 +145,12 @@ define extension.workflows.makeinit
     ${eval $(1).lib.incpath += ${dir $(module)}}
 
 # build {init} from {main}
-$($(1).module.init) : $($(1).tmpdir) $(module.sources)
+$($(1).module.init) : $(module.sources)
 	${call log.action,"$(module.language)",$(module.relpath)}
 	${call languages.compile,$(module.language),$(module),$(module.target),}
 
 # convenience target to build {init} from {main}
-$(1).module.init : $($(1).module.init)
+$(1).module.init : $(1).directories $($(1).module.init)
 
 # remove {init}
 $(1).module.init.clean :
