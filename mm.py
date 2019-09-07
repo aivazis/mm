@@ -516,7 +516,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # if the {cwd} is not where we found the makefile
             if anchor != origin and not self.quiet:
                 # pick a channel
-                channel = self.warning
+                channel = self.info
                 # complain
                 channel.line(f"no '{local}' in '{origin}'")
                 channel.line(f"--  found one in '{anchor}'")
@@ -525,12 +525,13 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         else:
             # set {anchor} to the project {root} directory
             anchor = root
+            # MGA-20190907: silenced the warning; this is now the usual case
             # and if we were not told to be quiet
-            if not self.quiet:
+            # if not self.quiet:
                 # pick a channel
-                channel = self.warning
+                # channel = self.warning
                 # complain
-                channel.log(f"'{local}' not found; launching the build from '{anchor}'")
+                # channel.log(f"'{local}' not found; launching the build from '{anchor}'")
 
         # if {anchor} is an actual directory
         if anchor.isDirectory():
