@@ -17,12 +17,15 @@ extern.config = \
                 ${and \
                     ${value $(name).dir}, \
                     ${realpath $($(name).dir)}, \
-                    ${realpath $(extern.mm)/$(name)/init.mm} \
+                    ${realpath ${addsuffix /$(name)/init.mm,$(extern.all)}} \
                 }, \
                 ${value $(name).self} \
             } \
         } \
     }
+
+foo:
+	@echo ${call extern.config,${extern.supported}}
 
 
 # existence test

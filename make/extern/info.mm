@@ -17,6 +17,8 @@ extern.info:
 	${call log.sec,"  packages",}
 	${call log.var,"supported",$(extern.supported)}
 	${call log.var,"available",$(extern.available)}
+	${call log.var,"requested",$(projects.extern.requested)}
+	${call log.var,"provided",$(projects.extern.loaded)}
 
 # show me
 # ${info -- done with extern.info}

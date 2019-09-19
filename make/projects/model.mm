@@ -51,10 +51,18 @@ endef
 ${foreach project,$(projects), ${eval ${call project.boot,$(project)}}}
 
 # ${info --   loading support for external packages}
-${foreach \
-    dependency, \
-    ${sort ${foreach project,$(projects),$($(project).extern.available)}}, \
-    ${eval include $(extern.mm)/$(dependency)/init.mm $(extern.mm)/$(dependency)/info.mm} \
+#${foreach \
+    #dependency, \
+    #${sort ${foreach project,$(projects),$($(project).extern.available)}}, \
+    #${eval include $(extern.mm)/$(dependency)/init.mm $(extern.mm)/$(dependency)/info.mm} \
+#}
+
+projects.extern.requested := ${sort \
+    ${foreach project,$(projects),$($(project).extern.available)} \
+}
+
+projects.extern.loaded := ${sort \
+    ${call extern.load, $(projects.extern.requested)} \
 }
 
 # ${info --   project workflows}
