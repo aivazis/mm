@@ -14,6 +14,9 @@ extern += ${if ${findstring mpi,$(extern)},,mpi}
 # users set this variable to communicate which libraries they want
 mpi.required ?=
 
+# the location of the binaries
+mpi.binpath ?= $(mpi.dir)/bin
+
 # compiler flags
 mpi.flags ?=
 # enable {mpi} aware code
