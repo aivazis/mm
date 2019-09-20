@@ -11,7 +11,7 @@
 # developer choices
 -include $(user.username).mm
 # and a user/host specific configuration file
--include $(user.username)@$(host.name).mm
+-include $(user.username)@$(host.nickname).mm
 
 # the list of objects
 define model :=

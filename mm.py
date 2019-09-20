@@ -311,6 +311,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
             # host info
             f"host.name={host.hostname}",
+            f"host.nickname={host.nickname}",
             f"host.os={host.platform}",
             f"host.arch={host.cpus.architecture}",
             f"host.cores={host.cpus.cpus}",
