@@ -11,7 +11,7 @@
 # administrivia
 mm.banner:
 	$(log)
-	$(log) $(palette.light-blue)"    mm $(mm.version)"$(palette.normal)
+	$(log) $(palette.banner)"    mm $(mm.version)"$(palette.normal)
 	$(log) "    Michael Aïvázis <michael.aivazis@para-sim.com>"
 	$(log) "    copyright 1998-2019 all rights reserved"
 	$(log)

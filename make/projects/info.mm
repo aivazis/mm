@@ -62,7 +62,7 @@ $(project.prefix) :
 # informational targets
 # project help banner: list the known projects and tell the user what the next steps are
 projects.info: mm.banner
-	$(log) "known projects: "$(palette.purple)$(projects)$(palette.normal)
+	$(log) "known projects: "$(palette.targets)$(projects)$(palette.normal)
 	$(log)
 	$(log) "to build one of them, use its name as a target"
 	$(log) "    mm ${firstword $(projects)}"

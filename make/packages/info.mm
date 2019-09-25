@@ -11,7 +11,7 @@
 # package help
 # make the recipe
 packages.info: mm.banner
-	$(log) "known packages: "$(palette.purple)$(packages)$(palette.normal)
+	$(log) "known packages: "$(palette.targets)$(packages)$(palette.normal)
 	$(log)
 	$(log) "to build one of them, use its name as a target"
 	$(log) "    mm ${firstword $(packages)}"

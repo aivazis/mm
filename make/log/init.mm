@@ -14,14 +14,14 @@ log.indent = "    "
 # sections
 log.sec = \
     $(log) \
-    $(palette.amber)$(1)$(palette.normal): $(2)
+    $(palette.section.name)$(1)$(palette.normal): $(2)
 
 # variables
 log.var = \
     $(log) \
-    $(palette.sage)$(log.indent)$(1)$(palette.normal) \
+    $(palette.variable.name)$(log.indent)$(1)$(palette.normal) \
     = \
-    $(palette.normal)$(2)$(palette.normal)
+    $(palette.variable.value)$(2)$(palette.normal)
 
 # commands and targets
 log.help = \
@@ -59,17 +59,17 @@ log.firewall = \
 # render a build action
 log.asset = \
     $(log) \
-    $(palette.steel-blue)"  [$(1)]"$(palette.normal) \
+    $(palette.asset)"  [$(1)]"$(palette.normal) \
     $(2)
 
 log.action = \
     $(log) \
-    $(palette.lavender)"  [$(1)]"$(palette.normal) \
+    $(palette.action)"  [$(1)]"$(palette.normal) \
     $(2)
 
 log.action.attn = \
     $(log) \
-    $(palette.purple)"  [$(1)]"$(palette.normal) \
+    $(palette.attn)"  [$(1)]"$(palette.normal) \
     $(2)
 
 
@@ -82,6 +82,9 @@ include make/log/ansi.mm
 else
 include make/log/dumb.mm
 endif
+
+# color database
+include make/log/colordb.mm
 
 # theme locations
 log.themes.mm := $(mm.home)/make/log/$(mm.palette).mm

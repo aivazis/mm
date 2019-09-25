@@ -10,7 +10,7 @@
 
 # testsuite help
 tests.info: mm.banner
-	$(log) "known testsuites: "$(palette.purple)$(testsuites)$(palette.normal)
+	$(log) "known testsuites: "$(palette.targets)$(testsuites)$(palette.normal)
 	$(log)
 	$(log) "to build one of them, use its name as a target"
 	$(log) "    mm ${firstword $(testsuites)}"

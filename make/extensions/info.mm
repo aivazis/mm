@@ -12,7 +12,7 @@
 # extension help
 # make the recipe
 extensions.info: mm.banner
-	$(log) "known extensions: "$(palette.purple)$(extensions)$(palette.normal)
+	$(log) "known extensions: "$(palette.targets)$(extensions)$(palette.normal)
 	$(log)
 	$(log) "to build one of them, use its name as a target"
 	$(log) "    mm ${firstword $(extensions)}"

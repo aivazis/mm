@@ -12,7 +12,7 @@
 # library help
 # make the recipe
 libraries.info: mm.banner
-	$(log) "known libraries: "$(palette.purple)$(libraries)$(palette.normal)
+	$(log) "known libraries: "$(palette.targets)$(libraries)$(palette.normal)
 	$(log)
 	$(log) "to build one of them, use its name as a target"
 	$(log) "    mm ${firstword $(libraries)}"
