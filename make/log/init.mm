@@ -72,14 +72,27 @@ log.action.attn = \
     $(palette.purple)"  [$(1)]"$(palette.normal) \
     $(2)
 
+
 # terminals that support the ansi color commands
 terminals.ansi = ansi vt100 vt102 xterm xterm-color xterm-256color
 
 # colors
-ifeq ($(TERM),${findstring $(TERM),$(terminals.ansi)})
+ifeq ($(TERM),${findstring $(mm.color)$(TERM),$(terminals.ansi)})
 include make/log/ansi.mm
 else
 include make/log/dumb.mm
 endif
+
+# theme locations
+log.themes.mm := $(mm.home)/make/log/$(mm.palette).mm
+log.themes.user = $(user.config)/themes/$(mm.palette).mm
+log.themes.project := $(project.config)/themes/$(mm.palette).mm
+
+# assemble them in priority order and filter out locations that don't exist
+log.themes := ${realpath $(log.themes.mm) $(log.themes.project) $(log.themes.user)}
+
+# load the requested palette, and fall back to the built in one
+include ${if $(log.themes),$(log.themes),make/log/builtin.mm}
+
 
 # end of file

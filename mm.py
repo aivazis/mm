@@ -82,6 +82,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     ignore = pyre.properties.bool(default=False)
     ignore.doc = "ignore target failures and keep going"
 
+    color = pyre.properties.bool(default=True)
+    color.doc = "colorize screen output on supported terminals"
+
+    palette = pyre.properties.str(default='builtin')
+    palette.doc = "color palette for colorizing screen output on supported terminals"
+
     # parallelism
     serial = pyre.properties.bool(default=False)
     serial.doc = "control whether to run make in parallel"
@@ -318,6 +324,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
             # mm info
             f"mm={mm}",
+            f"mm.color={'' if self.color else 'no'}",
+            f"mm.palette={self.palette}",
             f"mm.version={self.version}",
             f"mm.home={home}",
             f"mm.master={master}",
