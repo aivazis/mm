@@ -9,12 +9,7 @@ compiler.cython := cython
 
 # prefices for specific categories
 cython.prefix.flags :=
-cython.prefix.defines := -D
 cython.prefix.incpath := -I
-
-cython.prefix.ldflags :=
-cython.prefix.libpath := -L
-cython.prefix.libraries := -l
 
 # compile time flags
 cython.compile.base += -3 --cplus --line-directives
@@ -27,11 +22,5 @@ cython.opt :=
 cython.cov :=
 cython.prof :=
 cython.shared :=
-
-# link time flags
-cython.link.output := -o
-cython.link.shared :=
-# link a dynamically loadable library
-cython.link.dll :=
 
 # end of file

@@ -14,7 +14,7 @@ languages.cython.compiled := yes
 languages.cython.interpreted :=
 
 # flags
-languages.cython.categories.compile := flags defines incpath
+languages.cython.categories.compile := flags incpath
 languages.cython.categories.link :=
 
 # build a compile command line
