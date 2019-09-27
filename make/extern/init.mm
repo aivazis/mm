@@ -24,9 +24,6 @@ extern.config = \
         } \
     }
 
-foo:
-	@echo ${call extern.config,${extern.supported}}
-
 
 # existence test
 #   usage: extern.exists {package-name}
