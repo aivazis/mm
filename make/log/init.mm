@@ -6,7 +6,7 @@
 #
 
 # rendering functions
-log ?= echo
+log ?= @echo
 # indentation
 log.halfdent = "  "
 log.indent = "    "
