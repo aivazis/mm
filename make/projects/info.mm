@@ -28,7 +28,7 @@ endef
 define project.main =
 # the main recipe
 $(1): $(1).directories $(1).assets
-	${call log.asset,"project",$(1)}
+	@${call log.asset,"project",$(1)}
 
 # the required directories
 $(1).directories: $($(1).prefix) $($(1).tmpdir)
@@ -43,11 +43,11 @@ ${foreach type,$(project.contentTypes), \
 
 $($(1).tmpdir):
 	$(mkdirp) $($(1).tmpdir)
-	${call log.action,"mkdir",$($(1).tmpdir)}
+	@${call log.action,"mkdir",$($(1).tmpdir)}
 
 $(1).clean:
 	$(rm.force-recurse) $($(1).tmpdir)
-	${call log.action,"rm",$($(1).tmpdir)}
+	@${call log.action,"rm",$($(1).tmpdir)}
 
 # all done
 endef
@@ -56,20 +56,20 @@ endef
 # targets common to all projects
 $(project.prefix) :
 	$(mkdirp) $@
-	${call log.action,"mkdir",$@}
+	@${call log.action,"mkdir",$@}
 
 
 # informational targets
 # project help banner: list the known projects and tell the user what the next steps are
 projects.info: mm.banner
-	$(log) "known projects: "$(palette.targets)$(projects)$(palette.normal)
-	$(log)
-	$(log) "to build one of them, use its name as a target"
-	$(log) "    mm ${firstword $(projects)}"
-	$(log)
-	$(log) "to get more information about a specific project, use"
-	$(log) "    mm ${firstword $(projects)}.info"
-	$(log)
+	@$(log) "known projects: "$(palette.targets)$(projects)$(palette.normal)
+	@$(log)
+	@$(log) "to build one of them, use its name as a target"
+	@$(log) "    mm ${firstword $(projects)}"
+	@$(log)
+	@$(log) "to get more information about a specific project, use"
+	@$(log) "    mm ${firstword $(projects)}.info"
+	@$(log)
 
 
 # make a recipe to log the metadata of a specific project
@@ -77,25 +77,25 @@ projects.info: mm.banner
 define project.workflows.info =
 # make the recipe
 $(1).info:
-	$(log)
-	${call log.sec,$(1),project attributes}
-	$(log)
-	${foreach category,$($(1).meta.categories),\
+	@$(log)
+	@${call log.sec,$(1),project attributes}
+	@$(log)
+	@${foreach category,$($(1).meta.categories),\
             ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
             ${foreach var,$($(1).meta.$(category)), \
                 ${call log.var,$(1).$(var),$$($(1).$(var))}; \
              } \
-        } \
-	$(log)
-	$(log) "for an explanation of their purpose, try"
-	$(log)
-	$(log) "    mm $(1).help"
-	$(log)
+        }
+	@$(log)
+	@$(log) "for an explanation of their purpose, try"
+	@$(log)
+	@$(log) "    mm $(1).help"
+	@$(log)
 
 # make a recipe that displays the project assets
 $(1).info.contents:
-	${call log.sec,$(1),}
-	${call log.var,"contents",$$($(1).contents)}
+	@${call log.sec,$(1),}
+	@${call log.var,"contents",$$($(1).contents)}
 
 # all done
 endef
@@ -106,20 +106,20 @@ endef
 define project.workflows.help =
 # make the recipe
 $(1).help:
-	$(log)
-	${call log.sec,$(1),project attributes}
-	$(log)
-	${foreach category,$($(1).meta.categories),\
+	@$(log)
+	@${call log.sec,$(1),project attributes}
+	@$(log)
+	@${foreach category,$($(1).meta.categories),\
             ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
             ${foreach var,$($(1).meta.$(category)), \
                 ${call log.help,$(1).$(var),$($(1).metadoc.$(var))}; \
              } \
-        } \
-	$(log)
-	$(log) "for a listing of their values, try"
-	$(log)
-	$(log) "    mm $(1).info"
-	$(log)
+        }
+	@$(log)
+	@$(log) "for a listing of their values, try"
+	@$(log)
+	@$(log) "    mm $(1).info"
+	@$(log)
 # all done
 endef
 

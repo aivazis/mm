@@ -10,12 +10,12 @@
 
 # user info
 user.info:
-	${call log.sec,"user", "user info"}
-	${call log.var,username,$(user.username)}
-	${call log.var,home,$(user.home)}
-	${call log.var,name,$(user.name)}
-	${call log.var,email,$(user.email)}
-	${call log.var,uid,$(user.uid)}
+	@${call log.sec,"user", "user info"}
+	@${call log.var,username,$(user.username)}
+	@${call log.var,uid,$(user.uid)}
+	@${call log.var,home,$(user.home)}
+	@${call log.var,name,$(user.name)}
+	@${call log.var,email,$(user.email)}
 
 # show me
 # ${info -- done with users.info}

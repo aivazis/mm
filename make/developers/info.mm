@@ -10,12 +10,12 @@
 
 # developer info
 developer.info:
-	${call log.sec,"developer", "options and overrides from '$(developer)'"}
-	${call log.var,compiler choices,$(developer.$(developer).compilers)}
-	${foreach \
+	@${call log.sec,"developer", "options and overrides from '$(developer)'"}
+	@${call log.var,compiler choices,$(developer.$(developer).compilers)}
+	@${foreach \
             language, \
             $(languages),\
-            ${call log.sec, "  $(language) options",}; \
+            ${call log.sec,"  $(language) options",}; \
             ${foreach \
                 category, \
                 $(languages.$(language).categories), \

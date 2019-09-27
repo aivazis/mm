@@ -12,14 +12,14 @@
 # library help
 # make the recipe
 libraries.info: mm.banner
-	$(log) "known libraries: "$(palette.targets)$(libraries)$(palette.normal)
-	$(log)
-	$(log) "to build one of them, use its name as a target"
-	$(log) "    mm ${firstword $(libraries)}"
-	$(log)
-	$(log) "to get more information about a specific library, use"
-	$(log) "    mm ${firstword $(libraries)}.info"
-	$(log)
+	@$(log) "known libraries: "$(palette.targets)$(libraries)$(palette.normal)
+	@$(log)
+	@$(log) "to build one of them, use its name as a target"
+	@$(log) "    mm ${firstword $(libraries)}"
+	@$(log)
+	@$(log) "to get more information about a specific library, use"
+	@$(log) "    mm ${firstword $(libraries)}.info"
+	@$(log)
 
 
 # bootstrap
@@ -42,7 +42,7 @@ endef
 define library.workflows.build =
 # the main recipe
 $(1): $(1).prerequisites $(1).directories $(1).assets
-	${call log.asset,"lib",$(1)}
+	@${call log.asset,"lib",$(1)}
 
 $(1).prerequisites: $($(1).prerequisites)
 
@@ -51,7 +51,7 @@ $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
 ${if ${findstring $($(1).libdir),$(builder.dest.lib)},,$($(1).libdir)} \
 $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
-	${call log.action,"mkdir",$$@}
+	@${call log.action,"mkdir",$$@}
 
 $(1).assets: $(1).headers.master $(1).headers ${call library.workflows.assets.archives,$(1)}
 
@@ -97,7 +97,7 @@ define library.workflows.header.master =
 # publish public headers
 ${call library.staging.header.master,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
+	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
 # all done
 endef
 
@@ -108,7 +108,7 @@ define library.workflows.header =
 # publish public headers
 ${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
+	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
 # all done
 endef
 
@@ -129,7 +129,7 @@ $(1).archive: $($(1).staging.archive)
 
 $($(1).staging.archive): $($(1).staging.objects)
 	$(ar.create) $$@ $($(1).staging.objects)
-	${call log.action,"ar",$($(1).archive)}
+	@${call log.action,"ar",$($(1).archive)}
 
 # all done
 endef
@@ -153,7 +153,7 @@ define library.workflows.dll =
 $(1).dll: $($(1).staging.dll)
 
 $($(1).staging.dll): $($(1).staging.archive)
-	${call log.action,"dll",$($(1).dll)}
+	@${call log.action,"dll",$($(1).dll)}
 	${call languages.dll,c++,$($(1).staging.objects),$($(1).staging.dll),$($(1).extern)}
 
 # all done
@@ -184,7 +184,7 @@ define library.workflows.object =
 # compile source files
 $(source.object): $(source.path) \
     | ${foreach pre,$($(1).prerequisites),$(pre).headers $(pre).archive} $($(1).tmpdir)
-	${call log.action,"$(source.language)",$(source.relpath)}
+	@${call log.action,"$(source.language)",$(source.relpath)}
 	${call \
             languages.compile,$(source.language),$(source.path),$(source.object),\
                  $(1).$(source.language) $($(1).extern) \
@@ -196,7 +196,7 @@ $(source.object): $(source.path) \
 
 ${if $(source.device), \
     $(source.device) : $(source.object) ; \
-	${call log.action,"dlink",$(source.relpath)} ; \
+	@${call log.action,"dlink",$(source.relpath)} ; \
 	${call \
             languages.dlink,cuda,$(source.object),$(source.device),\
                  $(1).cuda $($(1).extern) \
@@ -212,78 +212,78 @@ endef
 define library.workflows.info =
 # make the recipe
 $(1).info:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	$(log)
-	${call log.var,source root,$($(1).prefix)}
-	${call log.var,headers,$($(1).incdir)}
-	${call log.var,archive,$($(1).staging.archive)}
-	${call log.var,source languages,$($(1).languages)}
-	${call log.var,requested packages,$($(1).extern.requested)}
-	${call log.var,supported packages,$($(1).extern.supported)}
-	${call log.var,available packages,$($(1).extern.available)}
-	$(log)
-	$(log) "for an explanation of their purpose, try"
-	$(log)
-	$(log) "    mm $(1).help"
-	$(log)
-	$(log) "related targets:"
-	$(log)
-	${call log.help,$(1).info.directories,"the layout of the source directories"}
-	${call log.help,$(1).info.sources,"the source files"}
-	${call log.help,$(1).info.headers,"the header files"}
-	${call log.help,$(1).info.incdirs,"the include directories in the staging area"}
-	${call log.help,$(1).info.api,"the exported public headers"}
-	${call log.help,$(1).info.objects,"the object files in the staging area"}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@$(log)
+	@${call log.var,source root,$($(1).prefix)}
+	@${call log.var,headers,$($(1).incdir)}
+	@${call log.var,archive,$($(1).staging.archive)}
+	@${call log.var,source languages,$($(1).languages)}
+	@${call log.var,requested packages,$($(1).extern.requested)}
+	@${call log.var,supported packages,$($(1).extern.supported)}
+	@${call log.var,available packages,$($(1).extern.available)}
+	@$(log)
+	@$(log) "for an explanation of their purpose, try"
+	@$(log)
+	@$(log) "    mm $(1).help"
+	@$(log)
+	@$(log) "related targets:"
+	@$(log)
+	@${call log.help,$(1).info.directories,"the layout of the source directories"}
+	@${call log.help,$(1).info.sources,"the source files"}
+	@${call log.help,$(1).info.headers,"the header files"}
+	@${call log.help,$(1).info.incdirs,"the include directories in the staging area"}
+	@${call log.help,$(1).info.api,"the exported public headers"}
+	@${call log.help,$(1).info.objects,"the object files in the staging area"}
 
 
 # make a recipe that prints the directory layout of the sources of a library
 $(1).info.directories:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.sec,"  source directories",}
-	${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.sec,"  source directories",}
+	@${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
 
 
 # make a recipe that prints the set of sources that comprise a library
 $(1).info.sources:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.sec,"  sources",}
-	${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.sec,"  sources",}
+	@${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
 
 
 # make a recipe that prints the set of public headers of a library
 $(1).info.headers:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.sec,"  headers",}
-	${foreach header,$($(1).headers),$(log) $(log.indent)$(header);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.sec,"  headers",}
+	@${foreach header,$($(1).headers),$(log) $(log.indent)$(header);}
 # all done
 
 # make a recipe that prints the set of objects of a library
 $(1).info.objects:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.var,"tmpdir",$($(1).tmpdir)}
-	${call log.sec,"  objects",}
-	${foreach object,$($(1).staging.objects),$(log) $(log.indent)$(object);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.var,"tmpdir",$($(1).tmpdir)}
+	@${call log.sec,"  objects",}
+	@${foreach object,$($(1).staging.objects),$(log) $(log.indent)$(object);}
 
 
 # make a recipe that prints the set of includes of a library
 $(1).info.incdirs:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.var,"incdir",$($(1).incdir)}
-	${call log.sec,"  include directory structure",}
-	${foreach directory,$($(1).staging.incdirs),$(log) $(log.indent)$(directory);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.var,"incdir",$($(1).incdir)}
+	@${call log.sec,"  include directory structure",}
+	@${foreach directory,$($(1).staging.incdirs),$(log) $(log.indent)$(directory);}
 
 # make a recipe that prints the set of exported public headers
 $(1).info.api:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.var,"incdir",$($(1).incdir)}
-	${call log.sec,"  exported public headers",}
-	${foreach header,$($(1).staging.headers),$(log) $(log.indent)$(header);}
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.var,"incdir",$($(1).incdir)}
+	@${call log.sec,"  exported public headers",}
+	@${foreach header,$($(1).staging.headers),$(log) $(log.indent)$(header);}
 
 # make a recipe that prints the set of source languages
 $(1).info.languages:
-	${call log.sec,$(1),"a library in project '$($(1).project)'"}
-	${call log.var,"languages",$($(1).languages)}
-	${foreach language,$($(1).languages),\
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.var,"languages",$($(1).languages)}
+	@${foreach language,$($(1).languages),\
             ${call log.sec,"  $(language)","flags and options"}; \
             ${foreach category,$(languages.$(language).categories), \
                 ${call log.var,$(category),$($(1).$(language).$(category))}; \
@@ -299,20 +299,20 @@ endef
 define library.workflows.help =
 # make the recipe
 $(1).help:
-	$(log)
-	${call log.sec,$(1),library attributes}
-	$(log)
-	${foreach category,$($(1).meta.categories),\
+	@$(log)
+	@${call log.sec,$(1),library attributes}
+	@$(log)
+	@${foreach category,$($(1).meta.categories),\
             ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
             ${foreach var,$($(1).meta.$(category)), \
                 ${call log.help,$(1).$(var),$($(1).metadoc.$(var))}; \
              } \
-        } \
-	$(log)
-	$(log) "for a listing of their values, try"
-	$(log)
-	$(log) "    mm $(1).info"
-	$(log)
+        }
+	@$(log)
+	@$(log) "for a listing of their values, try"
+	@$(log)
+	@$(log) "    mm $(1).info"
+	@$(log)
 # all done
 endef
 

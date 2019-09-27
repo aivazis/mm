@@ -12,14 +12,14 @@
 # extension help
 # make the recipe
 extensions.info: mm.banner
-	$(log) "known extensions: "$(palette.targets)$(extensions)$(palette.normal)
-	$(log)
-	$(log) "to build one of them, use its name as a target"
-	$(log) "    mm ${firstword $(extensions)}"
-	$(log)
-	$(log) "to get more information about a specific extension, use"
-	$(log) "    mm ${firstword $(extensions)}.info"
-	$(log)
+	@$(log) "known extensions: "$(palette.targets)$(extensions)$(palette.normal)
+	@$(log)
+	@$(log) "to build one of them, use its name as a target"
+	@$(log) "    mm ${firstword $(extensions)}"
+	@$(log)
+	@$(log) "to get more information about a specific extension, use"
+	@$(log) "    mm ${firstword $(extensions)}.info"
+	@$(log)
 
 
 # bootstrap
@@ -50,7 +50,7 @@ ${if $($(1).capsule), ${call extension.workflows.capsule,$(1)},}
 
 # the main recipe
 $(1): $(1).prerequisites $(1).directories $(1).assets
-	${call log.asset,"ext",$(1)}
+	@${call log.asset,"ext",$(1)}
 
 $(1).prerequisites: $($(1).prerequisites)
 
@@ -58,14 +58,14 @@ $(1).directories: $($(1).tmpdir)
 
 $($(1).tmpdir):
 	$(mkdirp) $$@
-	${call log.action,"mkdir",$$@}
+	@${call log.action,"mkdir",$$@}
 
 $(1).assets: ${call extension.workflows.assets,$(1)}
 
 $(1).extension: $($(1).module.so)
 
 $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
-	${call log.action,"dll",${subst $($($(1).project).home)/,,$($(1).module.init)}}
+	@${call log.action,"dll",${subst $($($(1).project).home)/,,$($(1).module.init)}}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
             $($(1).module.so), \
@@ -73,7 +73,7 @@ $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
 
 # clean up
 $(1).clean:
-	${call log.action,"rm",$($(1).module.so)}
+	@${call log.action,"rm",$($(1).module.so)}
 	$(rm.force) $($(1).module.so)
 
 # typically, extensions have no headers to export; this target is needed when an extension is
@@ -146,7 +146,7 @@ define extension.workflows.makeinit
 
 # build {init} from {main}
 $($(1).module.init) : $(module.sources)
-	${call log.action,"$(module.language)",$(module.relpath)}
+	@${call log.action,"$(module.language)",$(module.relpath)}
 	${call languages.compile,$(module.language),$(module),$(module.target),}
 
 # convenience target to build {init} from {main}
@@ -178,7 +178,7 @@ $(1).capsule : $(capsule.destination)
 
 $(capsule.destination) : $(capsule.incdir) $(capsule.source)
 	$(cp) $(capsule.source) $(capsule.destination)
-	${call log.action,"cp",${subst $($($(1).project).home)/,,$(capsule.source)}}
+	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(capsule.source)}}
 
 ${if $($(1).wraps),,\
     ${eval $(capsule.incdir) : ; \
@@ -194,13 +194,13 @@ endef
 define extension.workflows.info =
 # make the recipe
 $(1).info:
-	${call log.sec,$(1),"an extension in project '$($(1).project)'"}
-	$(log)
-	${call log.var,module,$($(1).module)}
-	${call log.var,shared object,$($(1).module.so)}
-	${call log.var,main,$($(1).module.main)}
-	${call log.var,init,$($(1).module.init)}
-	${call log.var,support archive,$($(1).lib.archive)}
+	@${call log.sec,$(1),"an extension in project '$($(1).project)'"}
+	@$(log)
+	@${call log.var,module,$($(1).module)}
+	@${call log.var,shared object,$($(1).module.so)}
+	@${call log.var,main,$($(1).module.main)}
+	@${call log.var,init,$($(1).module.init)}
+	@${call log.var,support archive,$($(1).lib.archive)}
 # all done
 endef
 

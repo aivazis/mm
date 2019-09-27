@@ -13,26 +13,26 @@
 define language.recipes.info =
 # make the recipe
 languages.$(language).info:
-	${call log.sec,$(language),}
-	${call log.var,compiler,$$(compiler.$(language))}
-	${call log.var,compiled,$(languages.$(language).compiled)}
-	${call log.var,interpreted,$(languages.$(language).interpreted)}
-	${call log.var,source extensions,$(languages.$(language).sources)}
-	${call log.var,header extensions,$(languages.$(language).headers)}
+	@${call log.sec,$(language),}
+	@${call log.var,compiler,$$(compiler.$(language))}
+	@${call log.var,compiled,$(languages.$(language).compiled)}
+	@${call log.var,interpreted,$(languages.$(language).interpreted)}
+	@${call log.var,source extensions,$(languages.$(language).sources)}
+	@${call log.var,header extensions,$(languages.$(language).headers)}
 # all done
 endef
 
 
 # make a recipe that displays the known languages
 languages.info:
-	${call log.var,"languages",$(languages)}
+	@${call log.var,"languages",$(languages)}
 
 
 # make a recipe that logs the map from extensions to languages
 suffixes.info:
-	${call log.sec,"suffixes","a map of recognized file extensions for each language"}
-	${call log.sec,"  sources",}
-	${foreach \
+	@${call log.sec,"suffixes","a map of recognized file extensions for each language"}
+	@${call log.sec,"  sources",}
+	@${foreach \
             language, \
             $(languages), \
 	    ${call log.var,$(language),$(languages.$(language).sources)}; \

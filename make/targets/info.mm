@@ -10,17 +10,17 @@
 
 # target info
 targets.info:
-	${call log.sec,"target", "target info"}
-	${call log.var,variants,$(target.variants)}
-	${call log.var,compilers,$(target.compilers)}
+	@${call log.sec,"target", "target info"}
+	@${call log.var,variants,$(target.variants)}
+	@${call log.var,compilers,$(target.compilers)}
 
 # make a rule to show taret specific info
 #  usage: target.info.flags
 define target.info.flags
 #
 targets.$(1).info:
-	${call log.sec,$(1),$(targets.$(1).description)}
-	${foreach language,$(languages),\
+	@${call log.sec,$(1),$(targets.$(1).description)}
+	@${foreach language,$(languages),\
             ${call log.sec,"  $(language)",$(compiler.$(language))}; \
             ${foreach \
                 category,  \

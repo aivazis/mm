@@ -11,14 +11,14 @@
 # package help
 # make the recipe
 packages.info: mm.banner
-	$(log) "known packages: "$(palette.targets)$(packages)$(palette.normal)
-	$(log)
-	$(log) "to build one of them, use its name as a target"
-	$(log) "    mm ${firstword $(packages)}"
-	$(log)
-	$(log) "to get more information about a specific package, use"
-	$(log) "    mm ${firstword $(packages)}.info"
-	$(log)
+	@$(log) "known packages: "$(palette.targets)$(packages)$(palette.normal)
+	@$(log)
+	@$(log) "to build one of them, use its name as a target"
+	@$(log) "    mm ${firstword $(packages)}"
+	@$(log)
+	@$(log) "to get more information about a specific package, use"
+	@$(log) "    mm ${firstword $(packages)}.info"
+	@$(log)
 
 # build the package targets
 #   usage: packages.workflows {package}
@@ -40,7 +40,7 @@ define package.workflows.build
 
 # top level target
 $(1): $(1).directories $(1).assets
-	${call log.asset,"pkg",$(1)}
+	@${call log.asset,"pkg",$(1)}
 
 # second level targets
 # make all relevant directories
@@ -58,12 +58,12 @@ $(1).config: $($(1).staging.config.dirs) $($(1).staging.config)
 # make the directories with the byte compiled files
 $($(1).staging.pycdirs):
 	$(mkdirp) $$@
-	${call log.action,"mkdir",$$@}
+	@${call log.action,"mkdir",$$@}
 
 # make the diretcories where the configuration files go
 $($(1).staging.config.dirs):
 	$(mkdirp) $$@
-	${call log.action,"mkdir",$$@}
+	@${call log.action,"mkdir",$$@}
 
 # build the package meta-data, if available
 ${if $($(1).meta),${call package.workflows.meta,$(1)}}
@@ -93,7 +93,7 @@ $(1).meta: $($(1).staging.meta.pyc)
 
 # make the rule that generates the package meta-data file
 $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
-	${call log.action,sed,$($(1).root)$($(1).meta)}
+	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
           -e "s:PROJECT:$($(1).project):g" \
           -e "s:MAJOR:$($($(1).project).major):g" \
@@ -102,7 +102,7 @@ $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
           -e "s|YEAR|$($($(1).project).now.year)|g" \
           -e "s|TODAY|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
-	${call log.action,python,$($(1).root)$($(1).meta)}
+	@${call log.action,python,$($(1).root)$($(1).meta)}
 	$(python.compile) $($(1).staging.meta.py)
 	$(rm) $($(1).staging.meta.py)
 
@@ -124,7 +124,7 @@ define package.workflows.pyc =
     ${eval path.pyc := ${call package.staging.pyc,$(1),$(path.py)}}
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
-	${call log.action,python,${subst $($(1).home)/,,$(path.py)}}
+	@${call log.action,python,${subst $($(1).home)/,,$(path.py)}}
 	$(python.compile) $(path.py)
 	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
@@ -141,7 +141,7 @@ define package.workflows.driver =
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
-	${call log.action,"cp",${subst $($(1).home)/,,$(path.source)}}
+	@${call log.action,"cp",${subst $($(1).home)/,,$(path.source)}}
 	$(cp) $(path.source) $(path.destination)
 
 # all done
@@ -157,7 +157,7 @@ define package.workflows.config =
     ${eval config.destination := ${call package.staging.config.file,$(1),$(config.source)}}
 
 $(config.destination): $(config.source) | ${dir $(config.destination)}
-	${call log.action,"cp",${subst $($(1).home)/,,$(config.source)}}
+	@${call log.action,"cp",${subst $($(1).home)/,,$(config.source)}}
 	$(cp) $(config.source) $(config.destination)
 
 # all done
@@ -168,63 +168,63 @@ endef
 define package.workflows.info =
 # make the recipe
 $(1).info:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	$(log)
-	$(log) "for an explanation of their purpose, try"
-	$(log)
-	$(log) "    mm $(1).help"
-	$(log)
-	$(log) "related targets:"
-	$(log)
-	${call log.help,$(1).info.directories,"the layout of the source directories"}
-	${call log.help,$(1).info.sources,"the source files"}
-	${call log.help,$(1).info.pyc,"the byte compiled files"}
-	${call log.help,$(1).info.pycdirs,"the locations of the byte compiled files"}
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@$(log)
+	@$(log) "for an explanation of their purpose, try"
+	@$(log)
+	@$(log) "    mm $(1).help"
+	@$(log)
+	@$(log) "related targets:"
+	@$(log)
+	@${call log.help,$(1).info.directories,"the layout of the source directories"}
+	@${call log.help,$(1).info.sources,"the source files"}
+	@${call log.help,$(1).info.pyc,"the byte compiled files"}
+	@${call log.help,$(1).info.pycdirs,"the locations of the byte compiled files"}
 
 
 # make a recipe that prints the directory layout of the sources of a package
 $(1).info.directories:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	${call log.sec,"  source directories",}
-	${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@${call log.sec,"  source directories",}
+	@${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
 
 
 # make a recipe that prints the set of sources that comprise a package
 $(1).info.sources:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	${call log.sec,"  sources",}
-	${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@${call log.sec,"  sources",}
+	@${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
 
 
 # make a recipe that prints the set of byte compiled files that comprise a package
 $(1).info.pyc:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	${call log.sec,"  byte compiled files",}
-	${foreach pyc,$($(1).staging.pyc),$(log) $(log.indent)$(pyc);}
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@${call log.sec,"  byte compiled files",}
+	@${foreach pyc,$($(1).staging.pyc),$(log) $(log.indent)$(pyc);}
 
 
 # make a recipe that prints the directories that house the package byte compiled files
 $(1).info.pycdirs:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	${call log.sec,"  directories with byte compiled files",}
-	${foreach dir,$($(1).staging.pycdirs),$(log) $(log.indent)$(dir);}
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@${call log.sec,"  directories with byte compiled files",}
+	@${foreach dir,$($(1).staging.pycdirs),$(log) $(log.indent)$(dir);}
 
 # make a recipe that shows how the package configuration files get built
 $(1).info.config:
-	${call log.sec, $(1),"configuration files"}
-	${call log.var,"dir",$($(1).defaults)}
-	${call log.var,"root",$($(1).config.root)}
-	${call log.var,"destination",$($(1).staging.defaults)}
-	${call log.var,"stems",$($(1).config)}
-	${call log.var,"sources",$($(1).config.sources)}
-	${call log.var,"destinations",$($(1).staging.config)}
-	${call log.var,"directories",$($(1).staging.config.dirs)}
+	@${call log.sec, $(1),"configuration files"}
+	@${call log.var,"dir",$($(1).defaults)}
+	@${call log.var,"root",$($(1).config.root)}
+	@${call log.var,"destination",$($(1).staging.defaults)}
+	@${call log.var,"stems",$($(1).config)}
+	@${call log.var,"sources",$($(1).config.sources)}
+	@${call log.var,"destinations",$($(1).staging.config)}
+	@${call log.var,"directories",$($(1).staging.config.dirs)}
 
 
 # make a recipe that prints the directory layout of the sources of a package
 $(1).info.general:
-	${call log.sec,$(1),"a package in project '$($(1).project)'"}
-	${foreach var,$($(1).meta.general), \
+	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@${foreach var,$($(1).meta.general), \
             ${call log.var,$(var),$$($(1).$(var))}; \
          }
 
@@ -237,20 +237,20 @@ endef
 define package.workflows.help =
 # make the recipe
 $(1).help:
-	$(log)
-	${call log.sec,$(1),package attributes}
-	$(log)
-	${foreach category,$($(1).meta.categories),\
+	@$(log)
+	@${call log.sec,$(1),package attributes}
+	@$(log)
+	@${foreach category,$($(1).meta.categories),\
             ${call log.sec,"  "$(category),$($(1).metadoc.$(category))}; \
             ${foreach var,$($(1).meta.$(category)), \
                 ${call log.help,$(1).$(var),$($(1).metadoc.$(var))}; \
              } \
-        } \
-	$(log)
-	$(log) "for a listing of their values, try"
-	$(log)
-	$(log) "    mm $(1).info"
-	$(log)
+        }
+	@$(log)
+	@$(log) "for a listing of their values, try"
+	@$(log)
+	@$(log) "    mm $(1).info"
+	@$(log)
 # all done
 endef
 

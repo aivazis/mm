@@ -10,8 +10,8 @@
 
 # compiler info
 compilers.info:
-	${call log.sec,"compilers", "map of languages to compilers"}
-	${foreach language,$(languages),\
+	@${call log.sec,"compilers", "map of languages to compilers"}
+	@${foreach language,$(languages),\
             ${call log.var,$(language),${call compiler.available,$(language)}} ;\
         }
 
