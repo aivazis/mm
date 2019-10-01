@@ -9,6 +9,7 @@
 # externals
 import datetime
 import os
+import re
 import subprocess
 import sys
 
@@ -184,6 +185,19 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         """
         Launch GNU make
         """
+        # attempt to
+        try:
+            # verify we have the correct make
+            self.verifyGNUMake()
+        # if this fails
+        except Exception as error:
+            # grab a channel
+            channel = self.error
+            # complain
+            channel.log(f"error while launching '{self.make}': {error}")
+            # and bail
+            return 1
+
         # get the user info
         user = self.user
         # get the host info
@@ -673,6 +687,70 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             known.add(item)
         # all done
         return
+
+
+    def verifyGNUMake(self):
+        # set up the subprocess settings
+        settings = {
+            'executable': self.make,
+            'args': [ self.make, "--version"],
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            'universal_newlines': True,
+            'shell': False
+            }
+
+        # otherwise, invoke GNU make
+        with subprocess.Popen(**settings) as make:
+            # wait for it to finish and harvest its exit code
+            stdout, stderr = make.communicate()
+            # grab the status code
+            status = make.returncode
+            # if there was an error
+            if status != 0:
+                # grab a channel
+                channel = self.error
+                # complain
+                channel.log(f"while retrieving GNU make version: '{self.make}' returned error {status}")
+                # and bail
+                raise SystemExit(status)
+            # grab the first line of output
+            signature = stdout.splitlines()[0]
+            # attempt to match it
+            match = self.versionParser.match(signature)
+            # if it doesn't match
+            if not match:
+                # we have a problem
+                channel = self.error
+                # complain
+                channel.log(f"requires GNU Make 4.2.1 or higher; '{self.make}' doesn't seem to be GNU Make")
+                # and bail
+                raise SystemExit(1)
+
+            # get the version info
+            major, minor, micro = map(int, match.groups(default=0))
+            # we need 4.2.1 or higher
+            if major < 4 or (major == 4 and (minor < 2 or (minor == 2 and micro < 1))):
+                # we have a problem
+                channel = self.error
+                # complain
+                channel.log(f"requires GNU Make 4.2.1 or higher; '{self.make}' is {major}.{minor}")
+                # and bail
+                raise SystemExit(1)
+
+            # all good
+            return
+
+        # if we get here, something went wrong
+        channel = self.error
+        # complain
+        channel.log(f"unknown error while retrieving the version of {self.make}")
+        # and bail
+        raise SystemExit(1)
+
+
+    # private data
+    versionParser = re.compile(r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?")
 
 
 # main
