@@ -111,7 +111,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     # grant access to the current build environment
     paths = pyre.properties.str(default=None)
     paths.doc = "publish the current build environment to other mm based projects"
-    paths.validators = pyre.constraints.isMember("sh", "csh")
+    paths.validators = pyre.constraints.isMember("sh", "csh", "fish")
 
     clear = pyre.properties.bool(default=False)
     clear.doc = "remove the presence of the current build environment from the relevant variables"
@@ -350,6 +350,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             elif shell == "csh":
                 # template
                 template = 'setenv {var} "{value}"'
+            # for fish compatible shells
+            elif shell == "fish":
+                # template
+                template = 'set -x {var} "{value}"'
             # otherwise
             else:
                 # N.B.: this is a bug: the trait validators were adjusted to include a new
