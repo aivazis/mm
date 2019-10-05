@@ -250,6 +250,15 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # compute the current target tag
         tag = "-".join(filter(None, (variants, target)))
 
+        # check whether
+        try:
+            # we can extract version info from the repository
+            major, minor, micro, revision = self.gitDescribe()
+        # if this failed
+        except TypeError:
+            # set some default values
+            major, minor, micro, revision = (1, 0, 0, "")
+
         # if we are injecting the build layout into the user's environment
         if self.clear is False:
             # process with the injector
@@ -315,6 +324,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             "project.anchor={}".format(anchor or ''),
             f"project.origin={origin}",
             "project.makefile={}".format(self.local if anchor else ''),
+
+            # repository information
+            f"repo.major={major}",
+            f"repo.minor={minor}",
+            f"repo.micro={micro}",
+            f"repo.revision={revision}",
 
             # target info
             f"target={target}",
@@ -710,20 +725,24 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             if status != 0:
                 # grab a channel
                 channel = self.error
+                # build a message
+                msg = f"'{self.make}' returned error {status}"
                 # complain
-                channel.log(f"while retrieving GNU make version: '{self.make}' returned error {status}")
+                channel.log(f"while retrieving GNU make version: {msg}")
                 # and bail
                 raise SystemExit(status)
             # grab the first line of output
             signature = stdout.splitlines()[0]
             # attempt to match it
-            match = self.versionParser.match(signature)
+            match = self.makeVersionParser.match(signature)
             # if it doesn't match
             if not match:
                 # we have a problem
                 channel = self.error
+                # build a message
+                msg = f"'{self.make}' doesn't seem to be GNU Make"
                 # complain
-                channel.log(f"requires GNU Make 4.2.1 or higher; '{self.make}' doesn't seem to be GNU Make")
+                channel.log(f"requires GNU Make 4.2.1 or higher; {msg}")
                 # and bail
                 raise SystemExit(1)
 
@@ -749,8 +768,59 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         raise SystemExit(1)
 
 
+    def gitDescribe(self):
+        """
+        Extract project version meta-data from a git repository
+        """
+        # the git command line
+        cmd = [ "git", "describe", "--tags", "--long", "--always" ]
+        # settings
+        options = {
+            "executable": "git",
+            "args": cmd,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "universal_newlines": True,
+            "shell": False }
+        # invoke
+        with subprocess.Popen(**options) as git:
+            # collect the output
+            stdout, stderr = git.communicate()
+            # get the status
+            status = git.returncode
+            # if something went wring
+            if status != 0:
+                # bail
+                return
+            # get the description
+            description = stdout.strip()
+            # parse it
+            match = self.gitDescriptionParser.match(description)
+            # if something went wrong
+            if not match:
+                # bail
+                return
+            # otherwise, extract the version info
+            major = match["major"]
+            minor = match["minor"]
+            micro = match["micro"]
+            commit = match["commit"]
+            # and return it
+            return (major, minor, micro, commit)
+
+        # if anything went wrong
+        return
+
+
     # private data
-    versionParser = re.compile(r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?")
+    # make version
+    makeVersionParser = re.compile(
+        r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?"
+        )
+    # parser of the {git describe} result
+    gitDescriptionParser = re.compile(
+        r"v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-\d+-g(?P<commit>.+)"
+        )
 
 
 # main
