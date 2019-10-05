@@ -95,12 +95,13 @@ $(1).meta: $($(1).staging.meta.pyc)
 $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
 	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
-          -e "s:PROJECT:$($(1).project):g" \
-          -e "s:MAJOR:$($($(1).project).major):g" \
-          -e "s:MINOR:$($($(1).project).minor):g" \
-          -e "s:REVISION:$($($(1).project).revision):g" \
-          -e "s|YEAR|$($($(1).project).now.year)|g" \
-          -e "s|TODAY|$($($(1).project).now.date)|g" \
+          -e "s:@PROJECT:$($(1).project):g" \
+          -e "s:@MAJOR@:$($($(1).project).major):g" \
+          -e "s:@MINOR@:$($($(1).project).minor):g" \
+          -e "s:@MICRO@:$($($(1).project).micro):g" \
+          -e "s:@REVISION@:$($($(1).project).revision):g" \
+          -e "s|@YEAR@|$($($(1).project).now.year)|g" \
+          -e "s|@TODAY@|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
 	@${call log.action,python,$($(1).root)$($(1).meta)}
 	$(python.compile) $($(1).staging.meta.py)

@@ -42,7 +42,7 @@ define packages.init
     # the root of the package relative to the project home
     ${eval $(2).root ?= pkg/$($(2).name)/}
     # the file with the package meta-data, relative to the package root
-    ${eval $(2).meta ?= meta}
+    ${eval $(2).meta ?= meta.py.in}
     # the directory with the driver script sources relative to the project home
     ${eval $(2).bin ?= bin/}
     # the directory where extensions get parked, relative to the package root
@@ -87,10 +87,11 @@ define packages.init
     ${eval $(2).staging.meta ?= $($(2).prefix)$($(2).meta)}
     # the generated meta-data file
     ${eval $(2).staging.meta.py ?= \
-        ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.sources),}}
+        ${if $($(2).staging.meta),$($(2).pycdir)${basename $($(2).meta)},}}
     # the byte-compiled meta-data file
     ${eval $(2).staging.meta.pyc ?= \
-        ${if $($(2).staging.meta),$($(2).pycdir)$($(2).meta)$(languages.python.pyc),}}
+        ${if $($(2).staging.meta),${basename $($(2).staging.meta.py)}$(languages.python.pyc),}}
+
     # the drivers
     ${eval $(2).staging.drivers ?= ${addprefix $($(2).bindir),$($(2).drivers)}}
 
