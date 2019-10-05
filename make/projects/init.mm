@@ -24,6 +24,7 @@ define project.init =
     # meta-data
     ${eval $(1).major ?= 1}
     ${eval $(1).minor ?= 0}
+    ${eval $(1).micro ?= 0}
     ${eval $(1).revision ?= $${strip $${shell $(git.hash)}}}
     ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
     ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
