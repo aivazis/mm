@@ -56,6 +56,7 @@ date.stamp = $(date) -u
 # git
 git = git
 git.hash = $(git) log --format=format:"%h" -n 1
+git.tag = $(git) describe --tags --long --always
 
 # loader
 ld = ld
