@@ -228,7 +228,9 @@ endef
 #   usage library.languages {library}
 define library.languages =
     ${strip
-        ${foreach extension,${sort ${suffix $($(1).sources)}},$(ext$(extension))}
+        ${sort
+            ${foreach extension,${sort ${suffix $($(1).sources)}},$(ext$(extension))}
+        }
     }
 endef
 
