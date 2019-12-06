@@ -84,8 +84,10 @@ $(1).cases: $($($(1).suite).prerequisites)
 
 # clean up
 $(1).clean: # | $(1).cases
-	@${call log.action,clean,$(1)}
-	$(rm.force-recurse) $($(1).clean)
+	@${if $($(1).clean), \
+            ${call log.action,clean,$(1)}; \
+            $(rm.force-recurse) $($(1).clean), \
+        }
 
 # show info
 $(1).info:
