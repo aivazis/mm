@@ -58,6 +58,12 @@ ${foreach target, $($(1).staging.targets), \
     }
 }
 
+# make container targets
+${foreach case,$($(1).staging.targets), \
+    ${eval ${call test.workflows.containers,$(case)} \
+    } \
+}
+
 # all done
 endef
 
@@ -158,6 +164,29 @@ $(1).info:
 
 # just in case...
 .PHONY: $(1) $(1).driver $(1).cases $(1).clean
+
+# all done
+endef
+
+
+# target factory that make targets out of the intermediate directories in the test suite
+define test.workflows.containers =
+    # alias the argument
+    ${eval _case := $(1)}
+    # split on the dots
+    ${eval _split := ${subst ., ,$(_case)}}
+    # compute its length
+    ${eval _len := ${words $(_split)}}
+    # compute the length of the list that is one shorter than the cases
+    ${eval _len-1 := ${words ${wordlist 2,$(_len),$(_split)}}}
+    # build the parent by dropping the last word
+    ${eval _parent := ${subst $(space),.,${wordlist 1,$(_len-1),$(_split)}}}
+
+    # build the rule and recurse
+    ${if $(_parent), \
+      ${eval $(_parent) :: $(_case);} \
+      ${call test.workflows.containers,$(_parent)}, \
+    }
 
 # all done
 endef
