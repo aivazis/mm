@@ -60,7 +60,7 @@ ${foreach target, $($(1).staging.targets), \
 
 # make container targets
 ${foreach case,$($(1).staging.targets), \
-    ${eval ${call test.workflows.containers,$(case)} \
+    ${eval ${call test.workflows.containers,$(1),$(case)} \
     } \
 }
 
@@ -171,8 +171,9 @@ endef
 
 # target factory that make targets out of the intermediate directories in the test suite
 define test.workflows.containers =
+    ${eval _root := ${subst $(space),.,${strip ${subst /,$(space),$($(1).root)}}}}
     # alias the argument
-    ${eval _case := $(1)}
+    ${eval _case := $(2)}
     # split on the dots
     ${eval _split := ${subst ., ,$(_case)}}
     # compute its length
@@ -183,9 +184,9 @@ define test.workflows.containers =
     ${eval _parent := ${subst $(space),.,${wordlist 1,$(_len-1),$(_split)}}}
 
     # build the rule and recurse
-    ${if $(_parent), \
+    ${if ${subst $(_root),,$(_case)}, \
       ${eval $(_parent) :: $(_case);} \
-      ${call test.workflows.containers,$(_parent)}, \
+      ${call test.workflows.containers,$(1),$(_parent)}, \
     }
 
 # all done
