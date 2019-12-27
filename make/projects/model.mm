@@ -74,8 +74,14 @@ ${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}
 # target that builds all known projects
 projects: $(projects)
 
+# target that runs all known tests
+tests: $(testsuites)
+
 # clean everything
-clean: ${addsuffix .clean,$(projects)}
+clean: ${addsuffix .clean,$(projects) $(testsuites)}
+
+# protect the above
+.PHONY: projects tests clean
 
 
 # ${info -- done with model}
