@@ -40,7 +40,7 @@ define test.workflows.build =
 
 # the main recipe
 $(1): $($(1).prerequisites) $(1).testcases
-	@${call log.asset,"tst",$(1)}
+	@${call log.asset,"testsuite",$(1)}
 
 # the testcases depend on the indivisual test targets
 $(1).testcases: $($(1).staging.targets)
@@ -73,6 +73,8 @@ endef
 #   usage: test.workflows.target.interpreted {target} {testsuite}
 define test.workflows.target.interpreted =
 
+   ${eval _tag := ${subst $($($(2).project).home)/,,$($(1).source)}}
+
 # the aggregator
 $(1): $(1).cases $(1).clean
 
@@ -81,10 +83,10 @@ $(1).cases: $($($(1).suite).prerequisites)
 	@$(cd) $${dir $($(1).source)} ; \
         ${if $($(1).cases), \
             ${foreach argv, $($(1).cases), \
-                ${call log.action,test,$($(1).source) $($(argv))}; \
+                ${call log.action,test,$(_tag) $($(argv))}; \
                 $(compiler.$($(1).language)) $($(1).source) $($(argv)); \
                 }, \
-	    ${call log.action,test,$($(1).source)}; \
+	    ${call log.action,test,$(_tag)}; \
                 $(compiler.$($(1).language)) $($(1).source) \
         }
 
