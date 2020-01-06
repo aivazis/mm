@@ -75,7 +75,7 @@ ${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}
 projects: $(projects)
 
 # target that runs all known tests
-tests: $(testsuites)
+tests: projects $(testsuites)
 
 # clean everything
 clean: ${addsuffix .clean,$(projects) $(testsuites)}
