@@ -20,7 +20,7 @@ define libraries.init =
     ${eval $(2).project := $(1)}
     # the stem for generating library specific names; it gets used to build the archive name
     # and the include directory with the public headers
-    ${eval $(2).stem ?= $(1)}
+    ${eval $(2).stem ?= $($(1).stem)}
     # but the user may override either one explictly
     ${eval $(2).libstem ?= $($(2).stem)}
     ${eval $(2).incstem ?= $($(2).stem)}
