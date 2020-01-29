@@ -65,7 +65,7 @@ $(1).assets: ${call extension.workflows.assets,$(1)}
 $(1).extension: $($(1).module.so)
 
 $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
-	@${call log.action,"dll",${subst $($($(1).project).home)/,,$($(1).module.init)}}
+	@${call log.action,"module",${subst $($($(1).project).home)/,,$($(1).module.init)}}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
             $($(1).module.so), \

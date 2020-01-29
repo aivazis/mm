@@ -26,7 +26,7 @@ define extensions.init =
     # the stem for generating extension specific names; it gets used to build the extension
     # archive name, the include directory with the public headers, and the name of the module
     # shared object
-    ${eval $(2).stem ?= $(1)}
+    ${eval $(2).stem ?= $($(1).stem)}
     # form the name
     ${eval $(2).name ?= ext$($(2).stem)}
 
