@@ -19,9 +19,9 @@ define packages.init
     # save the project
     ${eval $(2).project := $(1)}
     # and its home
-    ${eval $(2).home = $($($(2).project).home)}
+    ${eval $(2).home ?= $($($(2).project).home)/}
     # the stem for generating package specific names
-    ${eval $(2).stem ?= $(1)}
+    ${eval $(2).stem ?= $($(1).stem)}
     # form the name
     ${eval $(2).name ?= $($(2).stem)}
 
@@ -51,7 +51,7 @@ define packages.init
     ${eval $(2).defaults ?= defaults/}
 
     # the absolute path to the package source tree
-    ${eval $(2).prefix ?= $($(2).home)/$($(2).root)}
+    ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
 
     # the directory structure
     ${eval $(2).directories ?= ${call package.directories,$(2)}}
