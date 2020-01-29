@@ -172,6 +172,7 @@ endef
 
 
 # target factory that make targets out of the intermediate directories in the test suite
+# usage: test.workflows.containers {testsuite} {testcase}
 define test.workflows.containers =
     ${eval _root := ${subst $(space),.,${strip ${subst /,$(space),$($(1).root)}}}}
     # alias the argument

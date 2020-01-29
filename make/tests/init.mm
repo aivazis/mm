@@ -20,8 +20,10 @@ define tests.init =
     ${eval $(2).name := $(2)}
     # attach the project
     ${eval $(2).project := $(1)}
+    # and its home
+    ${eval $(2).home ?= $($($(2).project).home)/}
     # the stem for generating testsuite specific names
-    ${eval $(2).stem ?= $(1)}
+    ${eval $(2).stem ?= $($(1).stem)}
 
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
@@ -39,7 +41,7 @@ define tests.init =
     # the root of the testsuite relative to the project home
     ${eval $(2).root ?= tests/$($(2).stem)/}
     # the absolute path to the testsuite directory
-    ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
+    ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
 
     # exclusions
     ${eval $(2).drivers.exclude ?=}
