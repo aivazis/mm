@@ -19,7 +19,7 @@ project.contentTypes := $(project.assetTypes) $(project.testTypes) $(project.ext
 #   usage: project.init {project}
 define project.init =
     # save the name
-    $(1).name := $(1)
+    ${eval $(1).name := $(1)}
 
     # meta-data
     ${eval $(1).major ?= 1}
@@ -28,6 +28,9 @@ define project.init =
     ${eval $(1).revision ?= $${strip $${shell $(git.hash)}}}
     ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
     ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
+
+    # stem to use when bulding project specific filenames
+    ${eval $(1).stem ?= $($(1).name)}
 
     # directories
     # the top-most directory where we found {.mm}
