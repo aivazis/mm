@@ -794,6 +794,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 return
             # get the description
             description = stdout.strip()
+            print(f"{description=}")
             # parse it
             match = self.gitDescriptionParser.match(description)
             # if something went wrong
@@ -801,10 +802,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 # bail
                 return
             # otherwise, extract the version info
-            major = match["major"]
-            minor = match["minor"]
-            micro = match["micro"]
-            commit = match["commit"]
+            major = match.group("major") or "1"
+            minor = match.group("minor") or "0"
+            micro = match.group("micro") or "0"
+            commit = match.group("commit")
             # and return it
             return (major, minor, micro, commit)
 
@@ -819,7 +820,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         )
     # parser of the {git describe} result
     gitDescriptionParser = re.compile(
-        r"v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-\d+-g(?P<commit>.+)"
+        r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-\d+-g)?(?P<commit>.+)"
         )
 
 
