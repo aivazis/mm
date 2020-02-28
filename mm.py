@@ -794,7 +794,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 return
             # get the description
             description = stdout.strip()
-            print(f"{description=}")
             # parse it
             match = self.gitDescriptionParser.match(description)
             # if something went wrong
