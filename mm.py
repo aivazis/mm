@@ -77,6 +77,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     dry = pyre.properties.bool(default=False)
     dry.doc = "do everything except invoke make"
 
+    setup = pyre.properties.bool(default=False)
+    setup.doc = "initialize the user configuration directory"
+
     quiet = pyre.properties.bool(default=False)
     quiet.doc = "suppress all non-critical output"
 
@@ -164,6 +167,11 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         """
         The main entry point
         """
+        # if we are in setup mode
+        if self.setup:
+            # just set up the user configuration directory
+            return self.setupUserConfig()
+
         # launch GNU make
         status = self.launch()
         # all done
@@ -185,19 +193,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         """
         Launch GNU make
         """
-        # attempt to
-        try:
-            # verify we have the correct make
-            self.verifyGNUMake()
-        # if this fails
-        except Exception as error:
-            # grab a channel
-            channel = self.error
-            # complain
-            channel.log(f"error while launching '{self.make}': {error}")
-            # and bail
-            return 1
-
         # get the user info
         user = self.user
         # get the host info
@@ -429,6 +424,19 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # all done
             return 0
 
+        # attempt to
+        try:
+            # verify we have the correct make
+            self.verifyGNUMake()
+        # if this fails
+        except Exception as error:
+            # grab a channel
+            channel = self.error
+            # complain
+            channel.log(f"error while launching '{self.make}': {error}")
+            # and bail
+            return 1
+
         # otherwise, invoke GNU make
         with subprocess.Popen(**settings) as child:
             # wait for it to finish and harvest its exit code
@@ -436,6 +444,160 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # share with the shell...
         return status
+
+
+    def setupUserConfig(self):
+        """
+        Prime the user configuration directory
+        """
+        # form the path to the user configuration directory
+        cfghome = self.user.home / self.cfgdir
+        # if it doesn't exist, make it
+        cfghome.mkdir(parents=True, exist_ok=True)
+        # by default, package settings are in
+        cfg = cfghome / 'config.mm'
+        # if the file exists
+        if cfg.exists():
+            # make a channel
+            channel = self.error
+            # let the user know
+            channel.log(f"the file '{cfg}' exists already")
+            # and bail
+            return 1
+
+        # the contents of the file
+        doc = [
+            "# -*- Makefile -*-",
+            "",
+            "# cuda",
+            "# cuda.version := ",
+            "# cuda.dir := ",
+            "# cuda.incpath := $(cuda.dir)/include",
+            "# cuda.libpath := $(cuda.dir)/lib",
+            "",
+            "# fftw",
+            "# fftw.version := ",
+            "# fftw.dir := ",
+            "# fftw.incpath := $(fftw.dir)/include",
+            "# fftw.libpath := $(fftw.dir)/lib",
+            "# fftw.flavor := 3",
+            "",
+            "# gdal",
+            "# gdal.version := ",
+            "# gdal.dir := ",
+            "# gdal.incpath := $(gdal.dir)/include",
+            "# gdal.libpath := $(gdal.dir)/lib",
+            "",
+            "# gmsh",
+            "# gmsh.version := ",
+            "# gmsh.dir := ",
+            "# gmsh.incpath := $(gmsh.dir)/include",
+            "# gmsh.libpath := $(gmsh.dir)/lib",
+            "",
+            "# gsl",
+            "# gsl.version := ",
+            "# gsl.dir := ",
+            "# gsl.incpath := $(gsl.dir)/include",
+            "# gsl.libpath := $(gsl.dir)/lib",
+            "",
+            "# gtest",
+            "# gtest.version := ",
+            "# gtest.dir := ",
+            "# gtest.incpath := $(gtest.dir)/include",
+            "# gtest.libpath := $(gtest.dir)/lib",
+            "",
+            "# hdf5",
+            "# hdf5.version := ",
+            "# hdf5.dir := ",
+            "# hdf5.incpath := $(hdf5.dir)/include",
+            "# hdf5.libpath := $(hdf5.dir)/lib",
+            "",
+            "# libpq",
+            "# libpq.version := ",
+            "# libpq.dir := ",
+            "# libpq.incpath := $(libpq.dir)/include",
+            "# libpq.libpath := $(libpq.dir)/lib",
+            "",
+            "# metis",
+            "# metis.version := ",
+            "# metis.dir := ",
+            "# metis.incpath := $(metis.dir)/include",
+            "# metis.libpath := $(metis.dir)/lib",
+            "",
+            "# mpi",
+            "# mpi.version := ",
+            "# mpi.dir := ",
+            "# mpi.binpath := $(mpi.dir)/bin",
+            "# mpi.incpath := $(mpi.dir)/include",
+            "# mpi.libpath := $(mpi.dir)/lib",
+            "# mpi.flavor := openmpi",
+            "# mpi.executive := mpiexec",
+            "",
+            "# openblas",
+            "# openblas.version := ",
+            "# openblas.dir := ",
+            "# openblas.incpath := $(openblas.dir)/include",
+            "# openblas.libpath := $(openblas.dir)/lib",
+            "",
+            "# parmetis",
+            "# parmetis.version := ",
+            "# parmetis.dir := ",
+            "# parmetis.incpath := $(parmetis.dir)/include",
+            "# parmetis.libpath := $(parmetis.dir)/lib",
+            "",
+            "# petsc",
+            "# petsc.version := ",
+            "# petsc.dir := ",
+            "# petsc.incpath := $(petsc.dir)/include",
+            "# petsc.libpath := $(petsc.dir)/lib",
+            "",
+            "# pyre",
+            "# pyre.version := ",
+            "# pyre.dir := ",
+            "# pyre.incpath := $(pyre.dir)/include",
+            "# pyre.libpath := $(pyre.dir)/lib",
+            "",
+            "# python",
+            "# python.version := ",
+            "# python.model := # for 3.7 or less, set to m; for 3.8+ leave blank",
+            "# python.dir := ",
+            "# python.incpath := $(python.dir)/include",
+            "# python.libpath := $(python.dir)/lib",
+            "",
+            "# numpy",
+            "# numpy.version := ",
+            "# numpy.dir := $(python.dir)/lib/lib$(python.version)/site-packages/numpy/core",
+            "# numpy.incpath := $(numpy.dir)/include",
+            "# numpy.libpath := $(numpy.dir)/lib",
+            "",
+            "# slepc",
+            "# slepc.version := ",
+            "# slepc.dir := ",
+            "# slepc.incpath := $(slepc.dir)/include",
+            "# slepc.libpath := $(slepc.dir)/lib",
+            "",
+            "# summit",
+            "# summit.version := ",
+            "# summit.dir := ",
+            "# summit.incpath := $(summit.dir)/include",
+            "# summit.libpath := $(summit.dir)/lib",
+            "",
+            "# vtk",
+            "# vtk.version := ",
+            "# vtk.dir := ",
+            "# vtk.incpath := $(vtk.dir)/include",
+            "# vtk.libpath := $(vtk.dir)/lib",
+            "",
+            "# end of file",
+            ]
+
+        # open the file
+        stream = cfg.open(mode="w")
+        # and render
+        print("\n".join(doc), file=stream)
+
+        # all done
+        return 0
 
 
     def computeSlots(self):
@@ -528,7 +690,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # in the user's home directory
         home = self.user.home
         # the target
-        target = self.user.home / self.cfgdir
+        target = home / cfgdir
         # if it exists
         if target.exists:
             # hand it off
