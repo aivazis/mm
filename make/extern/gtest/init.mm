@@ -23,7 +23,7 @@ gtest.ldflags ?=
 # the canonical form of the lib directory
 gtest.libpath ?= $(gtest.dir)/lib
 # the names of the libraries
-gtest.libraries += gtest
+gtest.libraries += gtest pthread
 
 # my dependencies
 gtest.dependencies =
