@@ -11,8 +11,8 @@
 # add me to the pile
 extern += ${if ${findstring fftw,$(extern)},,fftw}
 
-# the flavor: single or double precision
-fftw.flavor ?= f
+# the flavor: version, and single or double precision
+fftw.flavor ?= 3 # other valid choices: 3_threads 3f 3f_threads 3l 3l_threads
 
 # compiler flags
 fftw.flags ?=

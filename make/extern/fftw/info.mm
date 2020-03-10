@@ -12,6 +12,7 @@
 extern.fftw.info:
 	@${call log.sec,"fftw",}
 	@${call log.var,"version",$(fftw.version)}
+	@${call log.var,"flavor",$(fftw.flavor)}
 	@${call log.var,"configuration file",$(fftw.config)}
 	@${call log.var,"home",$(fftw.dir)}
 	@${call log.var,"compiler flags",$(fftw.flags)}
