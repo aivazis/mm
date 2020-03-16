@@ -64,6 +64,12 @@ ${foreach case,$($(1).staging.targets), \
     } \
 }
 
+# make local aliases
+${foreach case,$($(1).staging.targets), \
+    ${eval ${call test.workflows.aliases,$(1),$(case)} \
+    } \
+}
+
 # all done
 endef
 
@@ -171,11 +177,12 @@ $(1).info:
 endef
 
 
-# target factory that make targets out of the intermediate directories in the test suite
+# target factory that makes targets out of the intermediate directories in the test suite
 # usage: test.workflows.containers {testsuite} {testcase}
 define test.workflows.containers =
     ${eval _root := ${subst $(space),.,${strip ${subst /,$(space),$($(1).root)}}}}
-    # alias the argument
+    # local variables
+    ${eval _suite := $(1)}
     ${eval _case := $(2)}
     # split on the dots
     ${eval _split := ${subst ., ,$(_case)}}
@@ -189,8 +196,49 @@ define test.workflows.containers =
     # build the rule and recurse
     ${if ${subst $(_root),,$(_case)}, \
       ${eval $(_parent) :: $(_case);} \
-      ${call test.workflows.containers,$(1),$(_parent)}, \
+      ${call test.workflows.containers,$(_suite),$(_parent)}, \
     }
+
+# all done
+endef
+
+
+# target factory that gives short names to the tests cases in {project.origin}
+# usage: test.workflows.aliases {testsuite} {testcase}
+define test.workflows.aliases =
+    # local variables
+    ${eval _suite := $(1)}
+    ${eval _case := $(2)}
+    # project geography
+    ${eval _origin := $(project.origin)}
+    ${eval _anchor := $(project.anchor)}
+    # project the {cwd} onto the test suite
+    ${eval _parent := ${subst /,.,${subst $(_anchor)/,,$(_origin)}}}
+    # project the test case onto the {parent}
+    ${eval _alias := ${subst $(_parent).,,$(_case)}}
+    #  deduce the driver name
+    ${eval _driver := ${strip \
+        ${if ${subst $(_case),,$(_alias)}, \
+            $(_alias),\
+        } \
+    }}
+
+    # if the driver is non-empry, make rule aliases
+    ${if $(_driver),\
+        ${eval $(_alias) : $(_case);} \
+        ${eval $(_alias).cases : $(_case).cases;} \
+        ${eval $(_alias).clean : $(_case).clean;} \
+        ${eval $(_alias).info : $(_case).info;}, \
+    }
+
+${_case}.pp:
+	${call log.var,case,$(_case)}
+	${call log.var,suite,$(_suite)}
+	${call log.var,origin,$(_origin)}
+	${call log.var,anchor,$(_anchor)}
+	${call log.var,parent,$(_parent)}
+	${call log.var,alias,$(_alias)}
+	${call log.var,driver,_$(_driver)_}
 
 # all done
 endef
