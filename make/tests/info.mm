@@ -227,18 +227,10 @@ define test.workflows.aliases =
     ${if $(_driver),\
         ${eval $(_alias) : $(_case);} \
         ${eval $(_alias).cases : $(_case).cases;} \
+        ${eval $(_alias).driver : $(_case).driver;} \
         ${eval $(_alias).clean : $(_case).clean;} \
         ${eval $(_alias).info : $(_case).info;}, \
     }
-
-${_case}.pp:
-	${call log.var,case,$(_case)}
-	${call log.var,suite,$(_suite)}
-	${call log.var,origin,$(_origin)}
-	${call log.var,anchor,$(_anchor)}
-	${call log.var,parent,$(_parent)}
-	${call log.var,alias,$(_alias)}
-	${call log.var,driver,_$(_driver)_}
 
 # all done
 endef
