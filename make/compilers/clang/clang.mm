@@ -43,6 +43,10 @@ clang.link.dll := -shared
 # command line options
 clang.defines = MM_COMPILER_clang
 
+# clean up temporaries left behind while compiling
+#  usage: clang.clean {base-name}
+clang.clean = $(1).d
+
 # dependency generation clang does this in one pass: the dependency file gets generated during
 # the compilation phase so there is no extra step necessary to build it
 #   usage: clang.makedep {source} {depfile} {external dependencies}

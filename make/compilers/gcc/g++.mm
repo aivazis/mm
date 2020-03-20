@@ -45,6 +45,10 @@ g++.link.dll := -shared
 # command line options
 g++.defines = MM_COMPILER_gcc
 
+# clean up temporaries left behind while compiling
+#  usage: g++.clean {base-name}
+g++.clean = $(1).d
+
 # dependency generation
 # g++ does this in one pass: the dependency file gets generated during the compilation phase so
 # there is no extra step necessary to build it

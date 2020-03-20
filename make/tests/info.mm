@@ -154,7 +154,9 @@ $(1).cases: $(1).driver
 # clean up
 $(1).clean: #| $(1).cases
 	@${call log.action,clean,$(1)}
-	$(rm.force-recurse) $($(1).clean) $($(1).base) ${call platform.clean,$($(1).base)}
+	$(rm.force-recurse) $($(1).clean) $($(1).base) \
+            ${call $(compiler.$($(1).language)).clean,$($(1).base)} \
+            ${call platform.clean,$($(1).base)}
 
 # show info
 $(1).info:

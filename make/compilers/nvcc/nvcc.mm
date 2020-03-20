@@ -49,6 +49,10 @@ nvcc.link.dll := -shared
 # command line options
 nvcc.defines = MM_COMPILER_nvcc
 
+# clean up temporaries left behind while compiling
+#  usage: nvcc.clean {base-name}
+nvcc.clean = $(1).d
+
 # dependency generation
 # nvcc does this in two passes: the dependency file gets generated during an additional compilation
 # phase so there is an extra step necessary to build it
