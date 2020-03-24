@@ -80,6 +80,9 @@ tests: projects $(testsuites)
 # clean everything
 clean: ${addsuffix .clean,$(projects) $(testsuites)}
 
+# clean the testssuites
+tests.clean: ${addsuffix .clean,$(testsuites)}
+
 # protect the above
 .PHONY: projects tests clean
 
