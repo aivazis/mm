@@ -79,10 +79,13 @@ endef
 #   usage: test.workflows.target.interpreted {target} {testsuite}
 define test.workflows.target.interpreted =
 
-   ${eval _tag := ${subst $($($(2).project).home)/,,$($(1).source)}}
+    # local variables
+    ${eval _tag := ${subst $($($(2).project).home)/,,$($(1).source)}}
+    ${eval _launcher := $(compiler.$($(1).language)) $($(1).source)}
+    ${eval _harness := ${if $($(1).harness),$($(1).harness) $(_launcher),$(_launcher)}}
 
 # the aggregator
-$(1): $(1).cases $(1).clean
+$(1): $(1).cases
 
 # invoking the driver for each registered test case
 $(1).cases: $($($(1).suite).prerequisites)
@@ -90,10 +93,10 @@ $(1).cases: $($($(1).suite).prerequisites)
         ${if $($(1).cases), \
             ${foreach argv, $($(1).cases), \
                 ${call log.action,test,$(_tag) $($(argv))}; \
-                $(compiler.$($(1).language)) $($(1).source) $($(argv)); \
+                $(_harness) $($(argv)); \
                 }, \
 	    ${call log.action,test,$(_tag)}; \
-                $(compiler.$($(1).language)) $($(1).source) \
+                $(_harness) \
         }
 
 # clean up
@@ -113,8 +116,8 @@ $(1).info:
 	@${call log.sec,$(log.indent)cases,}
 	@${if $($(1).cases), \
             ${foreach case,$($(1).cases),\
-                ${call log.var,$(log.indent)$(case),$($(1).base) $($(case))};}, \
-            $(log) $(log.indent)$(log.indent)$($(1).base)}
+                ${call log.var,$(log.indent)$(case),$(_harness) $($(case))};}, \
+            $(log) $(log.indent)$(log.indent)$(_harness)}
 
 # just in case...
 .PHONY: $(1) $(1).cases $(1).clean
@@ -127,7 +130,10 @@ endef
 #   usage: test.workflows.target.compiled {target} {testsuite}
 define test.workflows.target.compiled =
 
-$(1): $(1).driver $(1).cases $(1).clean
+    # local variables
+    ${eval _harness := ${if $($(1).harness),$($(1).harness) $($(1).base),$($(1).base)}}
+
+$(1): $(1).driver $(1).cases
 
 $(1).driver: $($(1).base)
 
@@ -137,18 +143,18 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
             languages.$($(1).language).link, \
             $($(1).source), \
             $($(1).base), \
-            $($(1).suite).$($(1).language) $($(1).extern) }
+            $(1) $($(1).suite).$($(1).language) $($(1).extern) }
 
 
 $(1).cases: $(1).driver
 	@$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
             ${foreach argv, $($(1).cases), \
-                ${call log.action,test,$($(1).base) $($(argv))}; \
-                $($(1).base) $($(argv)); \
+                ${call log.action,test,$(_harness) $($(argv))}; \
+                $(_harness) $($(argv)); \
                 }, \
 	    ${call log.action,test,$($(1).base)}; \
-                $($(1).base) \
+                $(_harness) \
         }
 
 # clean up

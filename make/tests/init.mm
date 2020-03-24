@@ -153,6 +153,13 @@ define test.staging.target =
         ${eval $(_trgt).doc ?=}
         ${eval $(_trgt).cases ?=}
         ${eval $(_trgt).clean ?=}
+        ${eval $(_trgt).harness ?=}
+        ${eval $(_trgt).flags ?=}
+        ${eval $(_trgt).defines ?=}
+        ${eval $(_trgt).incpath ?=}
+        ${eval $(_trgt).ldflags ?=}
+        ${eval $(_trgt).libpath ?=}
+        ${eval $(_trgt).libraries ?=}
         ${_trgt}
     }
 endef
