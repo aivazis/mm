@@ -204,6 +204,8 @@ define test.workflows.containers =
     # build the rule and recurse
     ${if ${subst $(_root),,$(_case)}, \
       ${eval $(_parent) :: $(_case);} \
+      ${eval $(_parent).drivers :: $(_case).driver;} \
+      ${eval $(_parent).clean :: $(_case).clean;} \
       ${call test.workflows.containers,$(_suite),$(_parent)}, \
     }
 
