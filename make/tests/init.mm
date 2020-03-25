@@ -55,6 +55,15 @@ define tests.init =
     # initialize the option database for each source language
     ${call test.languages.options,$(2)}
 
+    # support for affecting how compiling, linking, and launching happen for all test cases
+    ${eval $(2).harness ?=}
+    ${eval $(2).flags ?=}
+    ${eval $(2).defines ?=}
+    ${eval $(2).incpath ?=}
+    ${eval $(2).ldflags ?=}
+    ${eval $(2).libpath ?=}
+    ${eval $(2).libraries ?=}
+
     # derived quantities
     ${eval $(2).staging.targets ?= ${call test.staging.targets,$(2)}}
 
@@ -153,13 +162,13 @@ define test.staging.target =
         ${eval $(_trgt).doc ?=}
         ${eval $(_trgt).cases ?=}
         ${eval $(_trgt).clean ?=}
-        ${eval $(_trgt).harness ?=}
-        ${eval $(_trgt).flags ?=}
-        ${eval $(_trgt).defines ?=}
-        ${eval $(_trgt).incpath ?=}
-        ${eval $(_trgt).ldflags ?=}
-        ${eval $(_trgt).libpath ?=}
-        ${eval $(_trgt).libraries ?=}
+        ${eval $(_trgt).harness ?= $($(1).harness)}
+        ${eval $(_trgt).flags ?= $($(1).flags)}
+        ${eval $(_trgt).defines ?= $($(1).defines)}
+        ${eval $(_trgt).incpath ?= $($(1).incpath)}
+        ${eval $(_trgt).ldflags ?= $($(1).ldflags)}
+        ${eval $(_trgt).libpath ?= $($(1).libpath)}
+        ${eval $(_trgt).libraries ?= $($(1).libraries)}
         ${_trgt}
     }
 endef

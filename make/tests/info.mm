@@ -153,8 +153,8 @@ $(1).cases: $(1).driver
                 ${call log.action,test,$(_harness) $($(argv))}; \
                 $(_harness) $($(argv)); \
                 }, \
-	    ${call log.action,test,$($(1).base)}; \
-                $(_harness) \
+	    ${call log.action,test,$(_harness)}; \
+                $(_harness); \
         }
 
 # clean up
