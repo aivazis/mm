@@ -2,7 +2,7 @@
 //
 // michael a.g. aïvázis
 // parasim
-// (c) 1998-2019 all rights reserved
+// (c) 1998-2020 all rights reserved
 //
 
 // configuration
@@ -29,7 +29,7 @@ copyright(PyObject *, PyObject *)
 {
     // the value
     const char * const copyright_note =
-        "hello: (c) 1998-2019 michael a.g. aïvázis <michael.aivazis@para-sim.com>";
+        "hello: (c) 1998-2020 michael a.g. aïvázis <michael.aivazis@para-sim.com>";
 
     // build a python string and return
     return Py_BuildValue("s", copyright_note);
