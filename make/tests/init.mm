@@ -57,6 +57,7 @@ define tests.init =
 
     # support for affecting how compiling, linking, and launching happen for all test cases
     ${eval $(2).harness ?=}
+    ${eval $(2).argv ?=}
     ${eval $(2).flags ?=}
     ${eval $(2).defines ?=}
     ${eval $(2).incpath ?=}
@@ -163,12 +164,18 @@ define test.staging.target =
         ${eval $(_trgt).cases ?=}
         ${eval $(_trgt).clean ?=}
         ${eval $(_trgt).harness ?= $($(1).harness)}
+        ${eval $(_trgt).argv ?= $($(1).argv)}
         ${eval $(_trgt).flags ?= $($(1).flags)}
         ${eval $(_trgt).defines ?= $($(1).defines)}
         ${eval $(_trgt).incpath ?= $($(1).incpath)}
         ${eval $(_trgt).ldflags ?= $($(1).ldflags)}
         ${eval $(_trgt).libpath ?= $($(1).libpath)}
         ${eval $(_trgt).libraries ?= $($(1).libraries)}
+        ${foreach case,$($(_trgt).cases), \
+            ${eval $(case).harness ?= $($(_trgt).harness)} \
+            ${eval $(case).argv ?= $($(_trgt).argv)} \
+            ${eval $(case).clean ?= $($(_trgt).clean)} \
+        }
         ${_trgt}
     }
 endef

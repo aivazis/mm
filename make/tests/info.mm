@@ -91,12 +91,12 @@ $(1): $(1).cases
 $(1).cases: $($($(1).suite).prerequisites)
 	@$(cd) $${dir $($(1).source)} ; \
         ${if $($(1).cases), \
-            ${foreach argv, $($(1).cases), \
-                ${call log.action,test,$(_tag) $($(argv))}; \
-                $(_harness) $($(argv)); \
+            ${foreach case, $($(1).cases), \
+                ${call log.action,test,$($(case).harness) $(_tag) $($(case).argv)}; \
+                $($(case).harness) $(_launcher) $($(case).argv); \
                 }, \
 	    ${call log.action,test,$(_tag)}; \
-                $(_harness) \
+                $($(1).harness) $(_launcher) $($(1).argv) \
         }
 
 # clean up
@@ -116,8 +116,9 @@ $(1).info:
 	@${call log.sec,$(log.indent)cases,}
 	@${if $($(1).cases), \
             ${foreach case,$($(1).cases),\
-                ${call log.var,$(log.indent)$(case),$(_harness) $($(case))};}, \
-            $(log) $(log.indent)$(log.indent)$(_harness)}
+                ${call log.var,$(log.indent)$(case),${strip \
+                    $($(case).harness) $(_launcher) $($(case).argv)}};}, \
+            $(log) $(log.indent)$(log.indent)$($(1).harness) $(_launcher) $($(1).argv)}
 
 # just in case...
 .PHONY: $(1) $(1).cases $(1).clean
@@ -129,9 +130,6 @@ endef
 # target factory that builds a target for a compiled test case
 #   usage: test.workflows.target.compiled {target} {testsuite}
 define test.workflows.target.compiled =
-
-    # local variables
-    ${eval _harness := ${if $($(1).harness),$($(1).harness) $($(1).base),$($(1).base)}}
 
 $(1): $(1).driver $(1).cases
 
@@ -149,18 +147,19 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
 $(1).cases: $(1).driver
 	@$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
-            ${foreach argv, $($(1).cases), \
-                ${call log.action,test,$(_harness) $($(argv))}; \
-                $(_harness) $($(argv)); \
+            ${foreach case, $($(1).cases), \
+                ${call log.action,test,$($(case).harness) $($(1).base) $($(case).argv)}; \
+                $($(case).harness) $($(1).base) $($(case).argv); \
                 }, \
-	    ${call log.action,test,$(_harness)}; \
-                $(_harness); \
+	    ${call log.action,test,$($(1).harness) $($(1).base) $($(1).argv)}; \
+                $($(1).harness) $($(1).base) $($(1).argv); \
         }
 
 # clean up
 $(1).clean: #| $(1).cases
 	@${call log.action,clean,$(1)}
 	$(rm.force-recurse) $($(1).clean) $($(1).base) \
+            ${foreach case,$($(1).cases),$($(case).clean)} \
             ${call $(compiler.$($(1).language)).clean,$($(1).base)} \
             ${call platform.clean,$($(1).base)}
 
@@ -175,8 +174,11 @@ $(1).info:
 	@${call log.sec,$(log.indent)cases,}
 	@${if $($(1).cases), \
             ${foreach case,$($(1).cases), \
-                ${call log.var,$(log.indent)$(case),$($(1).base) $($(case))};}, \
-            $(log) $(log.indent)$(log.indent)$($(1).base)}
+                ${call log.var,$(log.indent)$(case),${strip \
+                    $($(case).harness) $($(1).base) $($(case).argv)}}; \
+                }, \
+            $(log) $(log.indent)$(log.indent)${strip $($(1).harness) $($(1).base) $($(1).argv)} \
+            }
 
 # just in case...
 .PHONY: $(1) $(1).driver $(1).cases $(1).clean

@@ -57,13 +57,15 @@ hello.tst.hello.prerequisites := hello.pkg hello.ext
 
 # the {say.py} driver does application testing and needs command line arguments, so we have to
 # describe test cases
-tests.hello.say.cases := say.hello.alec say.hello.ally say.goodbye.matthias
+tests.hello.say.cases := say.hello.alec say.hello.mac say.hello.ally say.goodbye.matthias
 # say hello to alec
-say.hello.alec := hello alec
+say.hello.alec.argv := hello alec
 # say hello to ally
-say.hello.ally := hello ally
+say.hello.ally.argv := hello ally
+# say hello to mac
+say.hello.mac.argv := hello mac
 # say goodbye to matthias
-say.goodbye.matthias := goodbye mat
+say.goodbye.matthias.argv := goodbye mat
 
 # show me
 # ${info -- done with hello }
