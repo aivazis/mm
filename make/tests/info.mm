@@ -141,7 +141,7 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
             languages.$($(1).language).link, \
             $($(1).source), \
             $($(1).base), \
-            $(1) $($(1).suite).$($(1).language) $($(1).extern) }
+            $(1).$($(1).language) $(1) $($(1).suite).$($(1).language) $($(1).extern) }
 
 
 $(1).cases: $(1).driver

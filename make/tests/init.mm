@@ -171,6 +171,12 @@ define test.staging.target =
         ${eval $(_trgt).ldflags ?= $($(1).ldflags)}
         ${eval $(_trgt).libpath ?= $($(1).libpath)}
         ${eval $(_trgt).libraries ?= $($(1).libraries)}
+        ${foreach category,$(languages.$($(_trgt).language).categories.compile), \
+            ${eval $(_trgt).$($(_trgt).language).$(category) ?=} \
+        }
+        ${foreach category,$(languages.$($(_trgt).language).categories.link), \
+            ${eval $(_trgt).$($(_trgt).language).$(category) ?=} \
+        }
         ${foreach case,$($(_trgt).cases), \
             ${eval $(case).harness ?= $($(_trgt).harness)} \
             ${eval $(case).argv ?= $($(_trgt).argv)} \
