@@ -24,7 +24,7 @@ except ImportError:
     # if it doesn't exist, make it
     os.makedirs(pdir, exist_ok=True)
     # the package
-    boot = 'pyre-1.0-boot.zip'
+    boot = 'pyre-boot.zip'
     # the local file
     local = os.path.join(pdir, boot)
     # if it not already here
