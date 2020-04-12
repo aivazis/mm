@@ -12,7 +12,7 @@
 extern += ${if ${findstring pybind11,$(extern)},,pybind11}
 
 # compiler flags
-pybind11.flags ?= -flto
+pybind11.flags ?=
 # enable {pybind11} aware code
 pybind11.defines := WITH_PYBIND11
 # the canonical form of the include directory
