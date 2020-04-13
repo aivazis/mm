@@ -12,11 +12,15 @@
 extern += ${if ${findstring python,$(extern)},,python}
 
 # the version
-python.version ?=
+python.version ?= 3
 # the model
-python.model ?= m
-# the interpreter id
+python.model ?= $(empty)
+# the interpreter
 python.interpreter ?= python$(python.version)$(python.model)
+# the configurator
+python.configurator ?= $(python.interpreter)-config
+# the interpreter tag, used to form pathnames
+python.tag ?= $(python.interpreter)$(python.model)
 
 # compiler flags
 python.flags ?=

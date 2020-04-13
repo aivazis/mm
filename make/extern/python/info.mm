@@ -12,6 +12,9 @@
 extern.python.info:
 	@${call log.sec,"python",}
 	@${call log.var,"version",$(python.version)}
+	@${call log.var,"interpreter",$(python.interpreter)}
+	@${call log.var,"configurator",$(python.configurator)}
+	@${call log.var,"tag",$(python.tag)}
 	@${call log.var,"configuration file",$(python.config)}
 	@${call log.var,"home",$(python.dir)}
 	@${call log.var,"compiler flags",$(python.flags)}
