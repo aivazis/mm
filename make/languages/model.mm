@@ -52,7 +52,6 @@ ${foreach \
 ${foreach \
     language, \
     $(languages), \
-    ${eval compiler.$(language) ?=} \
     ${eval ${call language.recipes.info,$(language)}} \
 }
 
