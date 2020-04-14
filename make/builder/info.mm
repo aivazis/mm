@@ -10,14 +10,15 @@
 
 builder.info: mm.banner
 	@${call log.sec,"builder directory layout",}
-	@${call log.var,"  root",$(builder.dest.root)}
-	@${call log.var,"prefix",$(builder.dest.prefix)}
-	@${call log.var,"   bin",$(builder.dest.bin)}
-	@${call log.var,"   doc",$(builder.dest.doc)}
-	@${call log.var,"   inc",$(builder.dest.inc)}
-	@${call log.var,"   lib",$(builder.dest.lib)}
-	@${call log.var,"   pyc",$(builder.dest.pyc)}
-	@${call log.var,"   tmp",$(builder.dest.staging)}
+	@${call log.sec,"  staging layout",}
+	@${call log.var,"       tmp",$(builder.dest.staging)}
+	@${call log.sec,"  install layout",}
+	@${call log.var,"    prefix",$(builder.dest.prefix)}
+	@${call log.var,"       bin",$(builder.dest.bin)}
+	@${call log.var,"       doc",$(builder.dest.doc)}
+	@${call log.var,"       inc",$(builder.dest.inc)}
+	@${call log.var,"       lib",$(builder.dest.lib)}
+	@${call log.var,"       pyc",$(builder.dest.pyc)}
 
 
 # create the builder targets
