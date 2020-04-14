@@ -110,7 +110,7 @@ endef
 #   usage: compiler.available {language}
 define compiler.available =
 ${strip
-    ${if $(compiler.$(1)),$(compiler.$(1)),"not available"}
+    ${if ${value compiler.$(1)},$(compiler.$(1)),"not available"}
 }
 endef
 

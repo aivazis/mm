@@ -21,11 +21,13 @@ define target.info.flags
 targets.$(1).info:
 	@${call log.sec,$(1),$(targets.$(1).description)}
 	@${foreach language,$(languages),\
-            ${call log.sec,"  $(language)",$(compiler.$(language))}; \
-            ${foreach \
-                category,  \
-                $(languages.$(language).categories), \
-                ${call log.var,$(category),$(targets.$(1).$(language).$(category))}; \
+            ${if ${value compiler.$(language)}, \
+                ${call log.sec,"  $(language)",$(compiler.$(language))}; \
+                ${foreach \
+                    category,  \
+                    $(languages.$(language).categories), \
+                    ${call log.var,$(category),$(targets.$(1).$(language).$(category))}; \
+                } \
             } \
         }
 #

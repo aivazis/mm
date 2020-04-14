@@ -11,7 +11,8 @@
 # make a recipe that logs information about a language
 #  usage: language.recipes.info {language}
 define language.recipes.info =
-# make the recipe
+# make the recipe; note the {$$} that enables delayed evaluation until after the compiler name
+# is known
 languages.$(language).info:
 	@${call log.sec,$(language),}
 	@${call log.var,compiler,$$(compiler.$(language))}

@@ -25,12 +25,15 @@ include $(compilers:%=make/compilers/%.mm)
 ${foreach \
     language, \
     $(languages), \
-    ${foreach \
-        category, \
-        $(languages.$(language).categories), \
-        ${eval $(compiler.$(language)).$(category) ?=} \
+    ${if ${value compiler.$(language)}, \
+        ${foreach \
+            category, \
+            $(languages.$(language).categories), \
+            ${eval $(compiler.$(language)).$(category) ?=} \
+        } \
     } \
 }
+
 
 # show me
 # ${info -- done with compilers.model}
