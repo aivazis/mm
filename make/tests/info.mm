@@ -103,7 +103,7 @@ $(1).cases: $($($(1).suite).prerequisites)
 $(1).clean: # | $(1).cases
 	@${if $($(1).clean), \
             ${call log.action,clean,$(1)}; \
-            $(rm.force-recurse) $($(1).clean), \
+            $(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)}, \
         }
 
 # show info
@@ -158,7 +158,7 @@ $(1).cases: $(1).driver
 # clean up
 $(1).clean: #| $(1).cases
 	@${call log.action,clean,$(1)}
-	$(rm.force-recurse) $($(1).clean) $($(1).base) \
+	$(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)} $($(1).base) \
             ${foreach case,$($(1).cases),$($(case).clean)} \
             ${call $(compiler.$($(1).language)).clean,$($(1).base)} \
             ${call platform.clean,$($(1).base)}

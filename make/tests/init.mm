@@ -154,6 +154,7 @@ define test.staging.target =
         ${eval _trgt := ${subst /,.,$($(1).root)${basename $(2:$($(1).prefix)%=%)}}}
         ${eval $(_trgt).name := $(_trgt)}
         ${eval $(_trgt).source := $(2)}
+        ${eval $(_trgt).home := ${dir $(2)}}
         ${eval $(_trgt).base := ${basename $($(_trgt).source)}}
         ${eval $(_trgt).suite := $(1)}
         ${eval $(_trgt).language := $(ext${suffix $(2)})}
