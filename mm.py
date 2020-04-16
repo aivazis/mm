@@ -198,6 +198,11 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # get the host info
         host = self.host
 
+        # if the user asked for detailed outpput
+        if self.verbose:
+             # force serial mode; anything else is output madness
+             self.serial = True
+
         # mm
         mm = f"{sys.executable} {__file__}"
         # number of simultaneous recipes
