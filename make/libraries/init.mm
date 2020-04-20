@@ -53,7 +53,7 @@ define libraries.init =
 
     # artifacts
     # the root of the library source tree relative to the project home
-    ${eval $(2).root ?= lib/$($(2).name)/}
+    ${eval $(2).root ?= lib/$($(2).stem)/}
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
     # the path  to the top level headers relative to the library prefix
