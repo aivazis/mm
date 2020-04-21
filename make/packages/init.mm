@@ -19,7 +19,7 @@ define packages.init
     # save the project
     ${eval $(2).project := $(1)}
     # and its home
-    ${eval $(2).home ?= $($($(2).project).home)/}
+    ${eval $(2).home ?= $($(1).home)/}
     # the stem for generating package specific names
     ${eval $(2).stem ?= $($(1).stem)}
     # form the name

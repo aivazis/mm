@@ -125,7 +125,7 @@ define package.workflows.pyc =
     ${eval path.pyc := ${call package.staging.pyc,$(1),$(path.py)}}
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
-	@${call log.action,python,${subst $($(1).home)/,,$(path.py)}}
+	@${call log.action,python,${subst $($(1).home),,$(path.py)}}
 	$(python.compile) $(path.py)
 	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
@@ -142,7 +142,7 @@ define package.workflows.driver =
     ${eval path.destination := ${call package.staging.driver,$(1),$(2)}}
 
 $(path.destination): $(path.source) | ${dir $(path.destination)}
-	@${call log.action,"cp",${subst $($(1).home)/,,$(path.source)}}
+	@${call log.action,"cp",${subst $($(1).home),,$(path.source)}}
 	$(cp) $(path.source) $(path.destination)
 
 # all done
@@ -158,7 +158,7 @@ define package.workflows.config =
     ${eval config.destination := ${call package.staging.config.file,$(1),$(config.source)}}
 
 $(config.destination): $(config.source) | ${dir $(config.destination)}
-	@${call log.action,"cp",${subst $($(1).home)/,,$(config.source)}}
+	@${call log.action,"cp",${subst $($(1).home),,$(config.source)}}
 	$(cp) $(config.source) $(config.destination)
 
 # all done
