@@ -80,7 +80,7 @@ endef
 define test.workflows.target.interpreted =
 
     # local variables
-    ${eval _tag := ${subst $($($(2).project).home)/,,$($(1).source)}}
+    ${eval _tag := ${subst $($(2).home),,$($(1).source)}}
     ${eval _launcher := $(compiler.$($(1).language)) $($(1).source)}
     ${eval _harness := ${if $($(1).harness),$($(1).harness) $(_launcher),$(_launcher)}}
 
@@ -131,12 +131,15 @@ endef
 #   usage: test.workflows.target.compiled {target} {testsuite}
 define test.workflows.target.compiled =
 
+    # local variables
+    ${eval _tag := ${subst $($(2).home),,$($(1).source)}}
+
 $(1): $(1).driver $(1).cases
 
 $(1).driver: $($(1).base)
 
 $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
-	@${call log.action,$($(1).language),$($(1).source)}
+	@${call log.action,$($(1).language),$(_tag)}
 	${call \
             languages.$($(1).language).link, \
             $($(1).source), \
@@ -148,16 +151,16 @@ $(1).cases: $(1).driver
 	@$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
             ${foreach case, $($(1).cases), \
-                ${call log.action,test,$($(case).harness) $($(1).base) $($(case).argv)}; \
+                ${call log.action,test,$($(case).harness) $(_tag) $($(case).argv)}; \
                 $($(case).harness) $($(1).base) $($(case).argv); \
                 }, \
-	    ${call log.action,test,$($(1).harness) $($(1).base) $($(1).argv)}; \
+	    ${call log.action,test,$($(1).harness) $(_tag) $($(1).argv)}; \
                 $($(1).harness) $($(1).base) $($(1).argv); \
         }
 
 # clean up
 $(1).clean: #| $(1).cases
-	@${call log.action,clean,$(1)}
+	@${call log.action,clean,$(_tag)}
 	$(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)} $($(1).base) \
             ${foreach case,$($(1).cases),$($(case).clean)} \
             ${call $(compiler.$($(1).language)).clean,$($(1).base)} \
