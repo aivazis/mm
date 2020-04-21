@@ -97,7 +97,7 @@ define library.workflows.header.master =
 # publish public headers
 ${call library.staging.header.master,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
+	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
 # all done
 endef
 
@@ -108,7 +108,7 @@ define library.workflows.header =
 # publish public headers
 ${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
-	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(2)}}
+	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
 # all done
 endef
 
@@ -168,7 +168,7 @@ define library.workflows.object =
     # compute the absolute path of the source
     ${eval source.path := $(2)}
     # compute the path of the source relative to the project home
-    ${eval source.relpath := ${subst $($($(1).project).home)/,,$(source)}}
+    ${eval source.relpath := ${subst $($(1).home),,$(source)}}
     # the path to the object module
     ${eval source.object := ${call library.staging.object,$(1),$(2)}}
     # and the path to the generated dependency fil

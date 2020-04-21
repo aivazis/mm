@@ -18,6 +18,8 @@ define libraries.init =
     ${eval libraries += $(2)}
     # save the project
     ${eval $(2).project := $(1)}
+    # set the home
+    ${eval $(2).home ?= $($(1).home)/}
     # the stem for generating library specific names; it gets used to build the archive name
     # and the include directory with the public headers
     ${eval $(2).stem ?= $($(1).stem)}
