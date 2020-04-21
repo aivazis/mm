@@ -65,7 +65,7 @@ $(1).assets: ${call extension.workflows.assets,$(1)}
 $(1).extension: $($(1).module.so)
 
 $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
-	@${call log.action,"module",${subst $($($(1).project).home)/,,$($(1).module.init)}}
+	@${call log.action,"module",${subst $($(1).home),,$($(1).module.init)}}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
             $($(1).module.so), \
@@ -120,7 +120,7 @@ define extension.workflows.makeinit
     # and the target
     ${eval module.target := $($(1).module.init)}
     # compute the path of the module relative to the project home
-    ${eval module.relpath := ${subst $($($(1).project).home)/,,$(module)}}
+    ${eval module.relpath := ${subst $($(1).home),,$(module)}}
     # figure out the module language
     ${eval module.language := $(ext${suffix $($(1).module.main)})}
 
@@ -178,7 +178,7 @@ $(1).capsule : $(capsule.destination)
 
 $(capsule.destination) : $(capsule.incdir) $(capsule.source)
 	$(cp) $(capsule.source) $(capsule.destination)
-	@${call log.action,"cp",${subst $($($(1).project).home)/,,$(capsule.source)}}
+	@${call log.action,"cp",${subst $($(1).home),,$(capsule.source)}}
 
 ${if $($(1).wraps),,\
     ${eval $(capsule.incdir) : ; \

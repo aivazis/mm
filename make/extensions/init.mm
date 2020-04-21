@@ -18,6 +18,8 @@ define extensions.init =
     ${eval extensions += $(2)}
     # save the project
     ${eval $(2).project := $(1)}
+    # set the home
+    ${eval $(2).home ?= $($(1).home)/}
     # connect to my package
     ${eval $(2).pkg ?= $($(2).project).pkg}
     # and the (optional) library whose python bindings these are
