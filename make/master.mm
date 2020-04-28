@@ -19,7 +19,8 @@ define model :=
     languages platforms hosts users developers
     compilers targets extern
     builder
-    packages libraries extensions docs tests projects
+    packages libraries extensions docs tests docker
+    projects
 endef
 
 # the categories of methods each object provides
