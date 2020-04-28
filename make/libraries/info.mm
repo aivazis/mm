@@ -167,6 +167,8 @@ define library.workflows.object =
 
     # compute the absolute path of the source
     ${eval source.path := $(2)}
+    # get the filename of the source
+    ${eval source.filename := ${notdir $(source.path)}}
     # compute the path of the source relative to the project home
     ${eval source.relpath := ${subst $($(1).home),,$(source)}}
     # the path to the object module
@@ -202,6 +204,13 @@ ${if $(source.device), \
             languages.dlink,cuda,$(source.object),$(source.device),\
                  $(1).cuda $($(1).extern) \
         }
+}
+
+# single object target aliases
+# if {cwd}/{source.filename} == {source.path}, we are building a target for one of the files in
+# this directory; make the stem of the file an alias to building the object
+${if ${subst $(project.origin)/$(source.filename),,$(source.path)},, \
+    ${eval ${basename $(source.filename)} : $(source.object) ; } \
 }
 
 # all done
