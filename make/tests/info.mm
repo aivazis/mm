@@ -308,13 +308,11 @@ $(1).info.directories:
 	@${call log.sec,"  test directories",}
 	@${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
 
-
 # make a recipe that prints the set of drivers that comprise a testsuite
 $(1).info.drivers:
 	@${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
 	@${call log.sec,"  drivers",}
 	@${foreach driver,$($(1).drivers),$(log) $(log.indent)$(driver);}
-
 
 # make a recipe that prints the set of source languages
 $(1).info.languages:

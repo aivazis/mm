@@ -109,7 +109,7 @@ endef
 #   usage: test.drivers {testsuite}
 define test.drivers =
     ${strip
-        ${filter-out $($(1).drivers.exclude),
+        ${filter-out ${addprefix $($(1).prefix),$($(1).drivers.exclude)},
             ${foreach directory, $($(1).directories),
                 ${wildcard ${addprefix $(directory)*,$(languages.sources)}}
             }
