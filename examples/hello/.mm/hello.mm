@@ -21,7 +21,7 @@ hello.libraries := hello.lib
 # a python extension
 hello.extensions := hello.ext
 # and a test suite
-hello.tests := hello.tst.hello hello.tst.libhello
+hello.tests := hello.tests.hello.pkg hello.tests.hello.lib
 
 # the package meta-data
 hello.pkg.stem := hello
@@ -43,21 +43,21 @@ hello.ext.extern := hello.lib pyre python
 # the C++ library test cases are built implicitlty by considering all source files to be test
 # drivers; in this case, there are no command line arguments needed, so mm does not need any
 # extra information to build a full testsuite
-hello.tst.libhello.stem := libhello
-hello.tst.libhello.extern := hello.lib pyre
-hello.tst.libhello.prerequisites := hello.lib
+hello.tests.hello.lib.stem := hello.lib
+hello.tests.hello.lib.extern := hello.lib pyre
+hello.tests.hello.lib.prerequisites := hello.lib
 
 
 # the hello package test suite
 # similarly, all source files here are expected to be test drivers; the ones that don't require
 # command line arguments do not have to be mentioned as they will be tested implicitly; the
 # rest must be dscribed explicitly
-hello.tst.hello.stem := hello
-hello.tst.hello.prerequisites := hello.pkg hello.ext
+hello.tests.hello.pkg.stem := hello.pkg
+hello.tests.hello.pkg.prerequisites := hello.pkg hello.ext
 
 # the {say.py} driver does application testing and needs command line arguments, so we have to
 # describe test cases
-tests.hello.say.cases := say.hello.alec say.hello.mac say.hello.ally say.goodbye.matthias
+tests.hello.pkg.say.cases := say.hello.alec say.hello.mac say.hello.ally say.goodbye.matthias
 # say hello to alec
 say.hello.alec.argv := hello alec
 # say hello to ally
