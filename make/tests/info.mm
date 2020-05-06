@@ -19,7 +19,6 @@ tests.info: mm.banner
 	@$(log) "    mm ${firstword $(testsuites)}.info"
 	@$(log)
 
-
 # bootstrap
 # make the testsuite specific targets
 #  usage: test.workflows {library}
@@ -85,10 +84,24 @@ define test.workflows.target.interpreted =
     ${eval _harness := ${if $($(1).harness),$($(1).harness) $(_launcher),$(_launcher)}}
 
 # the aggregator
-$(1): $(1).cases
+$(1): $(1).pre $(1).cases $(1).post
+
+# dependencies
+# startup
+$(1).pre: | $($(1).pre)
+
+# cleanup
+$(1).post: | $(1).pre $(1).cases $($(1).post)
+
+# make sure cleanup happens after startup; because this rule is in addition to its definition,
+# we must use a double colon; this in turn implies that the rule definition must be a
+# double-colon rule
+${if $($(1).post),\
+    ${eval $($(1).post) :: | $($(1).pre) $(1).cases}\
+}
 
 # invoking the driver for each registered test case
-$(1).cases: $($($(1).suite).prerequisites)
+$(1).cases: $($($(1).suite).prerequisites) $(1).pre
 	@$(cd) $${dir $($(1).source)} ; \
         ${if $($(1).cases), \
             ${foreach case, $($(1).cases), \
@@ -99,8 +112,8 @@ $(1).cases: $($($(1).suite).prerequisites)
                 $($(1).harness) $(_launcher) $($(1).argv) \
         }
 
-# clean up
-$(1).clean: # | $(1).cases
+# clean up; double colon, since it may be used as a {post} rule
+$(1).clean::
 	@${if $($(1).clean), \
             ${call log.action,clean,$(1)}; \
             $(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)}, \
@@ -134,7 +147,22 @@ define test.workflows.target.compiled =
     # local variables
     ${eval _tag := ${subst $($(2).home),,$($(1).source)}}
 
-$(1): $(1).driver $(1).cases
+# the aggregator
+$(1): $(1).pre $(1).driver $(1).cases $(1).post
+
+# dependencies
+# startup
+$(1).pre: | $($(1).pre)
+
+# cleanup
+$(1).post: | $(1).pre $(1).cases $($(1).post)
+
+# make sure cleanup happens after startup; because this rule is in addition to its definition,
+# we must use a double colon; this in turn implies that the rule definition must be a
+# double-colon rule
+${if $($(1).post),\
+    ${eval $($(1).post) :: | $($(1).pre) $(1).cases}\
+}
 
 $(1).driver: $($(1).base)
 
@@ -158,8 +186,8 @@ $(1).cases: $(1).driver
                 $($(1).harness) $($(1).base) $($(1).argv); \
         }
 
-# clean up
-$(1).clean: #| $(1).cases
+# clean up; double colon, since it may be used as a {post} rule
+$(1).clean::
 	@${call log.action,clean,$(_tag)}
 	$(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)} $($(1).base) \
             ${foreach case,$($(1).cases),$($(case).clean)} \
