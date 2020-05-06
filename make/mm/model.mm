@@ -65,6 +65,10 @@ ld.shared = $(ld) $(ld.flags.shared)
 ld.flags.out =  -o
 ld.flags.shared =  -shared
 
+# links
+ln = ln
+ln.soft = $(ln) -s
+
 # directories
 mkdir = mkdir
 mkdir.flags.make-parents = -p
