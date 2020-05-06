@@ -9,6 +9,9 @@
 Step two: open the {pre} data file, and if successful write my own
 """
 
+# externals
+import random
+import time
 
 # main
 if __name__ == "__main__":
@@ -23,7 +26,9 @@ if __name__ == "__main__":
         # fail
         raise SystemExit(1)
 
-    # otherwise, write mine
+    # otherwise, go to sleep for a while
+    time.sleep(5*random.random())
+    # write mine
     open("two.dat", mode="w")
     # and indicate success
     raise SystemExit(0)
