@@ -100,16 +100,16 @@ $(1): $(1).pre $(1).cases $(1).post
 
 # dependencies
 # startup
-$(1).pre: | $($(1).pre)
+$(1).pre: $($(1).pre)
 
 # cleanup
-$(1).post: | $(1).pre $(1).cases $($(1).post)
+$(1).post: $(1).pre $(1).cases $($(1).post)
 
 # make sure cleanup happens after startup; because this rule is in addition to its definition,
 # we must use a double colon; this in turn implies that the rule definition must be a
 # double-colon rule
 ${if $($(1).post),\
-    ${eval $($(1).post) :: | $($(1).pre) $(1).cases}\
+    ${eval $($(1).post) :: $($(1).pre) $(1).cases} \
 }
 
 # invoking the driver for each registered test case
@@ -164,16 +164,16 @@ $(1): $(1).pre $(1).driver $(1).cases $(1).post
 
 # dependencies
 # startup
-$(1).pre: | $($(1).pre)
+$(1).pre: $($(1).pre)
 
 # cleanup
-$(1).post: | $(1).pre $(1).cases $($(1).post)
+$(1).post: $(1).pre $(1).cases $($(1).post)
 
 # make sure cleanup happens after startup; because this rule is in addition to its definition,
 # we must use a double colon; this in turn implies that the rule definition must be a
 # double-colon rule
 ${if $($(1).post),\
-    ${eval $($(1).post) :: | $($(1).pre) $(1).cases}\
+    ${eval $($(1).post) :: $($(1).pre) $(1).cases} \
 }
 
 $(1).driver: $($(1).base)
@@ -187,7 +187,7 @@ $($(1).base): $($($(1).suite).prerequisites) $($(1).source)
             $(1).$($(1).language) $(1) $($(1).suite).$($(1).language) $($(1).extern) }
 
 
-$(1).cases: $(1).driver
+$(1).cases: $(1).driver $(1).pre
 	@$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
             ${foreach case, $($(1).cases), \
