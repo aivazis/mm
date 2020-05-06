@@ -27,18 +27,22 @@ prep.tests := prep.tests.dep
 # the dep test suite
 prep.tests.dep.stem := dep
 
-# the dependencies
-tests.dep.one.pre := tests.dep.pre
-tests.dep.two.pre := tests.dep.pre
-tests.dep.post.pre := tests.dep.one tests.dep.two
-tests.dep.post.post := tests.dep.clean user-defined
-
 # clean up
 tests.dep.pre.clean := pre.dat
 tests.dep.one.clean := one.dat
 tests.dep.two.clean := two.dat
 
-user-defined ::
+# the dependencies; note that the clean up rule of the final step includes a user defined rule
+# whose body follows
+tests.dep.one.pre := tests.dep.pre
+tests.dep.two.pre := tests.dep.pre
+tests.dep.post.pre := tests.dep.one tests.dep.two
+tests.dep.post.post := tests.dep.clean user-defined
+
+# user defined rule; the current implementation forces it to be a double colon rule, but that
+# might change; note that we want this to happen after final clean up so we give it an explict
+# dependency
+user-defined :: tests.dep.clean
 	${call log.info,"all done"}
 
 # show me
