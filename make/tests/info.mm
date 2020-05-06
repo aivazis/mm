@@ -45,7 +45,7 @@ $(1): $($(1).prerequisites) $(1).testcases
 $(1).testcases: $($(1).staging.targets)
 
 # clean up
-$(1).clean: ${addsuffix .clean,$($(1).staging.targets)}
+$(1).clean: ${addsuffix .clean,$($(1).staging.containers) $($(1).staging.targets)}
 
 # make recipes for the individual test targets
 ${foreach target, $($(1).staging.targets), \
@@ -55,6 +55,18 @@ ${foreach target, $($(1).staging.targets), \
             ${call test.workflows.target.interpreted,$(target),$(1)} \
         }
     }
+}
+
+# go through the directories in the testsuite, convert them into targets, and register a clean
+# up rule if the user has specififed files they want removed
+${foreach dir,$($(1).staging.directories), \
+    ${eval _container := ${patsubst %.,%,${subst /,.,$(dir)}}}
+    ${eval $(_container).clean:: ; \
+        ${if ${value $(_container).clean}, \
+            ${call log.action,clean,$(_container)}; \
+            $(rm.force-recurse) ${addprefix $($(1).home)$(dir),$($(_container).clean)} \
+        } \
+    } \
 }
 
 # make container targets

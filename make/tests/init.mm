@@ -67,6 +67,8 @@ define tests.init =
 
     # derived quantities
     ${eval $(2).staging.targets ?= ${call test.staging.targets,$(2)}}
+    ${eval $(2).staging.directories ?= ${call test.staging.directories,$(2)}}
+    ${eval $(2).staging.containers ?= ${call test.staging.containers,$(2)}}
 
     # documentation
     $(2).meta.categories := general extern artifacts
@@ -141,9 +143,26 @@ endef
 
 
 # build the set of make targets for a given testsuite
-#   usage: test.targets {testsuite}
+#   usage: test.staging.targets {testsuite}
 define test.staging.targets =
     ${foreach driver,$($(1).drivers),${call test.staging.target,$(1),$(driver)}}
+endef
+
+
+# build the set of directories for a given testsuite relative to its prefix
+#   usage: test.staging.directories {testsuite}
+define test.staging.directories =
+    ${subst $($(1).home),,$($(1).directories)}
+endef
+
+
+# convert the set of testsuite diretories into container targets
+define test.staging.containers =
+    ${strip
+        ${foreach dir,$($(1).staging.directories),
+            ${patsubst %.,%,${subst /,.,$(dir)}}
+        }
+    }
 endef
 
 
