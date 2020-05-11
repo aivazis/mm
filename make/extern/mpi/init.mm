@@ -17,7 +17,7 @@ mpi.required ?=
 # the location of the binaries
 mpi.binpath ?= $(mpi.dir)/bin
 # the name of the launcher
-mpi.eecutive ?= mpiexec
+mpi.executive ?= mpiexec
 
 # compiler flags
 mpi.flags ?=
