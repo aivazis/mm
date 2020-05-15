@@ -83,6 +83,11 @@ clean: ${addsuffix .clean,$(projects) $(testsuites)}
 # clean the testssuites
 tests.clean: ${addsuffix .clean,$(testsuites)}
 
+
+# tidy up
+tidy:
+	find $(project.home) -name \*~ -delete
+
 # protect the above
 .PHONY: projects tests clean
 
