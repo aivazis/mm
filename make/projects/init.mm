@@ -11,7 +11,7 @@
 # meta-data for all projects
 project.assetTypes := packages libraries extensions
 project.testTypes := tests
-project.extraTypes := docs
+project.extraTypes := docker-images docs
 # put it all together
 project.contentTypes := $(project.assetTypes) $(project.testTypes) $(project.extraTypes)
 
@@ -61,6 +61,8 @@ define project.init =
     ${eval $(1).extensions ?=}
     # the list of python packages
     ${eval $(1).packages ?=}
+    # the list of docker containers
+    ${eval $(1).docker-images ?=}
     # documentation
     ${eval $(1).docs ?=}
     # and the list of tests
@@ -110,6 +112,7 @@ define project.init =
     $(1).metadoc.libraries := "the project libraries"
     $(1).metadoc.extensions := "the python extensions built by this project"
     $(1).metadoc.packages := "the python packages built by this project"
+    $(1).metadoc.docker-images := "the docker images built by this project"
     $(1).metadoc.docs := "documentation for this project"
     $(1).metadoc.tests := "the project test suite"
 # all done
