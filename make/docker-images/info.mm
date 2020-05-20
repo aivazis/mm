@@ -50,7 +50,12 @@ $(1).build:
 # run the image
 $(1).run: $(1).build
 	$(cd) $($(1).home) ; \
-        docker run -it $($(1).tag)
+        docker run $($(1).tag)
+
+# launch the image interactively
+$(1).launch: $(1).build
+	$(cd) $($(1).home) ; \
+        docker run -it $($(1).tag) /bin/bash
 
 # all done
 endef
