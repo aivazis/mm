@@ -48,7 +48,7 @@ $(1).build:
         docker build -f $($(1).dockerfile) -t $($(1).tag) .
 
 # run the image
-$(1).run:
+$(1).run: $(1).build
 	$(cd) $($(1).home) ; \
         docker run -it $($(1).tag)
 
