@@ -9,17 +9,24 @@
 # ${info -- project.init}
 
 # meta-data for all projects
-project.assetTypes := packages libraries extensions
-project.testTypes := tests
-project.extraTypes := docker-images docs
+project.assetTypes ?= packages libraries extensions
+project.testTypes ?= tests
+project.extraTypes ?= docker-images docs
 # put it all together
-project.contentTypes := $(project.assetTypes) $(project.testTypes) $(project.extraTypes)
+project.contentTypes ?= $(project.assetTypes) $(project.testTypes) $(project.extraTypes)
 
 # the project constructor
 #   usage: project.init {project}
 define project.init =
     # save the name
     ${eval $(1).name := $(1)}
+
+     # content types
+    ${eval $(1).assetTypes ?= $(project.assetTypes)}
+    ${eval $(1).testTypes ?= $(project.testTypes)}
+    ${eval $(1).extraTypes ?= $(project.extraTypes)}
+    # put it all together
+    ${eval $(1).contentTypes ?= $($(1).assetTypes) $($(1).testTypes) $($(1).extraTypes)}
 
     # meta-data
     ${eval $(1).major ?= 1}
@@ -84,7 +91,7 @@ define project.init =
     $(1).meta.directories := home bldroot prefix tmpdir
     $(1).meta.make := base origin makefile config
     $(1).meta.extern := extern.requested extern.supported extern.available
-    $(1).meta.contents := $(project.contentTypes)
+    $(1).meta.contents := $($(1).contentTypes)
 
     # category documentation
     $(1).metadoc.directories := "the layout of the build directories"
@@ -120,10 +127,10 @@ endef
 
 
 # instantiate the project assets
-#  usage: project.init.assets {project}
-define project.init.assets =
+#  usage: project.init.contents {project}
+define project.init.contents =
     # go through all types of project assets
-    ${foreach type,$(project.contentTypes),
+    ${foreach type,$($(1).contentTypes),
         # and assets of the given {type}
         ${foreach item, $($(1).$(type)),
             # invoke their constructors

@@ -34,10 +34,10 @@ $(1): $(1).directories $(1).assets
 $(1).directories: $($(1).prefix) $($(1).tmpdir)
 
 # the asset category target
-$(1).assets: ${foreach type,$(project.assetTypes),$(1).$(type)}
+$(1).assets: ${foreach type,$($(1).assetTypes),$(1).$(type)}
 
 # asset targets by category
-${foreach type,$(project.contentTypes), \
+${foreach type,$($(1).contentTypes), \
     ${eval $(1).$(type): $($(1).$(type))} \
 }
 

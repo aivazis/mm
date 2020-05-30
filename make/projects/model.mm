@@ -21,9 +21,9 @@ define project.boot =
     # call the project constructor
     ${eval ${call project.init,$(1)}}
     # call the constructors of the various project assets
-    ${eval ${call project.init.assets,$(1)}}
+    ${eval ${call project.init.contents,$(1)}}
     # assemble the project contents
-    ${eval $(1).contents := ${foreach asset,$(project.contentTypes),$($(1).$(asset))}}
+    ${eval $(1).contents := ${foreach asset,$($(1).contentTypes),$($(1).$(asset))}}
     # collect the requested external dependencies
     ${eval $(1).extern.requested := ${call project.extern.requested,$(1)}}
     # collect the supported external dependencies
@@ -33,11 +33,12 @@ define project.boot =
 # all done
 endef
 
+
 define project.boot.workflows =
     # build the project workflows
     ${eval ${call project.workflows,$(1)}}
     # build the asset workflows
-    ${foreach category, $(project.contentTypes),
+    ${foreach category, $($(1).contentTypes),
         ${foreach asset, $($(1).$(category)),
             ${eval ${call $(category).workflows,$(asset)}}
         }
