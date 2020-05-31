@@ -85,7 +85,7 @@ tests: projects ${if ${value testsuites},$(testsuites)}
 clean: ${addsuffix .clean,$(projects) ${if ${value testsuites},$(testsuites)}}
 
 # clean the test suites
-tests.clean: ${addsuffix .clean,$(testsuites)}
+tests.clean: ${if ${value testsuites},${addsuffix .clean,$(testsuites)}}
 
 # tidy up
 tidy:
