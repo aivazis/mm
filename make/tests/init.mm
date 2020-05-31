@@ -8,10 +8,10 @@
 # show me
 # ${info -- tests.init}
 
-# the list of testsuites encountered
+# the list of test suites encountered
 testsuites ?=
 
-# the testsuite constructor
+# the test suite constructor
 #   usage: tests.init {project} {testsuite}
 define tests.init =
     # add it to the pile
@@ -22,7 +22,7 @@ define tests.init =
     ${eval $(2).project := $(1)}
     # and its home
     ${eval $(2).home ?= $($($(2).project).home)/}
-    # the stem for generating testsuite specific names
+    # the stem for generating test suite specific names
     ${eval $(2).stem ?= $($(1).stem)}
 
     # the list of external dependencies as requested by the user
@@ -31,16 +31,16 @@ define tests.init =
     ${eval $(2).extern.requested := $($(2).extern)}
     # the list of external dependencies that we have support for
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
-    # the list of dependecies in the order they affect the compiler command lines
+    # the list of dependencies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
     # a list of additional prerequisites for the top target
     ${eval $(2).prerequisites ?=}
 
     # artifacts
-    # the root of the testsuite relative to the project home
+    # the root of the test suite relative to the project home
     ${eval $(2).root ?= tests/$($(2).stem)/}
-    # the absolute path to the testsuite directory
+    # the absolute path to the test suite directory
     ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
 
     # exclusions
@@ -50,7 +50,7 @@ define tests.init =
     ${eval $(2).directories ?= ${call test.directories,$(2)}}
     ${eval $(2).drivers ?= ${call test.drivers,$(2)}}
 
-    # build the language specific option detabase
+    # build the language specific option database
     ${eval $(2).languages ?= ${call test.languages,$(2)}}
     # initialize the option database for each source language
     ${call test.languages.options,$(2)}
@@ -85,20 +85,20 @@ define tests.init =
 
     # document each one
     # general
-    $(2).metadoc.project := "the name of the project to which this testsuite belongs"
-    $(2).metadoc.name := "the name of the testsuite"
-    $(2).metadoc.stem := "the stem for generating testsuite specific names"
+    $(2).metadoc.project := "the name of the project to which this test suite belongs"
+    $(2).metadoc.name := "the name of the test suite"
+    $(2).metadoc.stem := "the stem for generating test suite specific names"
     # dependencies
     $(2).metadoc.extern.requested := "requested dependencies"
     $(2).metadoc.extern.supported := "the dependencies for which there is mm support"
     $(2).metadoc.extern.available := "dependencies that were actually found and used"
     # artifacts
-    $(2).metadoc.root := "the path to the testsuite directory relative to the project directory"
-    $(2).metadoc.prefix := "the absolute path to the testsuite"
+    $(2).metadoc.root := "the path to the test suite directory relative to the project directory"
+    $(2).metadoc.prefix := "the absolute path to the test suite"
 
 endef
 
-# build the set of testsuite directories
+# build the set of test suite directories
 #   usage: test.directories {testsuite}
 define test.directories =
     ${strip
@@ -107,7 +107,7 @@ define test.directories =
 endef
 
 
-# build the set of testcase drivers
+# build the set of test case drivers
 #   usage: test.drivers {testsuite}
 define test.drivers =
     ${strip
@@ -120,7 +120,7 @@ define test.drivers =
 endef
 
 
-# analyze the set of drivers of a testsuite and deduce the set of source languages
+# analyze the set of drivers of a test suite and deduce the set of source languages
 #   usage test.languages {testsuite}
 define test.languages =
     ${strip
@@ -142,21 +142,21 @@ define test.languages.options =
 endef
 
 
-# build the set of make targets for a given testsuite
+# build the set of make targets for a given test suite
 #   usage: test.staging.targets {testsuite}
 define test.staging.targets =
     ${foreach driver,$($(1).drivers),${call test.staging.target,$(1),$(driver)}}
 endef
 
 
-# build the set of directories for a given testsuite relative to its prefix
+# build the set of directories for a given test suite relative to its prefix
 #   usage: test.staging.directories {testsuite}
 define test.staging.directories =
     ${subst $($(1).home),,$($(1).directories)}
 endef
 
 
-# convert the set of testsuite diretories into container targets
+# convert the set of test suite directories into container targets
 define test.staging.containers =
     ${strip
         ${foreach dir,$($(1).staging.directories),
@@ -166,7 +166,7 @@ define test.staging.containers =
 endef
 
 
-# analyze individual testsuite targets
+# analyze individual test suite targets
 #   usage: test.staging.target {testsuite} {driver}
 define test.staging.target =
     ${strip

@@ -1,16 +1,15 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
 # show me
 # ${info -- tests.info}
 
-# testsuite help
+# test suite help
 tests.info: mm.banner
-	@$(log) "known testsuites: "$(palette.targets)$(testsuites)$(palette.normal)
+	@$(log) "known test suites: "$(palette.targets)$(testsuites)$(palette.normal)
 	@$(log)
 	@$(log) "to build one of them, use its name as a target"
 	@$(log) "    mm ${firstword $(testsuites)}"
@@ -20,8 +19,8 @@ tests.info: mm.banner
 	@$(log)
 
 # bootstrap
-# make the testsuite specific targets
-#  usage: test.workflows {library}
+# make the test suite specific targets
+#  usage: test.workflows {test suite}
 define tests.workflows =
     # build recipes
     ${call test.workflows.build,$(1)}
@@ -34,14 +33,14 @@ endef
 
 
 # build targets
-# target factory for building a testsuite
+# target factory for building a test suite
 define test.workflows.build =
 
 # the main recipe
 $(1): $($(1).prerequisites) $(1).testcases
-	@${call log.asset,"testsuite",$(1)}
+	@${call log.asset,"test suite",$(1)}
 
-# the testcases depend on the indivisual test targets
+# the test cases depend on the individual test targets
 $(1).testcases: $($(1).staging.targets)
 
 # clean up
@@ -57,8 +56,8 @@ ${foreach target, $($(1).staging.targets), \
     }
 }
 
-# go through the directories in the testsuite, convert them into targets, and register a clean
-# up rule if the user has specififed files they want removed
+# go through the directories in the test suite, convert them into targets, and register a clean
+# up rule if the user has specified files they want removed
 ${foreach dir,$($(1).staging.directories), \
     ${eval _container := ${patsubst %.,%,${subst /,.,$(dir)}}}
     ${eval $(_container).clean:: ; \
@@ -133,7 +132,7 @@ $(1).clean::
 
 # show info
 $(1).info:
-	@${call log.sec,$(1),"a test driver in testsuite '$(2)' of project '$($(2).project)'"}
+	@${call log.sec,$(1),"a test driver in test suite '$(2)' of project '$($(2).project)'"}
 	@${call log.var,source,$($(1).source)}
 	@${call log.var,interpreted,yes}
 	@${call log.var,language,$($(1).language)}
@@ -208,7 +207,7 @@ $(1).clean::
 
 # show info
 $(1).info:
-	@${call log.sec,$(1),"a test driver in testsuite '$(2)' of project '$($(2).project)'"}
+	@${call log.sec,$(1),"a test driver in test suite '$(2)' of project '$($(2).project)'"}
 	@${call log.var,source,$($(1).source)}
 	@${call log.var,compiled,yes}
 	@${call log.var,language,$($(1).language)}
@@ -278,7 +277,7 @@ define test.workflows.aliases =
         } \
     }}
 
-    # if the driver is non-empry, make rule aliases
+    # if the driver is non-empty, make rule aliases
     ${if $(_driver),\
         ${eval $(_alias) : $(_case);} \
         ${eval $(_alias).cases : $(_case).cases;} \
@@ -291,7 +290,7 @@ define test.workflows.aliases =
 endef
 
 
-# target factory to log the metadata of a specific testsuite
+# target factory to log the metadata of a specific test suite
 define test.workflows.info =
 
 # the main recipe
@@ -311,7 +310,7 @@ $(1).info:
 	@$(log)
 	@$(log) "related targets:"
 	@$(log)
-	@${call log.help,$(1).info.directories,"the layout of the testsuite directories"}
+	@${call log.help,$(1).info.directories,"the layout of the test suite directories"}
 	@${call log.help,$(1).info.drivers,"the test case drivers"}
 	@${call log.help,$(1).info.targets,"the test case make targets"}
 	@${call log.help,$(1).info.staging.targets,"the make targets for individual test cases"}
@@ -320,9 +319,9 @@ $(1).info:
 endef
 
 
-# make targets that display meta-data documentation for a specifc testsuite
+# make targets that display meta-data documentation for a specific test suite
 #   usage: test.workflows.build {testsuite}
-# target factory for building a testsuite
+# target factory for building a test suite
 define test.workflows.help =
 
 # the main recipe
@@ -344,19 +343,19 @@ $(1).help:
 
 # make a recipe that prints the directory layout of a test suite
 $(1).info.directories:
-	@${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
+	@${call log.sec,$(1),"a test suite in project '$($(1).project)'"}
 	@${call log.sec,"  test directories",}
 	@${foreach directory,$($(1).directories),$(log) $(log.indent)$(directory);}
 
-# make a recipe that prints the set of drivers that comprise a testsuite
+# make a recipe that prints the set of drivers that comprise a test suite
 $(1).info.drivers:
-	@${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
+	@${call log.sec,$(1),"a test suite in project '$($(1).project)'"}
 	@${call log.sec,"  drivers",}
 	@${foreach driver,$($(1).drivers),$(log) $(log.indent)$(driver);}
 
 # make a recipe that prints the set of source languages
 $(1).info.languages:
-	@${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
+	@${call log.sec,$(1),"a test suite in project '$($(1).project)'"}
 	@${call log.var,"languages",$($(1).languages)}
 	@${foreach language,$($(1).languages),\
             ${call log.sec,"  $(language)","flags and options"}; \
@@ -367,8 +366,8 @@ $(1).info.languages:
 
 # make a recipe that prints the set of make targets for individual test cases
 $(1).info.staging.targets:
-	@${call log.sec,$(1),"a testsuite in project '$($(1).project)'"}
-	@${call log.sec,"  individual testcase targets",}
+	@${call log.sec,$(1),"a test suite in project '$($(1).project)'"}
+	@${call log.sec,"  individual test case targets",}
 	@${foreach target,$($(1).staging.targets), \
             ${call log.sec,$(log.indent)$(target),}; \
             ${call log.var,$(log.indent)"source",$($(target).source)}; \

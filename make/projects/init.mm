@@ -131,7 +131,14 @@ endef
 define project.init.contents =
     # go through all types of project assets
     ${foreach type,$($(1).contentTypes),
-        # and assets of the given {type}
+        # check whether the support file is loaded
+        ${if ${findstring $(type),$(projects.contentTypes.imported)},,
+            ${eval projects.contentTypes.imported += $(type)}
+            ${foreach category,$(categories),
+                ${eval -include make/$(type)/$(category).mm}
+           }
+        }
+        # go through the assets of the given {type}
         ${foreach item, $($(1).$(type)),
             # invoke their constructors
             ${call $(type).init,$(1),$(item)}

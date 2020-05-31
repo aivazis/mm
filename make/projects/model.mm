@@ -1,12 +1,15 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
 # show me
 # ${info -- project.model}
+
+# global variable that records content types as they are encountered to ensure that their support
+# files are included only once
+projects.contentTypes.imported :=
 
 # hunt for projects among the contents of $(project.config), assuming that each file there is
 # the configuration file for some project
@@ -76,14 +79,13 @@ ${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}
 projects: $(projects)
 
 # target that runs all known tests
-tests: projects $(testsuites)
+tests: projects ${if ${value testsuites},$(testsuites)}
 
 # clean everything
-clean: ${addsuffix .clean,$(projects) $(testsuites)}
+clean: ${addsuffix .clean,$(projects) ${if ${value testsuites},$(testsuites)}}
 
-# clean the testssuites
+# clean the test suites
 tests.clean: ${addsuffix .clean,$(testsuites)}
-
 
 # tidy up
 tidy:
