@@ -173,7 +173,7 @@ endef
 #   usage: library.sources {library}
 define library.sources
     ${strip
-        ${filter-out ${addprefix $($(1).prefix),$($(1).sources.exclude)},
+        ${filter-out $($(1).sources.exclude),
             ${foreach directory, $($(1).directories),
                 ${wildcard
                     ${addprefix $(directory)*,$(languages.sources)}
