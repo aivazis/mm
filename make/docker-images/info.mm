@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -41,6 +40,9 @@ define docker-image.workflows.build =
 
 # the main recipe
 $(1): $(1).build
+
+# clean up
+$(1).clean::
 
 # buld the image
 $(1).build:
