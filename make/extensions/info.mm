@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -72,7 +71,7 @@ $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
             $($(1).lib).$($(1).module.language) $($(1).lib) $($(1).extern)}
 
 # clean up
-$(1).clean:
+$(1).clean::
 	@${call log.action,"rm",$($(1).module.so)}
 	$(rm.force) $($(1).module.so)
 
