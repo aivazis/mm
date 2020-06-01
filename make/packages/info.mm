@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -42,6 +41,9 @@ define package.workflows.build
 $(1): $(1).directories $(1).assets
 	@${call log.asset,"pkg",$(1)}
 
+# clean up
+$(1).clean::
+
 # second level targets
 # make all relevant directories
 $(1).directories: $($(1).staging.pycdirs) $($(1).staging.config.dirs)
@@ -60,7 +62,7 @@ $($(1).staging.pycdirs):
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
 
-# make the diretcories where the configuration files go
+# make the directories where the configuration files go
 $($(1).staging.config.dirs):
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
