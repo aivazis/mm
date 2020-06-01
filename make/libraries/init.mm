@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -23,7 +22,7 @@ define libraries.init =
     # the stem for generating library specific names; it gets used to build the archive name
     # and the include directory with the public headers
     ${eval $(2).stem ?= $($(1).stem)}
-    # but the user may override either one explictly
+    # but the user may override either one explicitly
     ${eval $(2).libstem ?= $($(2).stem)}
     ${eval $(2).incstem ?= $($(2).stem)}
     # form the name
@@ -39,7 +38,7 @@ define libraries.init =
     ${eval $(2).extern.requested := $($(2).extern)}
     # the list of external dependencies that we have support for
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
-    # the list of dependecies in the order they affect the compiler command lines
+    # the list of dependencies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
     # a list of additional prerequisites for the top target
@@ -76,7 +75,7 @@ define libraries.init =
     # the public headers
     ${eval $(2).headers ?= ${call library.headers,$(2)}}
 
-    # build the language specific option detabase
+    # build the language specific option database
     ${eval $(2).languages ?= ${call library.languages,$(2)}}
     # initialize the option database for each source language
     ${call library.languages.options,$(2)}
@@ -174,7 +173,7 @@ endef
 #   usage: library.sources {library}
 define library.sources
     ${strip
-        ${filter-out $($(1).sources.exclude),
+        ${filter-out ${addprefix $($(1).prefix),$($(1).sources.exclude)},
             ${foreach directory, $($(1).directories),
                 ${wildcard
                     ${addprefix $(directory)*,$(languages.sources)}
