@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -45,8 +44,8 @@ $($(1).tmpdir):
 	$(mkdirp) $($(1).tmpdir)
 	@${call log.action,"mkdir",$($(1).tmpdir)}
 
-$(1).clean:
-	$(rm.force-recurse) $($(1).tmpdir)
+$(1).clean: ${addsuffix .clean,$($(1).contents)}
+	$(rm.force-recurse) $($(1).tmpdir) $($(1).clean)
 	@${call log.action,"rm",$($(1).tmpdir)}
 
 # all done

@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2020 all rights reserved
 #
 
@@ -83,6 +82,8 @@ define project.init =
     # the list of dependencies in the order they affect the compiler command lines
     ${eval $(1).extern.available ?=}
 
+    # cleanup
+    ${eval  $(1).clean ?=}
     # documentation
     # the project metedata categories
     $(1).meta.categories := contents extern directories make
