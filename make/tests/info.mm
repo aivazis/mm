@@ -44,7 +44,7 @@ $(1): $($(1).prerequisites) $(1).testcases
 $(1).testcases: $($(1).staging.targets)
 
 # clean up
-$(1).clean: ${addsuffix .clean,$($(1).staging.containers) $($(1).staging.targets)}
+$(1).clean:: ${addsuffix .clean,$($(1).staging.containers) $($(1).staging.targets)}
 
 # make recipes for the individual test targets
 ${foreach target, $($(1).staging.targets), \
