@@ -157,6 +157,7 @@ define test.workflows.target.compiled =
 
     # local variables
     ${eval _tag := ${subst $($(2).home),,$($(1).source)}}
+    ${eval _base := ${subst $($(2).home)$($(2).root),,$($(1).base)}}
 
 # the aggregator
 $(1): $(1).pre $(1).driver $(1).cases $(1).post
@@ -190,10 +191,10 @@ $(1).cases: $(1).driver $(1).pre
 	@$(cd) $${dir $($(1).source)} ; \
 	${if $($(1).cases), \
             ${foreach case, $($(1).cases), \
-                ${call log.action,test,$($(case).harness) $(_tag) $($(case).argv)}; \
+                ${call log.action,test,$($(case).harness) $(_base) $($(case).argv)}; \
                 $($(case).harness) $($(1).base) $($(case).argv); \
                 }, \
-	    ${call log.action,test,$($(1).harness) $(_tag) $($(1).argv)}; \
+	    ${call log.action,test,$($(1).harness) $(_base) $($(1).argv)}; \
                 $($(1).harness) $($(1).base) $($(1).argv); \
         }
 
