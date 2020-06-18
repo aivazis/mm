@@ -38,6 +38,7 @@ nvcc.shared := -Xcompiler -fPIC
 nvcc.std.c++03 := --std=c++03
 nvcc.std.c++11 := --std=c++11
 nvcc.std.c++14 := --std=c++14
+nvcc.std.c++17 := --std=c++17
 
 # link time flags
 nvcc.link.output := -o
