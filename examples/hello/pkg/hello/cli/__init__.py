@@ -64,4 +64,16 @@ def goodbye():
     return Goodbye
 
 
+# command completion: undocumented, so it doesn't show up on help screens
+@foundry(implements=action)
+def complete():
+    """
+    Support for bash auto-completion
+    """
+    # pull the command
+    from .Complete import Complete
+    # and publish it
+    return Complete
+
+
 # end of file
