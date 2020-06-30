@@ -49,6 +49,8 @@ hello.tests.hello.lib.stem := hello.lib
 hello.tests.hello.lib.extern := hello.lib pyre
 hello.tests.hello.lib.prerequisites := hello.lib
 
+# c++ compiler arguments
+hello.tests.hello.lib.flags += -Wall $($(compiler.c++).std.c++17)
 
 # the hello package test suite
 # similarly, all source files here are expected to be test drivers; the ones that don't require
