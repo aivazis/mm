@@ -14,9 +14,13 @@
 #include <hello/greetings/hello.h>
 
 // entry point
-int main() {
+int main(int argc, char * argv[]) {
+    // initialize the journal
+    pyre::journal::init(argc, argv);
+    pyre::journal::application("say-hello");
     // make a channel
-    pyre::journal::debug_t channel("hello");
+    pyre::journal::debug_t channel("say.hello");
+
     // print a message
     channel
         << pyre::journal::at(__HERE__)
