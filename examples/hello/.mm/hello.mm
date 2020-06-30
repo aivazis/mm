@@ -30,6 +30,7 @@ hello.pkg.drivers := say
 # the library meta-data
 hello.lib.stem := hello
 hello.lib.extern := pyre
+hello.lib.c++.flags += $($(compiler.c++).std.c++17)
 
 # the extension meta-data
 hello.ext.stem := hello
@@ -37,6 +38,7 @@ hello.ext.pkg := hello.pkg
 hello.ext.wraps := hello.lib
 hello.ext.capsule :=
 hello.ext.extern := hello.lib pyre python
+hello.ext.lib.c++.flags += $($(compiler.c++).std.c++17)
 
 
 # the libhello test suite
