@@ -8,12 +8,6 @@
 # show me
 # ${info -- hello }
 
-# project meta-data
-hello.major := $(repo.major)
-hello.minor := $(repo.minor)
-hello.micro := $(repo.micro)
-hello.revision := $(repo.revision)
-
 # hello builds a python package
 hello.packages := hello.pkg
 # a library

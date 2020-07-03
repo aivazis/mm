@@ -8,11 +8,6 @@
 # show me
 # ${info -- prep }
 
-# project meta-data
-prep.major := $(repo.major)
-prep.minor := $(repo.minor)
-prep.micro := $(repo.micro)
-prep.revision := $(repo.revision)
 
 # prep builds no python package
 prep.packages :=
