@@ -28,10 +28,10 @@ define project.init =
     ${eval $(1).contentTypes ?= $($(1).assetTypes) $($(1).testTypes) $($(1).extraTypes)}
 
     # meta-data
-    ${eval $(1).major ?= 1}
-    ${eval $(1).minor ?= 0}
-    ${eval $(1).micro ?= 0}
-    ${eval $(1).revision ?= $${strip $${shell $(git.hash)}}}
+    ${eval $(1).major ?= ${repo.major}}
+    ${eval $(1).minor ?= ${repo.minor}}
+    ${eval $(1).micro ?= ${repo.micro}}
+    ${eval $(1).revision ?= ${repo.revision}}
     ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
     ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
 
