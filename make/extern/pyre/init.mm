@@ -23,7 +23,7 @@ pyre.ldflags ?=
 # the canonical form of the lib directory
 pyre.libpath ?= $(pyre.dir)/lib
 # the names of the libraries
-pyre.libraries := pyre journal
+pyre.libraries ?= pyre journal
 
 # my dependencies
 pyre.dependencies =
