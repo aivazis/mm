@@ -20,7 +20,12 @@ clang++.prefix.libraries := -l
 clang++.compile.only := -c
 clang++.compile.output := -o
 clang++.compile.makedep := -MMD
-clang++.compile.base := -pipe $(clang++.compile.makedep)
+clang++.compile.base += -pipe $(clang++.compile.makedep)
+
+# on macports, force {libstdc++}
+${if ${findstring darwin-x86_64,$(platform)},\
+    ${eval clang++.compile.base += -stdlib=macports-libstdc++}\
+}
 
 # symbols and optimization
 clang++.debug := -g
