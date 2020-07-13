@@ -32,7 +32,7 @@ except ImportError:
         # support for URL access
         import urllib.request
         # form the url to the bootstrapper
-        url = f"http://pyre.orthologue.com/{boot}"
+        url = f"http://github.com/pyre/pyre/releases/download/v1.9.9/{boot}"
         # show me
         print(f"downloading '{url}'")
         # pull the bootstrapper from the web
