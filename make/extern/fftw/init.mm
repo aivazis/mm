@@ -17,7 +17,7 @@ fftw.flavor ?= 3 # other valid choices: 3_threads 3f 3f_threads 3l 3l_threads
 # compiler flags
 fftw.flags ?=
 # enable {fftw} aware code
-fftw.defines := WITH_FFTW
+fftw.defines := WITH_FFTW WITH_FFTW3
 # the canonical form of the include directory
 fftw.incpath ?= $(fftw.dir)/include
 
