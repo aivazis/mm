@@ -55,11 +55,14 @@ define libraries.init =
     # artifacts
     # the root of the library source tree relative to the project home
     ${eval $(2).root ?= lib/$($(2).stem)/}
+    # a list of files with library repo metadata that require expansion; relative to {root}
+    ${eval $(2).meta ?= meta.h.in meta.cc.in}
+
     # the absolute path to the library source tree
     ${eval $(2).prefix ?= $($($(2).project).home)/$($(2).root)}
-    # the path  to the top level headers relative to the library prefix
+    # the path to the top level headers relative to the library prefix
     # these headers get deposited one level above {incdir}
-    ${eval $(2).master ?=}
+    ${eval $(2).gateway ?=}
 
     # source exclusions
     ${eval $(2).sources.exclude ?=}
@@ -70,8 +73,8 @@ define libraries.init =
     ${eval $(2).directories ?= ${call library.directories,$(2)}}
     # the list of sources
     ${eval $(2).sources ?= ${call library.sources,$(2)}}
-    # the master headers
-    ${eval $(2).headers.master ?= ${call library.headers.master,$(2)}}
+    # the gateway headers
+    ${eval $(2).headers.gateway ?= ${call library.headers.gateway,$(2)}}
     # the public headers
     ${eval $(2).headers ?= ${call library.headers,$(2)}}
 
@@ -89,10 +92,12 @@ define libraries.init =
     $(2).staging.dll = $$($(2).libdir)$($(2).dll)
     # the include directories in the staging area
     $(2).staging.incdirs = $${call library.staging.incdirs,$(2)}
-    # the master headers in the staging area
-    $(2).staging.headers.master = $${call library.staging.headers.master,$(2)}
+    # the gateway headers in the staging area
+    $(2).staging.headers.gateway = $${call library.staging.headers.gateway,$(2)}
     # the public headers in the staging area
     $(2).staging.headers = $${call library.staging.headers,$(2)}
+
+    # the library metadata files
 
     # implement the external protocol
     $(2).dir ?= ${abspath $($(2).libdir)..}
@@ -183,10 +188,10 @@ define library.sources
     }
 endef
 
-# build the set of master headers
+# build the set of gateway headers
 #   usage: library.headers {library}
-define library.headers.master
-    ${addprefix $($(1).prefix),$($(1).master)}
+define library.headers.gateway
+    ${addprefix $($(1).prefix),$($(1).gateway)}
 endef
 
 
@@ -194,7 +199,7 @@ endef
 #   usage: library.headers {library}
 define library.headers
     ${strip
-        ${filter-out $($(1).headers.exclude) $($(1).headers.master),
+        ${filter-out $($(1).headers.exclude) $($(1).headers.gateway),
             ${foreach directory, $($(1).directories),
                 ${wildcard
                     ${addprefix $(directory)*,$(languages.headers)}
@@ -263,7 +268,7 @@ library.staging.object.dlink = \
 define library.staging.incdirs
     ${strip
         ${subst $($(1).prefix),$($(1).incdir),
-            ${sort ${dir $($(1).headers) $($(1).headers.master)}}
+            ${sort ${dir $($(1).headers) $($(1).headers.gateway)}}
         }
     }
 endef
@@ -285,16 +290,16 @@ define library.staging.headers
 endef
 
 
-# build the list of the paths of the library master headers
+# build the list of the paths of the library gateway headers
 #   usage: library.staging.headers {library}
-define library.staging.headers.master
-    ${subst $($(1).prefix),${abspath $($(1).incdir)..}/,$($(1).headers.master)}
+define library.staging.headers.gateway
+    ${subst $($(1).prefix),${abspath $($(1).incdir)..}/,$($(1).headers.gateway)}
 endef
 
 
-# build the path to the library master header
-#   usage: library.staging.header.master {library} {header}
-define library.staging.header.master
+# build the path to the library gateway header
+#   usage: library.staging.header.gateway {library} {header}
+define library.staging.header.gateway
     ${subst $($(1).prefix),${abspath $($(1).incdir)..}/,$(2)}
 endef
 

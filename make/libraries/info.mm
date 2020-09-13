@@ -56,15 +56,15 @@ $($(1).staging.incdirs) $($(1).tmpdir):
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
 
-$(1).assets: $(1).headers.master $(1).headers ${call library.workflows.assets.archives,$(1)}
+$(1).assets: $(1).headers.gateway $(1).headers ${call library.workflows.assets.archives,$(1)}
 
-$(1).headers.master: $($(1).staging.headers.master)
+$(1).headers.gateway: $($(1).staging.headers.gateway)
 
 $(1).headers: $($(1).staging.headers)
 
-# make the rules that publish the master headers
-${foreach header, $($(1).headers.master), \
-    ${eval ${call library.workflows.header.master,$(1),$(header)}}
+# make the rules that publish the gateway headers
+${foreach header, $($(1).headers.gateway), \
+    ${eval ${call library.workflows.header.gateway,$(1),$(header)}}
 }
 
 # make the rules that publish the exported headers
@@ -94,11 +94,11 @@ endef
 
 
 # helpers
-# library master headers
-#  usage: library.workflows.header.master {library} {header}
-define library.workflows.header.master =
+# library gateway headers
+#  usage: library.workflows.header.gateway {library} {header}
+define library.workflows.header.gateway =
 # publish public headers
-${call library.staging.header.master,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
+${call library.staging.header.gateway,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
 # all done
