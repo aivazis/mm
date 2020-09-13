@@ -45,7 +45,7 @@ mm.info:
 	@${call log.sec,"mm", "important mm variables"}
 	@${call log.var,exec,$(mm)}
 	@${call log.var,home,$(mm.home)}
-	@${call log.var,master,$(mm.master)}
+	@${call log.var,merlin,$(mm.merlin)}
 	@${call log.var,origin,$(project.origin)}
 	@${call log.var,anchor,$(project.anchor)}
 	@${call log.var,local,$(project.makefile)}

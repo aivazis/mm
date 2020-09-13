@@ -18,7 +18,7 @@ space := $(empty) $(empty)
 mm ?=
 mm.version ?=
 mm.home ?=
-mm.master ?=
+mm.merlin ?=
 mm.compilers ?=
 
 # contributions to the build
