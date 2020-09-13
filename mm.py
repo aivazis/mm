@@ -128,8 +128,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     local = pyre.properties.str(default="Make.mm")
     local.doc = "the name of your makefile"
 
-    master = pyre.properties.str(default="master.mm")
-    master.doc = "the name of the master makefile; caveat emptor..."
+    merlin = pyre.properties.str(default="merlin.mm")
+    merlin.doc = "the name of the top level makefile; caveat emptor..."
 
     verbose = pyre.properties.bool(default=False)
     verbose.doc = "ask make to show each action taken"
@@ -217,8 +217,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # and the project configuration directory
         projcfg = self.locateProjectConfig(folder=root)
 
-        # find the master makefile
-        master = self.locateMasterMakefile(home=home)
+        # find the top level makefile
+        merlin = self.locateMerlin(home=home)
         # hunt down the local makefile; after this call, {origin} is the original {cwd},
         # {anchor} is the new one; the process {cwd} is guaranteed to be {anchor}, i.e. where
         # the local makefile lives, if any, or project {root} if we can't find a makefile
@@ -238,8 +238,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # and the folder to the pile
             incdirs.append(folder)
 
-        # if we could locate the master makefile point to it, otherwise leave it blank
-        masterfile = ['-f', master] if master else []
+        # if we could locate the top level makefile, point to it; otherwise leave it blank
+        merlinfile = ['-f', merlin] if merlin else []
         # assemble the list of compilers
         compilers = " ".join(self.compilers)
 
@@ -308,8 +308,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # add the corresponding command line argument
             argv.append("--trace")
 
-        # include path and the master makefile
-        argv += incdirs + masterfile + [
+        # include path and the top level makefile
+        argv += incdirs + merlinfile + [
             # parallelism
             "-j", f"{slots}",
             ] + (
@@ -357,7 +357,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             f"mm.palette={self.palette}",
             f"mm.version={self.version}",
             f"mm.home={home}",
-            f"mm.master={master}",
+            f"mm.merlin={merlin}",
             f"mm.compilers={compilers}",
             f"mm.incpath={home} " + ' '.join(incpath.split(os.pathsep)),
             f"mm.libpath=" + ' '.join(libpath.split(os.pathsep)),
@@ -622,28 +622,28 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
     def locateConfigHome(self):
         """
-        Find the {mm} home directory and the location of the master makefile
+        Find the {mm} home directory and the location of the top level makefile
         """
         # use the location of this file as guidance to locate the install directory
         return pyre.primitives.path(__file__).parent
 
 
-    def locateMasterMakefile(self, home):
+    def locateMerlin(self, home):
         """
-        Build the path to the master makefile
+        Build the path to the top level makefile
         """
-        # build the location of the master makefile
-        master = home / "make" / self.master
+        # build the location of the top level makefile
+        merlin = home / "make" / self.merlin
         # if it doesn't exist
-        if not master.exists:
+        if not merlin.exists:
             # pick a channel
             channel = self.error
             # complain
-            channel.log(f"could not find '{master}', the master makefile")
+            channel.log(f"could not find '{merlin}', the top level makefile")
             # nothing more to be done
             return None
         # otherwise, hand it off
-        return master
+        return merlin
 
 
     def locateProjectRoot(self):
