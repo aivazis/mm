@@ -19,11 +19,12 @@ define builder.init =
 
     # the layout of the products directory
     ${eval builder.dest.bin ?= $(builder.dest.prefix)bin/}
+    ${eval builder.dest.defaults ?= $(builder.dest.prefix)defaults/}
     ${eval builder.dest.doc ?= $(builder.dest.prefix)doc/}
+    ${eval builder.dest.etc ?= $(builder.dest.prefix)etc/}
     ${eval builder.dest.inc ?= $(builder.dest.prefix)include/}
     ${eval builder.dest.lib ?= $(builder.dest.prefix)lib/}
     ${eval builder.dest.pyc ?= $(builder.dest.prefix)packages/}
-    ${eval builder.dest.defaults ?= $(builder.dest.prefix)defaults/}
 
     # the layout of the staging area with the buiild disposables
     ${eval builder.dest.staging ?= $(2)/$(builder.tid)/}
