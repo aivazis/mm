@@ -38,10 +38,62 @@ endef
 define webpack.workflows.build
 
 # main target
-$(1): $(1).static
+$(1): $(1).static $(1).generated
 
-$(1).static : $($(1).install.static.assets)
+# the webpack bundle
+$(1).generated: $($(1).install.generated.assets)
 
+$($(1).staging.generated.assets): $(1).generate.prep $(1).generate.bundle
+
+$(1).generate.prep: $(1).config $(1).npm_modules $(1).sources
+
+$(1).generate.bundle:
+	$(cd) $($(1).staging.prefix); npm run build
+
+# build the static assets
+$(1).static: $($(1).install.static.assets)
+
+# assemble the staging configuration files
+$(1).config: \
+    $($(1).staging.page) \
+    $($(1).staging.npm_config) $($(1).staging.babel_config) $($(1).staging.webpack_config)
+
+# stage the sources
+$(1).sources: $($(1).staging.app.sources)
+
+# install the dependencies
+$(1).npm_modules: $($(1).staging.npm_config)
+
+
+# the main page where the bundle getsinjected
+$($(1).staging.page): $($(1).source.page) | $($(1).staging.prefix)
+	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
+	$(cp) $$< $$@
+
+# the npm configuration file lives at top level in the staging area
+$($(1).staging.npm_config): $($(1).source.npm_config) | $($(1).staging.prefix)
+	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
+	$(cp) $$< $$@
+	@${call log.action,"npm", $${subst $($(1).staging.prefix),,$$@}}
+	$(cd) $($(1).staging.prefix); npm i
+
+# so does the babel configuration file
+$($(1).staging.babel_config): $($(1).source.babel_config) | $($(1).staging.prefix)
+	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
+	$(cp) $$< $$@
+
+# and the webpack configuration file
+$($(1).staging.webpack_config): $($(1).source.webpack_config) | $($(1).staging.prefix)
+	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
+	$(cp) $$< $$@
+
+# the staging area
+$($(1).staging.prefix):
+	$(mkdirp) $$@
+	@${call log.action,"mkdir",$$@}
+
+# static assets
+# the directories
 $($(1).install.static.dirs):
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
@@ -49,6 +101,22 @@ $($(1).install.static.dirs):
 # make the rules that copy the static assets
 ${foreach asset,$($(1).source.static.assets),
     ${eval ${call webpack.workflows.static.asset,$(1),$(asset)}}
+}
+
+# make rules that copy the generated assets
+${foreach asset,$($(1).staging.generated.assets),
+    ${eval ${call webpack.workflows.generated.asset,$(1),$(asset)}}
+}
+
+# staging the source code
+# the directories
+$($(1).staging.app.dirs):
+	$(mkdirp) $$@
+	@${call log.action,"mkdir",$$@}
+
+# make the rules that copy the sources
+${foreach source,$($(1).source.app.sources),
+    ${eval ${call webpack.workflows.stage.source,$(1),$(source)}}
 }
 
 # all done
@@ -70,6 +138,44 @@ define webpack.workflows.static.asset =
 $(dest): ${dir $(dest)} $(asset)
 	@${call log.action,cp,$(nickname)}
 	$(cp) $(asset) $(dest)
+
+# all done
+endef
+
+
+define webpack.workflows.generated.asset =
+
+    # local variables
+    ${eval pack := $(1)}
+    ${eval asset := $(2)}
+    # the absolute path to the destination of this asset
+    ${eval dest := ${subst $($(pack).staging.prefix.generated),$($(pack).install.prefix),$(asset)}}
+    # the path to the asset relative to the home of the pack
+    ${eval nickname := ${subst $($(pack).staging.prefix),,$(asset)}}
+
+# the rule
+$(dest): ${dir $(dest)} $(asset)
+	@${call log.action,cp,$(nickname)}
+	$(cp) $(asset) $(dest)
+
+# all done
+endef
+
+
+define webpack.workflows.stage.source =
+
+    # local variables
+    ${eval pack := $(1)}
+    ${eval source := $(2)}
+    # the absolute path to the destination of this source
+    ${eval dest := ${subst $($(pack).prefix),$($(pack).staging.prefix),$(source)}}
+    # the path to the source relative to the home of the pack
+    ${eval nickname := ${subst $($(pack).prefix),,$(source)}}
+
+# the rule
+$(dest): ${dir $(dest)} $(source)
+	@${call log.action,cp,$(nickname)}
+	$(cp) $(source) $(dest)
 
 # all done
 endef
