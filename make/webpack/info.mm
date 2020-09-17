@@ -43,12 +43,10 @@ $(1): $(1).static $(1).generated
 # the webpack bundle
 $(1).generated: $($(1).install.generated.assets)
 
-$($(1).staging.generated.assets): $(1).generate.prep $(1).generate.bundle
+$($(1).staging.generated.assets)&: $($(1).staging.app.sources) | $(1).generate.prep
+	$(cd) $($(1).staging.prefix); npm run build
 
 $(1).generate.prep: $(1).config $(1).npm_modules $(1).sources
-
-$(1).generate.bundle:
-	$(cd) $($(1).staging.prefix); npm run build
 
 # build the static assets
 $(1).static: $($(1).install.static.assets)
