@@ -46,7 +46,7 @@ $(1).generated: $($(1).install.generated.assets)
 $($(1).staging.generated.assets)&: \
     $($(1).staging.babel_config) \
     $($(1).staging.app.sources) | $(1).generate.prep
-	$(cd) $($(1).staging.prefix); npm run build
+	$(cd) $($(1).staging.prefix); npm run relay && npm run build
 
 $(1).generate.prep: $(1).config $(1).npm_modules $(1).sources
 

@@ -35,7 +35,7 @@ define webpack.init
     # the names of directories with static assets
     ${eval $(2).static ?= styles graphics fonts}
     # directories to bundle
-    ${eval $(2).bundle ?= $($(2).name).html client react}
+    ${eval $(2).bundle ?= $($(2).name).html client schema react}
 
     # the list of available directories with static assets
     ${eval $(2).source.static.present := ${call webpack.source.static.present,$(2)}}
@@ -171,6 +171,7 @@ endef
 define webpack.source.app.sources =
     ${strip
         ${shell find ${realpath ${addprefix $($(1).prefix),$($(1).bundle)}} -type f -name \*.js}
+        ${shell find ${realpath ${addprefix $($(1).prefix),$($(1).bundle)}} -type f -name \*.gql}
     }
 # all done
 endef
