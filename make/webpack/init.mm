@@ -35,7 +35,7 @@ define webpack.init
     # the names of directories with static assets
     ${eval $(2).static ?= styles graphics fonts}
     # directories to bundle
-    ${eval $(2).bundle ?= $($(2).name).html react}
+    ${eval $(2).bundle ?= $($(2).name).html client react}
 
     # the list of available directories with static assets
     ${eval $(2).source.static.present := ${call webpack.source.static.present,$(2)}}
