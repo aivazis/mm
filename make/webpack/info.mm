@@ -40,6 +40,11 @@ define webpack.workflows.build
 # main target
 $(1): $(1).static $(1).generated
 
+# clean up
+$(1).clean:
+	@${call log.action,"rm",$($(1).staging.prefix)}
+	$(rm.force-recurse) $($(1).staging.prefix)
+
 # the webpack bundle
 $(1).generated: $($(1).install.generated.assets)
 
