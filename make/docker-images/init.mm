@@ -34,6 +34,11 @@ define docker-images.init =
     ${eval $(2).run.options ?=}
     ${eval $(2).launch.options ?=}
 
+    # support for bind mounts
+    ${eval $(2).launch.source ?= ${realpath $($(2).home)..}/}
+    ${eval $(2).launch.destination ?= /usr/local/src/}
+    ${eval $(2).launch.mounts ?=}
+
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies

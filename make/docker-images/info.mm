@@ -38,6 +38,9 @@ endef
 #   usage: docker-image.workflows.build {docker-image}
 define docker-image.workflows.build =
 
+   # build the launch options
+   ${eval _launchOptions := ${call docker-image.workflows.launchOptions,$(1)}}
+
 # the main recipe
 $(1): $(1).build
 
@@ -57,9 +60,29 @@ $(1).run: $(1).build
 # launch the image interactively
 $(1).launch: $(1).build
 	$(cd) $($(1).home) ; \
-        docker run -it $($(1).tag) $($(1).launch.options) /bin/bash
+        docker run -it $(_launchOptions) $($(1).tag) /bin/bash
 
 # all done
+endef
+
+
+# assembly of launch options
+define docker-image.workflows.launchOptions =
+    ${strip
+        $($(1).launch.options)
+        ${foreach dir,$($(1).launch.mounts),${call docker-image.workflows.mount,$(1),$(dir)}}
+    }
+# all done
+endef
+
+
+# mount points
+define docker-image.workflows.mount =
+    ${eval _img := $(1)}
+    ${eval _dir := $(2)}
+    ${eval _src := $($(_img).launch.source)$(_dir)}
+    ${eval _dst := $($(_img).launch.destination)$(_dir)}
+    --mount type=bind,source="$(_src)",destination="$(_dst)"
 endef
 
 
