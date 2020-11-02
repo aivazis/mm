@@ -47,17 +47,17 @@ $(1).clean::
 # buld the image
 $(1).build:
 	$(cd) $($(1).home) ; \
-        docker build -f $($(1).dockerfile) -t $($(1).tag) .
+        docker build -f $($(1).dockerfile) -t $($(1).tag) $($(1).build.options) .
 
 # run the image
 $(1).run: $(1).build
 	$(cd) $($(1).home) ; \
-        docker run $($(1).tag)
+        docker run $($(1).run.options) $($(1).tag)
 
 # launch the image interactively
 $(1).launch: $(1).build
 	$(cd) $($(1).home) ; \
-        docker run -it $($(1).tag) /bin/bash
+        docker run -it $($(1).tag) $($(1).launch.options) /bin/bash
 
 # all done
 endef

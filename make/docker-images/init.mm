@@ -29,6 +29,11 @@ define docker-images.init =
     # the dockerfile
     ${eval $(2).dockerfile ?= $($(2).root)$($(2).name)/Dockerfile}
 
+    # command line options
+    ${eval $(2).build.options ?=}
+    ${eval $(2).run.options ?=}
+    ${eval $(2).launch.options ?=}
+
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies
