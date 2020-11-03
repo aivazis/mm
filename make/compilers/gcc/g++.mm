@@ -20,7 +20,7 @@ g++.prefix.libraries := -l
 # compile time flags
 g++.compile.only := -c
 g++.compile.output := -o
-g++.compile.makedep := -MMD
+g++.compile.makedep := -MD
 g++.compile.base := -fno-diagnostics-color -pipe $(g++.compile.makedep)
 
 # symbols and optimization

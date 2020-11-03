@@ -20,7 +20,7 @@ gcc.prefix.libraries := -l
 # compile time flags
 gcc.compile.only := -c
 gcc.compile.output := -o
-gcc.compile.makedep := -MMD
+gcc.compile.makedep := -MD
 gcc.compile.base := -fno-diagnostics-color -pipe $(gcc.compile.makedep)
 
 # symbols and optimization

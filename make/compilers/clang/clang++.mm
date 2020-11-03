@@ -19,7 +19,7 @@ clang++.prefix.libraries := -l
 # compile time flags
 clang++.compile.only := -c
 clang++.compile.output := -o
-clang++.compile.makedep := -MMD
+clang++.compile.makedep := -MD
 clang++.compile.base += -pipe $(clang++.compile.makedep)
 
 # on macports, force {libstdc++}
