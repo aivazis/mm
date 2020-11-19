@@ -64,6 +64,8 @@ define libraries.init =
     # these headers get deposited one level above {incdir}
     ${eval $(2).gateway ?=}
 
+    # directory exclusions
+    ${eval $(2).directories.exclude ?=}
     # source exclusions
     ${eval $(2).sources.exclude ?=}
     # header exclusions
@@ -170,7 +172,14 @@ endef
 #   usage: library.directories {library}
 define library.directories
     ${strip
-        ${addsuffix /,${shell find ${realpath $($(1).prefix)} -type d}}
+        ${addsuffix /,
+            ${filter-out
+                ${foreach dir,$($(1).directories.exclude),
+                    ${shell find ${realpath $($(1).prefix)/$(dir)} -type d}
+                },
+                ${shell find ${realpath $($(1).prefix)} -type d}
+            }
+        }
     }
 endef
 
