@@ -21,7 +21,7 @@ cuda.incpath ?= $(cuda.dir)/include
 # linker flags
 cuda.ldflags ?=
 # the canonical form of the lib directory
-cuda.libpath ?= $(cuda.dir)/lib
+cuda.libpath ?= $(cuda.dir)/lib64
 # the set of cuda libraries to link against
 cuda.libraries ?=
 
