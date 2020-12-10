@@ -105,7 +105,7 @@ define packages.init
     # document each one
     # general
     $(2).metadoc.project := "the name of the project to which this package belongs"
-    $(2).metadoc.name := "the name of the library"
+    $(2).metadoc.name := "the name of the package"
     $(2).metadoc.stem := "the stem for generating product names"
 
 # all done
