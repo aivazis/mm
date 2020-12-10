@@ -97,7 +97,8 @@ $(1).meta: $($(1).staging.meta.pyc)
 $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
 	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
-          -e "s:@PROJECT:$($(1).project):g" \
+          -e "s:@PROJECT@:$($(1).project):g" \
+          -e "s:@TITLE@:$($(1).project):g" \
           -e "s:@MAJOR@:$($($(1).project).major):g" \
           -e "s:@MINOR@:$($($(1).project).minor):g" \
           -e "s:@MICRO@:$($($(1).project).micro):g" \
@@ -172,6 +173,8 @@ define package.workflows.info =
 # make the recipe
 $(1).info:
 	@${call log.sec,$(1),"a package in project '$($(1).project)'"}
+	@$(log)
+	@$(log) "   ## MGA: FIXME ##"
 	@$(log)
 	@$(log) "for an explanation of their purpose, try"
 	@$(log)
