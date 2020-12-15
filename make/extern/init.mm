@@ -55,6 +55,15 @@ define extern.is.available =
 endef
 
 
+# conditional
+#   usage extern.if.available {package-name} {value-if-available} {value-if-unavailable}
+define extern.if.available =
+    ${strip
+        ${if ${filter $(1),$(extern.available)},$(2)}
+    }
+endef
+
+
 # construct the contribution of an external package to the compile line
 #   usage: extern.compile.options.this {language} {package}
 extern.compile.options.this = \
