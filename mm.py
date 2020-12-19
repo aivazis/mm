@@ -217,6 +217,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # and the project configuration directory
         projcfg = self.locateProjectConfig(folder=root)
 
+        # check whether the project has a configuration file and load it
+        self.loadProjectConfig(projcfg)
+
         # find the top level makefile
         merlin = self.locateMerlin(home=home)
         # hunt down the local makefile; after this call, {origin} is the original {cwd},
@@ -603,6 +606,27 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # all done
         return 0
+
+
+    def loadProjectConfig(self, projcfg):
+        """
+        Check whether the project configuration directory contains an application configuration
+        file, and if there, load it
+        """
+        # the file stem has my name
+        cfg = projcfg / self.pyre_namespace
+        # ask the configurator for the possible extensions
+        for ext in self.pyre_executive.configurator.codecs.keys():
+            # form the candidate
+            candidate = cfg.withSuffix(suffix="."+ext)
+            # if it exists
+            if candidate.exists():
+                # load it
+                pyre.loadConfiguration(candidate)
+                # and we are done
+                break
+        # all done
+        return
 
 
     def computeSlots(self):
