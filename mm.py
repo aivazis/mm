@@ -767,12 +767,13 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # to form the target folder
             return projectRoot / "builds"
 
-        # otherwise
-        if self.quiet:
+        # if we are out of ideas and not told to be quiet
+        if not self.quiet:
             # pick a channel
-            channel = self.error
+            channel = self.warning
             # complain
             channel.log('could not figure out where to put the intermediate build products')
+
         # give up
         return None
 
@@ -793,12 +794,13 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # to form the target folder
             return projectRoot / "products"
 
-        # otherwise
-        if self.quiet:
-            # pick a channel
-            channel = self.error
+        # if we are out of ideas and not told to be quiet
+        if not self.quiet:
+            # otherwise, pick a channel
+            channel = self.warning
             # complain
             channel.log('could not figure out where to install the build products')
+
         # give up
         return None
 
@@ -808,7 +810,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         Locate the directory that contains {marker}, starting with the current working directory
         and moving upwards
         """
-        # start with the current directory
+        # start with the current directory, unless the caller has opinions
         folder = pyre.primitives.path.cwd() if folder is None else folder
         # go through folders on the way to the root
         for candidate in folder.crumbs:
