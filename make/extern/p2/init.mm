@@ -23,7 +23,7 @@ p2.ldflags ?=
 # the canonical form of the lib directory
 p2.libpath ?= $(p2.dir)/lib
 # the names of the libraries
-p2.libraries ?= p2
+p2.libraries ?= # p2
 
 # my dependencies
 p2.dependencies =
