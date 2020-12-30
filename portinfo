@@ -12,6 +12,9 @@
 #if defined(MM_PLATFORM_darwin_x86_64)
 #include "make/platforms/darwin/x86_64.h"
 
+#elif defined(MM_PLATFORM_darwin_arm64)
+#include "make/platforms/darwin/arm64.h"
+
 #elif defined(MM_PLATFORM_linux_x86_64)
 #include "make/platforms/linux/x86_64.h"
 
