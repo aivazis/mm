@@ -613,18 +613,24 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         Check whether the project configuration directory contains an application configuration
         file, and if there, load it
         """
-        # the file stem has my name
-        cfg = projcfg / self.pyre_namespace
-        # ask the configurator for the possible extensions
-        for ext in self.pyre_executive.configurator.codecs.keys():
-            # form the candidate
-            candidate = cfg.withSuffix(suffix="."+ext)
-            # if it exists
-            if candidate.exists():
-                # load it
-                pyre.loadConfiguration(candidate)
-                # and we are done
-                break
+        # first, look for an 'mm.pfg'
+        cfgApp = (projcfg / self.pyre_namespace).withSuffix(suffix='.pfg')
+        # if it exists
+        if cfgApp.exists():
+            # load it
+            pyre.loadConfiguration(cfgApp)
+
+        # next, look for a branch specific configuration file; find the name of the branch
+        branch = self.gitCurrentBranch()
+        # and use it to form the path to the configuration file
+        cfgBranch = (projcfg / branch).withSuffix(suffix='.pfg')
+        # if it exists
+        if cfgBranch.exists():
+            # tell me
+            self.info.log(f"loading '{cfgBranch}'")
+            # load it
+            pyre.loadConfiguration(cfgBranch)
+
         # all done
         return
 
@@ -1003,6 +1009,39 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # if anything went wrong
         return
+
+
+    def gitCurrentBranch(self):
+        """
+        Extract the name of the current git branch
+        """
+        # the git command line
+        cmd = [ "git", "branch", "--show-current" ]
+        # settings
+        options = {
+            "executable": "git",
+            "args": cmd,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "universal_newlines": True,
+            "shell": False }
+        # invoke
+        with subprocess.Popen(**options) as git:
+            # collect the output
+            stdout, stderr = git.communicate()
+            # get the status
+            status = git.returncode
+            # if something went wring
+            if status != 0:
+                # bail
+                return "unknown"
+            # get the branch name
+            branch = stdout.strip()
+            # and return it
+            return branch
+
+        # if anything went wrong
+        return "unknown"
 
 
     # private data
