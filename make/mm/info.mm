@@ -2,7 +2,7 @@
 #
 # michael a.g. aïvázis
 # parasim
-# (c) 1998-2020 all rights reserved
+# (c) 1998-2021 all rights reserved
 #
 
 # show me
@@ -13,7 +13,7 @@ mm.banner:
 	@$(log)
 	@$(log) $(palette.banner)"    mm $(mm.version)"$(palette.normal)
 	@$(log) "    Michael Aïvázis <michael.aivazis@para-sim.com>"
-	@$(log) "    copyright 1998-2020 all rights reserved"
+	@$(log) "    copyright 1998-2021 all rights reserved"
 	@$(log)
 
 help mm.usage: | mm.banner
