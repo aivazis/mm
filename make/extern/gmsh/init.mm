@@ -23,7 +23,7 @@ gmsh.ldflags ?=
 # the canonical form of the lib directory
 gmsh.libpath ?= $(gmsh.dir)/lib
 # the names of the libraries
-gmsh.libraries := gmsh gl2ps
+gmsh.libraries := gmsh
 
 # my dependencies
 gmsh.dependencies =
