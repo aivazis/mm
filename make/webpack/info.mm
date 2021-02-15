@@ -48,7 +48,8 @@ $(1).clean:
 # the webpack bundle
 $(1).generated: $($(1).install.generated.assets)
 
-$($(1).staging.generated.assets)&: \
+# group all the generated assets together (the '&:' in the rule separator)
+$($(1).staging.generated.assets) &: \
     $($(1).staging.babel_config) \
     $($(1).staging.app.sources) | $(1).generate.prep
 	$(cd) $($(1).staging.prefix); npm run relay && npm run build
