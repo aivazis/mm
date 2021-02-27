@@ -22,7 +22,7 @@ endef
 
 
 # build targets
-# target factory for bulding a project
+# target factory for building a project
 #   usage: project.main {project}
 define project.main =
 # the main recipe

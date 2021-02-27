@@ -35,7 +35,7 @@ define project.init =
     ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
     ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
 
-    # stem to use when bulding project specific filenames
+    # stem to use when building project specific filenames
     ${eval $(1).stem ?= $($(1).name)}
 
     # directories
@@ -94,7 +94,7 @@ define project.init =
     # cleanup
     ${eval  $(1).clean ?=}
     # documentation
-    # the project metedata categories
+    # the project metadata categories
     $(1).meta.categories := contents extern directories make
 
     # build a list of all the project attributes by category
