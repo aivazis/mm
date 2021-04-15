@@ -20,6 +20,29 @@ builder.info: mm.banner
 	@${call log.var,"       lib",$(builder.dest.lib)}
 	@${call log.var,"       pyc",$(builder.dest.pyc)}
 
+# targets that just print the value of the corresponding configuration setting
+# useful at shell level
+builder.info.tmp:
+	@echo $(builder.dest.staging)
+
+builder.info.prefix:
+	@echo $(builder.dest.prefix)
+
+builder.info.bin:
+	@echo $(builder.dest.bin)
+
+builder.info.doc:
+	@echo $(builder.dest.doc)
+
+builder.info.inc:
+	@echo $(builder.dest.inc)
+
+builder.info.lib:
+	@echo $(builder.dest.lib)
+
+builder.info.pyc:
+	@echo $(builder.dest.pyc)
+
 
 # create the builder targets
 #   usage: builder.workflows
