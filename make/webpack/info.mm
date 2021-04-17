@@ -208,6 +208,25 @@ $(1).info:
 	@$(log) "related targets:"
 	@$(log)
 
+# targets that print the relavant directories
+$(1).info.root:
+	@echo $($(1).prefix)
+
+$(1).info.config:
+	@echo $($(1).prefix)/config
+
+$(1).info.client:
+	@echo $($(1).prefix)/client
+
+$(1).info.schema:
+	@echo $($(1).prefix)/schema
+
+$(1).info.staging:
+	@echo $($(1).staging.prefix)
+
+$(1).info.prefix:
+	@echo $($(1).install.prefix)
+
 # all done
 endef
 
