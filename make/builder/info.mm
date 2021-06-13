@@ -43,6 +43,9 @@ builder.info.lib:
 builder.info.pyc:
 	@echo $(builder.dest.pyc)
 
+builder.info.staging:
+	@echo $(builder.dest.staging)
+
 
 # create the builder targets
 #   usage: builder.workflows
