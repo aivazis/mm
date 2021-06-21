@@ -13,8 +13,8 @@
 # and a user/host specific configuration file
 -include $(user.username)@$(host.nickname).mm
 
-# the list of objects this list used to include the various project content types; these now
-# happen dynamically whenever a project that declares assets of that type is encountered;
+# this list used to include the various project content types; these are now initialized
+# dynamically whenever a project that declares assets of that type is encountered; also,
 # projects can now declare new asset types and provide support for them in their {mm}
 # configuration directory
 define model :=
