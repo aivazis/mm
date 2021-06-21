@@ -35,7 +35,7 @@ mm.libraries ?=
 mm.compile.options = \
     ${addprefix $($(compiler.$(1)).prefix.incpath),$(mm.incpath)}
 
-# add an library search path to the build to facilitate linking products against specific targets
+# add a library search path to the build to facilitate linking products against specific targets
 #   usage: mm.link.options {language}
 mm.link.options = \
     ${addprefix $($(compiler.$(1)).prefix.libpath),$(mm.libpath)}
