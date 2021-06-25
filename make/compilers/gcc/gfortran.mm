@@ -32,6 +32,10 @@ gfortran.shared := -fPIC
 
 # language level
 gfortran.std.f77 :=
+gfortran.std.f95 := -std=f95
+gfortran.std.f03 := -std=f2003
+gfortran.std.f08 := -std=f2008
+gfortran.std.legacy := -std=legacy
 
 # link time flags
 gfortran.link.output := -o
