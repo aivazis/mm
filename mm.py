@@ -23,8 +23,12 @@ except ImportError:
     pdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '.mm'))
     # if it doesn't exist, make it
     os.makedirs(pdir, exist_ok=True)
-    # the package
+
+    # the target version
+    release = "v1.9.9"
+    # the bootstrapping  package
     boot = 'pyre-boot.zip'
+
     # the local file
     local = os.path.join(pdir, boot)
     # if it not already here
@@ -32,7 +36,7 @@ except ImportError:
         # support for URL access
         import urllib.request
         # form the url to the bootstrapper
-        url = f"http://github.com/pyre/pyre/releases/download/v1.9.9/{boot}"
+        url = f"http://github.com/pyre/pyre/releases/download/{release}/{boot}"
         # show me
         print(f"downloading '{url}'")
         # pull the bootstrapper from the web
