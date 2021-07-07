@@ -68,7 +68,7 @@ $($(1).module.so): ${call extension.workflows.dependencies,$(1)}
 	${call languages.$($(1).module.language).dll,\
             $($(1).module.init), \
             $($(1).module.so), \
-            $($(1).lib).$($(1).module.language) $($(1).lib) $($(1).extern)}
+            $($(1).lib).$($(1).module.language) $($(1).lib) $($(1).wraps) $($(1).extern)}
 
 # clean up
 $(1).clean::
