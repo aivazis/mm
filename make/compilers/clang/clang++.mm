@@ -22,10 +22,11 @@ clang++.compile.output := -o
 clang++.compile.makedep := -MD
 clang++.compile.base += -pipe $(clang++.compile.makedep)
 
-# on macports, force {libstdc++}
-${if ${findstring darwin-x86_64,$(platform)},\
-    ${eval clang++.compile.base += -stdlib=macports-libstdc++}\
-}
+# the STL that comes with older versions of {libc++} has multiple deficiencies
+# on macs with macports, uncomment to force the GNU {libstdc++}
+# ${if ${findstring darwin-x86_64,$(platform)},\
+#    ${eval clang++.compile.base += -stdlib=macports-libstdc++}\
+# }
 
 # symbols and optimization
 clang++.debug := -g
