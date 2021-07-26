@@ -108,6 +108,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     make =  pyre.properties.str(default=os.environ.get('GNU_MAKE', 'gmake'))
     make.doc = "the name of the GNU make executable"
 
+    runcfg = pyre.properties.str(default="")
+    runcfg.doc = "a run specific directory to add to the make include path"
+
     # the list of compilers
     compilers = pyre.properties.strings()
     compilers.doc = "override the default compiler set"
@@ -239,7 +242,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # build the include path arguments
         incdirs = []
         # by going through configuration directories that exist
-        for folder in filter(None, [usercfg, projcfg, home]):
+        for folder in filter(None, [self.runcfg, usercfg, projcfg, home]):
             # add the flag
             incdirs.append('-I')
             # and the folder to the pile
