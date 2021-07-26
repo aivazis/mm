@@ -41,6 +41,8 @@ $($(1).staging.directories):
 # make targets for individual files
 ${foreach asset,$($(1).assets),${call verbatim.workflows.asset,$(1),$(asset)}}
 
+$(1).clean::
+
 # all done
 endef
 
