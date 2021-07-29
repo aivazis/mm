@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
+
 
 # show me
 # ${info -- python2}
@@ -11,13 +10,16 @@
 # register {python2} as the python compiler
 compiler.python := python2
 
+# the name of the executable
+python2.driver ?= python
+
 # hardwire the module suffix; {python2-config} doesn't cover this
-python.suffix.module ?= .module.so
+python2.suffix.module ?= .module.so
 # byte compile
-python.compile.base ?= -m compileall -b -q
+python2.compile.base ?= -m compileall -b -q
 
 # compile
-python.compile := $(compiler.python) $(python.compile.base)
+python2.compile := $(python2.driver) $(python2.compile.base)
 
 # show me
 # ${info -- done with python2}

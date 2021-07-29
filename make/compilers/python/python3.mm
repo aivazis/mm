@@ -1,22 +1,25 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
+
 
 # show me
 # ${info -- python3}
 
-# the name of the interpreter
+# register {python3} as the python compiler
 compiler.python ?= python3
+
+# the name of the executable
+python3.driver ?= python3
+
 # compute the module suffix
-python.suffix.module ?= ${shell $(compiler.python)-config --extension-suffix}
+python3.suffix.module ?= ${shell $(python3.driver)-config --extension-suffix}
 # byte compile
-python.compile.base ?= -m compileall -b -q
+python3.compile.base ?= -m compileall -b -q
 
 # compile
-python.compile := $(compiler.python) $(python.compile.base)
+python3.compile := $(python3.driver) $(python3.compile.base)
 
 # show me
 # ${info -- done with python3}
