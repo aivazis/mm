@@ -1,11 +1,14 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
 
+
+# register {nvcc} as the CUDA compiler
 compiler.cuda := nvcc
+
+# the name of the executable
+nvcc.driver ?= nvcc
 
 # prefices for specific categories
 nvcc.prefix.flags :=

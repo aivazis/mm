@@ -1,12 +1,14 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
 
-# the name of the compiler
+
+# register {g++} as the C++ compiler
 compiler.c++ := g++
+
+# the name of the executable
+g++.driver ?= g++
 
 # prefices for specific categories
 g++.prefix.flags :=

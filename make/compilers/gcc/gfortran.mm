@@ -1,12 +1,14 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <mmichael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
 
-# the name of the compiler
+
+# register {gfortran} as the FORTRAN compiler
 compiler.fortran := gfortran
+
+# the name of the executable
+gfortran.driver ?= gfortran
 
 # prefices for specific categories
 gfortran.prefix.flags :=

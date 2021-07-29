@@ -14,7 +14,7 @@
 #   usage: compiler.compile {language} {compiler} {source} {object} {dependencies}
 define compiler.compile =
 ${strip
-    $(2)
+    $($(2).driver)
         $($(2).compile.only) $(3)
         $($(2).compile.output) $(4)
         $($(2).compile.base)
@@ -27,7 +27,7 @@ endef
 #   usage: compiler.dlink {language} {compiler} {source} {executable} {dependencies}
 define compiler.dlink =
 ${strip
-    $(2)
+    $($(2).driver)
         $($(2).link.device) $(3)
         $($(2).compile.output) $(4)
         ${call compiler.compile.options,$(1),$(2),$(5)}
@@ -39,7 +39,7 @@ endef
 #   usage: compiler.link {language} {compiler} {source} {executable} {dependencies}
 define compiler.link =
 ${strip
-    $(2)
+    $($(2).driver)
         $(3)
         $($(2).link.output) $(4)
         $($(2).compile.base)
@@ -53,7 +53,7 @@ endef
 #   usage: compiler.dll {language} {compiler} {source} {dll} {dependencies}
 define compiler.dll =
 ${strip
-    $(2)
+    $($(2).driver)
         $($(2).link.dll)
         $(3)
         $($(2).link.output) $(4)

@@ -1,12 +1,14 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
 
-# the name of the compiler
+
+# register {gcc} as the C compiler
 compiler.c := gcc
+
+# the name of the executable
+gcc.driver ?= gcc
 
 # prefices for specific categories
 gcc.prefix.flags :=
