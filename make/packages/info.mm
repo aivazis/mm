@@ -107,7 +107,7 @@ $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
           -e "s|@TODAY@|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
 	@${call log.action,python,$($(1).root)$($(1).meta)}
-	$(python.compile) $($(1).staging.meta.py)
+	$($(compiler.python).compile) $($(1).staging.meta.py)
 	$(rm) $($(1).staging.meta.py)
 
 # mark the package meta-data product as phony so it gets made unconditionally
@@ -129,7 +129,7 @@ define package.workflows.pyc =
 
 $(path.pyc): $(path.py) | ${dir $(path.pyc)}
 	@${call log.action,python,${subst $($(1).home),,$(path.py)}}
-	$(python.compile) $(path.py)
+	$($(compiler.python).compile) $(path.py)
 	$(mv) $$(<:$(languages.python.sources)=$(languages.python.pyc)) $(path.pyc)
 
 # all done
