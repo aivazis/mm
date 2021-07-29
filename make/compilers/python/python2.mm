@@ -8,10 +8,11 @@
 # show me
 # ${info -- python2}
 
-# the name of the interpreter
-compiler.python = python2
-# compute the module suffix
-python.suffix.module ?= ${shell $(compiler.python)-config --extension-suffix}
+# register {python2} as the python compiler
+compiler.python := python2
+
+# hardwire the module suffix; {python2-config} doesn't cover this
+python.suffix.module ?= .module.so
 # byte compile
 python.compile.base ?= -m compileall -b -q
 
