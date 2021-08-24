@@ -38,8 +38,10 @@ endef
 #   usage: docker-image.workflows.build {docker-image}
 define docker-image.workflows.build =
 
-   # build the launch options
-   ${eval _launchOptions := ${call docker-image.workflows.launchOptions,$(1)}}
+   # build the command line options
+   ${eval _buildOptions := $($(1).build.options)}
+   ${eval _runOptions := ${call docker-image.workflows.options,$(1),run}}
+   ${eval _launchOptions := ${call docker-image.workflows.options,$(1),launch}}
 
 # the main recipe
 $(1): $(1).build
@@ -47,15 +49,15 @@ $(1): $(1).build
 # clean up
 $(1).clean::
 
-# buld the image
+# build the image
 $(1).build:
 	$(cd) $($(1).home) ; \
-        docker build -f $($(1).dockerfile) -t $($(1).tag) $($(1).build.options) .
+        docker build -f $($(1).dockerfile) -t $($(1).tag) $(_buildOptions) .
 
 # run the image
 $(1).run: $(1).build
 	$(cd) $($(1).home) ; \
-        docker run $($(1).run.options) $($(1).tag)
+        docker run $(_runOptions) $($(1).tag)
 
 # launch the image interactively
 $(1).launch: $(1).build
@@ -66,11 +68,12 @@ $(1).launch: $(1).build
 endef
 
 
-# assembly of launch options
-define docker-image.workflows.launchOptions =
+# assembly of command line options
+define docker-image.workflows.options =
     ${strip
-        $($(1).launch.options)
-        ${foreach dir,$($(1).launch.mounts),${call docker-image.workflows.mount,$(1),$(dir)}}
+        $($(1).$(2).options)
+        ${foreach dir,$($(1).mounts),${call docker-image.workflows.mount,$(1),$(dir)}}
+        ${foreach dir,$($(1).$(2).mounts),${call docker-image.workflows.mount,$(1),$(dir)}}
     }
 # all done
 endef
@@ -80,8 +83,8 @@ endef
 define docker-image.workflows.mount =
     ${eval _img := $(1)}
     ${eval _dir := $(2)}
-    ${eval _src := $($(_img).launch.source)$(_dir)}
-    ${eval _dst := $($(_img).launch.destination)$(_dir)}
+    ${eval _src := $($(_img).mounts.source)$(_dir)}
+    ${eval _dst := $($(_img).mounts.destination)$(_dir)}
     --mount type=bind,source="$(_src)",destination="$(_dst)"
 endef
 

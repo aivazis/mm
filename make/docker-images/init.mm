@@ -34,10 +34,17 @@ define docker-images.init =
     ${eval $(2).run.options ?=}
     ${eval $(2).launch.options ?=}
 
-    # support for bind mounts
-    ${eval $(2).launch.source ?= ${realpath $($(2).home)..}/}
-    ${eval $(2).launch.destination ?= /usr/local/src/}
+    # mounts
+    ${eval $(2).mounts ?=}
+    # extra directories specific to container use type
+    ${eval $(2).run.mounts ?=}
     ${eval $(2).launch.mounts ?=}
+
+    # default locations for directory mounts
+    # from the host, one level above the project home directory
+    ${eval $(2).mounts.source ?= ${realpath $($(2).home)..}/}
+    # to the container, at /usr/local/src
+    ${eval $(2).mounts.destination ?= /usr/local/src/}
 
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
@@ -45,7 +52,7 @@ define docker-images.init =
     ${eval $(2).extern.requested := $($(2).extern)}
     # the list of external dependencies that we have support for
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
-    # the list of dependecies in the order they affect the compiler command lines
+    # the list of dependencies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
     # documentation
