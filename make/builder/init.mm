@@ -1,9 +1,7 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
-#
 
 # show me
 # ${info -- builder.init}
@@ -26,10 +24,10 @@ define builder.init =
     ${eval builder.dest.lib ?= $(builder.dest.prefix)lib/}
     ${eval builder.dest.pyc ?= $(builder.dest.prefix)packages/}
 
-    # the layout of the staging area with the buiild disposables
+    # the layout of the staging area with the build disposables
     ${eval builder.dest.staging ?= $(2)/$(builder.tid)/}
 
-    # make a pile out for all the relevant directories; this gets used by the rulemaker that makes
+    # make a pile out for all the relevant directories; this gets used by the rule maker that makes
     # sure these directories exist, so make sure you add new ones here as well
     ${eval builder.dirs := prefix bin doc inc lib pyc defaults staging}
     # put them all on a pile
