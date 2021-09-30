@@ -93,8 +93,16 @@ define package.workflows.meta =
 # build the package meta-data file
 $(1).meta: $($(1).staging.meta.pyc)
 
+$(1).meta.source: $($(1).staging.meta.py)
+
+# make the rule that compiles the package meta-data file
+$($(1).staging.meta.pyc): $($(1).staging.meta.py) | ${dir $($(1).staging.meta)}
+	@${call log.action,python,$($(1).root)$($(1).meta)}
+	$($(compiler.python).compile) $($(1).staging.meta.py)
+	$(rm) $($(1).staging.meta.py)
+
 # make the rule that generates the package meta-data file
-$($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
+$($(1).staging.meta.py): | ${dir $($(1).staging.meta)}
 	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
           -e "s:@PROJECT@:$($(1).project):g" \
@@ -106,9 +114,6 @@ $($(1).staging.meta.pyc): | ${dir $($(1).staging.meta)}
           -e "s|@YEAR@|$($($(1).project).now.year)|g" \
           -e "s|@TODAY@|$($($(1).project).now.date)|g" \
           $($(1).staging.meta) > $($(1).staging.meta.py)
-	@${call log.action,python,$($(1).root)$($(1).meta)}
-	$($(compiler.python).compile) $($(1).staging.meta.py)
-	$(rm) $($(1).staging.meta.py)
 
 # mark the package meta-data product as phony so it gets made unconditionally
 .PHONY: $($(1).staging.meta.pyc)
