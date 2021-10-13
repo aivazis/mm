@@ -98,7 +98,7 @@ endef
 #  usage: library.workflows.header.gateway {library} {header}
 define library.workflows.header.gateway =
 # publish public headers
-${call library.staging.header.gateway,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
+${call library.staging.header.gateway,$(1),$(2)}: $(2) | ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
 # all done
@@ -109,7 +109,7 @@ endef
 #  usage: library.workflows.header {library} {header}
 define library.workflows.header =
 # publish public headers
-${call library.staging.header,$(1),$(2)}: $(2) ${call library.staging.incdir,$(1),$(2)}
+${call library.staging.header,$(1),$(2)}: $(2) | ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
 # all done
