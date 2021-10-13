@@ -76,7 +76,7 @@ log.action.attn = \
 # terminals that support the ansi color commands
 terminals.ansi = ansi vt100 vt102 xterm xterm-color xterm-256color
 
-# initialize the {TERM} environmentvariable
+# initialize the {TERM} environment variable
 TERM ?= dumb
 # colors
 ifeq ($(TERM),${findstring $(mm.color)$(TERM),$(terminals.ansi)})
