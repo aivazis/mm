@@ -141,7 +141,7 @@ define webpack.workflows.static.asset =
     ${eval nickname := ${subst $($(pack).prefix),,$(asset)}}
 
 # the rule
-$(dest): ${dir $(dest)} $(asset)
+$(dest): $(asset) | ${dir $(dest)}
 	@${call log.action,cp,$(nickname)}
 	$(cp) $(asset) $(dest)
 
@@ -160,7 +160,7 @@ define webpack.workflows.generated.asset =
     ${eval nickname := ${subst $($(pack).staging.prefix),,$(asset)}}
 
 # the rule
-$(dest): ${dir $(dest)} $(asset)
+$(dest): $(asset) | ${dir $(dest)}
 	@${call log.action,cp,$(nickname)}
 	$(cp) $(asset) $(dest)
 
@@ -179,7 +179,7 @@ define webpack.workflows.stage.source =
     ${eval nickname := ${subst $($(pack).prefix),,$(source)}}
 
 # the rule
-$(dest): ${dir $(dest)} $(source)
+$(dest): $(source) | ${dir $(dest)}
 	@${call log.action,cp,$(nickname)}
 	$(cp) $(source) $(dest)
 
@@ -208,7 +208,7 @@ $(1).info:
 	@$(log) "related targets:"
 	@$(log)
 
-# targets that print the relavant directories
+# targets that print the relevant directories
 $(1).info.root:
 	@echo $($(1).prefix)
 
