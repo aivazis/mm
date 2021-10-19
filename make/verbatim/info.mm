@@ -56,7 +56,7 @@ define verbatim.workflows.asset =
 	${eval _dst := ${subst $($(1).prefix),$($(1).staging),$(_src)}}
 	${eval _dstdir := ${dir $(_dst)}}
 
-$(_dst): $(_src) $(_dstdir)
+$(_dst): $(_src) | $(_dstdir)
 	$(cp) $$< $$@
 	@${call log.action,"cp",${subst $($(1).home),,$(_src)}}
 
