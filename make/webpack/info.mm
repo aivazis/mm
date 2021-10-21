@@ -39,6 +39,7 @@ define webpack.workflows.build
 
 # main target
 $(1): $(1).static $(1).generated
+	@${call log.asset,"webpack",$(1)}
 
 # clean up
 $(1).clean:
@@ -71,7 +72,7 @@ $(1).sources: $($(1).staging.app.sources)
 $(1).npm_modules: $($(1).staging.npm_config)
 
 
-# the main page where the bundle getsinjected
+# the main page where the bundle gets injected
 $($(1).staging.page): $($(1).source.page) | $($(1).staging.prefix)
 	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
 	$(cp) $$< $$@
