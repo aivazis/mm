@@ -206,8 +206,6 @@ $(1).info:
 	@$(log)
 	@$(log) "    mm $(1).help"
 	@$(log)
-	@$(log) "related targets:"
-	@$(log)
 
 # targets that print the relevant directories
 $(1).info.root:
