@@ -96,12 +96,12 @@ endef
 #   usage: compiler.option.sources {language} {dependencies}
 define compiler.option.sources =
 ${strip
+    $(2)
     mm
     platform.$(1)
     $(compiler.$(1))
     $(target.variants:%=targets.%.$(1))
     $(developer:%=developers.%.$(1))
-    $(2)
 }
 endef
 
