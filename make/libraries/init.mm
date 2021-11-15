@@ -99,7 +99,16 @@ define libraries.init =
     # the public headers in the staging area
     $(2).staging.headers = $${call library.staging.headers,$(2)}
 
-    # the library metadata files
+
+    # options to use while building the library
+    # compile time
+    $(2).internal.flags ?=
+    $(2).internal.defines ?=
+    $(2).internal.incpath += ${realpath $($(2).root)/..}
+    # link time
+    $(2).internal.ldflags ?=
+    $(2).internal.libpath ?=
+    $(2).internal.libraries ?=
 
     # implement the external protocol
     $(2).dir ?= ${abspath $($(2).libdir)..}

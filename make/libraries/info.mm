@@ -193,7 +193,7 @@ $(source.object): $(source.path) \
 	@${call log.action,"$(source.language)",$(source.relpath)}
 	${call \
             languages.compile,$(source.language),$(source.path),$(source.object),\
-                 $(1).$(source.language) $($(1).extern) \
+                 $(1).internal $(1).$(source.language) $($(1).extern) \
         }
 	${call \
             languages.makedep,$(source.language),$(source.path),$(source.dep),\
