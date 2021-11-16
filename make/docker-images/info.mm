@@ -83,8 +83,8 @@ endef
 define docker-image.workflows.mount =
     ${eval _img := $(1)}
     ${eval _dir := $(2)}
-    ${eval _src := $($(_img).mounts.source)$(_dir)}
-    ${eval _dst := $($(_img).mounts.destination)$(_dir)}
+    ${eval _src := ${realpath $($(_img).mounts.source)$(_dir)}}
+    ${eval _dst := $($(_img).mounts.destination)${notdir $(_dir)}}
     --mount type=bind,source="$(_src)",destination="$(_dst)"
 endef
 
