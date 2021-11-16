@@ -195,6 +195,11 @@ define extension.workflows.info =
 $(1).info:
 	@${call log.sec,$(1),"an extension in project '$($(1).project)'"}
 	@$(log)
+	@${call log.var,home,$($(1).home)}
+	@${call log.var,root,$($(1).root)}
+	@${call log.var,prefix,$($(1).prefix)}
+	@${call log.var,stem,$($(1).stem)}
+	@${call log.var,name,$($(1).name)}
 	@${call log.var,module,$($(1).module)}
 	@${call log.var,shared object,$($(1).module.so)}
 	@${call log.var,main,$($(1).module.main)}
