@@ -37,7 +37,7 @@ define extensions.init =
     ${eval $(2).extern.requested ?= $($(2).extern)}
     # the list of external dependencies that we have support for
     ${eval $(2).extern.supported ?= ${call extern.is.supported,$($(2).extern.requested)}}
-    # the list of dependecies in the order they affect the compiler command lines
+    # the list of dependencies in the order they affect the compiler command lines
     ${eval $(2).extern.available ?= ${call extern.is.available,$($(2).extern.supported)}}
 
     # a list of additional prerequisites for the top target
