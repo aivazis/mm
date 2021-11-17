@@ -58,6 +58,7 @@ define libraries.init =
     # a list of files with library repo metadata that require expansion; relative to {root}
     ${eval $(2).headers.autogen ?=}
     ${eval $(2).sources.autogen ?=}
+    ${eval $(2).files.autogen ?= ${basename $($(2).headers.autogen) $($(2).sources.autogen)}}
     # the substitution table: space separated "in|out" pairs
     ${eval $(2).autogen ?=}
 

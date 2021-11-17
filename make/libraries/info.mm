@@ -65,6 +65,11 @@ $(1).headers: $($(1).staging.headers)
 # clean up the autogen files; nothing to do by default
 $(1).autogen.cleanup:: $(1).assets
 
+# unconditional clean up of the autogen files
+$(1).cleangen:
+	@${call log.action,"rm",${addprefix $($(1).prefix),$($(1).files.autogen)}}
+	$(rm.force) ${addprefix $($(1).prefix),$($(1).files.autogen)}
+
 # make the rules that publish the gateway headers
 ${foreach header, $($(1).headers.gateway),
     ${eval ${call library.workflows.header.gateway,$(1),$(header)}}
@@ -147,7 +152,7 @@ $(_out): $(_in)
 
 $(1).autogen.cleanup:: $(1).assets
 	@${call log.action,"rm", $(_out)}
-	$(rm) $(_out)
+	$(rm.force) $(_out)
 
 # all done
 endef
