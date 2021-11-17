@@ -41,7 +41,7 @@ endef
 #   usage: library.workflows.build {library}
 define library.workflows.build =
 # the main recipe
-$(1): $(1).prerequisites $(1).directories $(1).assets
+$(1): $(1).prerequisites $(1).directories $(1).assets $(1).autogen.cleanup
 	@${call log.asset,"lib",$(1)}
 
 # clean up
@@ -62,20 +62,28 @@ $(1).headers.gateway: $($(1).staging.headers.gateway)
 
 $(1).headers: $($(1).staging.headers)
 
+# clean up the autogen files; nothing to do by default
+$(1).autogen.cleanup:: $(1).assets
+
 # make the rules that publish the gateway headers
-${foreach header, $($(1).headers.gateway), \
+${foreach header, $($(1).headers.gateway),
     ${eval ${call library.workflows.header.gateway,$(1),$(header)}}
 }
 
 # make the rules that publish the exported headers
-${foreach header, $($(1).headers), \
+${foreach header, $($(1).headers),
     ${eval ${call library.workflows.header,$(1),$(header)}}
 }
 
+# make the rules that build the autogen headers
+${foreach header, $($(1).headers.autogen),
+    ${eval ${call library.workflows.autogen,$(1),$(header)}}
+}
+
 # if the library has sources, make archive targets
-${if $($(1).sources), \
-    ${call library.workflows.archive,$(1)}, \
-    ${call library.workflows.archive.empty,$(1)}, \
+${if $($(1).sources),
+    ${call library.workflows.archive,$(1)},
+    ${call library.workflows.archive.empty,$(1)},
 }
 
 # if the library has sources and the user asked for a shared object, make the rules that build it
@@ -84,6 +92,11 @@ ${if ${and $($(1).sources), $($(1).dll)},${call library.workflows.dll,$(1)},}
 # make the rules that compile the archive sources
 ${foreach source,$($(1).sources),
     ${eval ${call library.workflows.object,$(1),$(source)}}
+}
+
+# make the rules that build the autogen sources
+${foreach source, $($(1).sources.autogen),
+    ${eval ${call library.workflows.autogen,$(1),$(source)}}
 }
 
 # include the dependency files
@@ -112,6 +125,30 @@ define library.workflows.header =
 ${call library.staging.header,$(1),$(2)}: $(2) | ${call library.staging.incdir,$(1),$(2)}
 	$(cp) $$< $$@
 	@${call log.action,"cp",${subst $($(1).home),,$(2)}}
+# all done
+endef
+
+
+# autogen
+#  usage: library.workflows.autogen {library} {file}
+define library.workflows.autogen =
+
+   ${eval _in := $($(1).prefix)$(2)}
+   ${eval _out := $($(1).prefix)${basename $(2)}}
+   ${eval _cmd := \
+       ${foreach pair,$($(1).autogen), \
+           -e "s|${pair}|g" \
+	   } \
+   }
+
+$(_out): $(_in)
+	@${call log.action,"sed", $(2)}
+	$(sed) $$(_cmd) $$< > $$@
+
+$(1).autogen.cleanup:: $(1).assets
+	@${call log.action,"rm", $(_out)}
+	$(rm) $(_out)
+
 # all done
 endef
 
