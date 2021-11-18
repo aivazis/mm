@@ -248,7 +248,7 @@ ${if $(source.device), \
 	${call \
             languages.dlink,cuda,$(source.object),$(source.device),\
                  $(1).cuda $($(1).extern) \
-        }
+        } \
 }
 
 # single object target aliases
