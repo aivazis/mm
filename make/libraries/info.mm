@@ -1,7 +1,6 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2021 all rights reserved
 #
 
@@ -218,7 +217,7 @@ define library.workflows.object =
     ${eval source.relpath := ${subst $($(1).home),,$(source)}}
     # the path to the object module
     ${eval source.object := ${call library.staging.object,$(1),$(2)}}
-    # and the path to the generated dependency fil
+    # and the path to the generated dependency file
     ${eval source.dep := $(source.object:$(builder.ext.obj)=$(builder.ext.dep))}
     # figure out the source language
     ${eval source.language := $(ext${suffix $(2)})}
