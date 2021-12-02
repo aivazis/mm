@@ -29,6 +29,8 @@ define libraries.init =
     ${eval $(2).name ?= lib$($(2).libstem)}
     # the name of the archive
     ${eval $(2).archive ?= $($(2).name)$(builder.ext.lib)}
+    # the name of the dlink object with the CUDA device code
+    ${eval $(2).dlink ?= $($(2).libstem).dlink}
     # the name of the shared object
     ${eval $(2).dll ?= $($(2).name)$(builder.ext.dll)}
 
@@ -79,6 +81,8 @@ define libraries.init =
     ${eval $(2).directories ?= ${call library.directories,$(2)}}
     # the list of sources
     ${eval $(2).sources ?= ${call library.sources,$(2)}}
+    # the list of CUDA sources
+    ${eval $(2).sources.cuda ?= ${call library.sources.cuda,$(2)}}
     # the gateway headers
     ${eval $(2).headers.gateway ?= ${call library.headers.gateway,$(2)}}
     # the public headers
@@ -90,8 +94,9 @@ define libraries.init =
     ${call library.languages.options,$(2)}
 
     # derived artifacts
-    # the compile products
+    # the compiled products
     $(2).staging.objects = $${call library.objects,$(2)}
+    $(2).staging.objects.cuda = $${call library.objects.cuda,$(2)}
     # the archive
     $(2).staging.archive = $$($(2).libdir)$($(2).archive)
     # the shared object
@@ -211,6 +216,14 @@ define library.sources
     }
 endef
 
+# build the set of CUDA sources
+#   usage: library.sources.cuda {library}
+define library.sources.cuda
+    ${strip
+        ${filter %$(languages.cuda.sources),$($(1).sources)}
+    }
+endef
+
 # build the set of gateway headers
 #   usage: library.headers {library}
 define library.headers.gateway
@@ -243,9 +256,24 @@ define library.objects =
                 ${subst $($(1).prefix),,
                     ${foreach source, $($(1).sources),
                         ${basename $(source)}
-                        ${if ${findstring cuda,$(ext${suffix $(source)})},
-                            ${basename $(source)}.dlink,
-                        }
+                    }
+                }
+            }
+            ${if $($(1).sources.cuda),$($(1).dlink)}
+        }
+    }
+endef
+
+
+# build the set of CUDA objects
+#   usage: library.objects {library}
+define library.objects.cuda =
+    ${addprefix $($(1).tmpdir),
+        ${addsuffix $(builder.ext.obj),
+            ${subst /,~,
+                ${subst $($(1).prefix),,
+                    ${foreach source, $($(1).sources.cuda),
+                        ${basename $(source)}
                     }
                 }
             }
@@ -280,11 +308,6 @@ endef
 #   usage library.staging.object: {library} {source}
 library.staging.object = \
     $($(1).tmpdir)${subst /,~,${basename ${subst $($(1).prefix),,$(2)}}}$(builder.ext.obj)
-
-# build the name of a device object given the name of a source
-#   usage library.staging.object.dlink: {library} {source}
-library.staging.object.dlink = \
-    $($(1).tmpdir)${subst /,~,${basename ${subst $($(1).prefix),,$(2)}}}.dlink$(builder.ext.obj)
 
 
 # build the list of staging directories for the public headers

@@ -44,7 +44,7 @@ $(1): $(1).prerequisites $(1).directories $(1).assets $(1).autogen.cleanup
 	@${call log.asset,"lib",$(1)}
 
 # clean up
-$(1).clean::
+$(1).clean:: $(1).cleangen
 
 $(1).prerequisites: $($(1).prerequisites)
 
@@ -89,6 +89,9 @@ ${if $($(1).sources),
     ${call library.workflows.archive,$(1)},
     ${call library.workflows.archive.empty,$(1)},
 }
+
+# if the library has CUDA sources, make the rule that builds the dlink object
+${if $($(1).sources.cuda), ${call library.workflows.assets.device,$(1)}}
 
 # if the library has sources and the user asked for a shared object, make the rules that build it
 ${if ${and $($(1).sources), $($(1).dll)},${call library.workflows.dll,$(1)},}
@@ -190,6 +193,26 @@ $($(1).staging.archive):
 endef
 
 
+# device code
+#   usage: library.workflows.assets.device {library}
+define library.workflows.assets.device =
+
+    # form the name of the object with the device code
+	${eval _dlink := $($(1).tmpdir)$($(1).dlink)$(builder.ext.obj)}
+	# and the names of all cuda objects
+	${eval _objs := $($(1).staging.objects.cuda)}
+
+$(_dlink) : $(_objs)
+	@${call log.action,"dlink",$($(1).libstem)} ; \
+	${call \
+            languages.dlink,cuda,$(_objs),$(_dlink),\
+                 $(1).cuda $($(1).extern) \
+    } \
+
+# all done
+endef
+
+
 # shared objects
 #   usage: library.workflows.dll {library}
 define library.workflows.dll =
@@ -221,12 +244,6 @@ define library.workflows.object =
     ${eval source.dep := $(source.object:$(builder.ext.obj)=$(builder.ext.dep))}
     # figure out the source language
     ${eval source.language := $(ext${suffix $(2)})}
-    # and if its cuda, we have some extra work to do
-    ${eval source.device := ${strip \
-        ${if ${findstring cuda,$(source.language)}, \
-            ${call library.staging.object.dlink,$(1),$(source.path)}, \
-        } \
-    }}
 
 # compile source files
 $(source.object): $(source.path) \
@@ -240,15 +257,6 @@ $(source.object): $(source.path) \
             languages.makedep,$(source.language),$(source.path),$(source.dep),\
                  $(1).$(source.language) $($(1).extern) \
         }
-
-${if $(source.device), \
-    $(source.device) : $(source.object) ; \
-	@${call log.action,"dlink",$(source.relpath)} ; \
-	${call \
-            languages.dlink,cuda,$(source.object),$(source.device),\
-                 $(1).cuda $($(1).extern) \
-        } \
-}
 
 # single object target aliases
 # if {cwd}/{source.filename} == {source.path}, we are building a target for one of the files in
@@ -304,6 +312,13 @@ $(1).info.sources:
 	@${foreach source,$($(1).sources),$(log) $(log.indent)$(source);}
 
 
+# make a recipe that prints the set of CUDA sources that comprise a library
+$(1).info.sources.cuda:
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.sec,"  cuda sources",}
+	@${foreach source,$($(1).sources.cuda),$(log) $(log.indent)$(source);}
+
+
 # make a recipe that prints the set of public headers of a library
 $(1).info.headers:
 	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
@@ -317,6 +332,14 @@ $(1).info.objects:
 	@${call log.var,"tmpdir",$($(1).tmpdir)}
 	@${call log.sec,"  objects",}
 	@${foreach object,$($(1).staging.objects),$(log) $(log.indent)$(object);}
+
+
+# make a recipe that prints the set of CUDA objects of a library
+$(1).info.objects.cuda:
+	@${call log.sec,$(1),"a library in project '$($(1).project)'"}
+	@${call log.var,"tmpdir",$($(1).tmpdir)}
+	@${call log.sec,"  objects",}
+	@${foreach object,$($(1).staging.objects.cuda),$(log) $(log.indent)$(object);}
 
 
 # make a recipe that prints the set of includes of a library
