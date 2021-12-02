@@ -105,7 +105,7 @@ define extension.workflows.dependencies =
 ${strip
     $($(1).module.init)
     ${if $($(1).lib.sources),$($($(1).lib).staging.archive),}
-    ${foreach lib,$($(1).wraps), $($(lib).staging.archive)}
+    ${foreach lib,$($(1).wraps),$($(lib).staging.archive) $($(lib).staging.dll)}
 }
 endef
 
