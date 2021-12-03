@@ -44,6 +44,7 @@ define tests.init =
 
     # exclusions
     ${eval $(2).drivers.exclude ?=}
+    ${eval $(2).directories.exclude ?=}
 
     # the directory structure
     ${eval $(2).directories ?= ${call test.directories,$(2)}}
@@ -101,7 +102,14 @@ endef
 #   usage: test.directories {testsuite}
 define test.directories =
     ${strip
-        ${addsuffix /,${shell find ${realpath $($(1).prefix)} -type d}}
+        ${addsuffix /,
+            ${filter-out
+                ${foreach dir,$($(1).directories.exclude),
+                    ${shell find ${realpath $($(1).prefix)/$(dir)} -type d}
+                },
+                ${shell find ${realpath $($(1).prefix)} -type d}
+            }
+        }
     }
 endef
 
