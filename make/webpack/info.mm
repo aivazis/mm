@@ -63,7 +63,8 @@ $(1).static: $($(1).install.static.assets)
 # assemble the staging configuration files
 $(1).config: \
     $($(1).staging.page) \
-    $($(1).staging.npm_config) $($(1).staging.babel_config) $($(1).staging.webpack_config)
+    $($(1).staging.npm_config) $($(1).staging.babel_config) \
+	$($(1).staging.webpack_config) $($(1).staging.ts_config)
 
 # stage the sources
 $(1).sources: $($(1).staging.app.sources)
@@ -89,8 +90,13 @@ $($(1).staging.babel_config): $($(1).source.babel_config) | $($(1).staging.prefi
 	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
 	$(cp) $$< $$@
 
-# and the webpack configuration file
+# the webpack configuration file
 $($(1).staging.webpack_config): $($(1).source.webpack_config) | $($(1).staging.prefix)
+	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
+	$(cp) $$< $$@
+
+# and the typescript configuration file
+$($(1).staging.ts_config): $($(1).source.ts_config) | $($(1).staging.prefix)
 	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
 	$(cp) $$< $$@
 

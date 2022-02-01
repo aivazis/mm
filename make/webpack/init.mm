@@ -31,7 +31,7 @@ define webpack.init
     ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
 
     # the name of the configuration directory
-    ${eval $(2).config ?= config}
+    ${eval $(2).config ?= config/}
     # the names of directories with static assets
     ${eval $(2).static ?= styles graphics fonts}
     # directories to bundle
@@ -44,9 +44,10 @@ define webpack.init
 
     # the configuration files
     ${eval $(2).source.page ?= $($(2).prefix)$($(2).name).html}
-    ${eval $(2).source.npm_config ?= $($(2).prefix)$($(2).config)/package.json}
-    ${eval $(2).source.babel_config ?= $($(2).prefix)$($(2).config)/babelrc}
-    ${eval $(2).source.webpack_config ?= $($(2).prefix)$($(2).config)/webpack.js}
+    ${eval $(2).source.npm_config ?= $($(2).prefix)$($(2).config)package.json}
+    ${eval $(2).source.babel_config ?= $($(2).prefix)$($(2).config)babelrc}
+    ${eval $(2).source.webpack_config ?= $($(2).prefix)$($(2).config)webpack.js}
+    ${eval $(2).source.ts_config ?= $($(2).prefix)$($(2).config)tsconfig.json}
     # the list of sources
     ${eval $(2).source.app.dirs := ${call webpack.source.app.dirs,$(2)}}
     ${eval $(2).source.app.sources := ${call webpack.source.app.sources,$(2)}}
@@ -58,6 +59,7 @@ define webpack.init
     ${eval $(2).staging.npm_config ?= $($(2).staging.prefix)package.json}
     ${eval $(2).staging.babel_config ?= $($(2).staging.prefix).babelrc}
     ${eval $(2).staging.webpack_config ?= $($(2).staging.prefix)webpack.config.js}
+    ${eval $(2).staging.ts_config ?= $($(2).staging.prefix)tsconfig.json}
     # the list of sources
     ${eval $(2).staging.app.dirs := ${call webpack.staging.app.dirs,$(2)}}
     ${eval $(2).staging.app.sources := ${call webpack.staging.app.sources,$(2)}}
