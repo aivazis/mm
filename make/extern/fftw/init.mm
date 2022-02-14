@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring fftw,$(extern)},,fftw}
 
+# # find my configuration file
+fftw.config := ${dir ${call extern.config,fftw}}
+
 # the flavor: version, and single or double precision
 fftw.flavor ?= 3 # other valid choices: 3_threads 3f 3f_threads 3l 3l_threads
 

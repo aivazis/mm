@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring metis,$(extern)},,metis}
 
+# # find my configuration file
+metis.config := ${dir ${call extern.config,metis}}
+
 # compiler flags
 metis.flags ?=
 # enable {metis} aware code

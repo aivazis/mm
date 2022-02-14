@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring fortran,$(extern)},,fortran}
 
+# # find my configuration file
+fortran.config := ${dir ${call extern.config,fortran}}
+
 # compiler flags
 fortran.flags ?= $($(compiler.fortran).mixed.flags)
 # enable {fortran} aware code

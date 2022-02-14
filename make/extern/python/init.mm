@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring python,$(extern)},,python}
 
+# # find my configuration file
+python.config := ${dir ${call extern.config,python}}
+
 # the version
 python.version ?= 3
 # the model

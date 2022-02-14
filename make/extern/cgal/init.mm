@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring cgal,$(extern)},,cgal}
 
+# find my configuration file
+cgal.config := ${dir ${call extern.config,cgal}}
+
 # compiler flags
 cgal.flags ?=
 # enable {cgal} aware code

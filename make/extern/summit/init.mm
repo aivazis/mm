@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring summit,$(extern)},,summit}
 
+# # find my configuration file
+summit.config := ${dir ${call extern.config,summit}}
+
 # compiler flags
 summit.flags ?=
 # enable {summit} aware code
@@ -26,7 +29,7 @@ summit.libpath ?= $(summit.dir)/lib
 summit.libraries ?= summit tetra
 
 # my dependencies
-summit.dependencies := gmsh gsl slepc petsc metis parmetis hdf5 mpi vtk fortran
+summit.dependencies := gmsh gsl slepc petsc metis parmetis summit mpi vtk fortran
 
 # show me
 # ${info -- done with summit.init}

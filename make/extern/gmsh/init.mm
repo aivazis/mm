@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring gmsh,$(extern)},,gmsh}
 
+# # find my configuration file
+gmsh.config := ${dir ${call extern.config,gmsh}}
+
 # compiler flags
 gmsh.flags ?=
 # enable {gmsh} aware code

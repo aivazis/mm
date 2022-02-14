@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring gdal,$(extern)},,gdal}
 
+# # find my configuration file
+gdal.config := ${dir ${call extern.config,gdal}}
+
 # compiler flags
 gdal.flags ?=
 # enable {gdal} aware code

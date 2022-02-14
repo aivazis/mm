@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring mpi,$(extern)},,mpi}
 
+# # find my configuration file
+mpi.config := ${dir ${call extern.config,mpi}}
+
 # users set this variable to communicate which libraries they want
 mpi.required ?=
 

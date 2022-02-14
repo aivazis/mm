@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring vtk,$(extern)},,vtk}
 
+# # find my configuration file
+vtk.config := ${dir ${call extern.config,vtk}}
+
 # users set this variable to communicate which libraries they want
 vtk.required ?=
 

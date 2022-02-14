@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring pybind11,$(extern)},,pybind11}
 
+# # find my configuration file
+pybind11.config := ${dir ${call extern.config,pybind11}}
+
 # compiler flags
 pybind11.flags ?=
 # enable {pybind11} aware code

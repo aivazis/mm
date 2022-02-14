@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring libpq,$(extern)},,libpq}
 
+# # find my configuration file
+libpq.config := ${dir ${call extern.config,libpq}}
+
 # compiler flags
 libpq.flags ?=
 # enable {libpq} aware code

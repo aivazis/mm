@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring cuda,$(extern)},,cuda}
 
+# find my configuration file
+cuda.config := ${dir ${call extern.config,cuda}}
+
 # compiler flags
 cuda.flags ?=
 # enable {cuda} aware code

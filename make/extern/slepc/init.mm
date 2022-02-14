@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring slepc,$(extern)},,slepc}
 
+# # find my configuration file
+slepc.config := ${dir ${call extern.config,slepc}}
+
 # compiler flags
 slepc.flags ?=
 # enable {slepc} aware code

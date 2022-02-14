@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring petsc,$(extern)},,petsc}
 
+# # find my configuration file
+petsc.config := ${dir ${call extern.config,petsc}}
+
 # compiler flags
 petsc.flags ?=
 # enable {petsc} aware code

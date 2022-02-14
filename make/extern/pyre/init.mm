@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring pyre,$(extern)},,pyre}
 
+# # find my configuration file
+pyre.config := ${dir ${call extern.config,pyre}}
+
 # compiler flags
 pyre.flags ?=
 # enable {pyre} aware code

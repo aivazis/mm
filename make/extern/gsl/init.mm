@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring gsl,$(extern)},,gsl}
 
+# # find my configuration file
+gsl.config := ${dir ${call extern.config,gsl}}
+
 # compiler flags
 gsl.flags ?=
 # enable {gsl} aware code

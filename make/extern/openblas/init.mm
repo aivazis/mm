@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring openblas,$(extern)},,openblas}
 
+# # find my configuration file
+openblas.config := ${dir ${call extern.config,openblas}}
+
 # compiler flags
 openblas.flags ?=
 # enable {openblas} aware code

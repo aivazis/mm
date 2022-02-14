@@ -11,6 +11,9 @@
 # add me to the pile
 extern += ${if ${findstring parmetis,$(extern)},,parmetis}
 
+# # find my configuration file
+parmetis.config := ${dir ${call extern.config,parmetis}}
+
 # compiler flags
 parmetis.flags ?=
 # enable {parmetis} aware code
