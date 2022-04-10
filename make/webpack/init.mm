@@ -34,6 +34,8 @@ define webpack.init
     ${eval $(2).config ?= config/}
     # the names of directories with static assets
     ${eval $(2).static ?= styles graphics fonts}
+    # the names of chunks from the external dependencies
+    ${eval $(2).chunks ?=}
     # directories to bundle
     ${eval $(2).bundle ?= $($(2).name).html client schema react}
 

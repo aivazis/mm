@@ -38,7 +38,7 @@ endef
 define webpack.workflows.build
 
 # main target
-$(1): $(1).static $(1).generated
+$(1): $(1).static $(1).generated $(1).chunks
 	@${call log.asset,"webpack",$(1)}
 
 # clean up
@@ -48,6 +48,9 @@ $(1).clean:
 
 # the webpack bundle
 $(1).generated: $($(1).install.generated.assets)
+
+# chunks from the external dependencies
+$(1).chunks: ${foreach chunk,$($(1).chunks),$(1).chunks.$(chunk)}
 
 # group all the generated assets together (the '&:' in the rule separator)
 $($(1).staging.generated.assets) &: \
@@ -121,6 +124,11 @@ ${foreach asset,$($(1).staging.generated.assets),
     ${eval ${call webpack.workflows.generated.asset,$(1),$(asset)}}
 }
 
+# make the rules that copy chunks from external dependencies
+${foreach chunk,$($(1).chunks),
+	${eval ${call webpack.workflows.generated.chunk,$(1),${chunk}}}
+}
+
 # staging the source code
 # the directories
 $($(1).staging.app.dirs):
@@ -170,6 +178,21 @@ define webpack.workflows.generated.asset =
 $(dest): $(asset) | ${dir $(dest)}
 	@${call log.action,cp,$(nickname)}
 	$(cp) $(asset) $(dest)
+
+# all done
+endef
+
+
+define webpack.workflows.generated.chunk =
+
+    # local variables
+    ${eval pack := $(1)}
+    ${eval chunk := $(2)}
+
+# the rule
+$(pack).chunks.$(chunk):
+	@find $($(1).staging.prefix.generated) \
+        -name $(chunk)* -exec cp {} $($(1).install.prefix) ';'
 
 # all done
 endef
