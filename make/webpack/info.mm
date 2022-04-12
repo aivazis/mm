@@ -190,7 +190,7 @@ define webpack.workflows.generated.chunk =
     ${eval chunk := $(2)}
 
 # the rule
-$(pack).chunks.$(chunk):
+$(pack).chunks.$(chunk): $(pack).generated
 	@find $($(1).staging.prefix.generated) \
         -name $(chunk)* -exec cp {} $($(1).install.prefix) ';'
 
