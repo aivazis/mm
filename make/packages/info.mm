@@ -239,6 +239,9 @@ $(1).info.general:
             ${call log.var,$(var),$$($(1).$(var))}; \
          }
 
+$(1).info.package:
+	@echo $(builder.dest.pyc)$($(1).name)
+
 # all done
 endef
 
