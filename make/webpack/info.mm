@@ -236,6 +236,11 @@ $(1).info:
 	@$(log) "    mm $(1).help"
 	@$(log)
 
+$(1).info.generated:
+	@${call log.sec,$(1),"a pack in project '$($(1).project)'"}
+	@$(log)
+	@${foreach var,$($(1).install.generated.assets),$(log) $(log.indent)$(var);}
+
 # targets that print the relevant directories
 $(1).info.root:
 	@echo $($(1).prefix)
