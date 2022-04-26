@@ -15,7 +15,7 @@ extern += ${if ${findstring yaml,$(extern)},,yaml}
 yaml.config := ${dir ${call extern.config,yaml}}
 
 # the flavor
-yaml.flavor := -cpp
+yaml.flavor ?= -cpp
 # compiler flags
 yaml.flags ?=
 # enable {yaml} aware code
@@ -28,7 +28,7 @@ yaml.ldflags ?=
 # the canonical form of the lib directory
 yaml.libpath ?= $(yaml.dir)/lib
 # the name of the library
-yaml.libraries := ${addprefix yaml,$(yaml.flavor)}
+yaml.libraries := yaml$(yaml.flavor)
 
 # initialize the list of my dependencies
 yaml.dependencies =
