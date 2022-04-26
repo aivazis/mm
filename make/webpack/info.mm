@@ -54,7 +54,7 @@ $(1).chunks: ${foreach chunk,$($(1).chunks),$(1).chunks.$(chunk)}
 
 # group all the generated assets together (the '&:' in the rule separator)
 $($(1).staging.generated.assets) &: \
-    $($(1).staging.babel_config) \
+    $($(1).staging.babel_config) $($(1).staging.page) \
     $($(1).staging.app.sources) | $(1).generate.prep
 	$(cd) $($(1).staging.prefix); npm run relay && npm run build
 
@@ -236,10 +236,26 @@ $(1).info:
 	@$(log) "    mm $(1).help"
 	@$(log)
 
-$(1).info.generated:
+$(1).info.sources:
+	@${call log.sec,$(1),"a pack in project '$($(1).project)'"}
+	@$(log)
+	@${foreach var,$($(1).staging.app.sources),$(log) $(log.indent)$(var);}
+
+$(1).info.staged:
+	@${call log.sec,$(1),"a pack in project '$($(1).project)'"}
+	@$(log)
+	@${foreach var,$($(1).staging.generated.assets),$(log) $(log.indent)$(var);}
+
+$(1).info.installed:
 	@${call log.sec,$(1),"a pack in project '$($(1).project)'"}
 	@$(log)
 	@${foreach var,$($(1).install.generated.assets),$(log) $(log.indent)$(var);}
+
+$(1).info.page:
+	${call log.var,source,$($(1).source.page)}
+	${call log.var,staging,$($(1).staging.page)}
+	${call log.var,build,$($(1).staging.prefix.generated)$($(1).name).html}
+	${call log.var,install,$($(1).install.prefix)$($(1).name).html}
 
 # targets that print the relevant directories
 $(1).info.root:
