@@ -14,7 +14,7 @@ extern += ${if ${findstring eigen,$(extern)},,eigen}
 # # find my configuration file
 eigen.config := ${dir ${call extern.config,eigen}}
 
- flags
+# flags
 eigen.flags ?=
 # enable {eigen} aware code
 eigen.defines := WITH_EIGEN3
