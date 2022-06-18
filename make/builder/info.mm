@@ -18,6 +18,7 @@ builder.info: mm.banner
 	@${call log.var,"       doc",$(builder.dest.doc)}
 	@${call log.var,"       inc",$(builder.dest.inc)}
 	@${call log.var,"       lib",$(builder.dest.lib)}
+	@${call log.var,"  defaults",$(builder.dest.defaults)}
 	@${call log.var,"       pyc",$(builder.dest.pyc)}
 
 # targets that just print the value of the corresponding configuration setting
