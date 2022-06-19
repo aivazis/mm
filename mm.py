@@ -53,6 +53,31 @@ except ImportError:
     import pyre
 
 
+# install profiles
+class Profile(pyre.protocol, family="pyre.mm.profiles"):
+    """
+    The {prefix} layout
+    """
+
+    @classmethod
+    def pyre_default(cls, **kwds):
+        """
+        Pick a default profile
+        """
+        # easy enough
+        return legacy
+
+class legacy(pyre.component, family="pyre.mm.profiles.legacy", implements=Profile):
+    """
+    The legacy profile
+    """
+
+class docker(pyre.component, family="pyre.mm.profiles.docker", implements=Profile):
+    """
+    A profile suitable for {docket} instances
+    """
+
+
 # the app
 class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     """
@@ -64,6 +89,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     # user configurable state
     project = pyre.properties.str()
     project.doc = "the name of the project to build; normally set in your makefile"
+
+    profile = Profile()
+    profile.doc ="the directory layout of the staging and install areas"
 
     prefix = pyre.properties.path()
     prefix.doc = "the home of the installed build products"
