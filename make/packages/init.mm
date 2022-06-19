@@ -178,7 +178,7 @@ define package.config =
         ${eval root := $($(1).config.root)}
 
         ${foreach stem,$($(1).config),
-            ${realpath $(root)$(stem).pfg}
+            ${wildcard $(root)$(stem).*}
             ${if ${realpath $(root)$(stem)},
                 ${shell find ${realpath $(root)$(stem)} -type f},
             }
