@@ -17,7 +17,7 @@ define builder.init =
 
     # the layout of the products directory
     ${eval builder.dest.bin ?= $(builder.dest.prefix)bin/}
-    ${eval builder.dest.defaults ?= $(builder.dest.prefix)defaults/}
+    ${eval builder.dest.share ?= $(builder.dest.prefix)share/}
     ${eval builder.dest.doc ?= $(builder.dest.prefix)doc/}
     ${eval builder.dest.etc ?= $(builder.dest.prefix)etc/}
     ${eval builder.dest.inc ?= $(builder.dest.prefix)include/}
@@ -29,7 +29,7 @@ define builder.init =
 
     # make a pile out for all the relevant directories; this gets used by the rule maker that makes
     # sure these directories exist, so make sure you add new ones here as well
-    ${eval builder.dirs := prefix bin doc inc lib pyc defaults staging}
+    ${eval builder.dirs := prefix bin doc inc lib pyc share staging}
     # put them all on a pile
     ${eval builder.directories := \
         ${sort \
