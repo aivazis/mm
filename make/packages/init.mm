@@ -76,7 +76,7 @@ define packages.init
     ${eval $(2).staging.ext ?= $($(2).pycdir)$($(2).ext)}
 
     # the directory where configuration files are delivevered
-    ${eval $(2).staging.defaults ?= ${builder.dest.defaults}}
+    ${eval $(2).staging.defaults ?= ${builder.dest.share}}
     # the list of files to deliver there
     ${eval $(2).staging.config ?= ${call package.staging.config,$(2),$($(2).config.sources)}}
     # and the list of directories that must exist
