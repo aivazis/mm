@@ -23,6 +23,8 @@ define packages.init
     ${eval $(2).stem ?= $($(1).stem)}
     # form the name
     ${eval $(2).name ?= $($(2).stem)}
+    # the configuration file stem
+    ${eval $(2).config ?= $($(2).stem)}
 
     # external dependencies: packages do not typically list these explicitly, for now; their
     # meanings are defined in {make/projects/init.mm}
@@ -59,13 +61,10 @@ define packages.init
     # the list of scripts
     ${eval $(2).drivers ?=}
 
-    # the list of configuration file stems
-    ${eval $(2).config ?= $($(2).stem)}
     # the home of the configuration files
-    ${eval $(2).config.root ?= $($(1).home)/$($(2).defaults)}
+    ${eval $(2).config.root ?= $($(1).home)/$($(2).defaults)$($(2).config)/}
     # the actual list of files derivable from the stems
     ${eval $(2).config.sources := ${call package.config,$(2)}}
-
 
     # derived artifacts
     # the compiled products
@@ -76,7 +75,7 @@ define packages.init
     ${eval $(2).staging.ext ?= $($(2).pycdir)$($(2).ext)}
 
     # the directory where configuration files are delivevered
-    ${eval $(2).staging.defaults ?= ${builder.dest.share}}
+    ${eval $(2).staging.defaults ?= $(builder.dest.share)$($(2).config)/}
     # the list of files to deliver there
     ${eval $(2).staging.config ?= ${call package.staging.config,$(2),$($(2).config.sources)}}
     # and the list of directories that must exist
@@ -175,13 +174,9 @@ endef
 #   usage: package.config {package}
 define package.config =
     ${strip
-        ${eval root := $($(1).config.root)}
-
-        ${foreach stem,$($(1).config),
-            ${wildcard $(root)$(stem).*}
-            ${if ${realpath $(root)$(stem)},
-                ${shell find ${realpath $(root)$(stem)} -type f},
-            }
+        ${eval root := ${realpath $($(1).config.root)}}
+        ${if $(root),
+           ${shell find $(root) -type f}
         }
     }
 endef
@@ -209,7 +204,7 @@ endef
 #   usage package.staging.config.directories {package}
 define package.staging.config.dirs =
     ${strip
-        ${filter-out $($(1).staging.defaults),${sort ${dir $($(1).staging.config)}}}
+        ${sort ${dir $($(1).staging.config)}}
     }
 endef
 
