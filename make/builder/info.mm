@@ -41,6 +41,9 @@ builder.info.inc:
 builder.info.lib:
 	@echo $(builder.dest.lib)
 
+builder.info.defaults:
+	@echo $(builder.dest.defaults)
+
 builder.info.pyc:
 	@echo $(builder.dest.pyc)
 
