@@ -273,14 +273,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             setenv = self.inject
         # otherwise
         else:
-            # remove our setting
+            # remove our settings
             setenv = self.eject
         # pull variables from the environment and adjust them
-        path = setenv(var=self.PATH, path=(prefix / tag / "bin"))
-        ldpath = setenv(var=self.LD_LIBRARY_PATH, path=(prefix / tag / "lib"))
-        pythonpath = setenv(var=self.PYTHONPATH, path=(prefix / tag / "packages"))
-        incpath = setenv(var=self.MM_INCLUDES, path=(prefix / tag / "include"))
-        libpath = setenv(var=self.MM_LIBPATH, path=(prefix / tag / "lib"))
+        path = setenv(var=self.PATH, path=(prefix / "bin"))
+        ldpath = setenv(var=self.LD_LIBRARY_PATH, path=(prefix / "lib"))
+        pythonpath = setenv(var=self.PYTHONPATH, path=(prefix / "packages"))
+        incpath = setenv(var=self.MM_INCLUDES, path=(prefix / "include"))
+        libpath = setenv(var=self.MM_LIBPATH, path=(prefix / "lib"))
         # splice them together
         path = os.pathsep.join(path)
         ldpath = os.pathsep.join(ldpath)
