@@ -13,7 +13,7 @@ define builder.init =
     ${eval builder.tid ?= $(target.tag)}
 
     # construct the name of the top level directory
-    ${eval builder.dest.prefix ?= $(1)/$(builder.tid)/}
+    ${eval builder.dest.prefix ?= $(1)/}
 
     # the layout of the products directory
     ${eval builder.dest.bin ?= $(builder.dest.prefix)bin/}
