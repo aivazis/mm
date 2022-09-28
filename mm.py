@@ -56,7 +56,7 @@ except ImportError:
 # the app
 class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     """
-    mm 4.2.1
+    mm 4.2.2
     Michael Aïvázis <michael.aivazis@para-sim.com>
     copyright 1998-2022 all rights reserved
     """
@@ -165,7 +165,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
 
     # constants
-    version = "4.2.1"
+    version = "4.2.2"
 
 
     # behavior
