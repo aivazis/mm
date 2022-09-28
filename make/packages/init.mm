@@ -26,6 +26,9 @@ define packages.init
     # the configuration file stem
     ${eval $(2).config ?= $($(2).stem)}
 
+    # hook for user supplied targets that must be built along with the main package target
+    ${eval $(2).extras ?=}
+
     # external dependencies: packages do not typically list these explicitly, for now; their
     # meanings are defined in {make/projects/init.mm}
     ${eval $(2).extern ?=}

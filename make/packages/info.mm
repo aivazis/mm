@@ -38,7 +38,7 @@ endef
 define package.workflows.build
 
 # top level target
-$(1): $(1).directories $(1).assets
+$(1): $(1).directories $(1).assets $($(1).extras)
 	@${call log.asset,"pkg",$(1)}
 
 # clean up
