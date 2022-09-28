@@ -20,14 +20,14 @@ try:
 # if this fails
 except ImportError:
     # form the home of the python bootstrap
-    pdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '.mm'))
+    pdir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".mm"))
     # if it doesn't exist, make it
     os.makedirs(pdir, exist_ok=True)
 
     # the target version
     release = "v1.11.0"
     # the bootstrapping  package
-    boot = 'pyre-boot.zip'
+    boot = "pyre-boot.zip"
 
     # the local file
     local = os.path.join(pdir, boot)
@@ -35,6 +35,7 @@ except ImportError:
     if not os.path.exists(local):
         # support for URL access
         import urllib.request
+
         # form the url to the bootstrapper
         url = f"http://github.com/pyre/pyre/releases/download/{release}/{boot}"
         # show me
@@ -42,11 +43,12 @@ except ImportError:
         # pull the bootstrapper from the web
         with urllib.request.urlopen(url=url) as ins:
             # open the local file
-            with open(local, 'wb') as outs:
+            with open(local, "wb") as outs:
                 # pull the data and write it
                 outs.write(ins.read())
     # grab the sys module
     import sys
+
     # so we can add the bootstrapper to it
     sys.path.insert(1, local)
     # try importing pyre again
@@ -54,9 +56,9 @@ except ImportError:
 
 
 # the app
-class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
+class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     """
-    mm 4.2.2
+    mm 4.3.0
     Michael Aïvázis <michael.aivazis@para-sim.com>
     copyright 1998-2022 all rights reserved
     """
@@ -93,7 +95,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     color = pyre.properties.bool(default=True)
     color.doc = "colorize screen output on supported terminals"
 
-    palette = pyre.properties.str(default='builtin')
+    palette = pyre.properties.str(default="builtin")
     palette.doc = "color palette for colorizing screen output on supported terminals"
 
     # parallelism
@@ -105,7 +107,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
     # advanced settings
     # gnu make
-    make =  pyre.properties.str(default=os.environ.get('GNU_MAKE', 'gmake'))
+    make = pyre.properties.str(default=os.environ.get("GNU_MAKE", "gmake"))
     make.doc = "the name of the GNU make executable"
 
     runcfg = pyre.properties.str(default="")
@@ -116,7 +118,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     compilers.doc = "override the default compiler set"
 
     # the project config directory name
-    cfgdir = pyre.properties.str(default='.mm')
+    cfgdir = pyre.properties.str(default=".mm")
     cfgdir.doc = "the name of directories with project configuration settings"
 
     # grant access to the current build environment
@@ -163,10 +165,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
     MM_LIBPATH = pyre.properties.envpath(variable="MM_LIBPATH")
     MM_LIBPATH.doc = "the MM_LIBPATH environment variable"
 
-
     # constants
-    version = "4.2.2"
-
+    version = "4.3.0"
 
     # behavior
     @pyre.export
@@ -184,7 +184,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # all done
         return status
 
-
     # meta-methods
     def __init__(self, **kwds):
         # chain up
@@ -193,7 +192,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         self.user = self.pyre_executive.user
         # all done
         return
-
 
     # implementation details
     def launch(self):
@@ -207,8 +205,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # if the user asked for detailed outpput
         if self.verbose:
-             # force serial mode; anything else is output madness
-             self.serial = True
+            # force serial mode; anything else is output madness
+            self.serial = True
 
         # mm
         mm = f"{sys.executable} {__file__}"
@@ -244,12 +242,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # by going through configuration directories that exist
         for folder in filter(None, [self.runcfg, usercfg, projcfg, home]):
             # add the flag
-            incdirs.append('-I')
+            incdirs.append("-I")
             # and the folder to the pile
             incdirs.append(folder)
 
         # if we could locate the top level makefile, point to it; otherwise leave it blank
-        merlinfile = ['-f', merlin] if merlin else []
+        merlinfile = ["-f", merlin] if merlin else []
         # assemble the list of compilers
         compilers = " ".join(self.compilers)
 
@@ -319,61 +317,65 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             argv.append("--trace")
 
         # include path and the top level makefile
-        argv += incdirs + merlinfile + [
-            # parallelism
-            "-j", f"{slots}",
-            ] + (
+        argv += (
+            incdirs
+            + merlinfile
+            + [
+                # parallelism
+                "-j",
+                f"{slots}",
+            ]
+            + (
                 # the name of the project, if explicitly set
-                [f"project={self.project}"] if self.project else []
-            ) + [
-            # project info
-            "project.home={}".format(root or ''),
-            "project.config={}".format(projcfg or ''),
-            "project.prefix={}".format(prefix or ''),
-            "project.bldroot={}".format(bldroot or ''),
-            "project.anchor={}".format(anchor or ''),
-            f"project.origin={origin}",
-            "project.makefile={}".format(self.local if anchor else ''),
-
-            # repository information
-            f"repo.major={major}",
-            f"repo.minor={minor}",
-            f"repo.micro={micro}",
-            f"repo.revision={revision}",
-
-            # target info
-            f"target={target}",
-            f"target.tag={tag}",
-            "target.variants={}".format(" ".join(self.target)),
-
-            # user info
-            f"user.username={user.username}",
-            f"user.home={user.home}",
-            "user.config={}".format(usercfg or ''),
-            f"user.uid={user.uid}",
-            f"user.name={user.name}",
-            f"user.email={user.email}",
-
-            # host info
-            f"host.name={host.hostname}",
-            f"host.nickname={host.nickname}",
-            f"host.os={host.platform}",
-            f"host.arch={host.cpus.architecture}",
-            f"host.cores={host.cpus.cpus}",
-
-            # mm info
-            f"mm={mm}",
-            f"mm.color={'' if self.color else 'no'}",
-            f"mm.palette={self.palette}",
-            f"mm.version={self.version}",
-            f"mm.home={home}",
-            f"mm.merlin={merlin}",
-            f"mm.compilers={compilers}",
-            f"mm.incpath={home} " + ' '.join(incpath.split(os.pathsep)),
-            f"mm.libpath=" + ' '.join(libpath.split(os.pathsep)),
-
-        # plus whatever the user put on the command line
-        ] + list(self.argv)
+                [f"project={self.project}"]
+                if self.project
+                else []
+            )
+            + [
+                # project info
+                "project.home={}".format(root or ""),
+                "project.config={}".format(projcfg or ""),
+                "project.prefix={}".format(prefix or ""),
+                "project.bldroot={}".format(bldroot or ""),
+                "project.anchor={}".format(anchor or ""),
+                f"project.origin={origin}",
+                "project.makefile={}".format(self.local if anchor else ""),
+                # repository information
+                f"repo.major={major}",
+                f"repo.minor={minor}",
+                f"repo.micro={micro}",
+                f"repo.revision={revision}",
+                # target info
+                f"target={target}",
+                f"target.tag={tag}",
+                "target.variants={}".format(" ".join(self.target)),
+                # user info
+                f"user.username={user.username}",
+                f"user.home={user.home}",
+                "user.config={}".format(usercfg or ""),
+                f"user.uid={user.uid}",
+                f"user.name={user.name}",
+                f"user.email={user.email}",
+                # host info
+                f"host.name={host.hostname}",
+                f"host.nickname={host.nickname}",
+                f"host.os={host.platform}",
+                f"host.arch={host.cpus.architecture}",
+                f"host.cores={host.cpus.cpus}",
+                # mm info
+                f"mm={mm}",
+                f"mm.color={'' if self.color else 'no'}",
+                f"mm.palette={self.palette}",
+                f"mm.version={self.version}",
+                f"mm.home={home}",
+                f"mm.merlin={merlin}",
+                f"mm.compilers={compilers}",
+                f"mm.incpath={home} " + " ".join(incpath.split(os.pathsep)),
+                f"mm.libpath=" + " ".join(libpath.split(os.pathsep)),
+                # plus whatever the user put on the command line
+            ]
+            + list(self.argv)
+        )
 
         # if the user is only interested in publishing the build environment and i have
         # something to say
@@ -398,7 +400,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 # N.B.: this is a bug: the trait validators were adjusted to include a new
                 # shell, but there is no support for this shell yet
                 # complain
-                self.firewall.log(f'{shell}: unsupported shell')
+                self.firewall.log(f"{shell}: unsupported shell")
                 # and bail
                 return 1
 
@@ -415,7 +417,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # if the user wants to see
         if self.show:
             # show the command line
-            self.info.log('make: ' + ' '.join(map(str, argv)))
+            self.info.log("make: " + " ".join(map(str, argv)))
 
         # our updates to the environment variables
         env = {
@@ -428,11 +430,11 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # set up the subprocess settings
         settings = {
-            'executable': self.make,
-            'args': argv,
-            'universal_newlines': True,
-            'shell': False
-            }
+            "executable": self.make,
+            "args": argv,
+            "universal_newlines": True,
+            "shell": False,
+        }
 
         # if this is a dry run
         if self.dry:
@@ -460,7 +462,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # share with the shell...
         return status
 
-
     def setupUserConfig(self):
         """
         Prime the user configuration directory
@@ -470,7 +471,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # if it doesn't exist, make it
         cfghome.mkdir(parents=True, exist_ok=True)
         # by default, package settings are in
-        cfg = cfghome / 'config.mm'
+        cfg = cfghome / "config.mm"
         # if the file exists
         if cfg.exists():
             # make a channel
@@ -604,7 +605,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             "# vtk.libpath := $(vtk.dir)/lib",
             "",
             "# end of file",
-            ]
+        ]
 
         # open the file
         stream = cfg.open(mode="w")
@@ -614,14 +615,13 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # all done
         return 0
 
-
     def loadProjectConfig(self, projcfg):
         """
         Check whether the project configuration directory contains an application configuration
         file, and if there, load it
         """
         # first, look for an 'mm.pfg'
-        cfgApp = (projcfg / self.pyre_namespace).withSuffix(suffix='.pfg')
+        cfgApp = (projcfg / self.pyre_namespace).withSuffix(suffix=".pfg")
         # if it exists
         if cfgApp.exists():
             # load it
@@ -630,7 +630,7 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # next, look for a branch specific configuration file; find the name of the branch
         branch = self.gitCurrentBranch()
         # and use it to form the path to the configuration file
-        cfgBranch = (projcfg / branch).withSuffix(suffix='.pfg')
+        cfgBranch = (projcfg / branch).withSuffix(suffix=".pfg")
         # if it exists
         if cfgBranch.exists():
             # tell me
@@ -640,7 +640,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # all done
         return
-
 
     def computeSlots(self):
         """
@@ -656,14 +655,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # otherwise, adjust the worker count
         return self.host.cpus.cpus if slots is None else slots
 
-
     def locateConfigHome(self):
         """
         Find the {mm} home directory and the location of the top level makefile
         """
         # use the location of this file as guidance to locate the install directory
         return pyre.primitives.path(__file__).parent
-
 
     def locateMerlin(self, home):
         """
@@ -682,7 +679,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # otherwise, hand it off
         return merlin
 
-
     def locateProjectRoot(self):
         """
         Find the root of a project directory structure
@@ -699,7 +695,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             channel.log("could not locate the project root directory")
         # all done
         return root
-
 
     def locateProjectConfig(self, folder):
         """
@@ -721,7 +716,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             channel.log(f"no '{cfgdir}' found in '{folder}'")
         # all done
         return None
-
 
     def locateUserConfig(self):
         """
@@ -745,7 +739,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             channel.log(f"no '{cfgdir}' found in '{home}'")
         # all done
         return None
-
 
     def locateAnchor(self, root):
         """
@@ -774,10 +767,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # MGA-20190907: silenced the warning; this is now the usual case
             # and if we were not told to be quiet
             # if not self.quiet:
-                # pick a channel
-                # channel = self.warning
-                # complain
-                # channel.log(f"'{local}' not found; launching the build from '{anchor}'")
+            # pick a channel
+            # channel = self.warning
+            # complain
+            # channel.log(f"'{local}' not found; launching the build from '{anchor}'")
 
         # if {anchor} is an actual directory
         if anchor.isDirectory():
@@ -786,7 +779,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
 
         # all done
         return origin, anchor
-
 
     def locateBuildRoot(self, projectRoot):
         """
@@ -809,11 +801,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # pick a channel
             channel = self.warning
             # complain
-            channel.log('could not figure out where to put the intermediate build products')
+            channel.log(
+                "could not figure out where to put the intermediate build products"
+            )
 
         # give up
         return None
-
 
     def locateInstallDirectory(self, projectRoot):
         """
@@ -836,11 +829,10 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # otherwise, pick a channel
             channel = self.warning
             # complain
-            channel.log('could not figure out where to install the build products')
+            channel.log("could not figure out where to install the build products")
 
         # give up
         return None
-
 
     def locate(self, marker, folder=None):
         """
@@ -860,7 +852,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # all done
         return None
 
-
     def inject(self, var, path):
         """
         Prefix the path in {var} with the a local folder
@@ -871,7 +862,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         yield from self.uniq(var)
         # all done
         return
-
 
     def eject(self, var, path):
         """
@@ -888,7 +878,6 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # all done
         return var
 
-
     def uniq(self, seq):
         """
         Remove repeated occurrences of items in {seq}
@@ -901,7 +890,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             # convert to a string
             item = str(item)
             # skip this one if we have seen it before
-            if item in known: continue
+            if item in known:
+                continue
             # otherwise hand it to the caller
             yield item
             # and add it to the known pile
@@ -909,17 +899,16 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # all done
         return
 
-
     def verifyGNUMake(self):
         # set up the subprocess settings
         settings = {
-            'executable': self.make,
-            'args': [ self.make, "--version"],
+            "executable": self.make,
+            "args": [self.make, "--version"],
             "stdout": subprocess.PIPE,
             "stderr": subprocess.PIPE,
-            'universal_newlines': True,
-            'shell': False
-            }
+            "universal_newlines": True,
+            "shell": False,
+        }
 
         # otherwise, invoke GNU make
         with subprocess.Popen(**settings) as make:
@@ -959,7 +948,9 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
                 # we have a problem
                 channel = self.error
                 # complain
-                channel.log(f"requires GNU Make 4.2.1 or higher; '{self.make}' is {major}.{minor}")
+                channel.log(
+                    f"requires GNU Make 4.2.1 or higher; '{self.make}' is {major}.{minor}"
+                )
                 # and bail
                 raise SystemExit(1)
 
@@ -973,13 +964,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # and bail
         raise SystemExit(1)
 
-
     def gitDescribe(self):
         """
         Extract project version meta-data from a git repository
         """
         # the git command line
-        cmd = [ "git", "describe", "--tags", "--long", "--always" ]
+        cmd = ["git", "describe", "--tags", "--long", "--always"]
         # settings
         options = {
             "executable": "git",
@@ -987,7 +977,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             "stdout": subprocess.PIPE,
             "stderr": subprocess.PIPE,
             "universal_newlines": True,
-            "shell": False }
+            "shell": False,
+        }
         # invoke
         with subprocess.Popen(**options) as git:
             # collect the output
@@ -1017,13 +1008,12 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # if anything went wrong
         return
 
-
     def gitCurrentBranch(self):
         """
         Extract the name of the current git branch
         """
         # the git command line
-        cmd = [ "git", "branch", "--show-current" ]
+        cmd = ["git", "branch", "--show-current"]
         # settings
         options = {
             "executable": "git",
@@ -1031,7 +1021,8 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
             "stdout": subprocess.PIPE,
             "stderr": subprocess.PIPE,
             "universal_newlines": True,
-            "shell": False }
+            "shell": False,
+        }
         # invoke
         with subprocess.Popen(**options) as git:
             # collect the output
@@ -1050,22 +1041,21 @@ class mm(pyre.application, family='pyre.applications.mm', namespace='mm'):
         # if anything went wrong
         return "unknown"
 
-
     # private data
     # make version
     makeVersionParser = re.compile(
         r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?"
-        )
+    )
     # parser of the {git describe} result
     gitDescriptionParser = re.compile(
         r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-\d+-g)?(?P<commit>.+)"
-        )
+    )
 
 
 # main
 if __name__ == "__main__":
     # make an instance
-    app = mm(name='mm')
+    app = mm(name="mm")
     # ride
     status = app.run()
     # all done
