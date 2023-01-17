@@ -102,7 +102,7 @@ $($(1).staging.meta.pyc): $($(1).staging.meta.py) | ${dir $($(1).staging.meta)}
 	$(rm) $($(1).staging.meta.py)
 
 # make the rule that generates the package meta-data file
-$($(1).staging.meta.py): | ${dir $($(1).staging.meta)}
+$($(1).staging.meta.py): | ${dir $($(1).staging.meta.py)}
 	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
           -e "s:@PROJECT@:$($(1).project):g" \
@@ -241,6 +241,13 @@ $(1).info.general:
 
 $(1).info.package:
 	@echo $(builder.dest.pyc)$($(1).name)
+
+$(1).info.meta:
+	@${call log.sec, $(1),"package metadata"}
+	@${call log.var,$(1).meta,$($(1).meta)}
+	@${call log.var,$(1).staging.meta,$($(1).staging.meta)}
+	@${call log.var,$(1).staging.meta.py,$($(1).staging.meta.py)}
+	@${call log.var,$(1).staging.meta.pyc,$($(1).staging.meta.pyc)}
 
 # all done
 endef

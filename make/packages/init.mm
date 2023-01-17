@@ -45,7 +45,7 @@ define packages.init
     # artifacts
     # the root of the package relative to the project home
     ${eval $(2).root ?= pkg/$($(2).name)/}
-    # the file with the package meta-data, relative to the package root
+    # the file with the package metadata, relative to the package root
     ${eval $(2).meta ?= meta.py.in}
     # the directory with the driver script sources relative to the project home
     ${eval $(2).bin ?= bin/}
