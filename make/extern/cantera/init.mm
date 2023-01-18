@@ -29,7 +29,7 @@ cantera.libpath ?= $(cantera.dir)/lib
 cantera.libraries ?= cantera cantera_fortran
 
 # my dependencies
-cantera.dependencies := eigen sundials fortran yaml fmt
+cantera.dependencies := eigen sundials openblas yaml fmt fortran
 
 # show me
 # ${info -- done with cantera.init}
