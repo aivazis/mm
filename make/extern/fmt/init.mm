@@ -26,7 +26,7 @@ fmt.ldflags ?=
 # the canonical form of the lib directory
 fmt.libpath ?= $(fmt.dir)/lib
 # the names of the libraries
-fmt.libraries ?= 
+fmt.libraries ?=  fmt
 
 # my dependencies
 fmt.dependencies :=
