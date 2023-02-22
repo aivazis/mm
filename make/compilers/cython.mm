@@ -18,6 +18,7 @@ cython.compile.output := -o
 
 # symbols and optimization; not {cython}'s job really, but the compiler protocol requires them
 cython.debug :=
+cython.reldeb :=
 cython.opt :=
 cython.cov :=
 cython.prof :=
