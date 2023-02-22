@@ -27,6 +27,7 @@ gcc.compile.base := -fno-diagnostics-color -pipe $(gcc.compile.makedep)
 
 # symbols and optimization
 gcc.debug := -g
+gcc.reldeb := -g -O
 gcc.opt := -O3
 gcc.cov := --coverage
 gcc.prof := -pg

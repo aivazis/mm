@@ -32,6 +32,7 @@ nvcc.force.cu := --x cu
 
 # symbols and optimization
 nvcc.debug := -g
+nvcc.reldeb := -g -O
 nvcc.opt := -O3
 nvcc.cov := --coverage
 nvcc.prof := -pg

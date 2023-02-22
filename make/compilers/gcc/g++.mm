@@ -27,6 +27,7 @@ g++.compile.base := -fno-diagnostics-color -pipe $(g++.compile.makedep)
 
 # symbols and optimization
 g++.debug := -g
+g++.reldeb := -g -O
 g++.opt := -O3
 g++.cov := --coverage
 g++.prof := -pg

@@ -27,6 +27,7 @@ gfortran.compile.makedep :=
 
 # symbols and optimization
 gfortran.debug := -g
+gfortran.reldeb := -g -O
 gfortran.opt := -O3
 gfortran.cov := -coverage
 gfortran.prof := -pg

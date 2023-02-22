@@ -28,6 +28,7 @@ clang.compile.base := -pipe $(clang.compile.makedep)
 # symbols and optimization
 clang.debug := -g
 clang.opt := -O3
+clang.reldeb := -g -O
 clang.cov := --coverage
 clang.prof := -pg
 clang.shared := -fPIC
