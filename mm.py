@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
 # externals
-import datetime
 import os
 import re
 import subprocess
@@ -203,7 +200,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # get the host info
         host = self.host
 
-        # if the user asked for detailed outpput
+        # if the user asked for detailed output
         if self.verbose:
             # force serial mode; anything else is output madness
             self.serial = True
