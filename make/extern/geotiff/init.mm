@@ -24,10 +24,10 @@ geotiff.ldflags ?=
 # the canonical form of the lib directory
 geotiff.libpath ?= $(geotiff.dir)/lib
 # the names of the libraries
-geotiff.libraries := geotiff
+geotiff.libraries := geotiff tiff
 
 # my dependencies
-geotiff.dependencies =
+geotiff.dependencies = tiff
 
 # show me
 # ${info -- done with geotiff.init}
