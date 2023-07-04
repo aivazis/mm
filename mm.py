@@ -718,7 +718,20 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Find the location of the user's configuration directory
         """
-        # we are looking for
+        # figure out where the configuration directory is; first, try looking for an XDG compliant
+        # layout; perhaps the system sets up the mandated environment variable
+        xdgHome = (
+            pyre.primitives.path(os.getenv("XDG_CONFIG_HOME", self.XDG_CONFIG))
+            .expanduser()
+            .resolve()
+        )
+        # point to the {mm} specific directory
+        xdg = xdgHome / "mm"
+        # if it is a real directory
+        if xdg.exists() and xdg.isDirectory():
+            # hand it off
+            return xdg
+        # otherwise, look for the configuration directory
         cfgdir = self.cfgdir
         # in the user's home directory
         home = self.user.home
@@ -1038,7 +1051,9 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if anything went wrong
         return "unknown"
 
-    # private data
+    # private data    # the XDG compliant fallback for user configuration
+    # the XDG compliant fallback for user configuration
+    XDG_CONFIG = pyre.primitives.path("~/.config")
     # make version
     makeVersionParser = re.compile(
         r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?"
