@@ -735,10 +735,10 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         cfgdir = self.cfgdir
         # in the user's home directory
         home = self.user.home
-        # the target
+        # form the target
         target = home / cfgdir
-        # if it exists
-        if target.exists:
+        # if it exists and it is a directory
+        if target.exists and target.isDirectory():
             # hand it off
             return target
         # if we couldn't find it
