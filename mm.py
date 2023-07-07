@@ -768,8 +768,12 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel = self.info
                 # complain
                 channel.line(f"no '{local}' in '{origin}'")
-                channel.line(f"--  found one in '{anchor}'")
-                channel.log("--  launching from there")
+                channel.indent()
+                channel.line(f"found one in '{anchor}'")
+                channel.line(f"launching from there")
+                channel.outdent()
+                # flush
+                channel.log()
         # if we couldn't find a makefile
         else:
             # set {anchor} to the project {root} directory
