@@ -24,9 +24,9 @@ cgal.incpath ?= $(cgal.dir)/include
 # linker flags
 cgal.ldflags ?=
 # the canonical form of the lib directory
-cgal.libpath ?= $(cgal.dir)/lib
+cgal.libpath ?=
 # the name of the library
-cgal.libraries := CGAL
+cgal.libraries :=
 
 # initialize the list of my dependencies
 cgal.dependencies =
