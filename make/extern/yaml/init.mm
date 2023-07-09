@@ -19,7 +19,7 @@ yaml.flavor ?= -cpp
 # compiler flags
 yaml.flags ?=
 # enable {yaml} aware code
-yaml.defines := WITH_YAML
+yaml.defines ?= WITH_YAML_CPP
 # the canonical form of the include directory
 yaml.incpath ?= $(yaml.dir)/include
 
