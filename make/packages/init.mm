@@ -57,6 +57,11 @@ define packages.init
     # the absolute path to the package source tree
     ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
 
+    # directory exclusions
+    ${eval $(2).directories.exclude ?=}
+    # source exclusions
+    ${eval $(2).sources.exclude ?=}
+
     # the directory structure
     ${eval $(2).directories ?= ${call package.directories,$(2)}}
     # the list of sources
@@ -120,7 +125,14 @@ endef
 #   usage: package.directories {package}
 define package.directories =
     ${strip
-        ${addsuffix /,${shell find ${realpath $($(1).prefix)} -type d}}
+        ${addsuffix /,
+            ${filter-out
+                ${foreach dir,$($(1).directories.exclude),
+                    ${shell find ${realpath $($(1).prefix)$(dir)} -type d}
+                },
+                ${shell find ${realpath $($(1).prefix)} -type d}
+            }
+        }
     }
 # all done
 endef
@@ -129,8 +141,10 @@ endef
 #   usage: package.sources {package}
 define package.sources =
     ${strip
-        ${foreach directory, $($(1).directories),
-            ${wildcard ${addprefix $(directory)*,$(languages.python.sources)}}
+        ${filter-out $($(1).sources.exclude),
+            ${foreach directory, $($(1).directories),
+                ${wildcard ${addprefix $(directory)*,$(languages.python.sources)}}
+            }
         }
     }
 # all done
