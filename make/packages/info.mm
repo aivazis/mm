@@ -102,7 +102,7 @@ $($(1).staging.meta.pyc): $($(1).staging.meta.py) | ${dir $($(1).staging.meta)}
 	$(rm) $($(1).staging.meta.py)
 
 # make the rule that generates the package meta-data file
-$($(1).staging.meta.py): | ${dir $($(1).staging.meta.py)}
+$($(1).staging.meta.py): $($(1).staging.meta) | ${dir $($(1).staging.meta.py)}
 	@${call log.action,sed,$($(1).root)$($(1).meta)}
 	$(sed) \
           -e "s:@PROJECT@:$($(1).project):g" \
