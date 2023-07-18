@@ -258,11 +258,11 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # check whether
         try:
             # we can extract version info from the repository
-            major, minor, micro, revision = self.gitDescribe()
+            major, minor, micro, revision, ahead = self.gitDescribe()
         # if this failed
         except TypeError:
             # set some default values
-            major, minor, micro, revision = (1, 0, 0, "")
+            major, minor, micro, revision, ahead = (1, 0, 0, "", 0)
 
         # if we are injecting the build layout into the user's environment
         if self.clear is False:
@@ -342,6 +342,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 f"repo.minor={minor}",
                 f"repo.micro={micro}",
                 f"repo.revision={revision}",
+                f"repo.ahead={ahead}",
                 # target info
                 f"target={target}",
                 f"target.tag={tag}",
@@ -1016,8 +1017,13 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             minor = match.group("minor") or "0"
             micro = match.group("micro") or "0"
             commit = match.group("commit")
+            ahead = match.group("ahead")
+            # if we are at a tagged commit
+            if int(ahead) == 0:
+                # make sure {ahead} is an empty string
+                ahead = ""
             # and return it
-            return (major, minor, micro, commit)
+            return (major, minor, micro, commit, ahead)
 
         # if anything went wrong
         return
@@ -1064,7 +1070,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     )
     # parser of the {git describe} result
     gitDescriptionParser = re.compile(
-        r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-\d+-g)?(?P<commit>.+)"
+        r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
     )
 
 
