@@ -26,7 +26,7 @@ define verbatim.init =
     # build the absolute path to the verbatim asset directory
     ${eval $(2).prefix := $($(2).home)$($(2).root)}
     # and the destination directory
-    ${eval $(2).staging := $(builder.dest.prefix)$($(2).root)}
+    ${eval $(2).staging ?= $(builder.dest.prefix)$($(2).root)}
 
     # compute the set of files
     # at the source
