@@ -32,6 +32,7 @@ define project.init =
     ${eval $(1).minor ?= ${repo.minor}}
     ${eval $(1).micro ?= ${repo.micro}}
     ${eval $(1).revision ?= ${repo.revision}}
+    ${eval $(1).ahead ?= ${repo.ahead}}
     ${eval $(1).now.year ?= $${strip $${shell $(date.year)}}}
     ${eval $(1).now.date ?= $${strip $${shell $(date.stamp)}}}
 
