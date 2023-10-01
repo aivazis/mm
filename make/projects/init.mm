@@ -8,7 +8,7 @@
 # ${info -- project.init}
 
 # meta-data for all projects
-project.assetTypes ?= packages libraries extensions webpack verbatim
+project.assetTypes ?= packages libraries extensions vite webpack verbatim
 project.testTypes ?= tests
 project.extraTypes ?= docker-images docs
 # put it all together
@@ -70,6 +70,7 @@ define project.init =
     # the list of python packages
     ${eval $(1).packages ?=}
     # ux bundles
+    ${eval $(1).vite ?=}
     ${eval $(1).webpack ?=}
     # bulk content
     ${eval $(1).verbatim ?=}
@@ -130,7 +131,8 @@ define project.init =
     $(1).metadoc.libraries := "the project libraries"
     $(1).metadoc.extensions := "the python extensions built by this project"
     $(1).metadoc.packages := "the python packages built by this project"
-    $(1).metadoc.webpack := "the ux bundles built by this project"
+    $(1).metadoc.vite := "the vite ux bundles built by this project"
+    $(1).metadoc.webpack := "the webpack ux bundles built by this project"
     $(1).metadoc.docker-images := "the docker images built by this project"
     $(1).metadoc.docs := "documentation for this project"
     $(1).metadoc.tests := "the project test suite"
