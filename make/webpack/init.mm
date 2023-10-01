@@ -160,7 +160,7 @@ define webpack.source.static.assets =
 endef
 
 
-# make a pile with the source driectory layout
+# make a pile with the source directory layout
 define webpack.source.app.dirs =
     ${strip
         ${addsuffix /,
