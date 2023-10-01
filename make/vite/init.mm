@@ -136,9 +136,11 @@ endef
 #  usage: vite.sources.dir {bundle}
 define vite.sources.dirs =
     ${strip
-        ${addsuffix /,
-            ${shell find $($(1).root.sources:%/=%) -type d}
-       }
+        ${if ${realpath $($(1).root.sources)},
+            ${addsuffix /,
+                ${shell find $($(1).root.sources:%/=%) -type d}
+            }
+        }
     }
 # all done
 endef
@@ -148,10 +150,12 @@ endef
 #  usage: vite.sources.files {bundle}
 define vite.sources.files =
     ${strip
-        ${foreach
-            suffix,
-            $($(1).suffixes),
-            ${shell find $($(1).root.sources:%/=%) -type f -name $(suffix)}
+        ${if ${realpath $($(1).root.sources)},
+            ${foreach
+                suffix,
+                $($(1).suffixes),
+                ${shell find $($(1).root.sources:%/=%) -type f -name $(suffix)}
+            }
         }
     }
 # all done
@@ -162,7 +166,9 @@ endef
 #  usage: vite.config.source.files {bundle}
 define vite.config.source.files =
     ${strip
-        ${addprefix $($(1).config.prefix), $($(1).config.all)}
+        ${realpath
+            ${addprefix $($(1).config.prefix), $($(1).config.all)}
+        }
     }
 # all done
 endef
@@ -172,7 +178,9 @@ endef
 #  usage: vite.config.stage.files {bundle}
 define vite.config.stage.files =
     ${strip
-        ${addprefix $($(1).staging.prefix), $($(1).config.all)}
+        ${realpath
+            ${addprefix $($(1).staging.prefix), $($(1).config.all)}
+        }
     }
 # all done
 endef
@@ -182,9 +190,11 @@ endef
 #  usage: vite.static.dir {bundle}
 define vite.static.dirs =
     ${strip
-        ${addsuffix /,
-            ${shell find $($(1).root.static:%/=%) -type d}
-       }
+        ${if ${realpath $($(1).root.static)},
+            ${addsuffix /,
+                ${shell find $($(1).root.static:%/=%) -type d}
+            }
+        }
     }
 # all done
 endef
@@ -194,7 +204,9 @@ endef
 #  usage: vite.static.files {bundle}
 define vite.static.files =
     ${strip
-        ${shell find $($(1).root.static:%/=%) -type f}
+        ${if ${realpath $($(1).root.static)},
+            ${shell find $($(1).root.static:%/=%) -type f}
+        }
     }
 # all done
 endef
