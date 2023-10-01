@@ -74,6 +74,18 @@ ${foreach file,
     ${eval ${call vite.workflows.sources.stage.file,$(_bundle),$(file)}}
 }
 
+# make the rules that create the static asset directories in the staging area
+${foreach dir,
+    $($(_bundle).static.dirs),
+    ${eval ${call vite.workflows.static.stage.dir,$(_bundle),$(dir)}}
+}
+# make the rules that copy the static asset files to the staging area
+${foreach file,
+    $($(_bundle).static.files),
+    ${eval ${call vite.workflows.static.stage.file,$(_bundle),$(file)}}
+}
+
+
 # directories
 # entry point, for interactive use
 $(_bundle).directories: $(_bundle).staging.prefix
@@ -87,6 +99,7 @@ $($(_bundle).staging.prefix): | $($($(_bundle).project).tmpdir)
 
 # all done
 endef
+
 
 # rule factory for creating individual staging source directories
 #   usage: vite.workflows.sources.stage.dir {bundle} {dir}
@@ -171,6 +184,58 @@ $(_dst): $(_src) | ${dir $(_dst)}
           -e "s|@YEAR@|$($($(1).project).now.year)|g" \
           -e "s|@TODAY@|$($($(1).project).now.date)|g" \
           $(_src) > $(_dst)
+
+# all done
+endef
+
+
+# rule factory for creating individual static asset directories
+#   usage: vite.workflows.static.stage.dir {bundle} {dir}
+define vite.workflows.static.stage.dir =
+
+    # local variables
+    # aliases
+    ${eval _bundle := $(1)}
+    ${eval _dir := $(2)}
+	# form the path relative to home of the sources
+	${eval _naked := $(_dir:$($(_bundle).root.static)%=%)}
+	# the absolute path of the destination
+	${eval _dst := $($(_bundle).staging.prefix)public/$(_naked)}
+
+# add the directory to the pile
+$(_bundle).stage.dirs:: $(_dst)
+
+# make it
+$(_dst):
+	@${call log.action,"mkdir",$$@}
+	$(mkdirp) $$@
+
+# all done
+endef
+
+
+# rule factory for staging individual static assets
+#   usage: vite.workflows.static.stage.file {bundle} {file}
+define vite.workflows.static.stage.file =
+
+    # local variables
+    # aliases
+    ${eval _bundle := $(1)}
+    ${eval _file := $(2)}
+	# form the path relative to home of the sources
+	${eval _naked := $(_file:$($(_bundle).root.static)%=%)}
+	# the absolute path of the source file
+	${eval _src := $($(_bundle).prefix.static)$(_naked)}
+	# the absolute path of the destination
+	${eval _dst := $($(_bundle).staging.prefix)public/$(_naked)}
+
+# add the file to the bundle
+$(_bundle).stage.files:: $(_dst)
+
+# copy it
+$(_dst): $(_src) | ${dir $(_dst)}
+	@${call log.action,cp,$(_file)}
+	$(cp) $(_src) $(_dst)
 
 # all done
 endef

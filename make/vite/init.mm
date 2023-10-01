@@ -34,11 +34,21 @@ define vite.init
     ${eval $(_bundle).root.sources ?= $($(_bundle).root)$($(_bundle).name)/}
     # the absolute path to the sources
     ${eval $(_bundle).prefix.sources ?= $($(_bundle).home)$($(_bundle).root.sources)}
+    # the root of the static assets relative to the project home
+    ${eval $(_bundle).root.static ?= $($(_bundle).root)public/}
+    # the absolute path to the sources
+    ${eval $(_bundle).prefix.static ?= $($(_bundle).home)$($(_bundle).root.static)}
 
-    # compute source directories
+
+    # discover the source directories
     ${eval $(_bundle).sources.dirs ?= ${call vite.sources.dirs,$(_bundle)}}
-    # compute source files
+    # and the source files they contain
     ${eval $(_bundle).sources.files ?= ${call vite.sources.files,$(_bundle)}}
+
+    # discover the static asset directories
+    ${eval $(_bundle).static.dirs ?= ${call vite.static.dirs,$(_bundle)}}
+    # and the assets they contain
+    ${eval $(_bundle).static.files ?= ${call vite.static.files,$(_bundle)}}
 
     # extern specifications seem to be required of all asset types, so here we go...
     ${eval $(_bundle).extern ?=}
@@ -163,6 +173,28 @@ endef
 define vite.config.stage.files =
     ${strip
         ${addprefix $($(1).staging.prefix), $($(1).config.all)}
+    }
+# all done
+endef
+
+
+# scan the static asset directory for its structure
+#  usage: vite.static.dir {bundle}
+define vite.static.dirs =
+    ${strip
+        ${addsuffix /,
+            ${shell find $($(1).root.static:%/=%) -type d}
+       }
+    }
+# all done
+endef
+
+
+# scan the static asset directory for files
+#  usage: vite.static.files {bundle}
+define vite.static.files =
+    ${strip
+        ${shell find $($(1).root.static:%/=%) -type f}
     }
 # all done
 endef
