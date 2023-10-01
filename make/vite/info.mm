@@ -161,7 +161,16 @@ $(_bundle).stage.config:: $(_dst)
 # copy it
 $(_dst): $(_src) | ${dir $(_dst)}
 	@${call log.action,cp,$(_nickname)}
-	$(cp) $(_src) $(_dst)
+	$(sed) \
+          -e "s:@PROJECT@:$($(1).project):g" \
+          -e "s:@TITLE@:$($(1).project):g" \
+          -e "s:@MAJOR@:$($($(1).project).major):g" \
+          -e "s:@MINOR@:$($($(1).project).minor):g" \
+          -e "s:@MICRO@:$($($(1).project).micro):g" \
+          -e "s:@REVISION@:$($($(1).project).revision):g" \
+          -e "s|@YEAR@|$($($(1).project).now.year)|g" \
+          -e "s|@TODAY@|$($($(1).project).now.date)|g" \
+          $(_src) > $(_dst)
 
 # all done
 endef
