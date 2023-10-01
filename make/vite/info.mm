@@ -89,8 +89,10 @@ define vite.workflows.sources.stage.dir =
     # aliases
     ${eval _bundle := $(1)}
     ${eval _dir := $(2)}
+	# form the path relative to home of the sources
+	${eval _naked := $(_dir:$($(_bundle).root.sources)%=%)}
 	# the absolute path of the destination
-	${eval _dst := $($(_bundle).staging.prefix)$(_dir)}
+	${eval _dst := $($(_bundle).staging.prefix)src/$(_naked)}
 
 # add the directory to the pile
 $(_bundle).stage.dirs:: $(_dst)
@@ -112,16 +114,18 @@ define vite.workflows.sources.stage.file =
     # aliases
     ${eval _bundle := $(1)}
     ${eval _file := $(2)}
+	# form the path relative to home of the sources
+	${eval _naked := $(_file:$($(_bundle).root.sources)%=%)}
 	# the absolute path of the source file
-	${eval _src := $($(_bundle).prefix.sources)$(_file:$($(_bundle).root.sources)%=%)}
+	${eval _src := $($(_bundle).prefix.sources)$(_naked)}
 	# the absolute path of the destination
-	${eval _dst := $($(_bundle).staging.prefix)$(_file)}
+	${eval _dst := $($(_bundle).staging.prefix)src/$(_naked)}
 
 # add the file to the bundle
 $(_bundle).stage.files:: $(_dst)
 
 # copy it
-$(_dst): | ${dir $(_dst)}
+$(_dst): $(_src) | ${dir $(_dst)}
 	@${call log.action,cp,$(_file)}
 	$(cp) $(_src) $(_dst)
 
