@@ -24,7 +24,7 @@ define vite.init
     # the stem for generating project specific names
     ${eval $(_bundle).stem ?= $($(_project).stem)}
     # the pile of file suffixes that are recognized as sources
-    ${eval $(_bundle).suffixes ?= *.ts *.tsx *.js *.jsx *.gql}
+    ${eval $(_bundle).suffixes ?= *.ts *.tsx *.js *.jsx *.css *.gql *.svg}
 
     # the root of the bundle relative to the project home
     ${eval $(_bundle).root ?= ux/}
