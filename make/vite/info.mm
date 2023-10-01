@@ -37,7 +37,7 @@ define vite.workflows.build
     # alias
     ${eval _bundle := $(1)}
 
-$(_bundle): $(_bundle).stage.config $(_bundle).stage.files
+$(_bundle): $(_bundle).stage.config $(_bundle).stage.files $(_bundle).stage.modules
 	@${call log.asset,"vite",$(_bundle)}
 
 # prime the configuration pile, just in case it's empty
@@ -47,6 +47,13 @@ $(_bundle).config::
 $(_bundle).stage.dirs::
 # prime the pile of staged sources
 $(_bundle).stage.files::
+
+# the rule that installs/updates the node modules
+$(_bundle).stage.modules: $($(_bundle).stage.modules)
+# and its implementation
+$($(_bundle).stage.modules): $($(_bundle).config.prefix)$($(_bundle).config.npm) | $($(_bundle).staging.prefix)
+	@${call log.action,"npm",$($(_bundle).config.npm)}
+	$(cd) $($(_bundle).staging.prefix); npm install
 
 # make the rules that copy the configuration files to the staging area
 ${foreach file,
@@ -75,8 +82,8 @@ $(_bundle).directories: $(_bundle).staging.prefix
 $(_bundle).staging.prefix: | $($(_bundle).staging.prefix)
 # and its implementation
 $($(_bundle).staging.prefix): | $($($(_bundle).project).tmpdir)
-	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
+	$(mkdirp) $$@
 
 # all done
 endef
