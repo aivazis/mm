@@ -65,9 +65,11 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     project.doc = "the name of the project to build; normally set in your makefile"
 
     prefix = pyre.properties.path()
+    prefix.default = None
     prefix.doc = "the home of the installed build products"
 
     bldroot = pyre.properties.path()
+    bldroot.default = None
     bldroot.doc = "the home of the intermediate build products"
 
     target = pyre.properties.strings(default=["debug", "shared"])
@@ -802,12 +804,12 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # get the user's opinion
         bldroot = self.bldroot
         # if there is one
-        if bldroot:
+        if bldroot is not None:
             # we are done
             return bldroot
 
         # otherwise, use the project root
-        if projectRoot:
+        if projectRoot is not None:
             # to form the target folder
             return projectRoot / "builds"
 
@@ -830,12 +832,12 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # get the user's opinion
         prefix = self.prefix
         # if there is one
-        if prefix:
+        if prefix is not None:
             # we are done
             return prefix
 
         # otherwise, use the project root
-        if projectRoot:
+        if projectRoot is not None:
             # to form the target folder
             return projectRoot / "products"
 
