@@ -10,6 +10,9 @@ import re
 import subprocess
 import sys
 
+# set the version
+__version__ = "4.4.3"
+
 # attempt to
 try:
     # access the framework
@@ -34,7 +37,7 @@ except ImportError:
         import urllib.request
 
         # form the url to the bootstrapper
-        url = f"http://github.com/pyre/pyre/releases/download/{release}/{boot}"
+        url = f"https://github.com/pyre/pyre/releases/download/{release}/{boot}"
         # show me
         print(f"downloading '{url}'")
         # pull the bootstrapper from the web
@@ -54,8 +57,8 @@ except ImportError:
 
 # the app
 class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
-    """
-    mm 4.4.3
+    f"""
+    mm {__version__}
     Michael Aïvázis <michael.aivazis@para-sim.com>
     copyright 1998-2023 all rights reserved
     """
@@ -165,7 +168,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     MM_LIBPATH.doc = "the MM_LIBPATH environment variable"
 
     # constants
-    version = "4.4.3"
+    version = __version__
 
     # behavior
     @pyre.export
@@ -370,10 +373,11 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 f"mm.home={home}",
                 f"mm.merlin={merlin}",
                 f"mm.compilers={compilers}",
-                f"mm.incpath={home} " + " ".join(incpath.split(os.pathsep)),
+                f"mm.incpath={home / 'include' / 'mm'} "
+                + " ".join(incpath.split(os.pathsep)),
                 f"mm.libpath=" + " ".join(libpath.split(os.pathsep)),
-                # plus whatever the user put on the command line
             ]
+            # plus whatever the user put on the command line
             + list(self.argv)
         )
 
@@ -425,7 +429,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "LD_LIBRARY_PATH": ldpath,
             "PYTHONPATH": pythonpath,
         }
-        # adjust the envvironment
+        # adjust the environment
         os.environ.update(env)
 
         # set up the subprocess settings
@@ -649,7 +653,6 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.serial:
             # execute only one recipe at a time
             return 1
-
         # get the user choice
         slots = self.slots
         # otherwise, adjust the worker count
@@ -690,9 +693,11 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if we couldn't locate it
         if not root and not self.quiet:
             # pick a channel
-            channel = self.error
+            channel = self.warning
             # complain
             channel.log("could not locate the project root directory")
+            # use the current working directory
+            root = pyre.primitives.path()
         # all done
         return root
 
