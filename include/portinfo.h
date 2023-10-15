@@ -1,37 +1,37 @@
-// -*- C++ -*-
+// -*- C -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2023 all rights reserved
 //
 
-#if !defined(mm_portinfo)
-#define mm_portinfo
+#if !defined(mm_portinfo_h)
+#define mm_portinfo_h
 
 // platform redirects
 #if defined(MM_PLATFORM_darwin_x86_64)
-#include "make/platforms/darwin/x86_64.h"
+#include "platforms/darwin/x86_64.h"
 
 #elif defined(MM_PLATFORM_darwin_arm64)
-#include "make/platforms/darwin/arm64.h"
+#include "platforms/darwin/arm64.h"
 
 #elif defined(MM_PLATFORM_linux_x86_64)
-#include "make/platforms/linux/x86_64.h"
+#include "platforms/linux/x86_64.h"
 
 #elif defined(MM_PLATFORM_linux_ppc64le)
-#include "make/platforms/linux/ppc64le.h"
+#include "platforms/linux/ppc64le.h"
 
 #endif
 
 // compiler redirects
 #if defined(MM_COMPILER_gcc)
-#include "make/compilers/gcc/gcc.h"
+#include "compilers/gcc/gcc.h"
 
 #elif defined(MM_COMPILER_clang)
-#include "make/compilers/clang/clang.h"
+#include "compilers/clang/clang.h"
 
 #elif defined(MM_COMPILER_nvcc)
-#include "make/compilers/nvcc/nvcc.h"
+#include "compilers/nvcc/nvcc.h"
 
 #endif
 
