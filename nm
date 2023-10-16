@@ -90,10 +90,6 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     """
 
     # project configuration
-    project = pyre.properties.str()
-    project.default = None
-    project.doc = "the name of the project to build; build everything, if not set"
-
     version = pyre.properties.str()
     version.default = None
     version.doc = "the project version; try to deduce it, if not set"
@@ -115,6 +111,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     local.doc = "the name of a optional local makefile with additional targets"
 
     # mm behavior
+    serial = pyre.properties.bool()
+    serial.default = False
+    serial.doc = "control whether to run make in parallel"
+
+    slots = pyre.properties.int()
+    slots.default = None
+    slots.doc = "the number of recipes to execute simultaneously; defaults to all cores"
+
     show = pyre.properties.bool()
     show.default = False
     show.doc = "display details about the invocation of make"
@@ -165,10 +169,12 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     cfgdir.doc = "the relative path to project and user makefile fragments"
 
     # my internal layout; users should probably stay away from these
-    merlin = pyre.properties.path(default="merlin.mm")
+    merlin = pyre.properties.path()
+    merlin.default = "merlin.mm"
     merlin.doc = "the name of the top level internal makefile; caveat emptor"
 
-    engine = pyre.properties.path(default=_mm_mkdir)
+    engine = pyre.properties.path()
+    engine.default = _mm_mkdir
     engine.doc = "the path to the built-in make engine; caveat emptor"
 
     portinfo = pyre.properties.path(default=_mm_incdir)
@@ -221,6 +227,10 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._projectCfg = None
         # the path to the optional makefile with additional configuration and targets
         self._localMakefile = None
+        # the path to the intermediate products of the build
+        self._bldroot = self.locateBuildRoot()
+        # the install directory
+        self._prefix = None
         # all done
         return
 
@@ -241,6 +251,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._projectCfg = self.locateProjectConfig()
         # locate the local makefile
         self._localMakefile = self.locateLocalMakefile()
+        # mark the location from which mm was invoked
+        self._origin = pyre.primitives.path.cwd()
+        # mark the path that will become the {cwd} for make
+        self._anchor = self._localMakefile.parent if self._localMakefile else self._root
+        # figure out where to put the intermediate products of the build
+        self._bldroot = self.locateBuildRoot()
+        # figure out the install directory
+        self._prefix = self.locatePrefix()
         # all done
         return
 
@@ -248,21 +266,47 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Launch GNU make
         """
-        argv = list(self.configureMake())
-        if argv:
-            print(" ".join(argv))
+        # if the user has asked to see the recipe execution details
+        if self.verbose:
+            # fall back to serial mode so the output is not garbled
+            self.serial = True
+
+        # build the make command line
+        argv = list(self.assembleMakeCommandLine())
+
+        # if the user asked to see the make command line
+        if self.show:
+            # make a channel
+            channel = journal.help("mm.make")
+            # show
+            channel.line(argv[0])
+            channel.indent()
+            channel.report(report=argv[1:])
+            channel.outdent()
+            # flush
+            channel.log()
+        # if this is a dry run
+        if self.dry:
+            # do not go any further
+            return 0
+        # go to the right place
+        os.chdir(self._anchor)
 
         # all done
         return 0
 
-    def assembleMakeCommandLine(self, userCfg, projectCfg):
+    def assembleMakeCommandLine(self):
         """
-        Build the command line for GNU make
+        Put together the GNU make command line
         """
-        # the executable
-        yield self.make
-        # the control flags
-        yield from self.configureMake(userCfg, projectCfg)
+        # start with the flags that control the behavior of make
+        yield from self.configureMake()
+        # add the project configuration
+        yield from self.configureProject()
+        # the product version
+        yield from self.configureVersion()
+        # finally, whatever else the user put on the command line
+        yield from self.argv
         # all done
         return
 
@@ -557,6 +601,32 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # and return its location
         return location
 
+    def locateBuildRoot(self):
+        """
+        Figure out where to put the intermediate products of the build
+        """
+        # get the user's opinion
+        bldroot = self.bldroot
+        # if there is one
+        if bldroot is not None:
+            # we are done
+            return bldroot
+        # otherwise, put things in a subdirectory of the project root
+        return self._root / "builds"
+
+    def locatePrefix(self):
+        """
+        Figure out where to put the build products
+        """
+        # get the user's opinion
+        prefix = self.prefix
+        # if there is one
+        if prefix is not None:
+            # we are done
+            return prefix
+        # otherwise, put things in a subdirectory of the project root
+        return self._root / "products"
+
     def configureMake(self):
         """
         Generate command line arguments for make
@@ -581,21 +651,17 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.trace:
             # ask make to generate it
             yield "--trace"
-
-        # build the path to the toplevel makefile
-        merlin = self.engine / self.merlin
-        # if it exists
-        if merlin.exists():
-            # add it to the pile
-            yield from ["-f", str(merlin)]
-
+        # parallelism
+        yield f"--jobs={self.computeSlots()}"
+        # add the top level makefile to the pile
+        yield f"--makefile={self._makefile}"
         # adjust the include path so make can find our makefile fragments
         # first, get any extra paths the user has asked for explicitly
         for cfg in self.runcfg:
             # the ones that exist
             if cfg.exists():
                 # get folded with the include flag
-                yield from ["-I", str(cfg)]
+                yield f"--include-dir={cfg}"
             # the rest
             else:
                 # unless told otherwise
@@ -613,14 +679,87 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if the user configuration directory exists
         if self._userCfg:
             # add it to the pile
-            yield from ["-I", str(self._userCfg)]
+            yield f"--include-dir={self._userCfg}"
         # similarly, if the path to the project configuration exists
         if self._projectCfg:
             # add it to the pile
-            yield from ["-I", str(self._projectCfg)]
+            yield f"--include-dir={self._projectCfg}"
         # finally, add the path to the implementation makefiles
-        yield from ["-I", str(self.engine)]
+        yield f"--include-dir={self.engine}"
 
+        # all done
+        return
+
+    def configureProject(self):
+        """
+        Build the variable assignments that communicate the project configuration
+        to the implementation engine
+        """
+        # the project home
+        yield f"project.home={self._root}"
+        # the path to the mm configuration files
+        yield f"project.config={self._projectCfg}"
+        # the installation location
+        yield f"project.prefix={self._prefix}"
+        # the location to place the intermediate build products
+        yield f"project.bldroot={self._bldroot}"
+        # the path from which mm was invoked
+        yield f"project.origin={self._origin}"
+        # the path from which make was invoked by mm
+        yield f"project.anchor={self._anchor}"
+        # if there is  local makefile
+        yield f"project.makefile={self._localMakefile or ''}"
+        # all done
+        return
+
+    def configureVersion(self):
+        """
+        Build the version information that mm will use to tag the build
+        """
+        # get the user's choice
+        version = self.version
+        # if we have an explicit version
+        if version:
+            # parse it, assuming it of the form "major.minor.micro"
+            major, minor, micro = version.split(".")
+            # give default values to the two other fields
+            ahead = 0
+            revision = ""
+        # if we don't
+        else:
+            # attempt to derive one from the most recent git tag
+            version = self.gitDescribe()
+            # if git knows
+            if version:
+                # unpack
+                major, minor, micro, revision, ahead = version
+            # otherwise
+            else:
+                # do something stupid
+                major = 0
+                minor = 0
+                micro = 1
+                revision = ""
+                ahead = 0
+                # and if we are allowed to speak
+                if not self.quiet:
+                    # get a channel
+                    channel = journal.warning("mm.version")
+                    # complain
+                    channel.line(f"while figuring out the product version")
+                    channel.indent()
+                    channel.line(f"no explicit setting was provided")
+                    channel.line(f"and parsing the latest git tag failed")
+                    channel.outdent()
+                    channel.line(f"please give my 'version' setting a reasonable value")
+                    # flush
+                    channel.log()
+        # in any case, we know have what we need to send to mm
+        yield f"repo.major={major}"
+        yield f"repo.minor={minor}"
+        yield f"repo.micro={micro}"
+        yield f"repo.revision={revision}"
+        yield f"repo.ahead={ahead}"
         # all done
         return
 
@@ -685,6 +824,99 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 break
         # if we get this far, {marker} could not be found
         return None
+
+    def computeSlots(self):
+        """
+        Choose the number of jobs tha GNU make will execute in parallel
+        """
+        # if the user doesn't want any parallelism
+        if self.serial:
+            # execute only one recipe at a tie
+            return 1
+        # get the user choice
+        slots = self.slots
+        # clip it from below and default to as many slots as there are cores
+        return max(1, self.host.cpus.cpus if slots is None else slots)
+
+    def gitDescribe(self):
+        """
+        Extract project version metadata from the most recent git tag
+        """
+        # the git command line
+        cmd = ["git", "describe", "--tags", "--long", "--always"]
+        # settings
+        options = {
+            "executable": "git",
+            "args": cmd,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "universal_newlines": True,
+            "shell": False,
+        }
+        # invoke
+        with subprocess.Popen(**options) as git:
+            # collect the output
+            stdout, stderr = git.communicate()
+            # get the status
+            status = git.returncode
+            # if something went wring
+            if status != 0:
+                # bail
+                return
+            # get the description
+            description = stdout.strip()
+            # parse it
+            match = self.gitDescriptionParser.match(description)
+            # if something went wrong
+            if not match:
+                # bail
+                return
+            # otherwise, extract the version info
+            major = match.group("major") or "1"
+            minor = match.group("minor") or "0"
+            micro = match.group("micro") or "0"
+            commit = match.group("commit")
+            ahead = match.group("ahead")
+            # if we are at a tagged commit
+            if int(ahead) == 0:
+                # make sure {ahead} is an empty string
+                ahead = ""
+            # and return it
+            return (major, minor, micro, commit, ahead)
+        # if anything went wrong
+        return
+
+    def gitCurrentBranch(self):
+        """
+        Extract the name of the current git branch
+        """
+        # the git command line
+        cmd = ["git", "branch", "--show-current"]
+        # settings
+        options = {
+            "executable": "git",
+            "args": cmd,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "universal_newlines": True,
+            "shell": False,
+        }
+        # invoke
+        with subprocess.Popen(**options) as git:
+            # collect the output
+            stdout, stderr = git.communicate()
+            # get the status
+            status = git.returncode
+            # if something went wring
+            if status != 0:
+                # bail
+                return "unknown"
+            # get the branch name
+            branch = stdout.strip()
+            # and return it
+            return branch
+        # if anything went wrong
+        return "unknown"
 
     # private data
     # the XDG compliant fallback for user configuration
