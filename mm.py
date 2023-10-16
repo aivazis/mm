@@ -57,8 +57,11 @@ except ImportError:
 
 # the app
 class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
-    f"""
-    mm {__version__}
+    """
+    mm 4.4.3
+
+    An opinionated framework for building software based on GNU make
+
     Michael Aïvázis <michael.aivazis@para-sim.com>
     copyright 1998-2023 all rights reserved
     """
@@ -672,7 +675,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # build the location of the top level makefile
         merlin = home / "make" / self.merlin
         # if it doesn't exist
-        if not merlin.exists:
+        if not merlin.exists():
             # pick a channel
             channel = self.error
             # complain
@@ -710,7 +713,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # form the target
         target = folder / self.cfgdir
         # if it exists
-        if target.exists:
+        if target.exists():
             # hand it off
             return target
         # if we couldn't find it
@@ -746,7 +749,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # form the target
         target = home / cfgdir
         # if it exists and it is a directory
-        if target.exists and target.isDirectory():
+        if target.exists() and target.isDirectory():
             # hand it off
             return target
         # if we couldn't find it
@@ -1068,7 +1071,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if anything went wrong
         return "unknown"
 
-    # private data    # the XDG compliant fallback for user configuration
+    # private data
     # the XDG compliant fallback for user configuration
     XDG_CONFIG = pyre.primitives.path("~/.config")
     # make version
