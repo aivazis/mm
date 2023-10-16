@@ -1,0 +1,712 @@
+#!/usr/bin/env python3
+# -*- python -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2023 all rights reserved
+
+# externals
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import typing
+import urllib.request
+
+# attempt to
+try:
+    # access the framework
+    import pyre
+# if it's not accessible
+except ImportError:
+    # we will download the canonical version
+    _pyre_release = "v1.12.3"
+    # of the bootstrapping archive
+    _pyre_boot = "pyre-boot.zip"
+    # and deposit it in a temporary directory
+    _mm_pyre = os.path.join(tempfile.mkdtemp(), _pyre_boot)
+    # if the file is not already there
+    if not os.path.exists(_mm_pyre):
+        # form the source url
+        _pyre_url = f"https://github.com/pyre/pyre/releases/download/{_pyre_release}/{_pyre_boot}"
+        # show me
+        print(f"downloading '{_pyre_url}")
+        # and grab the archive from the wed
+        with urllib.request.urlopen(url=_pyre_url) as istream:
+            # open the local file
+            with open(_mm_pyre, "wb") as ostream:
+                # pull data and write it out
+                ostream.write(istream.read())
+    # add the pyre archive to the path, right after the cwd
+    sys.path.insert(1, _mm_pyre)
+    # and try importing the framework once more
+    import pyre
+# if nothing went wrong
+else:
+    # leave a marker, just in case someone cares
+    _mm_pyre = None
+
+# set the version
+_mm_version = "5.0.0"
+# find out where i live
+_mm_home = pyre.primitives.path(__file__).resolve().parent
+# check whether i'm running from my source directory
+_mm_insitu = (_mm_home / "make").exists()
+
+# if i'm running in-place
+if _mm_insitu:
+    # this is the layout i expect to see:
+    # the {portinfo} headers
+    _mm_incdir = _mm_home / "include" / "mm"
+    # the share area
+    _mm_shrdir = _mm_home
+    # my makefiles
+    _mm_mkdir = _mm_shrdir / "make"
+# otherwise
+else:
+    # assume i am installed in a u*ixy environment:
+    # the {portinfo} headers
+    _mm_incdir = (_mm_home / ".." / "include" / "mm").resolve()
+    # my share area
+    _mm_shrdir = (_mm_home / ".." / "share" / "mm").resolve()
+    # my makefiles
+    _mm_mkdir = (_mm_shrdir / "make").resolve()
+
+
+# get journal
+import journal
+
+
+# the app
+class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
+    """
+    mm 5.0.0
+
+    An opinionated framework for building software based on GNU make
+
+    Michael Aïvázis <michael.aivazis@para-sim.com>
+    copyright 1998-2003 all rights reserved
+    """
+
+    # project configuration
+    project = pyre.properties.str()
+    project.default = None
+    project.doc = "the name of the project to build; build everything, if not set"
+
+    version = pyre.properties.str()
+    version.default = None
+    version.doc = "the project version; try to deduce it, if not set"
+
+    prefix = pyre.properties.path()
+    prefix.default = None
+    prefix.doc = "the path to the installation directory"
+
+    bldroot = pyre.properties.path()
+    bldroot.default = None
+    bldroot.doc = "the path to the intermediate build products"
+
+    target = pyre.properties.strings()
+    target.default = ["debug", "shared"]
+    target.doc = "the list of target variants to build"
+
+    local = pyre.properties.str()
+    local.default = None
+    local.doc = "the name of a optional local makefile with additional targets"
+
+    # mm behavior
+    show = pyre.properties.bool()
+    show.default = False
+    show.doc = "display details about the invocation of make"
+
+    dry = pyre.properties.bool()
+    dry.default = False
+    dry.aliases |= {"n"}
+    dry.doc = "do everything except invoke make"
+
+    quiet = pyre.properties.bool()
+    quiet.default = False
+    quiet.aliases |= {"q"}
+    quiet.doc = "suppress all non-critical output"
+
+    # make behavior
+    ignore = pyre.properties.bool()
+    ignore.default = False
+    ignore.aliases |= {"k"}
+    ignore.doc = "ask make to ignore build target failures and keep going"
+
+    verbose = pyre.properties.bool()
+    verbose.default = False
+    verbose.aliases |= {"v"}
+    verbose.doc = "ask make to show each action taken"
+
+    rules = pyre.properties.bool()
+    rules.default = False
+    rules.doc = "ask make to print the rule database"
+
+    trace = pyre.properties.bool()
+    trace.default = False
+    trace.doc = "ask make to print trace information"
+
+    # the name of the GNU make executable
+    make = pyre.properties.str(default=os.environ.get("GNU_MAKE", "gmake"))
+    make.default = os.environ.get(
+        "GNU_MAKE", "gmake" if pyre.executive.host.platform == "darwin" else "make"
+    )
+    make.doc = "the name of the GNU make executable"
+
+    # environment
+    host = pyre.platforms.platform()
+    host.doc = "information about the current host"
+
+    # the name of the directory with project and user makefile fragments
+    cfgdir = pyre.properties.path()
+    cfgdir.default = ".mm"
+    cfgdir.doc = "the relative path to project and user makefile fragments"
+
+    # my internal layout; users should probably stay away from these
+    merlin = pyre.properties.path(default="merlin.mm")
+    merlin.doc = "the name of the top level internal makefile; caveat emptor"
+
+    engine = pyre.properties.path(default=_mm_mkdir)
+    engine.doc = "the path to the built-in make engine; caveat emptor"
+
+    portinfo = pyre.properties.path(default=_mm_incdir)
+    portinfo.doc = "the directory with the built-in portinfo headers; caveat emptor"
+
+    runcfg = pyre.properties.paths()
+    runcfg.doc = "a list of paths to add to the make include path; caveat emptor"
+
+    # important environment variables
+    PATH = pyre.properties.envpath(variable="PATH")
+    LD_LIBRARY_PATH = pyre.properties.envpath(variable="LD_LIBRARY_PATH")
+    PYTHONPATH = pyre.properties.envpath(variable="PYTHONPATH")
+    MM_INCLUDES = pyre.properties.envpath(variable="MM_INCLUDES")
+    MM_LIBPATH = pyre.properties.envpath(variable="MM_LIBPATH")
+
+    # the main entry point
+    @pyre.export
+    def main(self, *args, **kwds):
+        """
+        The main entry point
+        """
+        # attempt to
+        try:
+            # explore
+            self.explore()
+            # launch the build
+            self.launch()
+        # application errors
+        except journal.ApplicationError:
+            # have already been reported, so ignore them
+            return 1
+        # if we get this far, indicate success
+        return 0
+
+    # metamethods
+    def __init__(self, **kwds):
+        # chain up
+        super().__init__(**kwds)
+        # get the current user
+        self.user = self.pyre_executive.user
+        # verify we have the correct make
+        self._builder = None
+        # verify my installation
+        self._makefile = None
+        # get the user configuration directory
+        self._userCfg = None
+        # find the project root
+        self._root = None
+        # and the project configuration directory
+        self._projectCfg = None
+        # the path to the optional makefile with additional configuration and targets
+        self._localMakefile = None
+        # all done
+        return
+
+    # implementation details
+    def explore(self):
+        """
+        Gather the locations of all important directories and files
+        """
+        # verify we have the correct make
+        self._builder = self.verifyGNUMake()
+        # verify my installation
+        self._makefile = self.verifyInstallation()
+        # get the user configuration directory
+        self._userCfg = self.locateUserConfig()
+        # find the project root
+        self._root = self.locateProjectRoot()
+        # and the project configuration directory
+        self._projectCfg = self.locateProjectConfig()
+        # locate the local makefile
+        self._localMakefile = self.locateLocalMakefile()
+        # all done
+        return
+
+    def launch(self):
+        """
+        Launch GNU make
+        """
+        argv = list(self.configureMake())
+        if argv:
+            print(" ".join(argv))
+
+        # all done
+        return 0
+
+    def assembleMakeCommandLine(self, userCfg, projectCfg):
+        """
+        Build the command line for GNU make
+        """
+        # the executable
+        yield self.make
+        # the control flags
+        yield from self.configureMake(userCfg, projectCfg)
+        # all done
+        return
+
+    def verifyInstallation(self):
+        """
+        Ensure that this is a valid installation
+        """
+        # anything wrong here is an error
+        # if the path to the engine doesn't exist
+        if not self.engine.exists():
+            # grab a channel
+            channel = journal.error("mm.installation")
+            # complain
+            channel.line(f"could not find the path to my makefiles")
+            channel.line(f"while verifying my installation")
+            channel.indent()
+            channel.line(f"the path '{self.engine}'")
+            channel.line(f"doesn't exist or is not readable")
+            channel.outdent()
+            channel.line(f"check your setting for my 'engine' property")
+            # flush
+            channel.log()
+        # form the path to the top level makefile
+        merlin = self.engine / self.merlin
+        # check that the top level makefile exists
+        if not merlin.exists():
+            # grab a channel
+            channel = journal.error("mm.installation")
+            # complain
+            channel.line(f"could not find my main makefile")
+            channel.line(f"while verifying my installation")
+            channel.indent()
+            channel.line(f"the file '{merlin}'")
+            channel.line(f"doesn't exist or is not readable")
+            channel.outdent()
+            channel.line(f"check your setting for my 'merlin' property")
+            # flush
+            channel.log()
+        # if the path to the {portinfo} headers doesn't exist
+        if not self.portinfo.exists():
+            # grab a channel
+            channel = journal.error("mm.installation")
+            # complain
+            channel.line(f"can't find my include directory")
+            channel.line(f"while verifying my installation")
+            channel.indent()
+            channel.line(f"the path '{self.portinfo}'")
+            channel.line(f"doesn't exist or is not readable")
+            channel.outdent()
+            channel.line(f"check your setting for my 'portinfo' property")
+            # flush
+            channel.log()
+        # form the path to the {portinfo}
+        portinfo = self.portinfo / "portinfo"
+        # check that the top level header file exists
+        if not portinfo.exists():
+            # grab a channel
+            channel = journal.error("mm.installation")
+            # complain
+            channel.line(f"could not find my top level header file")
+            channel.line(f"while verifying my installation")
+            channel.indent()
+            channel.line(f"the file '{portinfo}'")
+            channel.line(f"doesn't exist or is not readable")
+            channel.outdent()
+            channel.line(f"check your setting for my 'portinfo' property")
+            # flush
+            channel.log()
+        # all done
+        return merlin
+
+    def verifyGNUMake(self):
+        """
+        Get the GNU make version and verify it's sufficiently recent
+        """
+        # set up the subprocess settings
+        settings = {
+            "executable": self.make,
+            "args": [self.make, "--version"],
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "universal_newlines": True,
+            "shell": False,
+        }
+        # attempt to
+        try:
+            # invoke GNU make to extract its version
+            with subprocess.Popen(**settings) as make:
+                # wait for it to finish and harvest its exit code
+                stdout, stderr = make.communicate()
+                # grab the status code
+                status = make.returncode
+                # if there was an error
+                if status != 0:
+                    # grab a channel
+                    channel = journal.error("mm.gnu")
+                    # complain
+                    channel.line(f"failed to launch '{self.make}'")
+                    channel.line(
+                        f"while attempting to retrieve the version of GNU make"
+                    )
+                    channel.indent()
+                    channel.line(f"'{self.make}' returned error code {status}")
+                    channel.outdent()
+                    channel.line(f"check your setting for my 'make' property")
+                    # flush
+                    channel.log()
+                    # and bail, just in case errors aren't fatal
+                    return
+                # otherwise, grab the first line of output
+                signature = stdout.splitlines()[0]
+                # take it apart using the GNU make version parser
+                match = self.gnuMakeVersionParser.match(signature)
+                # if it doesn't match
+                if not match:
+                    # we have a problem
+                    channel = journal.error("mm.gnu")
+                    # complain
+                    channel.line(f"could not find a suitable installation of GNU make")
+                    channel.line(f"while verifying my installation")
+                    channel.indent()
+                    channel.line(f"'{self.make}' doesn't seem to be GNU make")
+                    channel.line(f"you need GNU make 4.2.1 or higher")
+                    channel.outdent()
+                    channel.line(f"check your setting for my 'make' property")
+                    # flush
+                    channel.log()
+                    # and bail, just in case errors aren't fatal
+                    return
+                # get the version info
+                major, minor, micro = map(int, match.groups(default=0))
+                # we need 4.2.1 or higher
+                if (major, minor, micro) < (4, 2, 1):
+                    # we have a problem
+                    channel = journal.error("mm.gnu")
+                    # complain
+                    channel.line(f"your version of GNU make is too old")
+                    channel.line(f"while verifying my installation")
+                    channel.indent()
+                    channel.line(f"you need GNU make 4.2.1 or higher")
+                    channel.line(
+                        f"your '{self.make}' version is {major}.{minor}.{micro}"
+                    )
+                    channel.outdent()
+                    channel.line(f"check your setting for my 'make' property")
+                    # flush
+                    channel.log()
+                    # and bail, just in case errors aren't fatal
+                    return
+        # if anything goes wrong
+        except Exception as error:
+            # we have a problem
+            channel = journal.error("mm.gnu")
+            # complain
+            channel.line(f"an unexpected error occurred")
+            channel.line(f"while attempting to retrieve the version of GNU make")
+            channel.indent()
+            channel.line(f"launching '{self.make}'")
+            channel.line(f"returned '{error}'")
+            channel.outdent()
+            channel.line(f"check your setting for my 'make' property")
+            # flush
+            channel.log()
+
+        # all done
+        return
+
+    def locateUserConfig(self):
+        """
+        Find the user configuration directory
+        """
+        # figure out where the configuration directory is; first, try looking for an XDG compliant
+        # layout; perhaps the system sets up the mandated environment variable
+        xdgHome = (
+            pyre.primitives.path(os.getenv("XDG_CONFIG_HOME", self.XDG_CONFIG))
+            .expanduser()
+            .resolve()
+        )
+        # point to the {mm} specific directory
+        xdg = xdgHome / "mm"
+        # if it is a real directory
+        if xdg.exists() and xdg.isDirectory():
+            # hand it off
+            return xdg
+        # otherwise, get the user's home directory
+        home = self.user.home
+        # if it's not a good place
+        if not (home and home.exists()):
+            # and we are allowed to speak
+            if not self.quiet:
+                # make a channel
+                channel = journal.warning("mm.user")
+                # complain
+                channel.line(f"could not find your home directory")
+                channel.line(f"while looking for user specific makefile fragments")
+                channel.indent()
+                channel.line(f"'{home}' is not a valid path")
+                channel.line(f"and your system doesn't have any good ideas")
+                channel.outdent()
+                channel.line(f"is this a cloud instance?")
+                channel.line(
+                    f"if not, check the value of your 'HOME' environment variable"
+                )
+                # flush
+                channel.log()
+            # nothing further to do
+            return None
+        # look for the configuration directory
+        candidate = home / self.cfgdir
+        # if it exists and it is a directory
+        if candidate.exists() and candidate.isDirectory():
+            # hand it off
+            return candidate
+        # if we couldn't find it
+        if not self.quiet:
+            # pick a channel
+            channel = journal.warning("mm.user")
+            # complain
+            channel.line(f"could not find your makefile fragments")
+            channel.line(f"while looking for user specific configuration")
+            channel.indent()
+            channel.line(f"neither '{xdg}'")
+            channel.line(f"nor '{candidate}'")
+            channel.line(f"exist and are readable")
+            channel.outdent()
+            channel.line(f"if this is unexpected, check")
+            channel.indent()
+            channel.line(f"the value of your 'XDG_CONFIG_HOME' environment variable")
+            channel.line(f"or the value of your 'HOME' environment variable")
+            channel.line(f"and the value of my 'cfgdir' property")
+            channel.outdent()
+            # flush
+            channel.log()
+        # all done
+        return None
+
+    def locateProjectRoot(self):
+        """
+        Find the project root directory
+        """
+        # use my configuration directory as the target of the hunt
+        marker = self.cfgdir
+        # hunt it down, starting at the current working directory
+        root = self.locateMarker(marker=marker)
+        # if it's not there
+        if not root:
+            # use the current working directory
+            root = pyre.primitives.path.cwd()
+            # if we are allowed to speak
+            if not self.quiet:
+                # make a channel
+                channel = journal.warning("mm.project")
+                # complain
+                channel.line(f"could not find the project root directory")
+                channel.line(f"while exploring the current workspace")
+                channel.indent()
+                channel.line(f"no '{marker}'")
+                channel.line(f"in '{root}' or any of its parents")
+                channel.outdent()
+                channel.line(
+                    f"if this is unexpected, check the value of my 'cfgdir' property"
+                )
+                # flush
+                channel.log()
+        # all done
+        return root
+
+    def locateProjectConfig(self):
+        """
+        Find the project configuration directory
+        """
+        # assuming that {_root} points to a valid directory, form the expected location
+        candidate = self._root / self.cfgdir
+        # check whether it's a valid path and hand it off to the caller
+        # N.B.:
+        #     no reason to complain here; if {candidate} doesn't exist, a warning has been
+        #     generated already by {locateProjectRoot}
+        return candidate if candidate.exists() else None
+
+    def locateLocalMakefile(self):
+        """
+        Find the location of the local makefile
+        """
+        # get the name of the local makefile
+        local = self.local
+        # if the user hasn't bothered
+        if not local:
+            # don't go looking
+            return None
+        # otherwise, look for it
+        location = self.locateMarker(marker=self.local, sentinel=self._root)
+        # and return its location
+        return location
+
+    def configureMake(self):
+        """
+        Generate command line arguments for make
+        """
+        # start off with the executable
+        yield self.make
+        # complain about typos
+        yield "--warn-undefined-variables"
+        # if the user asked to ignore build failures
+        if self.ignore:
+            # ask make to comply
+            yield "--keep-going"
+        # if the user did not explicitly ask to see action details
+        if not self.verbose:
+            # silence them
+            yield "--silent"
+        # if the user asked to see the database of rules
+        if self.rules:
+            # ask make to print them out
+            yield "--print-data-base"
+        # if the user wants trace information
+        if self.trace:
+            # ask make to generate it
+            yield "--trace"
+
+        # build the path to the toplevel makefile
+        merlin = self.engine / self.merlin
+        # if it exists
+        if merlin.exists():
+            # add it to the pile
+            yield from ["-f", str(merlin)]
+
+        # adjust the include path so make can find our makefile fragments
+        # first, get any extra paths the user has asked for explicitly
+        for cfg in self.runcfg:
+            # the ones that exist
+            if cfg.exists():
+                # get folded with the include flag
+                yield from ["-I", str(cfg)]
+            # the rest
+            else:
+                # unless told otherwise
+                if not self.quiet:
+                    # generate a warning
+                    channel = journal.warning("mm.includes")
+                    # complain
+                    channel.line(f"while assembling the make command line")
+                    channel.indent()
+                    channel.line(f"the path '{cfg}' does not exist")
+                    channel.outdent()
+                    channel.line(f"check your setting for my 'runcfg' property")
+                    # flush
+                    channel.log()
+        # if the user configuration directory exists
+        if self._userCfg:
+            # add it to the pile
+            yield from ["-I", str(self._userCfg)]
+        # similarly, if the path to the project configuration exists
+        if self._projectCfg:
+            # add it to the pile
+            yield from ["-I", str(self._projectCfg)]
+        # finally, add the path to the implementation makefiles
+        yield from ["-I", str(self.engine)]
+
+        # all done
+        return
+
+    # framework hooks
+    def pyre_help(self, indent=" " * 2):
+        """
+        Display the current configuration
+        """
+        # chain up
+        yield from super().pyre_help(indent=indent)
+        # make a pile for my public state
+        public = []
+        # collect my traits
+        for trait in self.pyre_configurables():
+            # get the name
+            name = trait.name
+            # and the tip
+            tip = trait.tip or trait.doc
+            # skip nameless undocumented ones
+            if not name or not tip:
+                continue
+            # pile the rest
+            public.append(name)
+
+        # if we were able to find any trait info
+        if public:
+            # mark the section
+            yield f"current configuration:"
+            # figure out how much space we need
+            width = max(map(len, public)) + 2  # for the dashes
+            # for each public trait
+            for name in public:
+                # make a tag out of the name
+                tag = f"--{name}"
+                # show its details
+                yield f"{indent}{tag:>{width}}: {getattr(self, name)}"
+            # leave some space
+            yield ""
+
+        # all done
+        return
+
+    # helpers
+    def locateMarker(self, marker, folder=None, sentinel=None):
+        """
+        Scan upwards for a directory that contains {marker}, starting at {folder}, if given, or
+        the current working directory
+        """
+        # start with the current directory, unless the caller has opinions
+        folder = pyre.primitives.path.cwd() if folder is None else folder
+        # go through folders on the way to the root
+        for candidate in folder.crumbs:
+            # form the filename
+            target = candidate / marker
+            # if it exists
+            if target.exists():
+                # we have found the place
+                return candidate
+            # if we have reached the {sentinel}
+            if sentinel and candidate == sentinel:
+                # bail
+                break
+        # if we get this far, {marker} could not be found
+        return None
+
+    # private data
+    # the XDG compliant fallback for user configuration
+    XDG_CONFIG = pyre.primitives.path("~/.config")
+    # make version
+    gnuMakeVersionParser = re.compile(
+        r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?"
+    )
+    # parser of the {git describe} result
+    gitDescriptionParser = re.compile(
+        r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
+    )
+
+
+# bootstrap
+if __name__ == "__main__":
+    # instantiate the app
+    app = mm(name="mm")
+    # invoke
+    status = app.run()
+    # and share the status with the shell
+    raise SystemExit(status)
+
+
+# end of file
