@@ -11,7 +11,7 @@ fortran.self := true
 extern :=
 
 # the locations where package definitions may live
-extern.mm ?= $(mm.home)/make/extern
+extern.mm ?= $(mm.extern)
 extern.user ?= $(user.config)/extern
 extern.project ?= $(project.config)/extern
 

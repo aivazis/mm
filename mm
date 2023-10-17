@@ -978,6 +978,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.home={self._home}"
         # the path to the top level makefile
         yield f"mm.merlin={self._makefile}"
+        # the location of the built-in package database
+        yield f"mm.extern={self.engine / 'extern'}"
         # the list of compilers
         yield f"mm.compilers={' '.join(self.compilers)}"
         # form the list of paths with headers to add to the compiler command line
@@ -988,8 +990,6 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.color={'' if self.color else 'no'}"
         # and the palette to use
         yield f"mm.palette={self.palette}"
-        # just incase we are not running in-situ, tell mm where the external packages live
-        yield f"extern.mm={self.engine / 'extern'}"
         # all done
         return
 
