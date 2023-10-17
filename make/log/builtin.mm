@@ -5,7 +5,7 @@
 
 
 # the mm banner
-palette.banner := $(palette.cyan)
+palette.banner := $(palette.amber)
 
 # help
 # sections
