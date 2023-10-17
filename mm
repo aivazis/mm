@@ -988,6 +988,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.color={'' if self.color else 'no'}"
         # and the palette to use
         yield f"mm.palette={self.palette}"
+        # just incase we are not running in-situ, tell mm where the external packages live
+        yield f"extern.mm={self.engine / 'extern'}"
         # all done
         return
 
