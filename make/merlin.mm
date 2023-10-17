@@ -26,7 +26,7 @@ define model :=
 endef
 
 # the categories of methods each object provides
-categories := init info model
+categories := init rules model
 
 # import the interface
 -include \
