@@ -120,6 +120,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     slots = pyre.properties.int()
     slots.default = None
+    slots.aliases |= {"j", "jobs"}
     slots.doc = "the number of recipes to execute simultaneously; defaults to all cores"
 
     show = pyre.properties.bool()
@@ -178,6 +179,47 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     cfgdir = pyre.properties.path()
     cfgdir.default = ".mm"
     cfgdir.doc = "the relative path to project and user makefile fragments"
+
+    # the layout out of the installation area
+    binPrefix = pyre.properties.path()
+    binPrefix.default = "bin"
+    binPrefix.aliases |= {"bin-prefix"}
+    binPrefix.doc = "installation location for executables"
+
+    libPrefix = pyre.properties.path()
+    libPrefix.default = "lib"
+    libPrefix.aliases |= {"lib-prefix"}
+    libPrefix.doc = "installation location for libraries and shared objects"
+
+    incPrefix = pyre.properties.path()
+    incPrefix.default = "include"
+    incPrefix.aliases |= {"include-prefix"}
+    incPrefix.doc = "installation location for header files"
+
+    pycPrefix = pyre.properties.path()
+    pycPrefix.default = "packages"
+    pycPrefix.aliases |= {"python-prefix"}
+    pycPrefix.doc = "installation location for python packages"
+
+    docPrefix = pyre.properties.path()
+    docPrefix.default = "doc"
+    docPrefix.aliases |= {"doc-prefix"}
+    docPrefix.doc = "installation location for documentation files"
+
+    etcPrefix = pyre.properties.path()
+    etcPrefix.default = "etc"
+    etcPrefix.aliases |= {"etc-prefix"}
+    etcPrefix.doc = "installation location for system auxiliary files"
+
+    sharePrefix = pyre.properties.path()
+    sharePrefix.default = "share"
+    sharePrefix.aliases |= {"share-prefix"}
+    sharePrefix.doc = "installation location for platform independent files"
+
+    varPrefix = pyre.properties.path()
+    varPrefix.default = "var"
+    varPrefix.aliases |= {"var-prefix"}
+    varPrefix.doc = "installation location for runtime files"
 
     # my internal layout; users should probably stay away from these
     merlin = pyre.properties.path()
@@ -711,6 +753,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # configure mm
         # update the compiler include path
         self.MM_INCLUDES = self.inject(var=self.MM_INCLUDES, path=(prefix / "include"))
+        self.MM_INCLUDES = self.inject(var=self.MM_INCLUDES, path=self.portinfo)
         # update the linker library path
         self.MM_LIBPATH = self.inject(var=self.MM_LIBPATH, path=(prefix / "lib"))
         # all done
@@ -798,8 +841,15 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"project.makefile={self._localMakefile or ''}"
         # the installation location
         yield f"project.prefix={self._prefix}"
-        # and its layout
-        yield from []
+        # the layout of the installation area
+        yield f"builder.dest.bin={self._prefix / self.binPrefix}/"
+        yield f"builder.dest.lib={self._prefix / self.libPrefix}/"
+        yield f"builder.dest.inc={self._prefix / self.incPrefix}/"
+        yield f"builder.dest.pyc={self._prefix / self.pycPrefix}/"
+        yield f"builder.dest.doc={self._prefix / self.docPrefix}/"
+        yield f"builder.dest.share={self._prefix / self.sharePrefix}/"
+        yield f"builder.dest.etc={self._prefix / self.etcPrefix}/"
+        yield f"builder.dest.var={self._prefix / self.varPrefix}/"
         # all done
         return
 
