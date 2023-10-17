@@ -1,14 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# build the data model
-
-# show me
-# ${info -- extern.model}
 
 # the list of special packages that don't need actual install locations to be available
 fortran.self := true
@@ -51,8 +45,5 @@ define extern.load =
     }
 endef
 
-
-# show me
-# ${info -- done with extern.model}
 
 # end of file

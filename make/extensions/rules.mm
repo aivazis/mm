@@ -2,10 +2,6 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
-
-# show me
-# ${info -- extensions.info}
 
 
 # extension help
@@ -210,8 +206,5 @@ $(1).info:
 # all done
 endef
 
-
-# show me
-# ${info -- done with extensions.info}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- numpy.info}
 
 # display the numpy configuration
 extern.numpy.info:
@@ -24,7 +20,5 @@ extern.numpy.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,numpy}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,numpy}}
 
-# show me
-# ${info -- done with numpy.info}
 
 # end of file

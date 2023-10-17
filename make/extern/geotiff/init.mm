@@ -3,8 +3,6 @@
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
 
-# show me
-# ${info -- geotiff.init}
 
 # add me to the pile
 extern += ${if ${findstring geotiff,$(extern)},,geotiff}
@@ -29,7 +27,5 @@ geotiff.libraries := geotiff tiff
 # my dependencies
 geotiff.dependencies = tiff
 
-# show me
-# ${info -- done with geotiff.init}
 
 # end of file

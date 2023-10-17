@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- cantera.info}
 
 # display the summit configuration
 extern.cantera.info:
@@ -24,7 +20,5 @@ extern.cantera.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,cantera}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,cantera}}
 
-# show me
-# ${info -- done with cantera.info}
 
 # end of file

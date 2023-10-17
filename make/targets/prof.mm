@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # meta-data
 targets.prof.description := compiling with profiling support
@@ -16,5 +15,6 @@ ${call target.adjust,prof,$(languages.compiled),flags ldflags}
 
 # build my info target
 ${eval ${call target.info.flags,prof}}
+
 
 # end of file

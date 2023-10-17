@@ -3,8 +3,6 @@
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
 
-# show me
-# ${info -- builder.init}
 
 # the builder constructor
 #   usage: builder.init {project-prefix} {project-bldroot}
@@ -46,7 +44,5 @@ define builder.init =
 # all done
 endef
 
-# show me
-# ${info -- done with builder.init}
 
 # end of file

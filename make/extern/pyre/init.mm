@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- pyre.init}
 
 # add me to the pile
 extern += ${if ${findstring pyre,$(extern)},,pyre}
@@ -31,7 +27,5 @@ pyre.libraries ?= pyre journal
 # my dependencies
 pyre.dependencies =
 
-# show me
-# ${info -- done with pyre.init}
 
 # end of file

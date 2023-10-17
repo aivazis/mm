@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- platform.info}
 
 # platform info
 platform.info:
@@ -16,7 +12,5 @@ platform.info:
 	@${call log.var,tag,$(platform)}
 	@${call log.var,macro,$(platform.macro)}
 
-# show me
-# ${info -- done with platform.info}
 
 # end of file

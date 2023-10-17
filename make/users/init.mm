@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- users.init}
 
 # user info
 user.username ?=
@@ -18,7 +14,5 @@ user.email ?=
 # contribution to the config path
 user.config ?=
 
-# show me
-# ${info -- done with users.init}
 
 # end of file

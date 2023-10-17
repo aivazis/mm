@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- sundials.init}
 
 # add me to the pile
 extern += ${if ${findstring sundials,$(extern)},,sundials}
@@ -31,7 +27,5 @@ sundials.libraries ?= sundials_cvodes sundials_ida sundials_nvecserial sundials_
 # my dependencies
 sundials.dependencies :=
 
-# show me
-# ${info -- done with sundials.init}
 
 # end of file

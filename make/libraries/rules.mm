@@ -2,10 +2,6 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
-
-# show me
-# ${info -- libraries.info}
 
 
 # library help
@@ -393,8 +389,5 @@ $(1).help:
 # all done
 endef
 
-
-# show me
-# ${info -- done with libraries.info}
 
 # end of file

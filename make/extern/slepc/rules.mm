@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- slepc.info}
 
 # display the slepc configuration
 extern.slepc.info:
@@ -24,7 +20,5 @@ extern.slepc.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,slepc}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,slepc}}
 
-# show me
-# ${info -- done with slepc.info}
 
 # end of file

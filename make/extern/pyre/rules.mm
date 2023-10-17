@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- pyre.info}
 
 # display the pyre configuration
 extern.pyre.info:
@@ -24,7 +20,5 @@ extern.pyre.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,pyre}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,pyre}}
 
-# show me
-# ${info -- done with pyre.info}
 
 # end of file

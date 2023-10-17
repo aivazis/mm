@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- target.init}
 
 # user info
 target ?= $(host.os)-$(host.arch)
@@ -50,7 +46,5 @@ define target.adjust =
     }
 endef
 
-# show me
-# ${info -- done with target.init}
 
 # end of file

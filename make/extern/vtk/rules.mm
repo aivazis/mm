@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- vtk.info}
 
 # display the vtk configuration
 extern.vtk.info:
@@ -24,7 +20,5 @@ extern.vtk.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,vtk}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,vtk}}
 
-# show me
-# ${info -- done with vtk.info}
 
 # end of file

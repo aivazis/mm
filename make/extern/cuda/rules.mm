@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- cuda.info}
 
 # display the cuda configuration
 extern.cuda.info:
@@ -24,7 +20,5 @@ extern.cuda.info:
 	@${call log.var,"cuda compile line",${call extern.compile.options,cuda,cuda}}
 	@${call log.var,"cuda link line",${call extern.link.options,cuda,cuda}}
 
-# show me
-# ${info -- done with cuda.info}
 
 # end of file

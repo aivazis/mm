@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- libpq.info}
 
 # display the libpq configuration
 extern.libpq.info:
@@ -24,7 +20,5 @@ extern.libpq.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,libpq}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,libpq}}
 
-# show me
-# ${info -- done with libpq.info}
 
 # end of file

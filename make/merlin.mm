@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # user configuration
 # look for a generic configuration file
@@ -35,5 +34,6 @@ categories := init rules model
             make/$(class)/$(category).mm \
     } \
 }
+
 
 # end of file

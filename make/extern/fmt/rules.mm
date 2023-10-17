@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- fmt.info}
 
 # display the summit configuration
 extern.fmt.info:
@@ -24,7 +20,5 @@ extern.fmt.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,fmt}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,fmt}}
 
-# show me
-# ${info -- done with fmt.info}
 
 # end of file

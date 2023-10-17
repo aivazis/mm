@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- mpi.init}
 
 # add me to the pile
 extern += ${if ${findstring mpi,$(extern)},,mpi}
@@ -40,7 +36,5 @@ mpi.libpath ?= $(mpi.dir)/lib
 mpi.libraries := \
     ${if ${findstring openmpi,$(mpi.flavor)},mpi_cxx mpi $(mpi.required),}
 
-# show me
-# ${info -- done with mpi.init}
 
 # end of file

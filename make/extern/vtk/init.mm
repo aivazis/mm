@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- vtk.init}
 
 # add me to the pile
 extern += ${if ${findstring vtk,$(extern)},,vtk}
@@ -36,7 +32,5 @@ vtk.libraries := \
         vtk$(requirement)-$(vtk.version) \
     }
 
-# show me
-# ${info -- done with vtk.init}
 
 # end of file

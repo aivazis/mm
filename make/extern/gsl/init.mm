@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gsl.init}
 
 # add me to the pile
 extern += ${if ${findstring gsl,$(extern)},,gsl}
@@ -40,7 +36,5 @@ ${if \
     ${eval gsl.libraries += gslcblas} \
 }
 
-# show me
-# ${info -- done with gsl.init}
 
 # end of file

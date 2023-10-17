@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- slepc.init}
 
 # add me to the pile
 extern += ${if ${findstring slepc,$(extern)},,slepc}
@@ -31,7 +27,5 @@ slepc.libraries := slepc
 # my dependencies
 slepc.dependencies = petsc
 
-# show me
-# ${info -- done with slepc.init}
 
 # end of file

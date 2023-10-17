@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- p2.info}
 
 # display the p2 configuration
 extern.p2.info:
@@ -24,7 +20,5 @@ extern.p2.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,p2}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,p2}}
 
-# show me
-# ${info -- done with p2.info}
 
 # end of file

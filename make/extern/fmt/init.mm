@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- fmt.init}
 
 # add me to the pile
 extern += ${if ${findstring fmt,$(extern)},,fmt}
@@ -31,7 +27,5 @@ fmt.libraries ?=  fmt
 # my dependencies
 fmt.dependencies :=
 
-# show me
-# ${info -- done with fmt.init}
 
 # end of file

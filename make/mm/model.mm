@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # librarian
 ar = ar
@@ -130,5 +129,6 @@ tex.dvipdf = dvipdf
 yacc = yacc
 yacc.c = y.tab.c
 yacc.h = y.tab.h
+
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- platform.init}
 
 # platform id; by default, these match what is known about the host
 platform.os := $(host.os)
@@ -20,8 +16,5 @@ platform.compilers ?=
 # pull the plaform/architecture specific settings
 include make/platforms/$(host.os)/$(host.arch).mm
 
-
-# show me
-# ${info -- done with platform.init}
 
 # end of file

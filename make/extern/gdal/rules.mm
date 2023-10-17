@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gdal.info}
 
 # display the gdal configuration
 extern.gdal.info:
@@ -24,7 +20,5 @@ extern.gdal.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,gdal}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,gdal}}
 
-# show me
-# ${info -- done with gdal.info}
 
 # end of file

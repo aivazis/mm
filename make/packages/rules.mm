@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- packages.info}
 
 # package help
 # make the recipe
@@ -275,8 +272,5 @@ $(1).help:
 # all done
 endef
 
-
-# show me
-# ${info -- done with packages.info}
 
 # end of file

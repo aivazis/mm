@@ -1,16 +1,11 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- verbatim.init}
 
 # the list of verbatim assets encountered
 verbatim ?=
-
 
 # the verbatim asset constructor
 define verbatim.init =
@@ -86,8 +81,5 @@ define verbatim.staging.directories =
 
 endef
 
-
-# show me
-# ${info -- done with verbatim.init}
 
 # end of file

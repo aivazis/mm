@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- extensions.init}
 
 # the list of all extensions encountered
 extensions ?=
@@ -132,6 +129,5 @@ define extension.sources
     }
 endef
 
-# show  ${info -- done with extensions.init}
 
 # end of file

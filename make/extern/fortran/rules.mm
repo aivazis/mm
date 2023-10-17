@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- fortran.info}
 
 # display the fortran configuration
 extern.fortran.info:
@@ -24,7 +20,5 @@ extern.fortran.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,fortran}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,fortran}}
 
-# show me
-# ${info -- done with fortran.info}
 
 # end of file

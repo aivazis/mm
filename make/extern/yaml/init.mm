@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- yaml.init}
 
 # add me to the pile
 extern += ${if ${findstring yaml,$(extern)},,yaml}
@@ -33,7 +29,5 @@ yaml.libraries := yaml$(yaml.flavor)
 # initialize the list of my dependencies
 yaml.dependencies =
 
-# show me
-# ${info -- done with yaml.init}
 
 # end of file

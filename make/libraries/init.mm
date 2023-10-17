@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- libraries.init}
 
 # the list of libraries encountered
 libraries ?=
@@ -364,8 +361,5 @@ define library.extern.requested =
     ${strip $($(1).extern)}
 endef
 
-
-# show me
-# ${info -- done with libraries.init}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- extern.init}
 
 # locate the configuration file of a package
 #  usage: extern.config {package-names}
@@ -95,8 +91,5 @@ extern.link.options = \
         ${call extern.link.options.this,$(1),$(package)} \
     }
 
-
-# show me
-# ${info -- done with extern.init}
 
 # end of file

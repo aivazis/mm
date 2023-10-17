@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- eigen.init}
 
 # add me to the pile
 extern += ${if ${findstring eigen,$(extern)},,eigen}
@@ -31,7 +27,5 @@ eigen.libraries :=
 # my dependencies
 eigen.dependencies =
 
-# show me
-# ${info -- done with eigen.init}
 
 # end of file

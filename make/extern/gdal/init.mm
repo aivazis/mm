@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gdal.init}
 
 # add me to the pile
 extern += ${if ${findstring gdal,$(extern)},,gdal}
@@ -31,7 +27,5 @@ gdal.libraries := gdal
 # my dependencies
 gdal.dependencies =
 
-# show me
-# ${info -- done with gdal.init}
 
 # end of file

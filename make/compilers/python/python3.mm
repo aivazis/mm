@@ -4,9 +4,6 @@
 # (c) 1998-2023 all rights reserved
 
 
-# show me
-# ${info -- python3}
-
 # register {python3} as the python compiler
 compiler.python ?= python3
 
@@ -21,7 +18,5 @@ python3.compile.base ?= -m compileall -b -q
 # compile
 python3.compile := $(python3.driver) $(python3.compile.base)
 
-# show me
-# ${info -- done with python3}
 
 # end of file

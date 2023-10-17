@@ -4,9 +4,6 @@
 # (c) 1998-2023 all rights reserved
 
 
-# show me
-# ${info -- python2}
-
 # register {python2} as the python compiler
 compiler.python := python2
 
@@ -21,7 +18,5 @@ python2.compile.base ?= -m compileall -b -q
 # compile
 python2.compile := $(python2.driver) $(python2.compile.base)
 
-# show me
-# ${info -- done with python2}
 
 # end of file

@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- project.init}
 
 # meta-data for all projects
 project.assetTypes ?= packages libraries extensions vite webpack verbatim
@@ -192,8 +189,5 @@ define project.extern.available =
 # all done
 endef
 
-
-# show me
-# ${info -- done with project.init}
 
 # end of file

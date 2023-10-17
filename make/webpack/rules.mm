@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- webpack.info}
 
 # host info
 webpack.info: mm.banner
@@ -303,8 +299,5 @@ $(1).help:
 # all done
 endef
 
-
-# show me
-# ${info -- done with webpack.info}
 
 # end of file

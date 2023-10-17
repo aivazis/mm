@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- summit.info}
 
 # display the summit configuration
 extern.summit.info:
@@ -24,7 +20,5 @@ extern.summit.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,summit}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,summit}}
 
-# show me
-# ${info -- done with summit.info}
 
 # end of file

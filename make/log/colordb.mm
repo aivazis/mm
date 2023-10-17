@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # colors
 palette.normal := ${call csi3,0}
@@ -31,5 +30,6 @@ palette.amber := ${call csi24,38,255,191,0}
 palette.lavender := ${call csi24,38,192,176,224}
 palette.sage := ${call csi24,38,176,208,176}
 palette.steel-blue := ${call csi24,38,70,130,180}
+
 
 # end of file

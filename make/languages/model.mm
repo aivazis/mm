@@ -1,14 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# build the data model
-
-# show me
-# ${info -- languages.model}
 
 # initialize the list of known languages
 languages := c c++ fortran python cython cuda
@@ -127,8 +121,5 @@ ${strip
 }
 endef
 
-
-# show me
-# ${info -- done with languages.model}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- openblas.info}
 
 # display the openblas configuration
 extern.openblas.info:
@@ -24,7 +20,5 @@ extern.openblas.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,openblas}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,openblas}}
 
-# show me
-# ${info -- done with openblas.info}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gmsh.info}
 
 # display the gmsh configuration
 extern.gmsh.info:
@@ -24,7 +20,5 @@ extern.gmsh.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,gmsh}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,gmsh}}
 
-# show me
-# ${info -- done with gmsh.info}
 
 # end of file

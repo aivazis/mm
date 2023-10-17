@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- python.init}
 
 # add me to the pile
 extern += ${if ${findstring python,$(extern)},,python}
@@ -42,7 +38,5 @@ python.libraries ?= $(python.interpreter)
 # now include some platform specific settings
 include make/extern/python/$(platform).mm
 
-# show me
-# ${info -- done with python.init}
 
 # end of file

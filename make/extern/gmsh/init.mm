@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gmsh.init}
 
 # add me to the pile
 extern += ${if ${findstring gmsh,$(extern)},,gmsh}
@@ -31,7 +27,5 @@ gmsh.libraries := gmsh
 # my dependencies
 gmsh.dependencies =
 
-# show me
-# ${info -- done with gmsh.init}
 
 # end of file

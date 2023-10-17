@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- python.info}
 
 # display the python configuration
 extern.python.info:
@@ -27,7 +23,5 @@ extern.python.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,python}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,python}}
 
-# show me
-# ${info -- done with python.info}
 
 # end of file

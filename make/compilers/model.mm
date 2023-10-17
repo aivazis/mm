@@ -1,14 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# build the data model
-
-# show me
-# ${info -- compilers.model}
 
 # assemble the list of compilers
 #    order: defaults from the platform, then user configuration files, then mm command line
@@ -34,8 +28,5 @@ ${foreach \
     } \
 }
 
-
-# show me
-# ${info -- done with compilers.model}
 
 # end of file

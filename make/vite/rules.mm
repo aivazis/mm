@@ -3,6 +3,7 @@
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
 
+
 # bundle info
 vite.info: mm.banner
 	@$(log) "known ux bundles: "$(palette.targets)$(vite.bundles)$(palette.normal)
@@ -292,7 +293,6 @@ $(1).help:
 
 # all done
 endef
-
 
 
 # end of file

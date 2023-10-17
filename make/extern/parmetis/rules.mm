@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- parmetis.info}
 
 # display the parmetis configuration
 extern.parmetis.info:
@@ -24,7 +20,5 @@ extern.parmetis.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,parmetis}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,parmetis}}
 
-# show me
-# ${info -- done with parmetis.info}
 
 # end of file

@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # meta-data
 targets.reldeb.description := compiling with support for debugging
@@ -20,5 +19,6 @@ ${foreach language,c c++ cuda cython fortran, \
 
 # build my info target
 ${eval ${call target.info.flags,reldeb}}
+
 
 # end of file
