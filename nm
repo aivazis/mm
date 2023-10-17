@@ -106,6 +106,9 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     target.default = ["debug", "shared"]
     target.doc = "the list of target variants to build"
 
+    compilers = pyre.properties.strings()
+    compilers.doc = "the set of compilers to use"
+
     local = pyre.properties.str()
     local.default = None
     local.doc = "the name of a optional local makefile with additional targets"
@@ -132,6 +135,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     quiet.default = False
     quiet.aliases |= {"q"}
     quiet.doc = "suppress all non-critical output"
+
+    color = pyre.properties.bool()
+    color.default = True
+    color.doc = "colorize screen output on supported terminals"
+
+    palette = pyre.properties.str()
+    palette.default = "builtin"
+    palette.doc = "color palette for colorizing screen output on supported terminals"
 
     # make behavior
     ignore = pyre.properties.bool()
@@ -215,21 +226,25 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         super().__init__(**kwds)
         # get the current user
         self.user = self.pyre_executive.user
-        # verify we have the correct make
+        # record the mm installation directory
+        self._home = _mm_home
+        # and the version
+        self._version = _mm_version
+        # prime the make executable
         self._builder = None
-        # verify my installation
+        # my top level makefile
         self._makefile = None
-        # get the user configuration directory
+        # the user configuration directory
         self._userCfg = None
-        # find the project root
+        # the project root
         self._root = None
-        # and the project configuration directory
+        # the project configuration directory
         self._projectCfg = None
         # the path to the optional makefile with additional configuration and targets
         self._localMakefile = None
         # the path to the intermediate products of the build
-        self._bldroot = self.locateBuildRoot()
-        # the install directory
+        self._bldroot = None
+        # and the install directory
         self._prefix = None
         # all done
         return
@@ -305,6 +320,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield from self.configureProject()
         # the product version
         yield from self.configureVersion()
+        # the build target
+        yield from self.configureTarget()
+        # information about the user that invoked mm
+        yield from self.describeUser()
+        # information about the host mm is running on
+        yield from self.describeHost()
+        # configure the engine
+        yield from self.configureBuilder()
         # finally, whatever else the user put on the command line
         yield from self.argv
         # all done
@@ -685,7 +708,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # add it to the pile
             yield f"--include-dir={self._projectCfg}"
         # finally, add the path to the implementation makefiles
-        yield f"--include-dir={self.engine}"
+        yield f"--include-dir={self.engine.parent}"
 
         # all done
         return
@@ -736,12 +759,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # otherwise
             else:
                 # do something stupid
-                major = 0
-                minor = 0
-                micro = 1
-                revision = ""
-                ahead = 0
-                # and if we are allowed to speak
+                major, minor, micro, revision, ahead = 0, 0, 1, "", 0
+                # and if we are allowed to make noise
                 if not self.quiet:
                     # get a channel
                     channel = journal.warning("mm.version")
@@ -760,6 +779,104 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"repo.micro={micro}"
         yield f"repo.revision={revision}"
         yield f"repo.ahead={ahead}"
+        # all done
+        return
+
+    def configureTarget(self):
+        """
+        Build the variable assignments that communicate the build target
+        to the implementation engine
+        """
+        # get the target platform; note that this may be different that
+        # the machine on which mm is running
+        host = self.host
+        # the target platform is made out of its name and architecture
+        target = [host.platform, host.cpus.architecture]
+        # assemble the variants
+        variants = list(sorted(self.target))
+        # and build the tag
+        tag = "-".join(filter(None, variants + target))
+        # set the target
+        yield f"target={'-'.join(target)}"
+        # its tag
+        yield f"target.tag={tag}"
+        # and the list of variants
+        yield f"target.variants={' '.join(variants)}"
+        # all done
+        return
+
+    def describeUser(self):
+        """
+        Describe the user that invoked mm
+        """
+        # get the user info
+        user = self.user
+        # hand off the username
+        yield f"user.username={user.username}"
+        # the home directory
+        yield f"user.home={user.home}"
+        # the path to the user specific configuration file
+        yield f"user.config={self._userCfg or ''}"
+        # the uid
+        yield f"user.uid={user.uid}"
+        # full name
+        yield f"user.name={user.name}"
+        # and email
+        yield f"user.email={user.email}"
+        # all done
+        return
+
+    def describeHost(self):
+        """
+        Describe the host mm is running on
+        """
+        # ask the executive for the host info
+        host = pyre.executive.host
+        # hand off its name
+        yield f"host.name={host.hostname}"
+        # nickname
+        yield f"host.nickname={host.nickname}"
+        # the host os
+        yield f"host.os={host.platform}"
+        # architecture
+        yield f"host.arch={host.cpus.architecture}"
+        # and number of cores
+        yield f"host.cores={host.cpus.cpus}"
+        # all done
+        return
+
+    def configureBuilder(self):
+        """
+        Configure the engine
+        """
+        # record how mm was invoked
+        yield f"mm={sys.executable} {__file__}"
+        # the version
+        yield f"mm.version={self._version}"
+        # the mm installation location
+        yield f"mm.home={self._home}"
+        # the path to the top level makefile
+        yield f"mm.merlin={self._makefile}"
+        # the list of compilers
+        yield f"mm.compilers={' '.join(self.compilers)}"
+        # get my installation location
+        prefix = self._prefix
+        # form the list of paths with headers to add to the compiler command line
+        incpath = " ".join(
+            map(str, self.fixPathlist(var=self.MM_INCLUDES, path=prefix / "include"))
+        )
+        # send it to the engine
+        yield f"mm.incpath={incpath}"
+        # form the list of paths with headers to add to the compiler command line
+        libpath = " ".join(
+            map(str, self.fixPathlist(var=self.MM_LIBPATH, path=prefix / "lib"))
+        )
+        # send it to the engine
+        yield f"mm.libpath={libpath}"
+        # indicate whether the output should be colorized
+        yield f"mm.color={'' if self.color else 'no'}"
+        # and the palette to use
+        yield f"mm.palette={self.palette}"
         # all done
         return
 
@@ -825,6 +942,22 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if we get this far, {marker} could not be found
         return None
 
+    def fixPathlist(self, var, path):
+        """
+        Ensure {path} is in {var}
+        """
+        # if {path} is already in {var}
+        if path in var:
+            # return it unchanged
+            yield from var
+            # and done
+        # otherwise, add {path} to the pile
+        yield path
+        # followed by the original list
+        yield from var
+        # and done
+        return
+
     def computeSlots(self):
         """
         Choose the number of jobs tha GNU make will execute in parallel
@@ -835,8 +968,12 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # get the user choice
         slots = self.slots
+        # and the number of cores of the host on which mm is running
+        # N.B.:
+        #     that's not {self.host}, which is meant to be the machine we're building for
+        cores = pyre.executive.host.cpus.cpus
         # clip it from below and default to as many slots as there are cores
-        return max(1, self.host.cpus.cpus if slots is None else slots)
+        return max(1, cores if slots is None else slots)
 
     def gitDescribe(self):
         """
