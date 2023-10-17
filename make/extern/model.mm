@@ -11,9 +11,9 @@ fortran.self := true
 extern :=
 
 # the locations where package definitions may live
-extern.mm := $(mm.home)/make/extern
-extern.user := $(user.config)/extern
-extern.project := $(project.config)/extern
+extern.mm ?= $(mm.home)/make/extern
+extern.user ?= $(user.config)/extern
+extern.project ?= $(project.config)/extern
 
 # assemble them in priority order and filter out the locations that don't exist
 extern.all := ${realpath ${extern.mm} ${extern.project} ${extern.user}}
