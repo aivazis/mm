@@ -164,7 +164,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     trace.doc = "ask make to print trace information"
 
     # the name of the GNU make executable
-    make = pyre.properties.str(default=os.environ.get("GNU_MAKE", "gmake"))
+    make = pyre.properties.path(default=os.environ.get("GNU_MAKE", "gmake"))
     make.default = os.environ.get(
         "GNU_MAKE", "gmake" if pyre.executive.host.platform == "darwin" else "make"
     )
@@ -207,18 +207,18 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         The main entry point
         """
+        # explore
+        self.explore()
         # attempt to
         try:
-            # explore
-            self.explore()
             # launch the build
-            self.launch()
+            status = self.launch()
         # application errors
         except journal.ApplicationError:
             # have already been reported, so ignore them
             return 1
         # if we get this far, indicate success
-        return 0
+        return status
 
     # metamethods
     def __init__(self, **kwds):
@@ -274,6 +274,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldroot = self.locateBuildRoot()
         # figure out the install directory
         self._prefix = self.locatePrefix()
+        # adjust my envpaths with the build configuration
+        self.updateEnvironmentVariables()
         # all done
         return
 
@@ -285,10 +287,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.verbose:
             # fall back to serial mode so the output is not garbled
             self.serial = True
-
         # build the make command line
         argv = list(self.assembleMakeCommandLine())
-
         # if the user asked to see the make command line
         if self.show:
             # make a channel
@@ -306,9 +306,29 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 0
         # go to the right place
         os.chdir(self._anchor)
-
-        # all done
-        return 0
+        # build the environment updates
+        env = {
+            "PATH": os.pathsep.join(map(str, self.PATH)),
+            "LD_LIBRARY_PATH": os.pathsep.join(map(str, self.LD_LIBRARY_PATH)),
+            "PYTHONPATH": os.pathsep.join(map(str, self.PYTHONPATH)),
+            "MM_INCLUDES": os.pathsep.join(map(str, self.MM_INCLUDES)),
+            "MM_LIBPATH": os.pathsep.join(map(str, self.MM_LIBPATH)),
+        }
+        # apply them
+        os.environ.update(env)
+        # assemble the subprocess options
+        settings = {
+            "executable": str(self.make),
+            "args": argv,
+            "universal_newlines": True,
+            "shell": False,
+        }
+        # invoke GNU make
+        with subprocess.Popen(**settings) as make:
+            # wait for it to finish and harvest its exit code
+            status = make.wait()
+        # and share it with the shell
+        return status
 
     def assembleMakeCommandLine(self):
         """
@@ -407,8 +427,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # set up the subprocess settings
         settings = {
-            "executable": self.make,
-            "args": [self.make, "--version"],
+            "executable": str(self.make),
+            "args": [str(self.make), "--version"],
             "stdout": subprocess.PIPE,
             "stderr": subprocess.PIPE,
             "universal_newlines": True,
@@ -650,12 +670,35 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # otherwise, put things in a subdirectory of the project root
         return self._root / "products"
 
+    def updateEnvironmentVariables(self):
+        """
+        Incorporate the build configuration into the relevant environment variables
+        """
+        # get the installation directory
+        prefix = self._prefix
+        # configure the environment
+        # the path
+        self.PATH = self.inject(var=self.PATH, path=(prefix / "bin"))
+        # the dynamic linker path
+        self.LD_LIBRARY_PATH = self.inject(
+            var=self.LD_LIBRARY_PATH, path=(prefix / "lib")
+        )
+        # the python path
+        self.PYTHONPATH = self.inject(var=self.PYTHONPATH, path=(prefix / "packages"))
+        # configure mm
+        # update the compiler include path
+        self.MM_INCLUDES = self.inject(var=self.MM_INCLUDES, path=(prefix / "include"))
+        # update the linker library path
+        self.MM_LIBPATH = self.inject(var=self.MM_LIBPATH, path=(prefix / "lib"))
+        # all done
+        return
+
     def configureMake(self):
         """
         Generate command line arguments for make
         """
         # start off with the executable
-        yield self.make
+        yield str(self.make)
         # complain about typos
         yield "--warn-undefined-variables"
         # if the user asked to ignore build failures
@@ -859,20 +902,10 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.merlin={self._makefile}"
         # the list of compilers
         yield f"mm.compilers={' '.join(self.compilers)}"
-        # get my installation location
-        prefix = self._prefix
         # form the list of paths with headers to add to the compiler command line
-        incpath = " ".join(
-            map(str, self.inject(var=self.MM_INCLUDES, path=prefix / "include"))
-        )
-        # send it to the engine
-        yield f"mm.incpath={incpath}"
+        yield f"mm.incpath={' '.join(map(str, self.MM_INCLUDES))}"
         # form the list of paths with headers to add to the compiler command line
-        libpath = " ".join(
-            map(str, self.inject(var=self.MM_LIBPATH, path=prefix / "lib"))
-        )
-        # send it to the engine
-        yield f"mm.libpath={libpath}"
+        yield f"mm.libpath={' '.join(map(str, self.MM_LIBPATH))}"
         # indicate whether the output should be colorized
         yield f"mm.color={'' if self.color else 'no'}"
         # and the palette to use
