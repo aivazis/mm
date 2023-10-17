@@ -21,7 +21,7 @@ try:
 # if it's not accessible
 except ImportError:
     # we will download the canonical version
-    _pyre_release = "v1.12.3"
+    _pyre_release = "v1.12.4"
     # of the bootstrapping archive
     _pyre_boot = "pyre-boot.zip"
     # and deposit it in a temporary directory
