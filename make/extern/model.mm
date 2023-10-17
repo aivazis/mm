@@ -45,7 +45,7 @@ extern.available := \
 define extern.load =
     ${foreach dep, $(1),
         ${foreach loc, ${extern.all},
-            ${eval include ${realpath $(loc)/$(dep)/init.mm $(loc)/$(dep)/info.mm}}
+            ${eval include ${realpath $(loc)/$(dep)/init.mm $(loc)/$(dep)/rules.mm}}
         }
 	$(dep)
     }
