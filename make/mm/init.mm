@@ -16,6 +16,7 @@ mm.version ?=
 mm.home ?=
 mm.merlin ?=
 mm.compilers ?=
+mm.extern ?= $(mm.home)/make/extern
 
 # contributions to the build
 mm.flags ?=
