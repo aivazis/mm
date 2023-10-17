@@ -264,6 +264,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._root = self.locateProjectRoot()
         # and the project configuration directory
         self._projectCfg = self.locateProjectConfig()
+        # load the project specific configuration files
+        self.loadProjectConfig()
         # locate the local makefile
         self._localMakefile = self.locateLocalMakefile()
         # mark the location from which mm was invoked
@@ -670,6 +672,27 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # otherwise, put things in a subdirectory of the project root
         return self._root / "products"
 
+    def loadProjectConfig(self):
+        """
+        Look for configuration files in the project area and load them
+        """
+        # form the path to the configuration file
+        cfg = self._projectCfg / "mm.yaml"
+        # if the file exists:
+        if cfg.exists():
+            # load it
+            pyre.loadConfiguration(cfg)
+        # next, look for a branch specific configuration file; get the name of the branch
+        branch = self.gitCurrentBranch()
+        # form the name of the configuration file
+        cfg = self._projectCfg / f"{branch}.yaml"
+        # and if the file exists
+        if cfg.exists():
+            # load it
+            pyre.loadConfiguration(cfg)
+        # all done
+        return
+
     def updateEnvironmentVariables(self):
         """
         Incorporate the build configuration into the relevant environment variables
@@ -765,8 +788,6 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"project.home={self._root}"
         # the path to the mm configuration files
         yield f"project.config={self._projectCfg}"
-        # the installation location
-        yield f"project.prefix={self._prefix}"
         # the location to place the intermediate build products
         yield f"project.bldroot={self._bldroot}"
         # the path from which mm was invoked
@@ -775,6 +796,10 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"project.anchor={self._anchor}"
         # if there is  local makefile
         yield f"project.makefile={self._localMakefile or ''}"
+        # the installation location
+        yield f"project.prefix={self._prefix}"
+        # and its layout
+        yield from []
         # all done
         return
 
