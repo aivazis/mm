@@ -863,13 +863,13 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         prefix = self._prefix
         # form the list of paths with headers to add to the compiler command line
         incpath = " ".join(
-            map(str, self.fixPathlist(var=self.MM_INCLUDES, path=prefix / "include"))
+            map(str, self.inject(var=self.MM_INCLUDES, path=prefix / "include"))
         )
         # send it to the engine
         yield f"mm.incpath={incpath}"
         # form the list of paths with headers to add to the compiler command line
         libpath = " ".join(
-            map(str, self.fixPathlist(var=self.MM_LIBPATH, path=prefix / "lib"))
+            map(str, self.inject(var=self.MM_LIBPATH, path=prefix / "lib"))
         )
         # send it to the engine
         yield f"mm.libpath={libpath}"
@@ -942,7 +942,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if we get this far, {marker} could not be found
         return None
 
-    def fixPathlist(self, var, path):
+    def inject(self, var, path):
         """
         Ensure {path} is in {var}
         """
