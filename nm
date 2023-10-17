@@ -81,13 +81,16 @@ import journal
 # the app
 class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     """
-    mm 5.0.0
+    mm {}
 
     An opinionated framework for building software based on GNU make
 
     Michael Aïvázis <michael.aivazis@para-sim.com>
     copyright 1998-2003 all rights reserved
     """
+
+    # record the version number
+    __doc__ = __doc__.format(_mm_version)
 
     # project configuration
     version = pyre.properties.str()
