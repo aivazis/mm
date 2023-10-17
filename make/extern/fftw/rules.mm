@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- fftw.info}
 
 # display the fftw configuration
 extern.fftw.info:
@@ -25,7 +21,5 @@ extern.fftw.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,fftw}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,fftw}}
 
-# show me
-# ${info -- done with fftw.info}
 
 # end of file

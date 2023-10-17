@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- sundials.info}
 
 # display the summit configuration
 extern.sundials.info:
@@ -24,7 +20,5 @@ extern.sundials.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,sundials}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,sundials}}
 
-# show me
-# ${info -- done with sundials.info}
 
 # end of file

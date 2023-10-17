@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # the mm banner
 palette.banner := $(palette.cyan)
@@ -31,5 +30,6 @@ palette.warning := ${call csi8,38,214}
 palette.error := ${call csi8,38,196}
 palette.debug := ${call csi8,38,75}
 palette.firewall := $(palette.light-red)
+
 
 # end of file

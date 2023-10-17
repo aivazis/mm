@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # default compilers; specify as many as necessary in the form {family} or {family/language}
 platform.compilers = gcc python cython

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- libpq.init}
 
 # add me to the pile
 extern += ${if ${findstring libpq,$(extern)},,libpq}
@@ -31,7 +27,5 @@ libpq.libraries := pq
 # my dependencies
 libpq.dependencies =
 
-# show me
-# ${info -- done with libpq.init}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- compilers.info}
 
 # compiler info
 compilers.info:
@@ -15,8 +11,5 @@ compilers.info:
             ${call log.var,$(language),${call compiler.available,$(language)}} ;\
         }
 
-
-# show me
-# ${info -- done with compilers.info}
 
 # end of file

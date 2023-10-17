@@ -3,8 +3,6 @@
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
 
-# show me
-# ${info -- geotiff.info}
 
 # display the geotiff configuration
 extern.geotiff.info:
@@ -22,7 +20,5 @@ extern.geotiff.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,geotiff}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,geotiff}}
 
-# show me
-# ${info -- done with geotiff.info}
 
 # end of file

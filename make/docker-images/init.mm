@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- docker.init}
 
 # the list of docker images encountered
 docker-images ?=
@@ -79,8 +76,5 @@ define docker-images.init =
 # all done
 endef
 
-
-# show me
-# ${info -- done with docker.init}
 
 # end of file

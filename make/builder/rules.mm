@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- builder.info}
 
 builder.info: mm.banner
 	@${call log.sec,"builder directory layout",}
@@ -63,8 +59,5 @@ $(builder.directories):
 # all done
 endef
 
-
-# show me
-# ${info -- done with builder.info}
 
 # end of file

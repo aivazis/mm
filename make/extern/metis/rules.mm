@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- metis.info}
 
 # display the metis configuration
 extern.metis.info:
@@ -24,7 +20,5 @@ extern.metis.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,metis}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,metis}}
 
-# show me
-# ${info -- done with metis.info}
 
 # end of file

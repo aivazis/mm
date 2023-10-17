@@ -1,14 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# build the data model
-
-# show me
-# ${info -- platforms.model}
 
 # language specific settings
 # initialize the platform specific flags for each language option category
@@ -31,8 +25,5 @@ platform.c++.defines := $(platform.macro)
 platform.cuda.defines := $(platform.macro)
 platform.fortran.defines := $(platform.macro)
 
-
-# show me
-# ${info -- done with platforms.model}
 
 # end of file

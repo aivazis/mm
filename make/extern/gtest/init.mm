@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- gtest.init}
 
 # add me to the pile
 extern += ${if ${findstring gtest,$(extern)},,gtest}
@@ -31,7 +27,5 @@ gtest.libraries += gtest pthread
 # my dependencies
 gtest.dependencies =
 
-# show me
-# ${info -- done with gtest.init}
 
 # end of file

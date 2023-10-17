@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- pybind11.info}
 
 # display the pybind11 configuration
 extern.pybind11.info:
@@ -21,7 +17,5 @@ extern.pybind11.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,pybind11}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,pybind11}}
 
-# show me
-# ${info -- done with pybind11.info}
 
 # end of file

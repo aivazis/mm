@@ -1,21 +1,11 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# build the data model
-
-# show me
-# ${info -- developers.model}
 
 # invoke the developer constructor
-# ${info --   developer constructor}
 ${eval ${call developer.init}}
 
-
-# show me
-# ${info -- done with developers.model}
 
 # end of file

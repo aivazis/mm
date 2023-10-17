@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- cantera.init}
 
 # add me to the pile
 extern += ${if ${findstring cantera,$(extern)},,cantera}
@@ -31,7 +27,5 @@ cantera.libraries ?= cantera cantera_fortran
 # my dependencies
 cantera.dependencies := eigen sundials openblas yaml fmt fortran
 
-# show me
-# ${info -- done with cantera.init}
 
 # end of file

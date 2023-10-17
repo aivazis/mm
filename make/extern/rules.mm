@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- extern.info}
 
 extern.info:
 	@${call log.sec,"extern","support for external packages"}
@@ -20,7 +16,5 @@ extern.info:
 	@${call log.var,"requested",$(projects.extern.requested)}
 	@${call log.var,"provided",$(projects.extern.loaded)}
 
-# show me
-# ${info -- done with extern.info}
 
 # end of file

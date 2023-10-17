@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- languages.init}
 
 # the language constructor
 #  usage: language.init {language}
@@ -24,7 +20,5 @@ define language.init =
 # all done
 endef
 
-# show me
-# ${info -- done with languages.init}
 
 # end of file

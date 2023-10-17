@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- eigen.info}
 
 # display the eigen configuration
 extern.eigen.info:
@@ -24,7 +20,5 @@ extern.eigen.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,eigen}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,eigen}}
 
-# show me
-# ${info -- done with eigen.info}
 
 # end of file

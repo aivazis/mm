@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- project.model}
 
 # global variable that records content types as they are encountered to ensure that their support
 # files are included only once
@@ -94,7 +91,5 @@ tidy:
 # protect the above
 .PHONY: projects tests clean
 
-
-# ${info -- done with model}
 
 # end of file

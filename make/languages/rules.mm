@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- languages.info}
 
 # make a recipe that logs information about a language
 #  usage: language.recipes.info {language}
@@ -39,8 +35,5 @@ suffixes.info:
 	    ${call log.var,$(language),$(languages.$(language).sources)}; \
         }
 
-
-# show me
-# ${info -- done with languages.info}
 
 # end of file

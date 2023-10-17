@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- project.info}
 
 # bootstrap
 # make all project workflows
@@ -122,8 +119,5 @@ $(1).help:
 # all done
 endef
 
-
-# show me
-# ${info -- done with project.info}
 
 # end of file

@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- mm.init}
 
 # tokens
 comma := ,
@@ -43,7 +39,5 @@ mm.link.options = \
 # contribution to the config path
 mm.config := $(mm.home)
 
-# show me
-# ${info -- done with mm.init}
 
 # end of file

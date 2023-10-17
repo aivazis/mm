@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- hosts.init}
 
 # host info
 host.name =
@@ -15,7 +11,5 @@ host.version =
 host.arch =
 host.cores =
 
-# show me
-# ${info -- done with hosts.init}
 
 # end of file

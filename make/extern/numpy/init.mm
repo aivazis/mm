@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- numpy.init}
 
 # add me to the pile
 extern += ${if ${findstring numpy,$(extern)},,numpy}
@@ -31,7 +27,5 @@ numpy.libraries := npymath
 # my dependencies
 numpy.dependencies =
 
-# show me
-# ${info -- done with numpy.init}
 
 # end of file

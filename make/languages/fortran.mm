@@ -1,9 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
+
 
 # fortran
 languages.fortran.sources := .f .f77 .f90 .f95 .f03 .F .F77 .F90 .F95 .F03

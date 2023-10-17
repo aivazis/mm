@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- pybind11.init}
 
 # add me to the pile
 extern += ${if ${findstring pybind11,$(extern)},,pybind11}
@@ -31,7 +27,5 @@ pybind11.libraries :=
 # my dependencies
 pybind11.dependencies =
 
-# show me
-# ${info -- done with pybind11.init}
 
 # end of file

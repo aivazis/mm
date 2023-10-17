@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- openblas.init}
 
 # add me to the pile
 extern += ${if ${findstring openblas,$(extern)},,openblas}
@@ -28,7 +24,5 @@ openblas.libpath ?= $(openblas.dir)/lib
 # the name of the library
 openblas.libraries := openblas
 
-# show me
-# ${info -- done with openblas.init}
 
 # end of file

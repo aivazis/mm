@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- packages.init}
 
 # the list of encountered packages
 packages ?=
@@ -225,8 +222,5 @@ define package.staging.config.dirs =
     }
 endef
 
-
-# show me
-# ${info -- done with packages.init}
 
 # end of file

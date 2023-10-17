@@ -2,10 +2,7 @@
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- tests.info}
 
 # test suite help
 tests.info: mm.banner
@@ -385,8 +382,5 @@ $(1).info.staging.targets:
 # all done
 endef
 
-
-# show me
-# ${info -- done with tests.info}
 
 # end of file

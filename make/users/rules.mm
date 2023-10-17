@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- users.info}
 
 # user info
 user.info:
@@ -17,7 +13,5 @@ user.info:
 	@${call log.var,name,$(user.name)}
 	@${call log.var,email,$(user.email)}
 
-# show me
-# ${info -- done with users.info}
 
 # end of file

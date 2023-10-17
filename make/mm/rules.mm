@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- mm.info}
 
 # administrivia
 mm.banner:
@@ -67,7 +63,5 @@ make.info:
 	@${call log.var,makefiles,$(MAKEFILE_LIST)}
 	@${call log.var,flags,$(MAKEFLAGS)}
 
-# show me
-# ${info -- done with mm.info}
 
 # end of file

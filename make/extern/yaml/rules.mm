@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- yaml.info}
 
 # display the yaml configuration
 extern.yaml.info:
@@ -24,7 +20,5 @@ extern.yaml.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,yaml}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,yaml}}
 
-# show me
-# ${info -- done with yaml.info}
 
 # end of file

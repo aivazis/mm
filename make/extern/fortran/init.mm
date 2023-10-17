@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- fortran.init}
 
 # add me to the pile
 extern += ${if ${findstring fortran,$(extern)},,fortran}
@@ -31,7 +27,5 @@ fortran.libraries ?= $($(compiler.fortran).mixed.libraries)
 # my dependencies
 fortran.dependencies =
 
-# show me
-# ${info -- done with fortran.init}
 
 # end of file

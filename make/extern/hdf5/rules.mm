@@ -1,12 +1,8 @@
 # -*- Makefile -*-
 #
-# michael a.g. aïvázis
-# parasim
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2023 all rights reserved
-#
 
-# show me
-# ${info -- hdf5.info}
 
 # display the hdf5 configuration
 extern.hdf5.info:
@@ -24,7 +20,5 @@ extern.hdf5.info:
 	@${call log.var,"c++ compile line",${call extern.compile.options,c++,hdf5}}
 	@${call log.var,"c++ link line",${call extern.link.options,c++,hdf5}}
 
-# show me
-# ${info -- done with hdf5.info}
 
 # end of file
