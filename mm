@@ -269,6 +269,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     def __init__(self, **kwds):
         # chain up
         super().__init__(**kwds)
+        # N.B.:
+        #   the {explore} step could happen here
+        #   there were some corner cases that were raising exceptions
+        #   investigate and rethink
         # get the current user
         self.user = self.pyre_executive.user
         # record the mm installation directory
@@ -289,6 +293,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._localMakefile = None
         # the path to the intermediate products of the build
         self._bldroot = None
+        # the target identification
+        self._bldTarget = None
+        self._bldVariants = None
+        self._bldTag = None
         # and the install directory
         self._prefix = None
         # all done
@@ -319,6 +327,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._anchor = self._localMakefile.parent if self._localMakefile else self._root
         # figure out where to put the intermediate products of the build
         self._bldroot = self.locateBuildRoot()
+        # construct the build tag
+        self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
         # figure out the install directory
         self._prefix = self.locatePrefix()
         # adjust my envpaths with the build configuration
@@ -704,6 +714,22 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # otherwise, put things in a subdirectory of the project root
         return self._root / "builds"
 
+    def assembleBuildTarget(self):
+        """
+        Construct the build tag that used to indicate platform and build characteristics
+        """
+        # get the target platform; note that this may be different that
+        # the machine on which mm is running
+        host = self.host
+        # the target platform is made out of its name and architecture
+        target = [host.platform, host.cpus.architecture]
+        # assemble the variants
+        variants = list(sorted(self.target))
+        # and build the tag
+        tag = "-".join(filter(None, variants + target))
+        # all done
+        return target, variants, tag
+
     def locatePrefix(self):
         """
         Figure out where to put the build products
@@ -908,21 +934,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         Build the variable assignments that communicate the build target
         to the implementation engine
         """
-        # get the target platform; note that this may be different that
-        # the machine on which mm is running
-        host = self.host
-        # the target platform is made out of its name and architecture
-        target = [host.platform, host.cpus.architecture]
-        # assemble the variants
-        variants = list(sorted(self.target))
-        # and build the tag
-        tag = "-".join(filter(None, variants + target))
         # set the target
-        yield f"target={'-'.join(target)}"
+        yield f"target={'-'.join(self._bldTarget)}"
         # its tag
-        yield f"target.tag={tag}"
+        yield f"target.tag={self._bldTag}"
         # and the list of variants
-        yield f"target.variants={' '.join(variants)}"
+        yield f"target.variants={' '.join(self._bldVariants)}"
         # all done
         return
 
