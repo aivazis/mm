@@ -79,7 +79,7 @@ import journal
 
 
 # the app
-class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
+class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     """
     mm {}
 
@@ -1177,14 +1177,14 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     )
     # parser of the {git describe} result
     gitDescriptionParser = re.compile(
-        r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
+        r"(v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
     )
 
 
 # bootstrap
 if __name__ == "__main__":
     # instantiate the app
-    app = mm(name="mm")
+    app = Builder(name="mm")
     # invoke
     status = app.run()
     # and share the status with the shell
