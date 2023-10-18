@@ -23,7 +23,7 @@ define builder.init =
     ${eval builder.dest.pyc ?= $(builder.dest.prefix)packages/}
 
     # the layout of the staging area with the build disposables
-    ${eval builder.dest.staging ?= $(2)/$(builder.tid)/}
+    ${eval builder.staging ?= $(2)/$(builder.tid)/}
 
     # make a pile out for all the relevant directories; this gets used by the rule maker that makes
     # sure these directories exist, so make sure you add new ones here as well

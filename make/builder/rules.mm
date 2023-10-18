@@ -7,7 +7,7 @@
 builder.info: mm.banner
 	@${call log.sec,"builder directory layout",}
 	@${call log.sec,"  staging layout",}
-	@${call log.var,"       tmp",$(builder.dest.staging)}
+	@${call log.var,"       tmp",$(builder.staging)}
 	@${call log.sec,"  install layout",}
 	@${call log.var,"    prefix",$(builder.dest.prefix)}
 	@${call log.var,"       bin",$(builder.dest.bin)}
@@ -20,7 +20,7 @@ builder.info: mm.banner
 # targets that just print the value of the corresponding configuration setting
 # useful at shell level
 builder.info.tmp:
-	@echo $(builder.dest.staging)
+	@echo $(builder.staging)
 
 builder.info.prefix:
 	@echo $(builder.dest.prefix)
@@ -44,7 +44,7 @@ builder.info.pyc:
 	@echo $(builder.dest.pyc)
 
 builder.info.staging:
-	@echo $(builder.dest.staging)
+	@echo $(builder.staging)
 
 
 # create the builder targets
