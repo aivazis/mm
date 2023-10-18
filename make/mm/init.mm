@@ -17,6 +17,7 @@ mm.home ?=
 mm.merlin ?=
 mm.compilers ?=
 mm.extern ?= $(mm.home)/make/extern
+mm.pkgdb ?= adhoc
 
 # contributions to the build
 mm.flags ?=
