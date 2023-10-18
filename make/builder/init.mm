@@ -27,12 +27,13 @@ define builder.init =
 
     # make a pile out for all the relevant directories; this gets used by the rule maker that makes
     # sure these directories exist, so make sure you add new ones here as well
-    ${eval builder.dirs := prefix bin doc inc lib pyc share staging}
+    ${eval builder.dirs := prefix bin doc inc lib pyc share}
     # put them all on a pile
     ${eval builder.directories := \
         ${sort \
             ${foreach directory,$(builder.dirs),$(builder.dest.$(directory))} \
         } \
+        $(builder.staging)
     }
 
     # extensions for products
