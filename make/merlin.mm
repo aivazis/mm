@@ -19,9 +19,8 @@
 define model :=
     log mm
     languages platforms hosts users developers
-    compilers targets extern
-    builder
-    projects
+    compilers targets builder
+	extern projects
 endef
 
 # the categories of methods each object provides
