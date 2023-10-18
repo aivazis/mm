@@ -125,6 +125,9 @@ tex.bibtex = bibtex
 tex.dvips = dvips
 tex.dvipdf = dvipdf
 
+# touch
+touch = touch
+
 # yacc
 yacc = yacc
 yacc.c = y.tab.c
