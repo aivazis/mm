@@ -15,6 +15,28 @@ extern.info:
 	@${call log.var,"available",$(extern.available)}
 	@${call log.var,"requested",$(projects.extern.requested)}
 	@${call log.var,"provided",$(projects.extern.loaded)}
+	@${call log.sec,"  db",}
+	@${call log.var,$(mm.pkgdb),$(builder.staging)pkg-$(mm.pkgdb).db}
 
+
+# package database amanagement
+define extern.workflows.pkgdb
+
+	${eval _db := $(builder.staging)pkg-$(mm.pkgdb).db}
+
+# attempt to load the package database
+include $(_db)
+
+extern.db.clean:
+	@${call log.action,"rm",$(_db)}
+	$(rm.force) $(_db)
+
+# the rule that regenerates the package database
+$(builder.staging)pkg-%.db:
+	@${call log.action,"pkgdb",$$@}
+	@$(mm) --pkgdb=$$* --setup
+
+
+endef
 
 # end of file
