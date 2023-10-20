@@ -10,6 +10,9 @@ fortran.self := true
 # initialize the pile of external packages
 extern :=
 
+# set up the management of the package database
+${eval ${call extern.workflows.pkgdb}}
+
 # the locations where package definitions may live
 extern.mm ?= $(mm.extern)
 extern.user ?= $(user.config)/extern

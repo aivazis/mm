@@ -116,7 +116,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     local.default = None
     local.doc = "the name of a optional local makefile with additional targets"
 
+    pkgdb = pyre.properties.str()
+    pkgdb.default = "adhoc"
+    pkgdb.validators = pyre.constraints.isMember("adhoc", "conda", "macports", "dpkg")
+    pkgdb.doc = (
+        "use one of the supported package managers for resolving external dependencies"
+    )
+
     # mm behavior
+    setup = pyre.properties.bool()
+    setup.default = False
+    setup.doc = "build a package database, instead of invoking make"
+
     serial = pyre.properties.bool()
     serial.default = False
     serial.doc = "control whether to run make in parallel"
@@ -252,18 +263,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         The main entry point
         """
-        # explore
-        self.explore()
-        # attempt to
-        try:
-            # launch the build
-            status = self.launch()
-        # application errors
-        except journal.ApplicationError:
-            # have already been reported, so ignore them
-            return 1
-        # if we get this far, indicate success
-        return status
+        # if we are just setting up the package database
+        if self.setup:
+            # build the package database
+            return self.buildPackageDatabase()
+        # otherwise, launch the build
+        return self.launch()
 
     # metamethods
     def __init__(self, **kwds):
@@ -303,43 +308,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         return
 
     # implementation details
-    def explore(self):
-        """
-        Gather the locations of all important directories and files
-        """
-        # verify we have the correct make
-        self._builder = self.verifyGNUMake()
-        # verify my installation
-        self._makefile = self.verifyInstallation()
-        # get the user configuration directory
-        self._userCfg = self.locateUserConfig()
-        # find the project root
-        self._root = self.locateProjectRoot()
-        # and the project configuration directory
-        self._projectCfg = self.locateProjectConfig()
-        # load the project specific configuration files
-        self.loadProjectConfig()
-        # locate the local makefile
-        self._localMakefile = self.locateLocalMakefile()
-        # mark the location from which mm was invoked
-        self._origin = pyre.primitives.path.cwd()
-        # mark the path that will become the {cwd} for make
-        self._anchor = self._localMakefile.parent if self._localMakefile else self._root
-        # figure out where to put the intermediate products of the build
-        self._bldroot = self.locateBuildRoot()
-        # construct the build tag
-        self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
-        # figure out the install directory
-        self._prefix = self.locatePrefix()
-        # adjust my envpaths with the build configuration
-        self.updateEnvironmentVariables()
-        # all done
-        return
-
     def launch(self):
         """
         Launch GNU make
         """
+        # explore
+        self.explore()
         # if the user has asked to see the recipe execution details
         if self.verbose:
             # fall back to serial mode so the output is not garbled
@@ -380,12 +354,95 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "universal_newlines": True,
             "shell": False,
         }
-        # invoke GNU make
+        # invoke GNU make; we already know {self.make} is good, since we verified its version.
+        # any other modes of failure?
         with subprocess.Popen(**settings) as make:
             # wait for it to finish and harvest its exit code
             status = make.wait()
         # and share it with the shell
         return status
+
+    def buildPackageDatabase(self):
+        """
+        Build an external package database for the engine
+        """
+        # get the name of the package database manager
+        name = self.pkgdb
+        # get the temporary staging area
+        stage = self.locateBuildRoot()
+        # construct the build tag
+        _, _, tag = self.assembleBuildTarget()
+        # the location of the package database
+        db = stage / tag / f"pkg-{name}.db"
+        # if this the adhoc manager
+        if name == "adhoc":
+            # assume that the user already has setup a custom package database
+            # in some configuration file, as is current mm practice; just create the db file
+            open(db, "w")
+            # and move on
+            return 0
+
+        #
+        # THIS SECTION IS CURRENTLY UNDER DEVELOPMENT
+        #
+
+        # grab a channel
+        channel = journal.info("mm.pkgdb")
+        # show me
+        channel.line(f"setting up the package database")
+        channel.indent()
+        channel.line(f"package manager: {name}")
+        channel.line(f"db: {db}")
+        channel.outdent()
+        # flush
+        channel.log()
+
+        hdf5 = pyre.externals.hdf5().default()
+        # show me
+        channel.line(f"hdf5:")
+        channel.indent()
+        channel.line(f"version: {hdf5.version}")
+        channel.line(f"inc: {', '.join(map(str, hdf5.incdir))}")
+        channel.line(f"lib: {', '.join(map(str, hdf5.libdir))}")
+        channel.outdent()
+        # flush
+        channel.log()
+
+        # all done
+        return 0
+
+    def explore(self):
+        """
+        Gather the locations of all important directories and files
+        """
+        # verify we have the correct make
+        self._builder = self.verifyGNUMake()
+        # verify my installation
+        self._makefile = self.verifyInstallation()
+        # get the user configuration directory
+        self._userCfg = self.locateUserConfig()
+        # find the project root
+        self._root = self.locateProjectRoot()
+        # and the project configuration directory
+        self._projectCfg = self.locateProjectConfig()
+        # load the project specific configuration files
+        self.loadProjectConfig()
+        # locate the local makefile
+        self._localMakefile = self.locateLocalMakefile()
+        # mark the location from which mm was invoked
+        self._origin = pyre.primitives.path.cwd()
+        # mark the path that will become the {cwd} for make
+        self._anchor = self._localMakefile.parent if self._localMakefile else self._root
+        # figure out where to put the intermediate products of the build
+        self._bldroot = self.locateBuildRoot()
+        # construct the build tag
+        self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
+        # figure out the install directory
+        self._prefix = self.locatePrefix()
+        # adjust my envpaths with the build configuration
+        self.updateEnvironmentVariables()
+        # all done
+        return
 
     def assembleMakeCommandLine(self):
         """
@@ -556,16 +613,44 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.log()
                     # and bail, just in case errors aren't fatal
                     return
-        # if anything goes wrong
-        except Exception as error:
+        # if the executable could not be found
+        except FileNotFoundError as error:
             # we have a problem
             channel = journal.error("mm.gnu")
             # complain
             channel.line(f"an unexpected error occurred")
             channel.line(f"while attempting to retrieve the version of GNU make")
             channel.indent()
-            channel.line(f"launching '{self.make}'")
-            channel.line(f"returned '{error}'")
+            channel.line(f"could not find '{self.make}'")
+            channel.line(f"launching it resulted in: {error}")
+            channel.outdent()
+            channel.line(f"check your setting for my 'make' property")
+            # flush
+            channel.log()
+        # if the launch fails in a more general way
+        except OSError as error:
+            # we have a problem
+            channel = journal.error("mm.gnu")
+            # complain
+            channel.line(f"an unexpected error occurred")
+            channel.line(f"while attempting to retrieve the version of GNU make")
+            channel.indent()
+            channel.line(f"launching '{self.make}' returned")
+            channel.line(f"{error}")
+            channel.outdent()
+            channel.line(f"check your setting for my 'make' property")
+            # flush
+            channel.log()
+        # if {subprocess} detected some other kind of problem
+        except subprocess.SubprocessError as error:
+            # we have a problem
+            channel = journal.error("mm.gnu")
+            # complain
+            channel.line(f"an unexpected error occurred")
+            channel.line(f"while attempting to retrieve the version of GNU make")
+            channel.indent()
+            channel.line(f"launching '{self.make}' failed with")
+            channel.line(f"{error}")
             channel.outdent()
             channel.line(f"check your setting for my 'make' property")
             # flush
@@ -997,6 +1082,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.merlin={self._makefile}"
         # the location of the built-in package database
         yield f"mm.extern={self.engine / 'extern'}"
+        # the package manager
+        yield f"mm.pkgdb={self.pkgdb}"
         # the list of compilers
         yield f"mm.compilers={' '.join(self.compilers)}"
         # form the list of paths with headers to add to the compiler command line
