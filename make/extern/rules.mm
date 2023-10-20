@@ -32,7 +32,7 @@ extern.db.clean:
 	$(rm.force) $(_db)
 
 # the rule that regenerates the package database
-$(builder.staging)pkg-%.db:
+$(builder.staging)pkg-%.db: | $(builder.staging)
 	@${call log.action,"pkgdb",$$@}
 	@$(mm) --pkgdb=$$* --setup
 
