@@ -181,6 +181,8 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # if we are in setup mode
         if self.setup:
+            # disable, for now
+            return 0
             # just set up the user configuration directory
             return self.setupUserConfig()
 
