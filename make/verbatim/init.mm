@@ -19,14 +19,14 @@ define verbatim.init =
     # the path to the assets relative to the project home
     ${eval $(2).root ?=}
     # build the absolute path to the verbatim asset directory
-    ${eval $(2).prefix := $($(2).home)$($(2).root)}
+    ${eval $(2).prefix ?= $($(2).home)$($(2).root)}
     # and the destination directory
     ${eval $(2).staging ?= $(builder.dest.prefix)$($(2).root)}
 
     # compute the set of files
     # at the source
-    ${eval $(2).assets := ${call verbatim.assets,$(2)}}
-    ${eval $(2).directories := ${call verbatim.directories,$(2)}}
+    ${eval $(2).assets ?= ${call verbatim.assets,$(2)}}
+    ${eval $(2).directories ?= ${call verbatim.directories,$(2)}}
 
     # at the destination
     ${eval $(2).staging.assets := ${call verbatim.staging.assets,$(2)}}
@@ -55,7 +55,7 @@ endef
 
 
 # build the set of verbatim directories
-#  usage verbatim.assets {package}
+#  usage verbatim.directories {package}
 # N.B.: the /* removes the root directory from the pile and prevents the creation of a duplicate
 #       target; an alternative would have been to sort/uniq the pile, but why...
 define verbatim.directories =
