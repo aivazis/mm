@@ -748,7 +748,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel.line(f"could not find the project root directory")
                 channel.line(f"while exploring the current workspace")
                 channel.indent()
-                channel.line(f"no '{marker}'")
+                channel.line(f"no '{marker}' directory")
                 channel.line(f"in '{root}' or any of its parents")
                 channel.outdent()
                 channel.line(
@@ -832,8 +832,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Look for configuration files in the project area and load them
         """
-        # form the path to the configuration file
-        cfg = self._projectCfg / "mm.yaml"
+        # get the directory with the project configuration
+        projectCfg = self._projectCfg
+        # if it doesn't exist
+        if projectCfg is None:
+            # nothing further to do
+            return
+        # otherwise, form the path to the configuration file
+        cfg = projectCfg / "mm.yaml"
         # if the file exists:
         if cfg.exists():
             # load it
@@ -841,7 +847,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # next, look for a branch specific configuration file; get the name of the branch
         branch = self.gitCurrentBranch()
         # form the name of the configuration file
-        cfg = self._projectCfg / f"{branch}.yaml"
+        cfg = projectCfg / f"{branch}.yaml"
         # and if the file exists
         if cfg.exists():
             # load it
@@ -1001,8 +1007,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.indent()
                     channel.line(f"no explicit setting was provided")
                     channel.line(f"and parsing the latest git tag failed")
+                    channel.line(
+                        f"using the default value of '{major}.{minor}.{micro}'"
+                    )
+                    channel.line(f"but that's probably not what you want")
                     channel.outdent()
-                    channel.line(f"please give my 'version' setting a reasonable value")
+                    channel.line(
+                        f"please use '--version' to provide a reasonable value"
+                    )
                     # flush
                     channel.log()
         # in any case, we know have what we need to send to mm
