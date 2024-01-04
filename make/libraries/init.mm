@@ -54,6 +54,9 @@ define libraries.init =
     # artifacts
     # the root of the library source tree relative to the project home
     ${eval $(2).root ?= lib/$($(2).stem)/}
+    # a list of extra headers and sources that don't match any pattern
+    ${eval $(2).headers.extra ?=}
+    ${eval $(2).sources.extra ?=}
     # a list of files with library repo metadata that require expansion; relative to {root}
     ${eval $(2).headers.autogen ?=}
     ${eval $(2).sources.autogen ?=}
@@ -209,6 +212,7 @@ define library.sources
                 }
             }
         }
+        ${addprefix $($(1).prefix),$($(1).sources.extra)}
         ${addprefix $($(1).prefix),${basename $($(1).sources.autogen)}}
     }
 endef
@@ -239,6 +243,7 @@ define library.headers
                 }
             }
         }
+        ${addprefix $($(1).prefix),$($(1).headers.extra)}
         ${addprefix $($(1).prefix),${basename $($(1).headers.autogen)}}
     }
 endef
