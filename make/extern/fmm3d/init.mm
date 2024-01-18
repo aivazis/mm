@@ -22,7 +22,7 @@ fmm3d.defines ?= WITH_FMM3D
 fmm3d.incpath ?= $(fmm3d.dir)/include
 
 # linker flags
-fmm3d.ldflags ?=
+fmm3d.ldflags ?= std=legacy
 # the canonical form of the lib directory
 fmm3d.libpath ?= $(fmm3d.dir)/lib
 # the names of the libraries
