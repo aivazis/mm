@@ -15,7 +15,7 @@ gfortran.prefix.flags :=
 gfortran.prefix.defines := -D
 gfortran.prefix.incpath := -I
 
-gfortran.prefix.ldflags := -
+gfortran.prefix.ldflags :=
 gfortran.prefix.libpath := -L
 gfortran.prefix.libraries := -l
 
