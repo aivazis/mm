@@ -14,7 +14,7 @@ languages.c++.interpreted :=
 
 # flags
 languages.c++.categories.compile := flags defines incpath
-languages.c++.categories.link := ldflags libpath libraries
+languages.c++.categories.link := ldflags libpath rpath libraries
 
 
 # build a compile command line
