@@ -24,8 +24,12 @@ except ImportError:
     _pyre_release = "v1.12.4"
     # of the bootstrapping archive
     _pyre_boot = "pyre-boot.zip"
-    # and deposit it in a temporary directory
-    _mm_pyre = os.path.join(tempfile.mkdtemp(), _pyre_boot)
+    # form the home of the python bootstrap
+    _mm_pdir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".mm"))
+    # if it doesn't exist, make it
+    os.makedirs(_mm_pdir, exist_ok=True)
+    # and deposit it there
+    _mm_pyre = os.path.join(_mm_pdir, _pyre_boot)
     # if the file is not already there
     if not os.path.exists(_mm_pyre):
         # form the source url
