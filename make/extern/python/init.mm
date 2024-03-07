@@ -7,7 +7,7 @@
 # add me to the pile
 extern += ${if ${findstring python,$(extern)},,python}
 
-# # find my configuration file
+# find my configuration file
 python.config := ${dir ${call extern.config,python}}
 
 # the version
@@ -32,6 +32,8 @@ python.incpath ?= $(python.dir)/include/$(python.interpreter)
 python.ldflags ?=
 # the canonical form of the lib directory
 python.libpath ?= $(python.dir)/lib
+# its rpath
+python.rpath ?= $(python.dir)/lib
 # the names of the libraries
 python.libraries ?= $(python.interpreter)
 
