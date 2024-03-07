@@ -1,0 +1,15 @@
+# -*- makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2024 all rights reserved
+
+
+# the testsuite for the simple library
+simple.lib.tests.stem := simple.lib
+# depends on
+simple.lib.tests.prerequisites := simple.lib
+# external dependencies
+simple.lib.tests.extern := simple.lib $(simple.lib.extern)
+
+
+# end of file
