@@ -17,6 +17,7 @@ gcc.prefix.incpath := -I
 
 gcc.prefix.ldflags :=
 gcc.prefix.libpath := -L
+gcc.prefix.rpath := -Wl,-rpath,
 gcc.prefix.libraries := -l
 
 # compile time flags
