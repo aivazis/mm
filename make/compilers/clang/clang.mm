@@ -17,6 +17,7 @@ clang.prefix.incpath := -I
 
 clang.prefix.ldflags :=
 clang.prefix.libpath := -L
+clang.prefix.rpath := -Wl,-rpath,
 clang.prefix.libraries := -l
 
 # compile time flags

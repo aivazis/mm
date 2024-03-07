@@ -17,6 +17,7 @@ g++.prefix.incpath := -I
 
 g++.prefix.ldflags :=
 g++.prefix.libpath := -L
+g++.prefix.rpath := -Wl,-rpath,
 g++.prefix.libraries := -l
 
 # compile time flags
