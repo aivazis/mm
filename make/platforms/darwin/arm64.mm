@@ -17,12 +17,12 @@ platform.isysroot := /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX
 # c
 platform.c.flags = -arch arm64
 platform.c.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
-platform.c.shared = $($(compilers.c).shared)
-platform.c.bundle = $($(compilers.c).bundle)
+platform.c.dll = -dynamiclib
+platform.c.ext = -bundle
 # c++
 platform.c++.flags := -arch arm64
 platform.c++.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
-platform.c++.shared = $($(compilers.c++).shared)
-platform.c++.bundle = $($(compilers.c++).bundle)
+platform.c++.dll = -dynamiclib
+platform.c++.ext = -bundle
 
 # end of file
