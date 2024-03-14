@@ -25,6 +25,7 @@ clang.compile.only := -c
 clang.compile.output := -o
 clang.compile.makedep := -MD
 clang.compile.base := -pipe $(clang.compile.makedep)
+clang.compile.isysroot := -isysroot
 
 # symbols and optimization
 clang.debug := -g

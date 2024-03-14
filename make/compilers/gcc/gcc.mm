@@ -25,6 +25,7 @@ gcc.compile.only := -c
 gcc.compile.output := -o
 gcc.compile.makedep := -MD
 gcc.compile.base := -fno-diagnostics-color -pipe $(gcc.compile.makedep)
+gcc.compile.isysroot := -isysroot
 
 # symbols and optimization
 gcc.debug := -g
