@@ -35,7 +35,7 @@ python.libpath ?= $(python.dir)/lib
 # its rpath
 python.rpath ?= $(python.dir)/lib
 # the names of the libraries
-python.libraries ?= $(python.interpreter)
+python.libraries ?= #$(python.interpreter)
 
 # now include some platform specific settings
 include make/extern/python/$(platform).mm
