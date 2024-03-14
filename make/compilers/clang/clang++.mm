@@ -52,7 +52,9 @@ clang++.std.c++20 := -std=c++20
 clang++.link.output := -o
 clang++.link.shared :=
 # link a dynamically loadable library
-clang++.link.dll := -shared
+clang++.link.dll = $(platform.c++.dll)
+# link an extension
+clang++.link.ext = $(platform.c++.ext)
 
 # command line options
 clang++.defines = MM_COMPILER_clang
