@@ -43,7 +43,7 @@ endfunction(simple_pythonInit)
 # describe the layout of the staging area
 function(simple_stagingInit)
   # the layout
-  set(SIMPLE_STAGING_PACKAGES ${Python_SITEARCH} PARENT_SCOPE)
+  set(SIMPLE_STAGING_PACKAGES ${CMAKE_BINARY_DIR}/packages PARENT_SCOPE)
   # all done
 endfunction(simple_stagingInit)
 
@@ -54,7 +54,7 @@ function(simple_destinationInit)
   set(SIMPLE_DEST_INCLUDE ${CMAKE_INSTALL_INCLUDEDIR} PARENT_SCOPE)
   set(SIMPLE_DEST_SHARE ${CMAKE_INSTALL_PREFIX}/share PARENT_SCOPE)
   if(NOT DEFINED SIMPLE_DEST_PACKAGES)
-      set(SIMPLE_DEST_PACKAGES packages CACHE STRING
+      set(SIMPLE_DEST_PACKAGES ${Python_SITEARCH} CACHE STRING
           "Python package install location, absolute or relative to install prefix")
   endif()
   # Translate to unconditional absolute path
@@ -62,7 +62,7 @@ function(simple_destinationInit)
                          BASE_DIR ${CMAKE_INSTALL_PREFIX})
   set(SIMPLE_DEST_FULL_PACKAGES ${SIMPLE_DEST_FULL_PACKAGES} PARENT_SCOPE)
   # all done
-endfunction(simple_destinationInit)
+  endfunction(simple_destinationInit)
 
 
 # ask git for the most recent tag and use it to build the version
