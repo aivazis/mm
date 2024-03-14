@@ -11,5 +11,18 @@ platform.compilers = gcc python cython
 #     platform.clean {stem}
 platform.clean = $(1).dSYM
 
+# the location of the system headers
+platform.isysroot := /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+
+# c
+platform.c.flags = -arch arm64
+platform.c.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
+platform.c.shared = $($(compilers.c).shared)
+platform.c.bundle = $($(compilers.c).bundle)
+# c++
+platform.c++.flags := -arch arm64
+platform.c++.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
+platform.c++.shared = $($(compilers.c++).shared)
+platform.c++.bundle = $($(compilers.c++).bundle)
 
 # end of file
