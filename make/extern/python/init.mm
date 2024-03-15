@@ -33,7 +33,7 @@ python.ldflags ?=
 # the canonical form of the lib directory
 python.libpath ?= $(python.dir)/lib
 # its rpath
-python.rpath ?= $(python.dir)/lib
+python.rpath = $(python.libpath)
 # the names of the libraries
 python.libraries ?= #$(python.interpreter)
 
