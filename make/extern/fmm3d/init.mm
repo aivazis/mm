@@ -25,6 +25,8 @@ fmm3d.incpath ?= $(fmm3d.dir)/include
 fmm3d.ldflags ?= std=legacy
 # the canonical form of the lib directory
 fmm3d.libpath ?= $(fmm3d.dir)/lib
+# its rpath
+fmm3d.rpath = $(fmm3d.libpath)
 # the names of the libraries
 fmm3d.libraries ?= fmm3d
 
