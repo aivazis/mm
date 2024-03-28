@@ -25,4 +25,5 @@ platform.c++.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs 
 platform.c++.dll = -dynamiclib
 platform.c++.ext = -bundle
 
+
 # end of file
