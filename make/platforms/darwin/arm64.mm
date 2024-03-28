@@ -15,12 +15,12 @@ platform.clean = $(1).dSYM
 platform.isysroot := /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
 # c
-platform.c.flags = -arch arm64
+platform.c.flags = -arch arm64 $($(compiler.c).compile.isysroot) $(platform.isysroot)
 platform.c.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
 platform.c.dll = -dynamiclib
 platform.c.ext = -bundle
 # c++
-platform.c++.flags := -arch arm64
+platform.c++.flags = -arch arm64 $($(compiler.c++).compile.isysroot) $(platform.isysroot)
 platform.c++.ldflags := -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-undefined,dynamic_lookup
 platform.c++.dll = -dynamiclib
 platform.c++.ext = -bundle
