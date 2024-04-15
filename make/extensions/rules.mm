@@ -127,7 +127,7 @@ define extension.workflows.makeinit
     ${eval module.sources := \
         ${strip \
             ${foreach directory,$(module.directories), \
-                ${wildcard
+                ${wildcard \
                     ${addprefix \
                         $(directory)*,\
                         $(languages.$(module.language).sources) \
