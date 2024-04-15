@@ -210,9 +210,7 @@ define library.sources
     ${strip
         ${filter-out $($(1).sources.exclude),
             ${foreach directory, $($(1).directories),
-                ${wildcard
-                    ${addprefix $(directory)*,$(languages.sources)}
-                }
+                ${wildcard ${addprefix $(directory)*,$(languages.sources)}}
             }
         }
         ${addprefix $($(1).prefix),$($(1).sources.extra)}
@@ -241,9 +239,7 @@ define library.headers
     ${strip
         ${filter-out $($(1).headers.exclude) $($(1).headers.gateway),
             ${foreach directory, $($(1).directories),
-                ${wildcard
-                    ${addprefix $(directory)*,$(languages.headers)}
-                }
+                ${wildcard ${addprefix $(directory)*,$(languages.headers)}}
             }
         }
         ${addprefix $($(1).prefix),$($(1).headers.extra)}
