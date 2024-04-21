@@ -63,6 +63,7 @@ define vite.init
     # the absolute path to the configuration directory
     ${eval $(_bundle).config.prefix ?= $($(_bundle).prefix)$($(_bundle).config.root)}
     # the various files by category
+    ${eval $(_bundle).config.index ?= index.html}
     ${eval $(_bundle).config.npm ?= package.json}
     ${eval $(_bundle).config.ts ?= tsconfig.node.json tsconfig.json}
     ${eval $(_bundle).config.vite ?= vite.config.ts .eslintrc.cjs}
@@ -70,6 +71,7 @@ define vite.init
     # put them all in one pile
     ${eval $(_bundle).config.all ?= \
         ${strip \
+            $($(_bundle).config.index) \
             $($(_bundle).config.npm) \
             $($(_bundle).config.ts)  \
             $($(_bundle).config.vite) \
