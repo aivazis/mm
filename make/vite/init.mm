@@ -83,6 +83,8 @@ define vite.init
 
     # the staging area
     ${eval $(_bundle).staging.prefix ?= $($(_project).tmpdir)$($(_bundle).stem).ux/}
+    # the folder with the app source
+    ${eval $(_bundle).staging.src ?= $($(_project).tmpdir)$($(_bundle).stem).ux/$($(_bundle).stem)/}
     # the folder with the node modules
     ${eval $(_bundle).stage.modules ?= $($(_bundle).staging.prefix)node_modules/}
 
