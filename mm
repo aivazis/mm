@@ -256,7 +256,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     # important environment variables
     PATH = pyre.properties.envpath(variable="PATH")
-    LD_LIBRARY_PATH = pyre.properties.envpath(variable="LD_LIBRARY_PATH")
     PYTHONPATH = pyre.properties.envpath(variable="PYTHONPATH")
     MM_INCLUDES = pyre.properties.envpath(variable="MM_INCLUDES")
     MM_LIBPATH = pyre.properties.envpath(variable="MM_LIBPATH")
@@ -344,7 +343,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # build the environment updates
         env = {
             "PATH": os.pathsep.join(map(str, self.PATH)),
-            "LD_LIBRARY_PATH": os.pathsep.join(map(str, self.LD_LIBRARY_PATH)),
             "PYTHONPATH": os.pathsep.join(map(str, self.PYTHONPATH)),
             "MM_INCLUDES": os.pathsep.join(map(str, self.MM_INCLUDES)),
             "MM_LIBPATH": os.pathsep.join(map(str, self.MM_LIBPATH)),
@@ -869,9 +867,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the path
         self.PATH = self.inject(var=self.PATH, path=(prefix / "bin"))
         # the dynamic linker path
-        self.LD_LIBRARY_PATH = self.inject(
-            var=self.LD_LIBRARY_PATH, path=(prefix / "lib")
-        )
         # the python path
         self.PYTHONPATH = self.inject(var=self.PYTHONPATH, path=(prefix / "packages"))
         # configure mm
