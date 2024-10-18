@@ -24,7 +24,7 @@ endef
 define project.main =
 # the main recipe
 $(1): $(1).directories $(1).assets
-	@${call log.asset,"project",$(1)}
+	@${call log.asset,"project",$(1) -- ${shell $(date.stamp)}}
 
 # the required directories
 $(1).directories: $($(1).prefix) $($(1).tmpdir)
