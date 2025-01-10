@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 # set the version
-__version__ = "4.4.3"
+__version__ = "4.5.0"
 
 # attempt to
 try:
@@ -58,7 +58,7 @@ except ImportError:
 # the app
 class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     """
-    mm 4.4.3
+    mm 4.5.0
 
     An opinionated framework for building software based on GNU make
 
