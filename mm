@@ -1243,7 +1243,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             commit = match.group("commit")
             ahead = match.group("ahead")
             # if we are at a tagged commit
-            if int(ahead) == 0:
+            if not ahead or int(ahead) == 0:
                 # make sure {ahead} is an empty string
                 ahead = ""
             # and return it
