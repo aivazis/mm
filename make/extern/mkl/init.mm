@@ -13,7 +13,7 @@ mkl.config := ${dir ${call extern.config,mkl}}
 # compiler flags
 mkl.flags ?=
 # enable {mkl} aware code
-mkl.defines := WITH_INTEL_DSS
+mkl.defines := WITH_MKL
 # the canonical form of the include directory
 mkl.incpath ?= $(mkl.dir)/include
 
