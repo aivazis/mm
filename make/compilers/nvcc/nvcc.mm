@@ -21,7 +21,7 @@ nvcc.prefix.libraries := -l
 
 # compile time flags
 nvcc.compile.base :=
-nvcc.compile.only := -dc
+nvcc.compile.only := -dc -std=c++20
 nvcc.compile.output := -o
 nvcc.compile.makedep := -M
 
