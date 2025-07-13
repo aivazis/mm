@@ -9,8 +9,12 @@
 -include config.mm
 # developer choices
 -include $(user.username).mm
-# and a user/host specific configuration file
+# a user/host specific configuration file
 -include $(user.username)@$(host.nickname).mm
+# an environment specific configuration file
+-include $(user.environment).mm
+# and a user/host specific configuration file
+-include $(user.environment)@$(host.nickname).mm
 
 # this list used to include the various project content types; these are now initialized
 # dynamically whenever a project that declares assets of that type is encountered; also,

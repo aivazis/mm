@@ -193,6 +193,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     host = pyre.platforms.platform()
     host.doc = "information about the current host"
 
+    environment = pyre.properties.str()
+    environment.default = os.environ.get("CONDA_DEFAULT_ENV", "base")
+    environment.doc = "the name of the conda environment"
+
     # the name of the directory with project and user makefile fragments
     cfgdir = pyre.properties.path()
     cfgdir.default = ".mm"
@@ -1055,8 +1059,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"user.uid={user.uid}"
         # full name
         yield f"user.name={user.name}"
-        # and email
+        # email
         yield f"user.email={user.email}"
+        # and environment
+        yield f"user.environment={self.environment}"
         # all done
         return
 
