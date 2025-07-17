@@ -90,7 +90,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     An opinionated framework for building software based on GNU make
 
     Michael Aïvázis <michael.aivazis@para-sim.com>
-    copyright 1998-2003 all rights reserved
+    copyright 1998-2025 all rights reserved
     """
 
     # record the version number
