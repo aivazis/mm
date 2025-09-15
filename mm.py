@@ -46,13 +46,14 @@ except ImportError:
             with open(local, "wb") as outs:
                 # pull the data and write it
                 outs.write(ins.read())
-    # grab the sys module
-    import sys
-
     # so we can add the bootstrapper to it
     sys.path.insert(1, local)
     # try importing pyre again
     import pyre
+
+
+# get the journal
+import journal
 
 
 # the app
@@ -423,7 +424,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if the user wants to see
         if self.show:
             # show the command line
-            self.info.log("make: " + " ".join(map(str, argv)))
+            journal.info("mm").log("make: " + " ".join(map(str, argv)))
 
         # our updates to the environment variables
         env = {
@@ -639,7 +640,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if it exists
         if cfgBranch.exists():
             # tell me
-            self.info.log(f"loading '{cfgBranch}'")
+            journal.info("mm").log(f"loading '{cfgBranch}'")
             # load it
             pyre.loadConfiguration(cfgBranch)
 
@@ -753,7 +754,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if we couldn't find it
         if not self.quiet:
             # pick a channel
-            channel = self.info
+            channel = journal.info("mm")
             # complain
             channel.log(f"no '{cfgdir}' found in '{home}'")
         # all done
@@ -774,7 +775,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # if the {cwd} is not where we found the makefile
             if anchor != origin and not self.quiet:
                 # pick a channel
-                channel = self.info
+                channel = journal.info("mm")
                 # complain
                 channel.line(f"no '{local}' in '{origin}'")
                 channel.indent()
