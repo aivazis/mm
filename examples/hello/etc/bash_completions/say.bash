@@ -1,3 +1,7 @@
+#! /bin/bash
+#
+# michael a.g.aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2025 all rights reserved
 # bash completion script for say
 
 function _say() {
