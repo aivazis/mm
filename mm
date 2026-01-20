@@ -21,7 +21,7 @@ try:
 # if it's not accessible
 except ImportError:
     # we will download the canonical version
-    _pyre_release = "v1.12.5"
+    _pyre_release = "v1.12.6"
     # of the bootstrapping archive
     _pyre_boot = "pyre-boot.zip"
     # form the home of the python bootstrap

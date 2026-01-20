@@ -25,7 +25,7 @@ except ImportError:
     os.makedirs(pdir, exist_ok=True)
 
     # the target version
-    release = "v1.12.5"
+    release = "v1.12.6"
     # the bootstrapping package
     boot = "pyre-boot.zip"
 
