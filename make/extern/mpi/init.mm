@@ -42,6 +42,9 @@ mpi.libraries := \
          mpi_cxx mpi, \
          mpi \
        } \
+    } \
+    ${if ${findstring mpich,$(mpi.flavor)},\
+         mpi pmpi \
     }
 
 
