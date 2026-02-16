@@ -1,0 +1,532 @@
+# bash completion for mm build system                      -*- shell-script -*-
+
+# Extract valid target names from make database output
+# Reuses the make completion AWK script if available
+# @param prefix  Prefix of the target names to match
+_comp_cmd_mm__extract_targets()
+{
+    local prefix=$1
+    local awk_script="/usr/share/bash-completion/helpers/make-extract-targets.awk"
+    
+    # If the system has the make completion AWK script, use it
+    if [[ -f "$awk_script" ]]; then
+        # Use the standard make target extraction script
+        export prefix
+        export prefix_replace=$prefix
+        awk -f "$awk_script"
+    else
+        # Fallback: simple grep-based extraction
+        awk -v prefix="$prefix" '
+        BEGIN { in_files = 0; }
+        /^# Files/ { in_files = 1; next; }
+        /^# Finished Make data base/ { exit; }
+        in_files && /^[^#\t:%][^:]*:/ {
+            # Skip special targets
+            if ($0 ~ /^\.(PHONY|SUFFIXES|DEFAULT|PRECIOUS|INTERMEDIATE|SECONDARY|SECONDEXPANSION|DELETE_ON_ERROR|IGNORE|LOW_RESOLUTION_TIME|SILENT|EXPORT_ALL_VARIABLES|NOTPARALLEL|ONESHELL|POSIX|NOEXPORT|MAKE):/) next;
+            
+            target = $0;
+            sub(/:.*/, "", target);
+            
+            # Only show targets matching the prefix
+            if (index(target, prefix) == 1) {
+                print target;
+            }
+        }'
+    fi
+}
+
+# Parse test suite configuration from .mm configuration files
+# Returns both stem and root for each test suite
+# @param project_root  Path to the project root directory
+# @return Lines in format: "stem|root" (e.g., "serial|TEST/serial/")
+_comp_cmd_mm__parse_test_suites()
+{
+    local project_root=$1
+    local mm_dir="$project_root/.mm"
+    
+    [[ ! -d "$mm_dir" ]] && return
+    
+    # Look for test suite definitions in .mm files
+    # We need both stem and root for each test suite
+    # Pattern: *.tst.SUITE.stem := STEM
+    #          *.tst.SUITE.root := ROOT
+    
+    local -A suite_stems
+    local -A suite_roots
+    
+    # Parse all .mm and .tests files
+    for config_file in "$mm_dir"/*.mm "$mm_dir"/*.tests; do
+        [[ ! -f "$config_file" ]] && continue
+        
+        # Extract stem definitions
+        # Example: summit.tst.serial.stem := serial
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            # Extract the suite name and stem value
+            if [[ "$line" =~ \.tst\.([^.]+)\.stem[[:space:]]*:=[[:space:]]*([^[:space:]#]+) ]]; then
+                local suite="${BASH_REMATCH[1]}"
+                local stem="${BASH_REMATCH[2]}"
+                suite_stems["$suite"]="$stem"
+            elif [[ "$line" =~ \.tests\.([^.]+)\.stem[[:space:]]*:=[[:space:]]*([^[:space:]#]+) ]]; then
+                local suite="${BASH_REMATCH[1]}"
+                local stem="${BASH_REMATCH[2]}"
+                suite_stems["$suite"]="$stem"
+            fi
+        done < <(grep -E '\.tst\.[^.]+\.stem\s*:=|\.tests\.[^.]+\.stem\s*:=' "$config_file" 2>/dev/null)
+        
+        # Extract root definitions
+        # Example: summit.tst.serial.root := TEST/serial/
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            if [[ "$line" =~ \.tst\.([^.]+)\.root[[:space:]]*:=[[:space:]]*([^[:space:]#]+) ]]; then
+                local suite="${BASH_REMATCH[1]}"
+                local root="${BASH_REMATCH[2]}"
+                suite_roots["$suite"]="$root"
+            elif [[ "$line" =~ \.tests\.([^.]+)\.root[[:space:]]*:=[[:space:]]*([^[:space:]#]+) ]]; then
+                local suite="${BASH_REMATCH[1]}"
+                local root="${BASH_REMATCH[2]}"
+                suite_roots["$suite"]="$root"
+            fi
+        done < <(grep -E '\.tst\.[^.]+\.root\s*:=|\.tests\.[^.]+\.root\s*:=' "$config_file" 2>/dev/null)
+    done
+    
+    # Output suite info: stem|root
+    for suite in "${!suite_stems[@]}"; do
+        local stem="${suite_stems[$suite]}"
+        local root="${suite_roots[$suite]:-tests/$stem/}"  # Default if not specified
+        echo "$stem|$root"
+    done
+}
+
+# Parse test exclusion patterns from .mm configuration files
+# @param project_root  Path to the project root directory
+# @param stem         Test suite stem to get exclusions for
+# @return List of exclusion patterns (relative paths)
+_comp_cmd_mm__get_exclusions()
+{
+    local project_root=$1
+    local stem=$2
+    local mm_dir="$project_root/.mm"
+    
+    [[ ! -d "$mm_dir" ]] && return
+    
+    local exclusions=""
+    
+    # Look for exclusion patterns
+    # Pattern: *.tst.STEM.drivers.exclude += pattern1 pattern2 \
+    # Or: *.tests.STEM.drivers.exclude += pattern1 pattern2 \
+    for config_file in "$mm_dir"/*.mm "$mm_dir"/*.tests; do
+        [[ ! -f "$config_file" ]] && continue
+        
+        # Use awk to handle multi-line exclusions with backslash continuation
+        exclusions="$exclusions$(awk -v stem="$stem" '
+            /\.tst\.[^.]+\.drivers\.exclude|\.tests\.[^.]+\.drivers\.exclude/ {
+                if ($0 ~ ("\\." stem "\\.drivers\\.exclude")) {
+                    # Remove everything up to += or :=
+                    sub(/^[^+:]*[+:]=[[:space:]]*/, "");
+                    line = $0;
+                    
+                    # Handle backslash continuation
+                    while (line ~ /\\[[:space:]]*$/) {
+                        sub(/\\[[:space:]]*$/, "", line);
+                        print line;
+                        if (getline > 0) {
+                            sub(/^[[:space:]]*/, "", $0);
+                            line = $0;
+                        } else {
+                            break;
+                        }
+                    }
+                    print line;
+                }
+            }
+        ' "$config_file" 2>/dev/null | tr '\n' ' ')"
+    done
+    
+    # Split into individual patterns and clean up
+    echo "$exclusions" | tr ' ' '\n' | grep -v '^$' | sed 's/[[:space:]]*$//'
+}
+
+# Check if a test file matches any exclusion pattern
+# @param test_file    Relative path of test file (from tests/stem/)
+# @param exclusions   Space-separated list of exclusion patterns
+# @return 0 if excluded, 1 if not excluded
+_comp_cmd_mm__is_excluded()
+{
+    local test_file=$1
+    shift
+    local exclusions=("$@")
+    
+    for pattern in "${exclusions[@]}"; do
+        [[ -z "$pattern" ]] && continue
+        
+        # Simple glob matching
+        # Convert pattern to be relative to tests/stem/
+        local clean_pattern="${pattern#*/}"  # Remove leading directory if present
+        
+        if [[ "$test_file" == $clean_pattern || "$test_file" == *"/$clean_pattern" ]]; then
+            return 0  # Excluded
+        fi
+    done
+    
+    return 1  # Not excluded
+}
+
+# Generate test targets by scanning the test directories
+# This replicates mm's dynamic target generation logic
+# @param project_root  Path to the project root directory
+# @return List of test targets (tests.stem.name format)
+_comp_cmd_mm__get_test_targets()
+{
+    local project_root=$1
+    
+    # Get test suite configurations (stem|root pairs)
+    local suites
+    suites=$(_comp_cmd_mm__parse_test_suites "$project_root")
+    
+    [[ -z "$suites" ]] && return
+    
+    local targets=""
+    
+    # For each test suite
+    while IFS='|' read -r stem root; do
+        [[ -z "$stem" || -z "$root" ]] && continue
+        
+        # Construct full path to test directory
+        local test_dir="$project_root/$root"
+        # Remove trailing slash
+        test_dir="${test_dir%/}"
+        
+        [[ ! -d "$test_dir" ]] && continue
+        
+        # Get exclusions for this stem
+        local exclusions
+        IFS=$'\n' read -r -d '' -a exclusions < <(_comp_cmd_mm__get_exclusions "$project_root" "$stem" && printf '\0')
+        
+        # Find all test files (C++, Python, Fortran)
+        # Use find to recursively discover test files
+        while IFS= read -r -d '' test_file; do
+            # Get relative path from test directory
+            local rel_path="${test_file#$test_dir/}"
+            
+            # Check if excluded
+            if _comp_cmd_mm__is_excluded "$rel_path" "${exclusions[@]}"; then
+                continue
+            fi
+            
+            # Remove file extension
+            local no_ext="${rel_path%.*}"
+            
+            # Convert path to target name
+            # mm uses the root directory structure to build target names
+            # If root is TEST/serial/, the target is TEST.serial.xxx
+            # If root is tests/hello.lib/, the target is tests.hello.lib.xxx
+            
+            # Extract the target prefix from root
+            # ROOT format: TEST/serial/ or tests/unit/ etc.
+            # We want to convert TEST/serial/ → TEST.serial
+            local target_prefix="${root%/}"  # Remove trailing /
+            target_prefix="${target_prefix//\//.}"  # Replace / with .
+            
+            # Build full target name
+            local target_name="$target_prefix.${no_ext//\//.}"
+            
+            targets="$targets$target_name"$'\n'
+        done < <(find "$test_dir" -type f \( -name '*.cc' -o -name '*.py' -o -name '*.f90' -o -name '*.f' -o -name '*.c' \) -print0 2>/dev/null)
+        
+        # Also add container targets for subdirectories
+        # E.g., TEST.serial.materials (for TEST/serial/materials/ directory)
+        while IFS= read -r -d '' subdir; do
+            local rel_subdir="${subdir#$test_dir/}"
+            [[ -z "$rel_subdir" ]] && continue
+            
+            # Extract target prefix
+            local target_prefix="${root%/}"
+            target_prefix="${target_prefix//\//.}"
+            
+            local subdir_target="$target_prefix.${rel_subdir//\//.}"
+            targets="$targets$subdir_target"$'\n'
+        done < <(find "$test_dir" -mindepth 1 -type d -print0 2>/dev/null)
+        
+        # Add the test suite target itself
+        # Extract target prefix
+        local target_prefix="${root%/}"
+        target_prefix="${target_prefix//\//.}"
+        
+        targets="${targets}$target_prefix"$'\n'
+        
+    done <<< "$suites"
+    
+    # Deduplicate and sort
+    echo "$targets" | sort -u | grep -v '^$'
+}
+
+# Main completion function for mm
+_comp_cmd_mm()
+{
+    local cur prev words cword
+    
+    # Initialize completion - handle both old and new bash-completion APIs
+    if declare -F _init_completion >/dev/null 2>&1; then
+        _init_completion || return
+    elif declare -F _get_comp_words_by_ref >/dev/null 2>&1; then
+        _get_comp_words_by_ref cur prev words cword
+    else
+        # Fallback for systems without bash-completion library
+        # Only use this when actually completing (COMP_WORDS is set)
+        if [[ -n "${COMP_WORDS+x}" ]]; then
+            cur="${COMP_WORDS[COMP_CWORD]}"
+            prev="${COMP_WORDS[COMP_CWORD-1]:-}"
+            cword=$COMP_CWORD
+        else
+            # Not in completion context, just return
+            return 0
+        fi
+    fi
+    
+    local mm_cmd="${words[0]}"
+    
+    # Handle options that take arguments
+    case "$prev" in
+        --prefix|--bldroot|--cfgdir|--engine|--portinfo)
+            # Complete with directories
+            if declare -F _filedir >/dev/null 2>&1; then
+                _filedir -d
+            else
+                COMPREPLY=($(compgen -d -- "$cur"))
+            fi
+            return
+            ;;
+        --local)
+            # Complete with .mm files
+            if declare -F _filedir >/dev/null 2>&1; then
+                _filedir '*.mm'
+            else
+                COMPREPLY=($(compgen -f -X '!*.mm' -- "$cur"))
+            fi
+            return
+            ;;
+        --target)
+            # Complete with build variants (comma-separated list supported)
+            # Extract the last variant being typed
+            local last_variant="${cur##*,}"
+            local prefix="${cur%$last_variant}"
+            
+            local variants="debug opt shared static prof cov reldeb"
+            local completions=$(compgen -W "$variants" -- "$last_variant")
+            
+            # Add the prefix back to each completion
+            COMPREPLY=()
+            for completion in $completions; do
+                COMPREPLY+=("${prefix}${completion}")
+            done
+            return
+            ;;
+        --make)
+            if declare -F _filedir >/dev/null 2>&1; then
+                _filedir
+            else
+                COMPREPLY=($(compgen -c -- "$cur"))
+            fi
+            return
+            ;;
+        --pkgdb)
+            COMPREPLY=($(compgen -W "adhoc conda macports dpkg" -- "$cur"))
+            return
+            ;;
+        --slots|-j|--jobs)
+            # Complete with numbers
+            COMPREPLY=($(compgen -W "{1..32}" -- "$cur"))
+            return
+            ;;
+        --palette)
+            COMPREPLY=($(compgen -W "builtin ansi dumb" -- "$cur"))
+            return
+            ;;
+        --compilers)
+            # Complete with available compilers
+            COMPREPLY=($(compgen -W "gcc clang intel nvcc" -- "$cur"))
+            return
+            ;;
+    esac
+    
+    # If current word starts with -, complete with mm options
+    if [[ "$cur" == -* ]]; then
+        # Handle --option=value format
+        if [[ "$cur" == --*=* ]]; then
+            local option="${cur%%=*}"
+            local value="${cur#*=}"
+            
+            case "$option" in
+                --target)
+                    # Complete with build variants (comma-separated list supported)
+                    local last_variant="${value##*,}"
+                    local prefix="${value%$last_variant}"
+                    
+                    local variants="debug opt shared static prof cov reldeb"
+                    local completions=$(compgen -W "$variants" -- "$last_variant")
+                    
+                    # Add the prefix and option back to each completion
+                    COMPREPLY=()
+                    for completion in $completions; do
+                        COMPREPLY+=("${option}=${prefix}${completion}")
+                    done
+                    return
+                    ;;
+                --pkgdb)
+                    COMPREPLY=($(compgen -W "adhoc conda macports dpkg" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
+                --palette)
+                    COMPREPLY=($(compgen -W "builtin ansi dumb" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
+                --compilers)
+                    COMPREPLY=($(compgen -W "gcc clang intel nvcc" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
+                --prefix|--bldroot|--cfgdir|--engine|--portinfo)
+                    # Directory completion for --option=value format
+                    if declare -F _filedir >/dev/null 2>&1; then
+                        _filedir -d
+                    else
+                        COMPREPLY=($(compgen -d -- "$value" | sed "s|^|${option}=|"))
+                    fi
+                    return
+                    ;;
+            esac
+        fi
+        
+        # Complete option names
+        # Common mm options (based on mm:86-260)
+        local opts="--help --version --prefix --bldroot --target --compilers
+                    --local --pkgdb --setup --serial --slots --jobs
+                    --show --dry --quiet --color --palette
+                    --ignore --verbose --rules --trace --make
+                    --cfgdir --engine --portinfo
+                    -h -q -n -v -k -j"
+        COMPREPLY=($(compgen -W "$opts" -- "$cur"))
+        
+        # Add = suffix for options that take values (no space)
+        if declare -F compopt >/dev/null 2>&1; then
+            # Check if we're completing an option that takes a value
+            if [[ " --target --compilers --prefix --bldroot --pkgdb --palette " =~ " ${COMPREPLY[0]:-} " ]]; then
+                compopt -o nospace
+                COMPREPLY=("${COMPREPLY[0]}=")
+            fi
+        fi
+        return
+    fi
+    
+    # Otherwise, complete with make targets
+    # Strategy: Try to invoke make with -npq to list targets
+    # This requires that mm and its environment are properly set up
+    
+    # Find the project root by looking for .mm directory
+    local project_root="$PWD"
+    local search_dir="$PWD"
+    while [[ "$search_dir" != "/" && "$search_dir" != "" ]]; do
+        if [[ -d "$search_dir/.mm" ]]; then
+            project_root="$search_dir"
+            break
+        fi
+        search_dir=$(dirname "$search_dir")
+    done
+    
+    local make_targets=""
+    
+    # Approach: Use mm's --dry and --show to get the make command it would run
+    # Then replay that command with -npq to get the target database
+    # This requires mm to be functional, which may not always be the case
+    
+    # Try to get the make command from mm
+    local mm_make_cmd
+    if mm_make_cmd=$("$mm_cmd" --dry --show all 2>&1); then
+        # Check if mm actually ran successfully (no python errors, etc.)
+        if ! echo "$mm_make_cmd" | grep -q "Traceback\|Error\|error"; then
+            # Parse the make command line from mm's output
+            # mm --show outputs a formatted display, look for the make executable line
+            local make_line
+            make_line=$(echo "$mm_make_cmd" | awk '/^[[:space:]]*\/.*make/ || /^[[:space:]]*gmake/ || /^[[:space:]]*make/ {print; exit}')
+            
+            if [[ -n "$make_line" ]]; then
+                # Extract the make executable and key arguments
+                # We need: executable, -I flags, -f flag, variable assignments
+                local make_exe
+                make_exe=$(echo "$make_line" | awk '{print $1}')
+                
+                # Build a simplified make command with -npq
+                # Extract include directories and makefile
+                local make_args="-npq"
+                
+                # Parse the make invocation for -I and -f flags
+                local in_flag=""
+                local skip_next=0
+                
+                # This is complex, so let's use a simpler heuristic:
+                # Just try running make -npq from the project root if we're in an mm project
+                if [[ -d "$project_root/.mm" ]]; then
+                    # Determine which make command to use
+                    local make_binary="make"
+                    command -v gmake >/dev/null 2>&1 && make_binary="gmake"
+                    if [[ -n "$make_exe" ]]; then
+                        make_binary="$make_exe"
+                    fi
+                    
+                    # Try to run make -npq with mm's standard structure
+                    # This assumes mm is installed and its makefiles are accessible
+                    local make_db
+                    make_db=$(cd "$project_root" && "$make_binary" -npq __BASH_MAKE_COMPLETION__=1 .DEFAULT 2>/dev/null)
+                    
+                    if [[ -n "$make_db" ]]; then
+                        make_targets=$(echo "$make_db" | _comp_cmd_mm__extract_targets "$cur")
+                    fi
+                fi
+            fi
+        fi
+    fi
+    
+    # Get dynamically generated test targets from filesystem scan
+    local test_targets=""
+    if [[ -d "$project_root/.mm" ]]; then
+        test_targets=$(_comp_cmd_mm__get_test_targets "$project_root")
+    fi
+    
+    # Build common targets that mm projects typically have
+    local common_targets="all clean test install info config.info"
+    
+    # If in an mm project, also add project-specific targets
+    if [[ -d "$project_root/.mm" ]]; then
+        # Try to extract project name from .mm/*.mm files
+        local project_name
+        for mmfile in "$project_root"/.mm/*.mm; do
+            if [[ -f "$mmfile" ]]; then
+                project_name=$(basename "$mmfile" .mm)
+                # Add common project targets
+                common_targets="$common_targets ${project_name} ${project_name}.info"
+                # Add common asset types
+                common_targets="$common_targets ${project_name}.lib ${project_name}.pkg ${project_name}.ext"
+                common_targets="$common_targets ${project_name}.tests"
+                break
+            fi
+        done
+    fi
+    
+    # Combine all target sources: make targets + test targets + common targets
+    local all_targets="$make_targets"
+    if [[ -n "$test_targets" ]]; then
+        all_targets="$all_targets"$'\n'"$test_targets"
+    fi
+    # Always include common targets to ensure they're never hidden
+    all_targets="$all_targets"$'\n'"$common_targets"
+    
+    # Generate completions from combined targets
+    # Convert to space-separated (compgen will deduplicate)
+    local target_list=$(echo "$all_targets" | tr '\n' ' ')
+    COMPREPLY=($(compgen -W "$target_list" -- "$cur"))
+}
+
+# Register the completion function
+complete -F _comp_cmd_mm mm
+
+# ex: filetype=sh
