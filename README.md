@@ -35,7 +35,7 @@ source ~/.local/share/bash-completion/completions/mm
 If you're working on mm from source, you can test the completion without installing:
 
 ```bash
-source bash-completion/mm
+source etc/bash_completion/mm
 ./mm <TAB>  # Now tab completion works
 ```
 

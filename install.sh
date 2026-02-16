@@ -60,7 +60,7 @@ if [ ${install_completion} -eq 1 ]; then
     # ensure the bash completion directory exists
     mkdir -p ${prefix}/share/bash-completion/completions
     # copy the completion script
-    cp bash-completion/mm ${prefix}/share/bash-completion/completions/mm
+    cp etc/bash_completion/mm ${prefix}/share/bash-completion/completions/mm
     echo "bash completion installed to ${prefix}/share/bash-completion/completions/mm"
     echo "you may need to restart your shell or run: source ${prefix}/share/bash-completion/completions/mm"
 fi
