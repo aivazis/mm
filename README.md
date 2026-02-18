@@ -64,5 +64,5 @@ Quick start:
 cd your-project
 mm            # Build with default targets (debug, shared)
 mm test       # Run tests
-mm --target=opt,static  # Build optimized static variant
+mm --target=opt         # Build optimized variant
 ```
