@@ -15,7 +15,7 @@ cuda.flags ?=
 # enable {cuda} aware code
 cuda.defines += WITH_CUDA
 # the canonical form of the include directory
-cuda.incpath ?= $(cuda.dir)/include
+cuda.incpath ?= $(cuda.dir)/include  $(cuda.dir)/include/cccl
 
 # linker flags
 cuda.ldflags ?=
