@@ -1,39 +1,615 @@
 # bash completion for mm build system                      -*- shell-script -*-
 
-# Extract valid target names from make database output
-# Reuses the make completion AWK script if available
-# @param prefix  Prefix of the target names to match
-_comp_cmd_mm__extract_targets()
+# =============================================================================
+# Global targets
+# =============================================================================
+
+# All targets that are always available regardless of project configuration.
+# Extracted from make/mm/rules.mm, make/builder/rules.mm, make/platforms/rules.mm,
+# make/hosts/rules.mm, make/users/rules.mm, make/developers/rules.mm,
+# make/compilers/rules.mm, make/languages/rules.mm, make/targets/rules.mm,
+# make/extern/rules.mm, make/projects/model.mm, make/projects/rules.mm,
+# make/libraries/rules.mm, make/packages/rules.mm, make/extensions/rules.mm,
+# make/tests/rules.mm, make/docker-images/rules.mm, make/webpack/rules.mm,
+# make/vite/rules.mm
+_comp_cmd_mm__global_targets="
+help
+mm.usage
+mm.banner
+mm.config
+mm.info
+make.info
+builder.info
+builder.info.help
+builder.info.tmp
+builder.info.prefix
+builder.info.bin
+builder.info.doc
+builder.info.inc
+builder.info.lib
+builder.info.share
+builder.info.pyc
+builder.info.staging
+platform.info
+host.info
+user.info
+developer.info
+compilers.info
+languages.info
+suffixes.info
+targets.info
+extern.info
+extern.db.clean
+projects
+projects.boot
+projects.shutdown
+projects.info
+tests
+tests.clean
+clean
+tidy
+libraries.info
+packages.info
+extensions.info
+tests.info
+docker-images.info
+webpack.info
+vite.info
+"
+
+# =============================================================================
+# Per-asset target suffix tables
+# =============================================================================
+
+# Per-project suffixes (from make/projects/rules.mm)
+# The bare name is always added separately
+_comp_cmd_mm__project_suffixes="
+.directories
+.assets
+.clean
+.info
+.info.contents
+.help
+"
+
+# Per-library suffixes (from make/libraries/rules.mm)
+_comp_cmd_mm__library_suffixes="
+.clean
+.prerequisites
+.directories
+.assets
+.headers.gateway
+.headers
+.autogen.cleanup
+.cleangen
+.archive
+.dll
+.info
+.info.directories
+.info.sources
+.info.sources.cuda
+.info.headers
+.info.objects
+.info.objects.cuda
+.info.incdirs
+.info.api
+.info.languages
+.help
+"
+
+# Per-package suffixes (from make/packages/rules.mm)
+_comp_cmd_mm__package_suffixes="
+.clean
+.directories
+.assets
+.pyc
+.drivers
+.config
+.meta
+.meta.source
+.info
+.info.directories
+.info.sources
+.info.pyc
+.info.pycdirs
+.info.config
+.info.general
+.info.package
+.info.meta
+.help
+"
+
+# Per-extension suffixes (from make/extensions/rules.mm)
+_comp_cmd_mm__extension_suffixes="
+.prerequisites
+.directories
+.assets
+.extension
+.clean
+.headers
+.archive
+.capsule
+.module.init
+.module.init.clean
+.info
+"
+
+# Per-test-suite suffixes (from make/tests/rules.mm)
+_comp_cmd_mm__testsuite_suffixes="
+.testcases
+.clean
+.info
+.help
+.info.directories
+.info.drivers
+.info.languages
+.info.staging.targets
+"
+
+# Per-docker-image suffixes (from make/docker-images/rules.mm)
+_comp_cmd_mm__docker_suffixes="
+.clean
+.build
+.run
+.launch
+.info
+.help
+"
+
+# Per-webpack suffixes (from make/webpack/rules.mm)
+_comp_cmd_mm__webpack_suffixes="
+.clean
+.generated
+.chunks
+.generate.prep
+.static
+.config
+.sources
+.npm_modules
+.info
+.info.sources
+.info.staged
+.info.installed
+.info.page
+.info.root
+.info.config
+.info.client
+.info.schema
+.info.staging
+.info.prefix
+.help
+"
+
+# Per-vite bundle suffixes (from make/vite/rules.mm)
+_comp_cmd_mm__vite_suffixes="
+.config
+.stage.config
+.stage.dirs
+.stage.files
+.stage.modules
+.directories
+.staging.prefix
+.info
+.info.config
+.help
+"
+
+# Per-verbatim suffixes (from make/verbatim/rules.mm)
+_comp_cmd_mm__verbatim_suffixes="
+.clean
+.info
+.info.files
+.info.staged.files
+.info.directories
+.info.staged.directories
+.help
+"
+
+# =============================================================================
+# Target descriptions (for inline help via F2 / configurable key)
+# =============================================================================
+
+# Get a short description for a target
+# @param target  The target name
+# @return Description string, or empty if unknown
+_comp_cmd_mm__get_target_description()
 {
-    local prefix=$1
-    local awk_script="/usr/share/bash-completion/helpers/make-extract-targets.awk"
-    
-    # If the system has the make completion AWK script, use it
-    if [[ -f "$awk_script" ]]; then
-        # Use the standard make target extraction script
-        export prefix
-        export prefix_replace=$prefix
-        awk -f "$awk_script"
-    else
-        # Fallback: simple grep-based extraction
-        awk -v prefix="$prefix" '
-        BEGIN { in_files = 0; }
-        /^# Files/ { in_files = 1; next; }
-        /^# Finished Make data base/ { exit; }
-        in_files && /^[^#\t:%][^:]*:/ {
-            # Skip special targets
-            if ($0 ~ /^\.(PHONY|SUFFIXES|DEFAULT|PRECIOUS|INTERMEDIATE|SECONDARY|SECONDEXPANSION|DELETE_ON_ERROR|IGNORE|LOW_RESOLUTION_TIME|SILENT|EXPORT_ALL_VARIABLES|NOTPARALLEL|ONESHELL|POSIX|NOEXPORT|MAKE):/) next;
-            
-            target = $0;
-            sub(/:.*/, "", target);
-            
-            # Only show targets matching the prefix
-            if (index(target, prefix) == 1) {
-                print target;
-            }
-        }'
+    local target=$1
+
+    case "$target" in
+        # --- Core mm system ---
+        help|mm.usage)       echo "Show usage information" ;;
+        mm.banner)           echo "Print the mm version banner" ;;
+        mm.config)           echo "Show makefile search path" ;;
+        mm.info)             echo "Show important mm variables" ;;
+        make.info)           echo "Show GNU Make variables" ;;
+
+        # --- Builder layout ---
+        builder.info)        echo "Show builder directory layout" ;;
+        builder.info.help)   echo "List targets that print build layout" ;;
+        builder.info.tmp)    echo "Show staging directory" ;;
+        builder.info.prefix) echo "Show install prefix" ;;
+        builder.info.bin)    echo "Show bin directory" ;;
+        builder.info.doc)    echo "Show doc directory" ;;
+        builder.info.inc)    echo "Show include directory" ;;
+        builder.info.lib)    echo "Show lib directory" ;;
+        builder.info.share)  echo "Show share directory" ;;
+        builder.info.pyc)    echo "Show Python bytecode directory" ;;
+        builder.info.staging) echo "Show staging directory" ;;
+
+        # --- Platform / host / user ---
+        platform.info)       echo "Show platform information (os, arch)" ;;
+        host.info)           echo "Show host information (name, cores)" ;;
+        user.info)           echo "Show user information (name, email)" ;;
+        developer.info)      echo "Show developer options/overrides" ;;
+
+        # --- Compilers / languages ---
+        compilers.info)      echo "Show language-to-compiler map" ;;
+        languages.info)      echo "List known languages" ;;
+        suffixes.info)       echo "Show file extension to language map" ;;
+        targets.info)        echo "Show target tag and variants" ;;
+
+        # --- External packages ---
+        extern.info)         echo "Show external package support" ;;
+        extern.db.clean)     echo "Remove package database file" ;;
+        extern.*.info)       echo "Show info for external package" ;;
+
+        # --- Project orchestration ---
+        projects)            echo "Build all projects" ;;
+        projects.boot)       echo "Log build start and setup" ;;
+        projects.shutdown)   echo "Log build finish" ;;
+        projects.info)       echo "List known projects" ;;
+        tests)               echo "Run all test suites" ;;
+        tests.clean)         echo "Clean all test suites" ;;
+        clean)               echo "Clean all projects and tests" ;;
+        tidy)                echo "Delete *~ backup files" ;;
+
+        # --- Asset category listings ---
+        libraries.info)      echo "List known libraries" ;;
+        packages.info)       echo "List known packages" ;;
+        extensions.info)     echo "List known extensions" ;;
+        tests.info)          echo "List known test suites" ;;
+        docker-images.info)  echo "List known docker images" ;;
+        webpack.info)        echo "List known webpack bundles" ;;
+        vite.info)           echo "List known vite bundles" ;;
+
+        # --- Per-asset suffix descriptions ---
+        *.directories)       echo "Create required directories" ;;
+        *.assets)            echo "Build all assets" ;;
+        *.clean)             echo "Clean artifacts" ;;
+        *.info)              echo "Show metadata" ;;
+        *.info.contents)     echo "Show asset contents" ;;
+        *.help)              echo "Show documentation" ;;
+        *.prerequisites)     echo "Build prerequisites" ;;
+        *.headers.gateway)   echo "Publish gateway headers" ;;
+        *.headers)           echo "Publish exported headers" ;;
+        *.autogen.cleanup)   echo "Clean up autogenerated files" ;;
+        *.cleangen)          echo "Remove autogenerated files" ;;
+        *.archive)           echo "Build static archive (.a)" ;;
+        *.dll)               echo "Build shared library (.so/.dylib)" ;;
+        *.info.directories)  echo "Show directory layout" ;;
+        *.info.sources)      echo "Show source files" ;;
+        *.info.sources.cuda) echo "Show CUDA source files" ;;
+        *.info.headers)      echo "Show header files" ;;
+        *.info.objects)      echo "Show object files" ;;
+        *.info.objects.cuda) echo "Show CUDA object files" ;;
+        *.info.incdirs)      echo "Show include directories" ;;
+        *.info.api)          echo "Show exported public headers" ;;
+        *.info.languages)    echo "Show source languages and flags" ;;
+        *.pyc)               echo "Byte-compile Python sources" ;;
+        *.drivers)           echo "Export driver scripts" ;;
+        *.config)            echo "Export configuration files" ;;
+        *.meta)              echo "Build package metadata" ;;
+        *.meta.source)       echo "Generate metadata .py source" ;;
+        *.info.pyc)          echo "Show byte-compiled files" ;;
+        *.info.pycdirs)      echo "Show byte-compile directories" ;;
+        *.info.config)       echo "Show configuration files" ;;
+        *.info.general)      echo "Show general metadata" ;;
+        *.info.package)      echo "Show package install path" ;;
+        *.info.meta)         echo "Show package metadata paths" ;;
+        *.extension)         echo "Build the .so module" ;;
+        *.capsule)           echo "Publish capsule headers" ;;
+        *.module.init)       echo "Build module init from main" ;;
+        *.module.init.clean) echo "Remove generated init file" ;;
+        *.testcases)         echo "Build all test cases" ;;
+        *.info.drivers)      echo "Show test case drivers" ;;
+        *.info.staging.targets) echo "Show test make targets" ;;
+        *.build)             echo "Run docker build" ;;
+        *.run)               echo "Run docker container" ;;
+        *.launch)            echo "Run docker interactively" ;;
+        *.generated)         echo "Build relay-generated bundle" ;;
+        *.chunks)            echo "Build external dependency chunks" ;;
+        *.generate.prep)     echo "Prepare for generation" ;;
+        *.static)            echo "Build static assets" ;;
+        *.sources)           echo "Stage source files" ;;
+        *.npm_modules)       echo "Install npm dependencies" ;;
+        *.info.staged)       echo "List staged files" ;;
+        *.info.installed)    echo "List installed files" ;;
+        *.info.page)         echo "Show page paths" ;;
+        *.info.root)         echo "Show pack prefix" ;;
+        *.info.client)       echo "Show client path" ;;
+        *.info.schema)       echo "Show schema path" ;;
+        *.info.staging)      echo "Show staging prefix" ;;
+        *.info.prefix)       echo "Show install prefix" ;;
+        *.stage.config)      echo "Stage configuration files" ;;
+        *.stage.dirs)        echo "Create staging directories" ;;
+        *.stage.files)       echo "Stage source files" ;;
+        *.stage.modules)     echo "Install/update node modules" ;;
+        *.staging.prefix)    echo "Create staging area" ;;
+        *.info.files)        echo "List source files" ;;
+        *.info.staged.files) echo "List staged files" ;;
+        *.info.staged.directories) echo "List staged directories" ;;
+
+        # --- Per-test-case ---
+        *.pre)               echo "Test startup dependencies" ;;
+        *.post)              echo "Test cleanup" ;;
+        *.cases)             echo "Run test cases" ;;
+        *.driver)            echo "Compile test executable" ;;
+
+        *)                   echo "" ;;
+    esac
+}
+
+# =============================================================================
+# Show target help (bound to F2 or MM_HELP_KEY)
+# =============================================================================
+
+# Show help for the target currently being typed
+# This function is bound to a key (default: F2) and displays
+# a description of the current word on the command line
+_comp_cmd_mm__show_target_help()
+{
+    local current_word="${READLINE_LINE##* }"
+    [[ -z "$current_word" ]] && return
+
+    local desc
+    desc=$(_comp_cmd_mm__get_target_description "$current_word")
+
+    if [[ -n "$desc" ]]; then
+        # Print on a new line without disturbing the command line
+        echo ""
+        echo "  $current_word -- $desc"
+        # Redraw the prompt
+        local prompt_cmd
+        prompt_cmd=$(PROMPT_COMMAND= PS1="$PS1" bash -ic 'echo "$PS1"' 2>/dev/null)
+        echo -n "$prompt_cmd$READLINE_LINE"
     fi
 }
+
+# Standalone command for target help lookup
+mm-target-help()
+{
+    local target="${1:-}"
+    if [[ -z "$target" ]]; then
+        echo "Usage: mm-target-help <target>"
+        echo ""
+        echo "Global targets:"
+        local t
+        for t in $_comp_cmd_mm__global_targets; do
+            local desc
+            desc=$(_comp_cmd_mm__get_target_description "$t")
+            [[ -n "$desc" ]] && printf "  %-30s %s\n" "$t" "$desc"
+        done
+        return
+    fi
+
+    local desc
+    desc=$(_comp_cmd_mm__get_target_description "$target")
+    if [[ -n "$desc" ]]; then
+        echo "$target -- $desc"
+    else
+        echo "No description available for '$target'"
+    fi
+}
+
+# =============================================================================
+# Project configuration parsing
+# =============================================================================
+
+# Find the project root by walking up from CWD looking for .mm/
+# @return Path to project root, or empty string
+_comp_cmd_mm__find_project_root()
+{
+    local dir="$PWD"
+    while [[ "$dir" != "/" && "$dir" != "" ]]; do
+        if [[ -d "$dir/.mm" ]]; then
+            echo "$dir"
+            return
+        fi
+        dir=$(dirname "$dir")
+    done
+}
+
+# Find the mm installation directory by locating the make/ tree
+# Searches: relative to the mm command, MM_HOME, common paths
+# @return Path to mm installation (containing make/), or empty
+_comp_cmd_mm__find_mm_home()
+{
+    # Try MM_HOME environment variable first
+    if [[ -n "${MM_HOME:-}" && -d "$MM_HOME/make" ]]; then
+        echo "$MM_HOME"
+        return
+    fi
+
+    # Try to resolve from the mm command location
+    local mm_path
+    mm_path=$(command -v mm 2>/dev/null)
+    if [[ -n "$mm_path" ]]; then
+        # Resolve symlinks
+        local resolved
+        resolved=$(readlink -f "$mm_path" 2>/dev/null || echo "$mm_path")
+        local mm_dir
+        mm_dir=$(dirname "$resolved")
+
+        # mm is typically at the root of the mm repo
+        if [[ -d "$mm_dir/make" ]]; then
+            echo "$mm_dir"
+            return
+        fi
+        # Or in a bin/ subdirectory
+        local parent
+        parent=$(dirname "$mm_dir")
+        if [[ -d "$parent/make" ]]; then
+            echo "$parent"
+            return
+        fi
+    fi
+
+    # Try DV_DIR/mm (common user setup)
+    if [[ -n "${DV_DIR:-}" && -d "$DV_DIR/mm/make" ]]; then
+        echo "$DV_DIR/mm"
+        return
+    fi
+}
+
+# Parse all asset declarations from .mm config files
+# Extracts: libraries, packages, extensions, tests, docker-images,
+#           webpack, vite, verbatim
+# @param project_root  Path to the project root directory
+# @return Lines in format: "type|name" (e.g., "library|hello.lib")
+_comp_cmd_mm__parse_assets()
+{
+    local project_root=$1
+    local mm_dir="$project_root/.mm"
+
+    [[ ! -d "$mm_dir" ]] && return
+
+    for config_file in "$mm_dir"/*.mm; do
+        [[ ! -f "$config_file" ]] && continue
+
+        # Extract asset declarations using awk
+        # Patterns:
+        #   project.libraries := lib1 lib2
+        #   project.packages := pkg1 pkg2
+        #   project.extensions := ext1
+        #   project.tests := tst1 tst2
+        #   project.docker-images := img1
+        #   project.webpack := wp1
+        #   project.vite := vite1
+        #   project.verbatim := v1
+        awk '
+        /\.libraries[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "library|" a[i];
+            # Handle continuation lines
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "library|" a[i];
+            }
+        }
+        /\.packages[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "package|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "package|" a[i];
+            }
+        }
+        /\.extensions[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "extension|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "extension|" a[i];
+            }
+        }
+        /\.tests[[:space:]]*:?=[[:space:]]/ {
+            # Skip lines like .tests.foo.stem (those are sub-properties)
+            if ($0 ~ /\.tests\.[^[:space:]]+\./) next;
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "testsuite|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "testsuite|" a[i];
+            }
+        }
+        /\.docker-images[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "docker|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "docker|" a[i];
+            }
+        }
+        /\.webpack[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "webpack|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "webpack|" a[i];
+            }
+        }
+        /\.vite[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "vite|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "vite|" a[i];
+            }
+        }
+        /\.verbatim[[:space:]]*:?=[[:space:]]/ {
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "verbatim|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print "verbatim|" a[i];
+            }
+        }
+        ' "$config_file"
+    done | sort -u
+}
+
+# Get the project names from .mm/ directory
+# @param project_root  Path to the project root directory
+# @return List of project names (one per line)
+_comp_cmd_mm__get_project_names()
+{
+    local project_root=$1
+    local mm_dir="$project_root/.mm"
+
+    [[ ! -d "$mm_dir" ]] && return
+
+    for mmfile in "$mm_dir"/*.mm; do
+        [[ ! -f "$mmfile" ]] && continue
+        basename "$mmfile" .mm
+    done
+}
+
+# =============================================================================
+# Test target discovery (filesystem scan)
+# =============================================================================
 
 # Parse test suite configuration from .mm configuration files
 # Returns both stem and root for each test suite
@@ -43,26 +619,20 @@ _comp_cmd_mm__parse_test_suites()
 {
     local project_root=$1
     local mm_dir="$project_root/.mm"
-    
+
     [[ ! -d "$mm_dir" ]] && return
-    
-    # Look for test suite definitions in .mm files
-    # We need both stem and root for each test suite
-    # Pattern: *.tst.SUITE.stem := STEM
-    #          *.tst.SUITE.root := ROOT
-    
+
     local -A suite_stems
     local -A suite_roots
-    
+
     # Parse all .mm and .tests files
     for config_file in "$mm_dir"/*.mm "$mm_dir"/*.tests; do
         [[ ! -f "$config_file" ]] && continue
-        
+
         # Extract stem definitions
         # Example: summit.tst.serial.stem := serial
         while IFS= read -r line; do
             [[ -z "$line" ]] && continue
-            # Extract the suite name and stem value
             if [[ "$line" =~ \.tst\.([^.]+)\.stem[[:space:]]*:=[[:space:]]*([^[:space:]#]+) ]]; then
                 local suite="${BASH_REMATCH[1]}"
                 local stem="${BASH_REMATCH[2]}"
@@ -73,7 +643,7 @@ _comp_cmd_mm__parse_test_suites()
                 suite_stems["$suite"]="$stem"
             fi
         done < <(grep -E '\.tst\.[^.]+\.stem\s*:=|\.tests\.[^.]+\.stem\s*:=' "$config_file" 2>/dev/null)
-        
+
         # Extract root definitions
         # Example: summit.tst.serial.root := TEST/serial/
         while IFS= read -r line; do
@@ -89,7 +659,7 @@ _comp_cmd_mm__parse_test_suites()
             fi
         done < <(grep -E '\.tst\.[^.]+\.root\s*:=|\.tests\.[^.]+\.root\s*:=' "$config_file" 2>/dev/null)
     done
-    
+
     # Output suite info: stem|root
     for suite in "${!suite_stems[@]}"; do
         local stem="${suite_stems[$suite]}"
@@ -107,17 +677,14 @@ _comp_cmd_mm__get_exclusions()
     local project_root=$1
     local stem=$2
     local mm_dir="$project_root/.mm"
-    
+
     [[ ! -d "$mm_dir" ]] && return
-    
+
     local exclusions=""
-    
-    # Look for exclusion patterns
-    # Pattern: *.tst.STEM.drivers.exclude += pattern1 pattern2 \
-    # Or: *.tests.STEM.drivers.exclude += pattern1 pattern2 \
+
     for config_file in "$mm_dir"/*.mm "$mm_dir"/*.tests; do
         [[ ! -f "$config_file" ]] && continue
-        
+
         # Use awk to handle multi-line exclusions with backslash continuation
         exclusions="$exclusions$(awk -v stem="$stem" '
             /\.tst\.[^.]+\.drivers\.exclude|\.tests\.[^.]+\.drivers\.exclude/ {
@@ -125,7 +692,7 @@ _comp_cmd_mm__get_exclusions()
                     # Remove everything up to += or :=
                     sub(/^[^+:]*[+:]=[[:space:]]*/, "");
                     line = $0;
-                    
+
                     # Handle backslash continuation
                     while (line ~ /\\[[:space:]]*$/) {
                         sub(/\\[[:space:]]*$/, "", line);
@@ -142,7 +709,7 @@ _comp_cmd_mm__get_exclusions()
             }
         ' "$config_file" 2>/dev/null | tr '\n' ' ')"
     done
-    
+
     # Split into individual patterns and clean up
     echo "$exclusions" | tr ' ' '\n' | grep -v '^$' | sed 's/[[:space:]]*$//'
 }
@@ -156,116 +723,270 @@ _comp_cmd_mm__is_excluded()
     local test_file=$1
     shift
     local exclusions=("$@")
-    
+
     for pattern in "${exclusions[@]}"; do
         [[ -z "$pattern" ]] && continue
-        
-        # Simple glob matching
-        # Convert pattern to be relative to tests/stem/
+
         local clean_pattern="${pattern#*/}"  # Remove leading directory if present
-        
+
         if [[ "$test_file" == $clean_pattern || "$test_file" == *"/$clean_pattern" ]]; then
             return 0  # Excluded
         fi
     done
-    
+
     return 1  # Not excluded
 }
 
 # Generate test targets by scanning the test directories
-# This replicates mm's dynamic target generation logic
 # @param project_root  Path to the project root directory
 # @return List of test targets (tests.stem.name format)
 _comp_cmd_mm__get_test_targets()
 {
     local project_root=$1
-    
-    # Get test suite configurations (stem|root pairs)
+
     local suites
     suites=$(_comp_cmd_mm__parse_test_suites "$project_root")
-    
+
     [[ -z "$suites" ]] && return
-    
+
     local targets=""
-    
-    # For each test suite
+
     while IFS='|' read -r stem root; do
         [[ -z "$stem" || -z "$root" ]] && continue
-        
-        # Construct full path to test directory
+
         local test_dir="$project_root/$root"
-        # Remove trailing slash
         test_dir="${test_dir%/}"
-        
+
         [[ ! -d "$test_dir" ]] && continue
-        
+
         # Get exclusions for this stem
         local exclusions
         IFS=$'\n' read -r -d '' -a exclusions < <(_comp_cmd_mm__get_exclusions "$project_root" "$stem" && printf '\0')
-        
-        # Find all test files (C++, Python, Fortran)
-        # Use find to recursively discover test files
+
+        # Find all test files (C++, Python, Fortran, C)
         while IFS= read -r -d '' test_file; do
-            # Get relative path from test directory
             local rel_path="${test_file#$test_dir/}"
-            
-            # Check if excluded
+
             if _comp_cmd_mm__is_excluded "$rel_path" "${exclusions[@]}"; then
                 continue
             fi
-            
-            # Remove file extension
+
             local no_ext="${rel_path%.*}"
-            
-            # Convert path to target name
-            # mm uses the root directory structure to build target names
-            # If root is TEST/serial/, the target is TEST.serial.xxx
-            # If root is tests/hello.lib/, the target is tests.hello.lib.xxx
-            
-            # Extract the target prefix from root
-            # ROOT format: TEST/serial/ or tests/unit/ etc.
-            # We want to convert TEST/serial/ → TEST.serial
-            local target_prefix="${root%/}"  # Remove trailing /
-            target_prefix="${target_prefix//\//.}"  # Replace / with .
-            
-            # Build full target name
+
+            # Convert root path to dot-separated target prefix
+            local target_prefix="${root%/}"
+            target_prefix="${target_prefix//\//.}"
+
             local target_name="$target_prefix.${no_ext//\//.}"
-            
+
             targets="$targets$target_name"$'\n'
         done < <(find "$test_dir" -type f \( -name '*.cc' -o -name '*.py' -o -name '*.f90' -o -name '*.f' -o -name '*.c' \) -print0 2>/dev/null)
-        
-        # Also add container targets for subdirectories
-        # E.g., TEST.serial.materials (for TEST/serial/materials/ directory)
+
+        # Add container targets for subdirectories
         while IFS= read -r -d '' subdir; do
             local rel_subdir="${subdir#$test_dir/}"
             [[ -z "$rel_subdir" ]] && continue
-            
-            # Extract target prefix
+
             local target_prefix="${root%/}"
             target_prefix="${target_prefix//\//.}"
-            
+
             local subdir_target="$target_prefix.${rel_subdir//\//.}"
             targets="$targets$subdir_target"$'\n'
         done < <(find "$test_dir" -mindepth 1 -type d -print0 2>/dev/null)
-        
-        # Add the test suite target itself
-        # Extract target prefix
+
+        # Add the test suite root target itself
         local target_prefix="${root%/}"
         target_prefix="${target_prefix//\//.}"
-        
         targets="${targets}$target_prefix"$'\n'
-        
+
     done <<< "$suites"
-    
-    # Deduplicate and sort
+
     echo "$targets" | sort -u | grep -v '^$'
 }
 
-# Main completion function for mm
+# =============================================================================
+# Extern package discovery
+# =============================================================================
+
+# Scan the mm installation's make/extern/ directory to find available
+# external packages and generate extern.{name}.info targets
+# @return List of extern.{name}.info targets
+_comp_cmd_mm__get_extern_targets()
+{
+    local mm_home
+    mm_home=$(_comp_cmd_mm__find_mm_home)
+
+    [[ -z "$mm_home" ]] && return
+
+    local extern_dir="$mm_home/make/extern"
+    [[ ! -d "$extern_dir" ]] && return
+
+    for pkg_dir in "$extern_dir"/*/; do
+        [[ ! -d "$pkg_dir" ]] && continue
+        local pkg
+        pkg=$(basename "$pkg_dir")
+        echo "extern.$pkg.info"
+    done
+}
+
+# =============================================================================
+# Dynamic target variant info targets
+# =============================================================================
+
+# Scan make/targets/ for variant .mm files and generate targets.{variant}.info
+# @return List of targets.{variant}.info targets
+_comp_cmd_mm__get_variant_targets()
+{
+    local mm_home
+    mm_home=$(_comp_cmd_mm__find_mm_home)
+
+    [[ -z "$mm_home" ]] && return
+
+    local targets_dir="$mm_home/make/targets"
+    [[ ! -d "$targets_dir" ]] && return
+
+    for variant_file in "$targets_dir"/*.mm; do
+        [[ ! -f "$variant_file" ]] && continue
+        local variant
+        variant=$(basename "$variant_file" .mm)
+        # Skip non-variant files (init, model, rules)
+        case "$variant" in
+            init|model|rules) continue ;;
+        esac
+        echo "targets.$variant.info"
+    done
+}
+
+# =============================================================================
+# Language info targets
+# =============================================================================
+
+# Scan make/languages/ for language .mm files and generate languages.{lang}.info
+# @return List of languages.{lang}.info targets
+_comp_cmd_mm__get_language_targets()
+{
+    local mm_home
+    mm_home=$(_comp_cmd_mm__find_mm_home)
+
+    [[ -z "$mm_home" ]] && return
+
+    local lang_dir="$mm_home/make/languages"
+    [[ ! -d "$lang_dir" ]] && return
+
+    for lang_file in "$lang_dir"/*.mm; do
+        [[ ! -f "$lang_file" ]] && continue
+        local lang
+        lang=$(basename "$lang_file" .mm)
+        case "$lang" in
+            init|model|rules) continue ;;
+        esac
+        echo "languages.$lang.info"
+    done
+}
+
+# =============================================================================
+# Generate all targets for completion
+# =============================================================================
+
+# Build the complete list of targets for the current project
+# @return Space-separated list of all available targets
+_comp_cmd_mm__get_all_targets()
+{
+    local targets=""
+
+    # 1. Global targets (always available)
+    targets="$_comp_cmd_mm__global_targets"
+
+    # 2. Find project root
+    local project_root
+    project_root=$(_comp_cmd_mm__find_project_root)
+
+    if [[ -n "$project_root" && -d "$project_root/.mm" ]]; then
+
+        # 3. Per-project targets
+        local project_names
+        project_names=$(_comp_cmd_mm__get_project_names "$project_root")
+
+        local proj
+        for proj in $project_names; do
+            # The bare project name is a target
+            targets="$targets $proj"
+            local suffix
+            for suffix in $_comp_cmd_mm__project_suffixes; do
+                targets="$targets ${proj}${suffix}"
+            done
+        done
+
+        # 4. Parse asset declarations and generate suffixed targets
+        local assets
+        assets=$(_comp_cmd_mm__parse_assets "$project_root")
+
+        if [[ -n "$assets" ]]; then
+            while IFS='|' read -r asset_type asset_name; do
+                [[ -z "$asset_type" || -z "$asset_name" ]] && continue
+
+                # The bare asset name is always a target
+                targets="$targets $asset_name"
+
+                local suffix_list=""
+                case "$asset_type" in
+                    library)   suffix_list="$_comp_cmd_mm__library_suffixes" ;;
+                    package)   suffix_list="$_comp_cmd_mm__package_suffixes" ;;
+                    extension) suffix_list="$_comp_cmd_mm__extension_suffixes" ;;
+                    testsuite) suffix_list="$_comp_cmd_mm__testsuite_suffixes" ;;
+                    docker)    suffix_list="$_comp_cmd_mm__docker_suffixes" ;;
+                    webpack)   suffix_list="$_comp_cmd_mm__webpack_suffixes" ;;
+                    vite)      suffix_list="$_comp_cmd_mm__vite_suffixes" ;;
+                    verbatim)  suffix_list="$_comp_cmd_mm__verbatim_suffixes" ;;
+                esac
+
+                local suffix
+                for suffix in $suffix_list; do
+                    targets="$targets ${asset_name}${suffix}"
+                done
+            done <<< "$assets"
+        fi
+
+        # 5. Dynamic test targets from filesystem scan
+        local test_targets
+        test_targets=$(_comp_cmd_mm__get_test_targets "$project_root")
+        if [[ -n "$test_targets" ]]; then
+            targets="$targets $(echo "$test_targets" | tr '\n' ' ')"
+        fi
+    fi
+
+    # 6. External package info targets (from mm installation)
+    local extern_targets
+    extern_targets=$(_comp_cmd_mm__get_extern_targets)
+    if [[ -n "$extern_targets" ]]; then
+        targets="$targets $(echo "$extern_targets" | tr '\n' ' ')"
+    fi
+
+    # 7. Target variant info targets
+    local variant_targets
+    variant_targets=$(_comp_cmd_mm__get_variant_targets)
+    if [[ -n "$variant_targets" ]]; then
+        targets="$targets $(echo "$variant_targets" | tr '\n' ' ')"
+    fi
+
+    # 8. Language info targets
+    local language_targets
+    language_targets=$(_comp_cmd_mm__get_language_targets)
+    if [[ -n "$language_targets" ]]; then
+        targets="$targets $(echo "$language_targets" | tr '\n' ' ')"
+    fi
+
+    echo "$targets"
+}
+
+# =============================================================================
+# Main completion function
+# =============================================================================
+
 _comp_cmd_mm()
 {
     local cur prev words cword
-    
+
     # Initialize completion - handle both old and new bash-completion APIs
     if declare -F _init_completion >/dev/null 2>&1; then
         _init_completion || return
@@ -273,23 +994,18 @@ _comp_cmd_mm()
         _get_comp_words_by_ref cur prev words cword
     else
         # Fallback for systems without bash-completion library
-        # Only use this when actually completing (COMP_WORDS is set)
         if [[ -n "${COMP_WORDS+x}" ]]; then
             cur="${COMP_WORDS[COMP_CWORD]}"
             prev="${COMP_WORDS[COMP_CWORD-1]:-}"
             cword=$COMP_CWORD
         else
-            # Not in completion context, just return
             return 0
         fi
     fi
-    
-    local mm_cmd="${words[0]}"
-    
-    # Handle options that take arguments
+
+    # Handle options that take arguments (--option value format)
     case "$prev" in
         --prefix|--bldroot|--cfgdir|--engine|--portinfo)
-            # Complete with directories
             if declare -F _filedir >/dev/null 2>&1; then
                 _filedir -d
             else
@@ -298,7 +1014,6 @@ _comp_cmd_mm()
             return
             ;;
         --local)
-            # Complete with .mm files
             if declare -F _filedir >/dev/null 2>&1; then
                 _filedir '*.mm'
             else
@@ -307,15 +1022,14 @@ _comp_cmd_mm()
             return
             ;;
         --target)
-            # Complete with build variants (comma-separated list supported)
-            # Extract the last variant being typed
             local last_variant="${cur##*,}"
             local prefix="${cur%$last_variant}"
-            
-            local variants="debug opt shared static prof cov reldeb"
-            local completions=$(compgen -W "$variants" -- "$last_variant")
-            
-            # Add the prefix back to each completion
+
+            # Valid variants from make/targets/*.mm (excluding init, model, rules)
+            local variants="debug opt shared prof cov reldeb"
+            local completions
+            completions=$(compgen -W "$variants" -- "$last_variant")
+
             COMPREPLY=()
             for completion in $completions; do
                 COMPREPLY+=("${prefix}${completion}")
@@ -335,7 +1049,6 @@ _comp_cmd_mm()
             return
             ;;
         --slots|-j|--jobs)
-            # Complete with numbers
             COMPREPLY=($(compgen -W "{1..32}" -- "$cur"))
             return
             ;;
@@ -344,29 +1057,27 @@ _comp_cmd_mm()
             return
             ;;
         --compilers)
-            # Complete with available compilers
             COMPREPLY=($(compgen -W "gcc clang intel nvcc" -- "$cur"))
             return
             ;;
     esac
-    
+
     # If current word starts with -, complete with mm options
     if [[ "$cur" == -* ]]; then
         # Handle --option=value format
         if [[ "$cur" == --*=* ]]; then
             local option="${cur%%=*}"
             local value="${cur#*=}"
-            
+
             case "$option" in
                 --target)
-                    # Complete with build variants (comma-separated list supported)
                     local last_variant="${value##*,}"
                     local prefix="${value%$last_variant}"
-                    
-                    local variants="debug opt shared static prof cov reldeb"
-                    local completions=$(compgen -W "$variants" -- "$last_variant")
-                    
-                    # Add the prefix and option back to each completion
+
+                    local variants="debug opt shared prof cov reldeb"
+                    local completions
+                    completions=$(compgen -W "$variants" -- "$last_variant")
+
                     COMPREPLY=()
                     for completion in $completions; do
                         COMPREPLY+=("${option}=${prefix}${completion}")
@@ -386,7 +1097,6 @@ _comp_cmd_mm()
                     return
                     ;;
                 --prefix|--bldroot|--cfgdir|--engine|--portinfo)
-                    # Directory completion for --option=value format
                     if declare -F _filedir >/dev/null 2>&1; then
                         _filedir -d
                     else
@@ -396,9 +1106,8 @@ _comp_cmd_mm()
                     ;;
             esac
         fi
-        
+
         # Complete option names
-        # Common mm options (based on mm:86-260)
         local opts="--help --version --prefix --bldroot --target --compilers
                     --local --pkgdb --setup --serial --slots --jobs
                     --show --dry --quiet --color --palette
@@ -406,10 +1115,9 @@ _comp_cmd_mm()
                     --cfgdir --engine --portinfo
                     -h -q -n -v -k -j"
         COMPREPLY=($(compgen -W "$opts" -- "$cur"))
-        
-        # Add = suffix for options that take values (no space)
+
+        # Add = suffix for options that take values (no space after)
         if declare -F compopt >/dev/null 2>&1; then
-            # Check if we're completing an option that takes a value
             if [[ " --target --compilers --prefix --bldroot --pkgdb --palette " =~ " ${COMPREPLY[0]:-} " ]]; then
                 compopt -o nospace
                 COMPREPLY=("${COMPREPLY[0]}=")
@@ -417,116 +1125,25 @@ _comp_cmd_mm()
         fi
         return
     fi
-    
+
     # Otherwise, complete with make targets
-    # Strategy: Try to invoke make with -npq to list targets
-    # This requires that mm and its environment are properly set up
-    
-    # Find the project root by looking for .mm directory
-    local project_root="$PWD"
-    local search_dir="$PWD"
-    while [[ "$search_dir" != "/" && "$search_dir" != "" ]]; do
-        if [[ -d "$search_dir/.mm" ]]; then
-            project_root="$search_dir"
-            break
-        fi
-        search_dir=$(dirname "$search_dir")
-    done
-    
-    local make_targets=""
-    
-    # Approach: Use mm's --dry and --show to get the make command it would run
-    # Then replay that command with -npq to get the target database
-    # This requires mm to be functional, which may not always be the case
-    
-    # Try to get the make command from mm
-    local mm_make_cmd
-    if mm_make_cmd=$("$mm_cmd" --dry --show all 2>&1); then
-        # Check if mm actually ran successfully (no python errors, etc.)
-        if ! echo "$mm_make_cmd" | grep -q "Traceback\|Error\|error"; then
-            # Parse the make command line from mm's output
-            # mm --show outputs a formatted display, look for the make executable line
-            local make_line
-            make_line=$(echo "$mm_make_cmd" | awk '/^[[:space:]]*\/.*make/ || /^[[:space:]]*gmake/ || /^[[:space:]]*make/ {print; exit}')
-            
-            if [[ -n "$make_line" ]]; then
-                # Extract the make executable and key arguments
-                # We need: executable, -I flags, -f flag, variable assignments
-                local make_exe
-                make_exe=$(echo "$make_line" | awk '{print $1}')
-                
-                # Build a simplified make command with -npq
-                # Extract include directories and makefile
-                local make_args="-npq"
-                
-                # Parse the make invocation for -I and -f flags
-                local in_flag=""
-                local skip_next=0
-                
-                # This is complex, so let's use a simpler heuristic:
-                # Just try running make -npq from the project root if we're in an mm project
-                if [[ -d "$project_root/.mm" ]]; then
-                    # Determine which make command to use
-                    local make_binary="make"
-                    command -v gmake >/dev/null 2>&1 && make_binary="gmake"
-                    if [[ -n "$make_exe" ]]; then
-                        make_binary="$make_exe"
-                    fi
-                    
-                    # Try to run make -npq with mm's standard structure
-                    # This assumes mm is installed and its makefiles are accessible
-                    local make_db
-                    make_db=$(cd "$project_root" && "$make_binary" -npq __BASH_MAKE_COMPLETION__=1 .DEFAULT 2>/dev/null)
-                    
-                    if [[ -n "$make_db" ]]; then
-                        make_targets=$(echo "$make_db" | _comp_cmd_mm__extract_targets "$cur")
-                    fi
-                fi
-            fi
-        fi
-    fi
-    
-    # Get dynamically generated test targets from filesystem scan
-    local test_targets=""
-    if [[ -d "$project_root/.mm" ]]; then
-        test_targets=$(_comp_cmd_mm__get_test_targets "$project_root")
-    fi
-    
-    # Build common targets that mm projects typically have
-    local common_targets="all clean test install info config.info"
-    
-    # If in an mm project, also add project-specific targets
-    if [[ -d "$project_root/.mm" ]]; then
-        # Try to extract project name from .mm/*.mm files
-        local project_name
-        for mmfile in "$project_root"/.mm/*.mm; do
-            if [[ -f "$mmfile" ]]; then
-                project_name=$(basename "$mmfile" .mm)
-                # Add common project targets
-                common_targets="$common_targets ${project_name} ${project_name}.info"
-                # Add common asset types
-                common_targets="$common_targets ${project_name}.lib ${project_name}.pkg ${project_name}.ext"
-                common_targets="$common_targets ${project_name}.tests"
-                break
-            fi
-        done
-    fi
-    
-    # Combine all target sources: make targets + test targets + common targets
-    local all_targets="$make_targets"
-    if [[ -n "$test_targets" ]]; then
-        all_targets="$all_targets"$'\n'"$test_targets"
-    fi
-    # Always include common targets to ensure they're never hidden
-    all_targets="$all_targets"$'\n'"$common_targets"
-    
-    # Generate completions from combined targets
-    # Convert to space-separated (compgen will deduplicate)
-    local target_list=$(echo "$all_targets" | tr '\n' ' ')
-    COMPREPLY=($(compgen -W "$target_list" -- "$cur"))
+    local all_targets
+    all_targets=$(_comp_cmd_mm__get_all_targets)
+
+    COMPREPLY=($(compgen -W "$all_targets" -- "$cur"))
 }
+
+# =============================================================================
+# Registration and key bindings
+# =============================================================================
 
 # Register the completion function
 complete -F _comp_cmd_mm mm
+
+# Bind help key (default: F2, configurable via MM_HELP_KEY)
+# Only bind when running interactively
+if [[ $- == *i* ]]; then
+    bind -x "\"${MM_HELP_KEY:-\eOQ}\":_comp_cmd_mm__show_target_help" 2>/dev/null
+fi
 
 # ex: filetype=sh
