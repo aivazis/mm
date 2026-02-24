@@ -6,7 +6,7 @@
 
 # c++
 languages.c++.sources := .cc .cpp .cxx .c++
-languages.c++.headers := .h .hpp .hxx .h++ .icc
+languages.c++.headers := .h .hh .hpp .hxx .h++ .icc
 
 # language predicates
 languages.c++.compiled := yes
