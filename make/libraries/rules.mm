@@ -41,6 +41,14 @@ $(1): $(1).prerequisites $(1).directories $(1).assets $(1).autogen.cleanup
 
 # clean up
 $(1).clean:: $(1).cleangen
+	@${call log.action,"rm",$($(1).tmpdir)}
+	$(rm.force-recurse) $($(1).tmpdir)
+	@${call log.action,"rm",$($(1).incdir)}
+	@${call log.action,"rm",$($(1).staging.headers.gateway)}
+	$(rm.force-recurse) $($(1).incdir) $($(1).staging.headers.gateway)
+	@${call log.action,"rm",$($(1).staging.archive)}
+	@${call log.action,"rm",$($(1).staging.dll)}
+	$(rm.force) $($(1).staging.archive) $($(1).staging.dll)
 
 $(1).prerequisites: $($(1).prerequisites)
 
