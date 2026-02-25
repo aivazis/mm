@@ -40,6 +40,8 @@ $(1): $(1).directories $(1).assets $($(1).extras)
 
 # clean up
 $(1).clean::
+	@${call log.action,"rm",$($(1).pycdir)}
+	$(rm.force-recurse) $($(1).pycdir)
 
 # second level targets
 # make all relevant directories
