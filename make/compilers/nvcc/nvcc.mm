@@ -44,6 +44,8 @@ nvcc.std.c++11 := --std=c++11
 nvcc.std.c++14 := --std=c++14
 nvcc.std.c++17 := --std=c++17
 nvcc.std.c++20 := --std=c++20 # cuda 12.x
+# function to extract the level from the build flags of a library
+nvcc.std = ${patsubst --std=c++%,%,${filter --std=c++%,$($(1).c++.flags)}}
 
 # link time flags
 nvcc.link.output := -o
