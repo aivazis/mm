@@ -8,12 +8,13 @@
 # files are included only once
 projects.contentTypes.imported :=
 
+# look for the optional project file
+-include $(project.config)/projects.mm
 # hunt for projects among the contents of $(project.config), assuming that each file there is
 # the configuration file for some project
 projects ?= ${basename ${notdir ${wildcard $(project.config)/*.mm}}}
-
 # load the project files
-include ${wildcard $(project.config)/*.mm}
+include ${addprefix $(project.config)/,${addsuffix .mm,$(projects)}}
 
 
 # bootstrap a project
