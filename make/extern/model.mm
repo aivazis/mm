@@ -10,6 +10,13 @@ fortran.self := true
 # initialize the pile of external packages
 extern :=
 
+
+# initialize the internal variables of the various support package managers
+# conda
+conda.prefix ?=
+conda.environment ?=
+
+
 # set up the management of the package database
 ${eval ${call extern.workflows.pkgdb}}
 

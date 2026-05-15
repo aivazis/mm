@@ -374,6 +374,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Build an external package database for the engine
         """
+        # do we need to explore the project layout so {locateBuildRoot} can find the project root?
+        # self.explore()
         # get the name of the package database manager
         name = self.pkgdb
         # get the temporary staging area
@@ -1429,7 +1431,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 if name == "python":
                     # keep only the portion that appears in filesystem paths
                     versionParts = version.split(".")
-                    version = f"{versionParts[0]}.{versionParts[1]}" if len(versionParts) >= 2 else version
+                    version = (
+                        f"{versionParts[0]}.{versionParts[1]}"
+                        if len(versionParts) >= 2
+                        else version
+                    )
                 # {?=} throughout so that anything the user set in {config.mm} takes precedence;
                 # the load order is config.mm first, then this db, so {?=} here correctly
                 # yields to user overrides while still providing the conda defaults
@@ -1453,7 +1459,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         relativePath = os.path.relpath(includePath, prefix)
                         # if it's within the conda prefix, anchor it to {numpy.dir}
                         if not relativePath.startswith(".."):
-                            print(f"numpy.incpath ?= $(numpy.dir)/{relativePath}", file=f)
+                            print(
+                                f"numpy.incpath ?= $(numpy.dir)/{relativePath}", file=f
+                            )
                         # otherwise fall back to the absolute path
                         else:
                             print(f"numpy.incpath ?= {includePath}", file=f)
@@ -1469,7 +1477,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         relativePath = os.path.relpath(includePath, prefix)
                         # if it's within the conda prefix, anchor it to {pybind11.dir}
                         if not relativePath.startswith(".."):
-                            print(f"pybind11.incpath ?= $(pybind11.dir)/{relativePath}", file=f)
+                            print(
+                                f"pybind11.incpath ?= $(pybind11.dir)/{relativePath}",
+                                file=f,
+                            )
                         # otherwise fall back to the absolute path
                         else:
                             print(f"pybind11.incpath ?= {includePath}", file=f)

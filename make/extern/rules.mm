@@ -19,7 +19,7 @@ extern.info:
 	@${call log.var,$(mm.pkgdb),$(builder.staging)pkg-$(mm.pkgdb).db}
 
 
-# package database amanagement
+# package database management
 define extern.workflows.pkgdb
 
 	${eval _db := $(builder.staging)pkg-$(mm.pkgdb).db}
