@@ -27,6 +27,13 @@ define extern.workflows.pkgdb
 # attempt to load the package database
 include $(_db)
 
+# for conda, warn if the active environment differs from the one used to build the database
+${if ${filter conda,$(mm.pkgdb)}, \
+    ${if ${filter-out $(conda.environment),$(user.environment)}, \
+        ${warning conda environment mismatch: database was built for '$(conda.environment)', current is '$(user.environment)'} \
+    } \
+}
+
 extern.db.clean:
 	@${call log.action,"rm",$(_db)}
 	$(rm.force) $(_db)

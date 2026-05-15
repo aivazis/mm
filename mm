@@ -1297,9 +1297,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("no active conda environment found")
-            error.line(
-                "activate a conda environment, then re-run: mm --pkgdb=conda --setup"
-            )
+            error.line("activate a conda environment and re-run mm")
             error.log()
             # and bail
             return 1
@@ -1312,7 +1310,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # grab an error channel
             error = journal.error("mm.pkgdb")
             # complain
-            error.line("no conda agent found (tried: micromamba, mamba, conda)")
+            error.line("no conda agent found on PATH (tried: micromamba, mamba, conda)")
             error.log()
             # and bail
             return 1
@@ -1414,6 +1412,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print(file=f)
             # the root of the active environment; factored out so all {.dir} entries track it
             print(f"conda.prefix := {prefix}", file=f)
+            # the environment name; compared against {user.environment} at build time to catch switches
+            print(f"conda.environment := {environmentName}", file=f)
             # blank line before the package entries
             print(file=f)
             # write an entry for each package we found, in alphabetical order
