@@ -374,8 +374,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Build an external package database for the engine
         """
-        # do we need to explore the project layout so {locateBuildRoot} can find the project root?
-        # self.explore()
+        # explore the project layout so {locateBuildRoot} can find the project root
+        self.explore()
         # get the name of the package database manager
         name = self.pkgdb
         # get the temporary staging area
