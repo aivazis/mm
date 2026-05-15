@@ -1430,14 +1430,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # keep only the portion that appears in filesystem paths
                     versionParts = version.split(".")
                     version = f"{versionParts[0]}.{versionParts[1]}" if len(versionParts) >= 2 else version
+                # {?=} throughout so that anything the user set in {config.mm} takes precedence;
+                # the load order is config.mm first, then this db, so {?=} here correctly
+                # yields to user overrides while still providing the conda defaults
                 # the version, for packages whose {init.mm} has version-dependent logic
-                print(f"{name}.version := {version}", file=f)
-                # a lazy reference to {conda.prefix} so the value tracks the variable
-                print(f"{name}.dir = $(conda.prefix)", file=f)
+                print(f"{name}.version ?= {version}", file=f)
+                # a conditional lazy reference to {conda.prefix}; tracks the variable if not overridden
+                print(f"{name}.dir ?= $(conda.prefix)", file=f)
                 # mpi also needs its flavor to select the right library names in {mpi/init.mm}
                 if name == "mpi":
                     # the flavor (openmpi or mpich) controls which libraries get linked
-                    print(f"mpi.flavor := {candidate}", file=f)
+                    print(f"mpi.flavor ?= {candidate}", file=f)
                 # numpy headers live under site-packages, not under {$(numpy.dir)/include}
                 elif name == "numpy":
                     # ask numpy directly where its headers are
@@ -1450,10 +1453,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         relativePath = os.path.relpath(includePath, prefix)
                         # if it's within the conda prefix, anchor it to {numpy.dir}
                         if not relativePath.startswith(".."):
-                            print(f"numpy.incpath := $(numpy.dir)/{relativePath}", file=f)
+                            print(f"numpy.incpath ?= $(numpy.dir)/{relativePath}", file=f)
                         # otherwise fall back to the absolute path
                         else:
-                            print(f"numpy.incpath := {includePath}", file=f)
+                            print(f"numpy.incpath ?= {includePath}", file=f)
                 # pybind11 has the same header placement issue as numpy
                 elif name == "pybind11":
                     # ask pybind11 where its headers are
@@ -1466,10 +1469,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         relativePath = os.path.relpath(includePath, prefix)
                         # if it's within the conda prefix, anchor it to {pybind11.dir}
                         if not relativePath.startswith(".."):
-                            print(f"pybind11.incpath := $(pybind11.dir)/{relativePath}", file=f)
+                            print(f"pybind11.incpath ?= $(pybind11.dir)/{relativePath}", file=f)
                         # otherwise fall back to the absolute path
                         else:
-                            print(f"pybind11.incpath := {includePath}", file=f)
+                            print(f"pybind11.incpath ?= {includePath}", file=f)
                 # blank line after each entry
                 print(file=f)
         # all done
