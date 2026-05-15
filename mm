@@ -382,6 +382,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         _, _, tag = self.assembleBuildTarget()
         # the location of the package database
         db = stage / tag / f"pkg-{name}.db"
+
         # dispatch to the appropriate builder
         if name == "adhoc":
             # assume that the user already has setup a custom package database
@@ -389,163 +390,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             open(db, "w")
             # and move on
             return 0
-        # conda environments: micromamba, mamba, or conda
+
+        # for conda
         if name == "conda":
+            # query the package manager and find what's installed
             return self._buildCondaPackageDatabase(db)
+
         # all done
         return 0
-
-    def _buildCondaPackageDatabase(self, db):
-        """
-        Interrogate the active conda/micromamba environment and write a package database
-        """
-        # grab a channel
-        channel = journal.info("mm.pkgdb")
-        # check for an active conda environment
-        prefix = os.environ.get("CONDA_PREFIX")
-        # if there isn't one
-        if not prefix:
-            # grab an error channel
-            error = journal.error("mm.pkgdb")
-            # complain
-            error.line("no active conda environment found")
-            error.line("activate a conda environment, then re-run: mm --pkgdb=conda --setup")
-            error.log()
-            # and bail
-            return 1
-        # find the conda agent; prefer micromamba
-        agent = (
-            shutil.which("micromamba")
-            or shutil.which("mamba")
-            or shutil.which("conda")
-        )
-        # if none found
-        if not agent:
-            # grab an error channel
-            error = journal.error("mm.pkgdb")
-            # complain
-            error.line("no conda agent found (tried: micromamba, mamba, conda)")
-            error.log()
-            # and bail
-            return 1
-        # log our starting state
-        channel.line("building conda package database")
-        channel.indent()
-        channel.line(f"agent: {agent}")
-        channel.line(f"environment: {os.environ.get('CONDA_DEFAULT_ENV', '?')}")
-        channel.line(f"prefix: {prefix}")
-        channel.line(f"db: {db}")
-        channel.outdent()
-        channel.log()
-        # query the installed packages
-        result = subprocess.run(
-            [agent, "list", "--json"],
-            capture_output=True, text=True,
-        )
-        # if the query failed
-        if result.returncode != 0:
-            # grab an error channel
-            error = journal.error("mm.pkgdb")
-            # complain
-            error.line(f"failed to query package list: {result.stderr.strip()}")
-            error.log()
-            # and bail
-            return 1
-        # build an index by package name
-        installed = {pkg["name"]: pkg for pkg in json.loads(result.stdout)}
-        # the mapping from mm extern name to conda package name(s); try names in order
-        packages = {
-            "cantera":  ["cantera"],
-            "cgal":     ["cgal"],
-            "cspice":   ["cspice", "naif-cspice"],
-            "cuda":     ["cuda-toolkit", "cudatoolkit", "cuda"],
-            "eigen":    ["eigen"],
-            "fftw":     ["fftw"],
-            "fmt":      ["fmt"],
-            "gdal":     ["gdal"],
-            "geotiff":  ["libgeotiff", "geotiff"],
-            "gmsh":     ["gmsh"],
-            "gsl":      ["gsl"],
-            "gtest":    ["gtest", "libgtest"],
-            "hdf5":     ["hdf5"],
-            "kokkos":   ["kokkos"],
-            "libpq":    ["libpq", "postgresql"],
-            "metis":    ["metis"],
-            "mkl":      ["mkl"],
-            "mpi":      ["openmpi", "mpich"],
-            "numpy":    ["numpy"],
-            "openblas": ["openblas"],
-            "parmetis": ["parmetis"],
-            "petsc":    ["petsc"],
-            "proj":     ["proj"],
-            "pybind11": ["pybind11"],
-            "python":   ["python"],
-            "slepc":    ["slepc"],
-            "sundials": ["sundials"],
-            "vtk":      ["vtk"],
-            "yaml":     ["yaml-cpp", "yaml"],
-        }
-        # find which packages are present in this environment
-        found = {}
-        for mm_name, candidates in packages.items():
-            for cn in candidates:
-                if cn in installed:
-                    found[mm_name] = (cn, installed[cn])
-                    break
-        # log what we found
-        channel.line(f"found {len(found)} of {len(packages)} supported packages")
-        channel.indent()
-        for mm_name, (cn, pkg) in sorted(found.items()):
-            channel.line(f"{mm_name}: {pkg['version']}  (conda: {cn})")
-        channel.outdent()
-        channel.log()
-        # write the database
-        env_name = os.environ.get("CONDA_DEFAULT_ENV", "?")
-        with open(db, "w") as f:
-            f.write("# -*- Makefile -*-\n")
-            f.write("# conda package database\n")
-            f.write(f"# generated by: mm --pkgdb=conda --setup\n")
-            f.write(f"# agent: {agent}\n")
-            f.write(f"# environment: {env_name}\n")
-            f.write(f"# prefix: {prefix}\n")
-            f.write("\n")
-            for mm_name in sorted(found):
-                cn, pkg = found[mm_name]
-                version = pkg.get("version", "?")
-                f.write(f"# {mm_name} {version}  (conda: {cn})\n")
-                f.write(f"{mm_name}.dir := {prefix}\n")
-                # mpi: also record flavor and version for library-name selection
-                if mm_name == "mpi":
-                    f.write(f"mpi.flavor := {cn}\n")
-                    f.write(f"mpi.version := {version}\n")
-                # numpy: headers live under site-packages, not $(numpy.dir)/include
-                elif mm_name == "numpy":
-                    incpath = self._queryPythonExpression(
-                        "import numpy; print(numpy.get_include())"
-                    )
-                    if incpath:
-                        f.write(f"numpy.incpath := {incpath}\n")
-                # pybind11: same situation
-                elif mm_name == "pybind11":
-                    incpath = self._queryPythonExpression(
-                        "import pybind11; print(pybind11.get_include())"
-                    )
-                    if incpath:
-                        f.write(f"pybind11.incpath := {incpath}\n")
-                f.write("\n")
-        # all done
-        return 0
-
-    def _queryPythonExpression(self, expression):
-        """
-        Evaluate a Python expression in the current interpreter and return its stdout,
-        or None if the evaluation fails
-        """
-        result = subprocess.run(
-            [sys.executable, "-c", expression],
-            capture_output=True, text=True,
-        )
-        return result.stdout.strip() if result.returncode == 0 else None
 
     def explore(self):
         """
@@ -1430,6 +1282,212 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     gitDescriptionParser = re.compile(
         r"(v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
     )
+
+    def _buildCondaPackageDatabase(self, db):
+        """
+        Interrogate the active conda/micromamba environment and write a package database
+        """
+        # grab a channel
+        channel = journal.info("mm.pkgdb")
+        # check for an active conda environment
+        prefix = os.environ.get("CONDA_PREFIX")
+        # if there isn't one
+        if not prefix:
+            # grab an error channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("no active conda environment found")
+            error.line(
+                "activate a conda environment, then re-run: mm --pkgdb=conda --setup"
+            )
+            error.log()
+            # and bail
+            return 1
+        # find the conda agent; prefer micromamba
+        agent = (
+            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
+        )
+        # if none found
+        if not agent:
+            # grab an error channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("no conda agent found (tried: micromamba, mamba, conda)")
+            error.log()
+            # and bail
+            return 1
+        # log our starting state
+        channel.line("building conda package database")
+        channel.indent()
+        channel.line(f"agent: {agent}")
+        channel.line(f"environment: {os.environ.get('CONDA_DEFAULT_ENV', '?')}")
+        channel.line(f"prefix: {prefix}")
+        channel.line(f"db: {db}")
+        channel.outdent()
+        channel.log()
+        # query the installed packages
+        result = subprocess.run(
+            [agent, "list", "--json"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed
+        if result.returncode != 0:
+            # grab an error channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line(f"failed to query package list: {result.stderr.strip()}")
+            error.log()
+            # and bail
+            return 1
+        # build an index of installed packages keyed by name
+        installed = {record["name"]: record for record in json.loads(result.stdout)}
+        # the mapping from mm extern name to conda package name(s); try names in order
+        packages = {
+            "cantera": ["cantera"],
+            "cgal": ["cgal"],
+            "cspice": ["cspice", "naif-cspice"],
+            "cuda": ["cuda-toolkit", "cudatoolkit", "cuda"],
+            "eigen": ["eigen"],
+            "fftw": ["fftw"],
+            "fmt": ["fmt"],
+            "gdal": ["gdal"],
+            "geotiff": ["libgeotiff", "geotiff"],
+            "gmsh": ["gmsh"],
+            "gsl": ["gsl"],
+            "gtest": ["gtest", "libgtest"],
+            "hdf5": ["hdf5"],
+            "kokkos": ["kokkos"],
+            "libpq": ["libpq", "postgresql"],
+            "metis": ["metis"],
+            "mkl": ["mkl"],
+            "mpi": ["openmpi", "mpich"],
+            "numpy": ["numpy"],
+            "openblas": ["openblas"],
+            "parmetis": ["parmetis"],
+            "petsc": ["petsc"],
+            "proj": ["proj"],
+            "pybind11": ["pybind11"],
+            "python": ["python"],
+            "slepc": ["slepc"],
+            "sundials": ["sundials"],
+            "vtk": ["vtk"],
+            "yaml": ["yaml-cpp", "yaml"],
+        }
+        # collect the packages that are present in this environment
+        found = {}
+        # go through the supported packages
+        for name, candidates in packages.items():
+            # try each conda name in priority order
+            for candidate in candidates:
+                # if this one is installed
+                if candidate in installed:
+                    # record the match and move on to the next mm package
+                    found[name] = (candidate, installed[candidate])
+                    break
+        # report what we found
+        channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        # list each one
+        channel.indent()
+        for name, (candidate, record) in sorted(found.items()):
+            channel.line(f"{name}: {record['version']}  (conda: {candidate})")
+        channel.outdent()
+        # flush
+        channel.log()
+        # get the name of the active environment for the file header
+        environmentName = os.environ.get("CONDA_DEFAULT_ENV", "?")
+        # open the database file
+        with open(db, "w") as f:
+            # the emacs mode line
+            print("# -*- Makefile -*-", file=f)
+            # identification
+            print("# conda package database", file=f)
+            # provenance
+            print("# generated by: mm --pkgdb=conda --setup", file=f)
+            # the agent that was queried
+            print(f"# agent: {agent}", file=f)
+            # the environment name
+            print(f"# environment: {environmentName}", file=f)
+            # and its prefix
+            print(f"# prefix: {prefix}", file=f)
+            # blank line before the {conda.prefix} declaration
+            print(file=f)
+            # the root of the active environment; factored out so all {.dir} entries track it
+            print(f"conda.prefix := {prefix}", file=f)
+            # blank line before the package entries
+            print(file=f)
+            # write an entry for each package we found, in alphabetical order
+            for name in sorted(found):
+                # unpack the conda name and the package record
+                candidate, record = found[name]
+                # extract the version string
+                version = record.get("version", "?")
+                # a comment line showing the mm name, full conda version, and origin
+                print(f"# {name} {version}  (conda: {candidate})", file=f)
+                # python.version in mm means major.minor: it's used to form interpreter names
+                # and directory paths like {lib/python3.12/}, so trim the patch level
+                if name == "python":
+                    # keep only the portion that appears in filesystem paths
+                    versionParts = version.split(".")
+                    version = f"{versionParts[0]}.{versionParts[1]}" if len(versionParts) >= 2 else version
+                # the version, for packages whose {init.mm} has version-dependent logic
+                print(f"{name}.version := {version}", file=f)
+                # a lazy reference to {conda.prefix} so the value tracks the variable
+                print(f"{name}.dir = $(conda.prefix)", file=f)
+                # mpi also needs its flavor to select the right library names in {mpi/init.mm}
+                if name == "mpi":
+                    # the flavor (openmpi or mpich) controls which libraries get linked
+                    print(f"mpi.flavor := {candidate}", file=f)
+                # numpy headers live under site-packages, not under {$(numpy.dir)/include}
+                elif name == "numpy":
+                    # ask numpy directly where its headers are
+                    includePath = self._queryPythonExpression(
+                        "import numpy; print(numpy.get_include())"
+                    )
+                    # if we got a path
+                    if includePath:
+                        # compute the path relative to the package root
+                        relativePath = os.path.relpath(includePath, prefix)
+                        # if it's within the conda prefix, anchor it to {numpy.dir}
+                        if not relativePath.startswith(".."):
+                            print(f"numpy.incpath := $(numpy.dir)/{relativePath}", file=f)
+                        # otherwise fall back to the absolute path
+                        else:
+                            print(f"numpy.incpath := {includePath}", file=f)
+                # pybind11 has the same header placement issue as numpy
+                elif name == "pybind11":
+                    # ask pybind11 where its headers are
+                    includePath = self._queryPythonExpression(
+                        "import pybind11; print(pybind11.get_include())"
+                    )
+                    # if we got a path
+                    if includePath:
+                        # compute the path relative to the package root
+                        relativePath = os.path.relpath(includePath, prefix)
+                        # if it's within the conda prefix, anchor it to {pybind11.dir}
+                        if not relativePath.startswith(".."):
+                            print(f"pybind11.incpath := $(pybind11.dir)/{relativePath}", file=f)
+                        # otherwise fall back to the absolute path
+                        else:
+                            print(f"pybind11.incpath := {includePath}", file=f)
+                # blank line after each entry
+                print(file=f)
+        # all done
+        return 0
+
+    def _queryPythonExpression(self, expression):
+        """
+        Evaluate a python expression in the current interpreter and return its stdout,
+        or None if the evaluation fails
+        """
+        # run the expression in the current interpreter
+        result = subprocess.run(
+            [sys.executable, "-c", expression],
+            capture_output=True,
+            text=True,
+        )
+        # return the output on success, None on failure
+        return result.stdout.strip() if result.returncode == 0 else None
 
 
 # bootstrap
