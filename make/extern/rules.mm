@@ -34,6 +34,14 @@ ${if ${filter conda,$(mm.pkgdb)}, \
     } \
 }
 
+extern.db.info:
+	@${call log.sec,"extern.db","the active package database"}
+	@${call log.var,"manager",$(mm.pkgdb)}
+	@${call log.var,"location",$(_db)}
+	@${if $(conda.prefix),${call log.sec,"  conda",},:}
+	@${if $(conda.prefix),${call log.var,"prefix",$(conda.prefix)},:}
+	@${if $(conda.environment),${call log.var,"environment",$(conda.environment)},:}
+
 extern.db.clean:
 	@${call log.action,"rm",$(_db)}
 	$(rm.force) $(_db)
