@@ -1441,49 +1441,63 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # yields to user overrides while still providing the conda defaults
                 # the version, for packages whose {init.mm} has version-dependent logic
                 print(f"{name}.version ?= {version}", file=f)
-                # a conditional lazy reference to {conda.prefix}; tracks the variable if not overridden
-                print(f"{name}.dir ?= $(conda.prefix)", file=f)
                 # mpi also needs its flavor to select the right library names in {mpi/init.mm}
                 if name == "mpi":
+                    # a conditional lazy reference to {conda.prefix}
+                    print(f"mpi.dir ?= $(conda.prefix)", file=f)
                     # the flavor (openmpi or mpich) controls which libraries get linked
                     print(f"mpi.flavor ?= {candidate}", file=f)
-                # numpy headers live under site-packages, not under {$(numpy.dir)/include}
+                # numpy headers and libs live under site-packages/numpy/core, not conda.prefix;
+                # point {numpy.dir} at the numpy core directory so the defaults in
+                # {numpy/init.mm} — {$(numpy.dir)/include} and {$(numpy.dir)/lib} — both resolve
+                # correctly without needing explicit {incpath} or {libpath} overrides
                 elif name == "numpy":
-                    # ask numpy directly where its headers are
+                    # ask numpy where its headers are; their parent is the numpy core directory
                     includePath = self._queryPythonExpression(
                         "import numpy; print(numpy.get_include())"
                     )
                     # if we got a path
                     if includePath:
-                        # compute the path relative to the package root
-                        relativePath = os.path.relpath(includePath, prefix)
-                        # if it's within the conda prefix, anchor it to {numpy.dir}
+                        # the numpy core directory is the parent of the include directory
+                        numpyCore = os.path.dirname(includePath)
+                        # compute the path relative to the conda prefix
+                        relativePath = os.path.relpath(numpyCore, prefix)
+                        # if it's within the conda prefix, anchor it to {conda.prefix}
                         if not relativePath.startswith(".."):
                             print(
-                                f"numpy.incpath ?= $(numpy.dir)/{relativePath}", file=f
+                                f"numpy.dir ?= $(conda.prefix)/{relativePath}", file=f
                             )
                         # otherwise fall back to the absolute path
                         else:
-                            print(f"numpy.incpath ?= {includePath}", file=f)
+                            print(f"numpy.dir ?= {numpyCore}", file=f)
+                    # if we couldn't query numpy, fall back to {conda.prefix}
+                    else:
+                        print(f"numpy.dir ?= $(conda.prefix)", file=f)
                 # pybind11 has the same header placement issue as numpy
                 elif name == "pybind11":
-                    # ask pybind11 where its headers are
+                    # ask pybind11 where its headers are; their parent is the pybind11 root directory
                     includePath = self._queryPythonExpression(
                         "import pybind11; print(pybind11.get_include())"
                     )
                     # if we got a path
                     if includePath:
-                        # compute the path relative to the package root
-                        relativePath = os.path.relpath(includePath, prefix)
-                        # if it's within the conda prefix, anchor it to {pybind11.dir}
+                        # the pybind11 root is the parent of the include directory
+                        pybind11Root = os.path.dirname(includePath)
+                        # compute the path relative to the conda prefix
+                        relativePath = os.path.relpath(pybind11Root, prefix)
+                        # if it's within the conda prefix, anchor it to {conda.prefix}
                         if not relativePath.startswith(".."):
-                            print(
-                                f"pybind11.incpath ?= $(pybind11.dir)/{relativePath}",
-                                file=f,
-                            )
+                            print(f"pybind11.dir ?= $(conda.prefix)/{relativePath}", file=f)
                         # otherwise fall back to the absolute path
                         else:
-                            print(f"pybind11.incpath ?= {includePath}", file=f)
+                            print(f"pybind11.dir ?= {pybind11Root}", file=f)
+                    # if we couldn't query pybind11, fall back to {conda.prefix}
+                    else:
+                        print(f"pybind11.dir ?= $(conda.prefix)", file=f)
+                # all other packages: {dir} tracks {conda.prefix} and defaults work as-is
+                else:
+                    # a conditional lazy reference to {conda.prefix}
+                    print(f"{name}.dir ?= $(conda.prefix)", file=f)
                 # blank line after each entry
                 print(file=f)
         # all done
