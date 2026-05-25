@@ -116,10 +116,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     branch.default = False
     branch.doc = "print shell commands that establish a branch-keyed build context"
 
-    shell = pyre.properties.str()
-    shell.default = "sh"
-    shell.validators = pyre.constraints.isMember("sh", "csh", "fish")
-    shell.doc = "the shell syntax to use when printing export statements"
+    syntax = pyre.properties.str()
+    syntax.default = "sh"
+    syntax.validators = pyre.constraints.isMember("sh", "csh", "fish")
+    syntax.doc = "the shell syntax to use when printing export statements"
 
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
@@ -438,7 +438,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # prefix gets the full build tag so install and staging land at the same leaf
         prefix = pfxBase / env / project / branch / compilers / self._bldTag
         # pick the right export syntax for the user's shell
-        sh = self.shell
+        sh = self.syntax
         # sh and zsh
         if sh == "sh":
             template = 'export {var}="{value}"'
