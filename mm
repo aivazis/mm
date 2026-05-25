@@ -111,6 +111,16 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
+    # branch mode: compute branch-keyed build paths and print shell export statements
+    branch = pyre.properties.bool()
+    branch.default = False
+    branch.doc = "print shell commands that establish a branch-keyed build context"
+
+    shell = pyre.properties.str()
+    shell.default = "sh"
+    shell.validators = pyre.constraints.isMember("sh", "csh", "fish")
+    shell.doc = "the shell syntax to use when printing export statements"
+
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
     target.doc = "the list of target variants to build"
@@ -276,6 +286,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.setup:
             # build the package database
             return self.buildPackageDatabase()
+        # if we are printing a branch-keyed build context for the shell to eval
+        if self.branch:
+            return self.establishBranchContext()
         # otherwise, launch the build
         return self.launch()
 
@@ -398,6 +411,46 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # query the package manager and find what's installed
             return self._buildCondaPackageDatabase(db)
 
+        # all done
+        return 0
+
+    def establishBranchContext(self):
+        """
+        Compute branch-keyed build paths and print shell export statements for the user to eval
+        """
+        # read the base directories from the user-configured traits before {explore()} runs,
+        # so that any env vars currently in the pyre config don't interfere with the computation
+        bldBase = self.bldroot or (self.user.home / "tmp" / "builds" / "mm")
+        pfxBase = self.prefix or (self.user.home / "tools" / "mm")
+        # explore the project layout to get {_root}, {_bldTag}, etc.
+        self.explore()
+        # the active conda environment
+        env = self.environment or "default"
+        # the project name is the basename of the directory that contains the {.mm} marker
+        project = self._root.name
+        # the current git branch
+        branch = self.gitCurrentBranch()
+        # the compiler suite tag
+        compilers = "-".join(sorted(self.compilers)) if self.compilers else "default"
+        # compose the branch-keyed paths:
+        # bldroot gets env/project/branch/compilers; make appends {$(target.tag)} for the staging area
+        bldroot = bldBase / env / project / branch / compilers
+        # prefix gets the full build tag so install and staging land at the same leaf
+        prefix = pfxBase / env / project / branch / compilers / self._bldTag
+        # pick the right export syntax for the user's shell
+        sh = self.shell
+        # sh and zsh
+        if sh == "sh":
+            template = 'export {var}="{value}"'
+        # csh and tcsh
+        elif sh == "csh":
+            template = 'setenv {var} "{value}"'
+        # fish
+        elif sh == "fish":
+            template = 'set -x {var} "{value}"'
+        # print the export statements for the shell to eval
+        print(template.format(var="mm_bldroot", value=bldroot))
+        print(template.format(var="mm_prefix", value=prefix))
         # all done
         return 0
 
