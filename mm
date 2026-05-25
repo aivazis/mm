@@ -1514,16 +1514,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # if we got a path
                     if includePath:
                         # the numpy core directory is the parent of the include directory
-                        numpyCore = os.path.dirname(includePath)
-                        # compute the path relative to the conda prefix
-                        relativePath = os.path.relpath(numpyCore, prefix)
+                        numpyCore = pyre.primitives.path(includePath).parent
                         # if it's within the conda prefix, anchor it to {conda.prefix}
-                        if not relativePath.startswith(".."):
+                        try:
+                            relativePath = numpyCore.relativeTo(prefix)
                             print(
                                 f"numpy.dir ?= $(conda.prefix)/{relativePath}", file=f
                             )
                         # otherwise fall back to the absolute path
-                        else:
+                        except ValueError:
                             print(f"numpy.dir ?= {numpyCore}", file=f)
                     # if we couldn't query numpy, fall back to {conda.prefix}
                     else:
@@ -1537,14 +1536,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # if we got a path
                     if includePath:
                         # the pybind11 root is the parent of the include directory
-                        pybind11Root = os.path.dirname(includePath)
-                        # compute the path relative to the conda prefix
-                        relativePath = os.path.relpath(pybind11Root, prefix)
+                        pybind11Root = pyre.primitives.path(includePath).parent
                         # if it's within the conda prefix, anchor it to {conda.prefix}
-                        if not relativePath.startswith(".."):
+                        try:
+                            relativePath = pybind11Root.relativeTo(prefix)
                             print(f"pybind11.dir ?= $(conda.prefix)/{relativePath}", file=f)
                         # otherwise fall back to the absolute path
-                        else:
+                        except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     # if we couldn't query pybind11, fall back to {conda.prefix}
                     else:
