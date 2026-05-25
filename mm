@@ -431,7 +431,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the current git branch
         branch = self.gitCurrentBranch()
         # the compiler suite tag
-        compilers = "-".join(sorted(self.compilers)) if self.compilers else "default"
+        # the C++ suite is the first suite-level entry (no slash) in the compilers list
+        cxxSuite = next((c for c in self.compilers if "/" not in c), None)
+        compilers = cxxSuite or "default"
         # compose the branch-keyed paths:
         # bldroot gets env/project/branch/compilers; make appends {$(target.tag)} for the staging area
         bldroot = bldBase / env / project / branch / compilers
