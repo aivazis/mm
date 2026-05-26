@@ -273,8 +273,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # important environment variables
     PATH = pyre.properties.envpath(variable="PATH")
     PYTHONPATH = pyre.properties.envpath(variable="PYTHONPATH")
-    MM_INCLUDES = pyre.properties.envpath(variable="MM_INCLUDES")
-    MM_LIBPATH = pyre.properties.envpath(variable="MM_LIBPATH")
+
+    # compiler search paths
+    incpath = pyre.properties.paths()
+    incpath.doc = "a list of paths to search for headers"
+
+    libpath = pyre.properties.paths()
+    libpath.doc = "a list of paths to search for libraries"
 
     # the main entry point
     @pyre.export
@@ -364,8 +369,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         env = {
             "PATH": os.pathsep.join(map(str, self.PATH)),
             "PYTHONPATH": os.pathsep.join(map(str, self.PYTHONPATH)),
-            "MM_INCLUDES": os.pathsep.join(map(str, self.MM_INCLUDES)),
-            "MM_LIBPATH": os.pathsep.join(map(str, self.MM_LIBPATH)),
         }
         # apply them
         os.environ.update(env)
@@ -918,10 +921,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self.PYTHONPATH = self.inject(var=self.PYTHONPATH, path=(prefix / "packages"))
         # configure mm
         # update the compiler include path
-        self.MM_INCLUDES = self.inject(var=self.MM_INCLUDES, path=(prefix / "include"))
-        self.MM_INCLUDES = self.inject(var=self.MM_INCLUDES, path=self.portinfo)
+        self.incpath = self.inject(var=self.incpath, path=(prefix / "include"))
+        self.incpath = self.inject(var=self.incpath, path=self.portinfo)
         # update the linker library path
-        self.MM_LIBPATH = self.inject(var=self.MM_LIBPATH, path=(prefix / "lib"))
+        self.libpath = self.inject(var=self.libpath, path=(prefix / "lib"))
         # all done
         return
 
@@ -1146,10 +1149,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.pkgdb={self.pkgdb}"
         # the list of compilers
         yield f"mm.compilers={' '.join(self.compilers)}"
-        # form the list of paths with headers to add to the compiler command line
-        yield f"mm.incpath={' '.join(map(str, self.MM_INCLUDES))}"
-        # form the list of paths with headers to add to the compiler command line
-        yield f"mm.libpath={' '.join(map(str, self.MM_LIBPATH))}"
+        # the compiler header search path
+        yield f"mm.incpath={' '.join(map(str, self.incpath))}"
+        # the linker library search path
+        yield f"mm.libpath={' '.join(map(str, self.libpath))}"
         # indicate whether the output should be colorized
         yield f"mm.color={'' if self.color else 'no'}"
         # and the palette to use
