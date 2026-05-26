@@ -111,8 +111,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
-    tag = pyre.properties.path()
-    tag.default = None
+    tag = pyre.properties.str()
+    tag.default = os.environ.get("mm_tag")
     tag.doc = "an optional discriminator appended to bldroot and prefix to separate build contexts"
 
     # branch mode: compute branch-keyed build paths and print shell export statements
