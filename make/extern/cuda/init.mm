@@ -14,8 +14,8 @@ cuda.config := ${dir ${call extern.config,cuda}}
 cuda.flags ?=
 # enable {cuda} aware code
 cuda.defines += WITH_CUDA
-# the canonical form of the include directory
-cuda.incpath ?= $(cuda.dir)/include  $(cuda.dir)/include/cccl
+# the canonical form of the include directory; cuda 13+ reorganized headers under cccl/
+cuda.incpath ?= $(cuda.dir)/include ${wildcard $(cuda.dir)/include/cccl}
 
 # linker flags
 cuda.ldflags ?=
