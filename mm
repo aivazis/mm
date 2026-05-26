@@ -111,6 +111,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
+    tag = pyre.properties.path()
+    tag.default = None
+    tag.doc = "an optional discriminator appended to bldroot and prefix to separate build contexts"
+
     # branch mode: compute branch-keyed build paths and print shell export statements
     branch = pyre.properties.bool()
     branch.default = False
@@ -395,12 +399,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self.explore()
         # get the name of the package database manager
         name = self.pkgdb
-        # get the temporary staging area
+        # get the temporary staging area; already incorporates the build variant tag
         stage = self.locateBuildRoot()
-        # construct the build tag
-        _, _, tag = self.assembleBuildTarget()
         # the location of the package database
-        db = stage / tag / f"pkg-{name}.db"
+        db = stage / f"pkg-{name}.db"
 
         # dispatch to the appropriate builder
         if name == "adhoc":
@@ -420,13 +422,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def establishBranchContext(self):
         """
-        Compute branch-keyed build paths and print shell export statements for the user to eval
+        Compute a branch-keyed tag and print a shell export statement for the user to eval
         """
-        # read the base directories from the user-configured traits before {explore()} runs,
-        # so that any env vars currently in the pyre config don't interfere with the computation
-        bldBase = self.bldroot or (self.user.home / "tmp" / "builds" / "mm")
-        pfxBase = self.prefix or (self.user.home / "tools" / "mm")
-        # explore the project layout to get {_root}, {_bldTag}, etc.
+        # explore the project layout to get {_root}, etc.
         self.explore()
         # the active conda environment
         env = self.environment or "default"
@@ -434,15 +432,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         project = self._root.name
         # the current git branch
         branch = self.gitCurrentBranch()
-        # the compiler suite tag
         # the C++ suite is the first suite-level entry (no slash) in the compilers list
         cxxSuite = next((c for c in self.compilers if "/" not in c), None)
         compilers = cxxSuite or "default"
-        # compose the branch-keyed paths:
-        # bldroot gets env/project/branch/compilers; make appends {$(target.tag)} for the staging area
-        bldroot = bldBase / env / project / branch / compilers
-        # prefix gets the full build tag so install and staging land at the same leaf
-        prefix = pfxBase / env / project / branch / compilers / self._bldTag
+        # the tag is the relative path that discriminates this build context; it is appended
+        # to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix} respectively
+        tag = pyre.primitives.path(env) / project / branch / compilers
         # pick the right export syntax for the user's shell
         sh = self.syntax
         # sh and zsh
@@ -457,9 +452,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         elif sh == "fish":
             # does its own thing
             template = 'set -x {var} "{value}"'
-        # print the export statements for the shell to eval
-        print(template.format(var="mm_bldroot", value=bldroot))
-        print(template.format(var="mm_prefix", value=prefix))
+        # print the export statement for the shell to eval
+        print(template.format(var="mm_tag", value=tag))
         # all done
         return 0
 
@@ -485,10 +479,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._origin = pyre.primitives.path.cwd()
         # mark the path that will become the {cwd} for make
         self._anchor = self._localMakefile.parent if self._localMakefile else self._root
+        # construct the build tag; must precede {locateBuildRoot} since it needs {_bldTag}
+        self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
         # figure out where to put the intermediate products of the build
         self._bldroot = self.locateBuildRoot()
-        # construct the build tag
-        self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
         # figure out the install directory
         self._prefix = self.locatePrefix()
         # adjust my envpaths with the build configuration
@@ -843,13 +837,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         Figure out where to put the intermediate products of the build
         """
         # get the user's opinion
-        bldroot = self.bldroot
-        # if there is one
-        if bldroot is not None:
-            # we are done
-            return bldroot
-        # otherwise, put things in a subdirectory of the project root
-        return self._root / "builds"
+        bldroot = self.bldroot or (self._root / "builds")
+        # if a tag is set, use it to discriminate the build context; the build variant tag
+        # is always appended so bldroot and prefix land at the same depth
+        tag = self.tag
+        return bldroot / tag / self._bldTag if tag else bldroot / self._bldTag
 
     def assembleBuildTarget(self):
         """
@@ -872,13 +864,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         Figure out where to put the build products
         """
         # get the user's opinion
-        prefix = self.prefix
-        # if there is one
-        if prefix is not None:
-            # we are done
-            return prefix
-        # otherwise, put things in a subdirectory of the project root
-        return self._root / "products"
+        prefix = self.prefix or (self._root / "products")
+        # if a tag is set, use it to discriminate the build context; prefix also gets the
+        # build variant tag so installs for different targets land in separate directories
+        tag = self.tag
+        # append both when present
+        return prefix / tag / self._bldTag if tag else prefix
 
     def loadProjectConfig(self):
         """
