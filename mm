@@ -286,8 +286,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.setup:
             # build the package database
             return self.buildPackageDatabase()
-        # if we are printing a branch-keyed build context for the shell to eval
+        # if we are printing a branch-keyed build context
         if self.branch:
+            # generate the {eval} script
             return self.establishBranchContext()
         # otherwise, launch the build
         return self.launch()
@@ -443,12 +444,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         sh = self.syntax
         # sh and zsh
         if sh == "sh":
+            # use {export}
             template = 'export {var}="{value}"'
         # csh and tcsh
         elif sh == "csh":
+            # use {setenv}
             template = 'setenv {var} "{value}"'
         # fish
         elif sh == "fish":
+            # does its own thing
             template = 'set -x {var} "{value}"'
         # print the export statements for the shell to eval
         print(template.format(var="mm_bldroot", value=bldroot))
@@ -946,7 +950,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # ask make to generate it
             yield "--trace"
         # parallelism
-        yield f"--jobs={self.computeSlots()}"
+        yield from self.computeSlots()
         # add the top level makefile to the pile
         yield f"--makefile={self._makefile}"
         # adjust the include path so make can find our makefile fragments
@@ -1237,16 +1241,20 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # if the user doesn't want any parallelism
         if self.serial:
-            # execute only one recipe at a tie
-            return 1
+            # let {make} know to execute only one recipe at a time
+            yield f"--jobs=1"
+            # all done
+            return
         # get the user choice
         slots = self.slots
-        # and the number of cores of the host on which mm is running
-        # N.B.:
-        #     that's not {self.host}, which is meant to be the machine we're building for
-        cores = pyre.executive.host.cpus.cpus
-        # clip it from below and default to as many slots as there are cores
-        return max(1, cores if slots is None else slots)
+        # if the user hasn't expressed an opinion
+        if slots is None:
+            # let {make} figure it out
+            yield "-j"
+            # all done
+            return
+        # otherwise, use the user's value
+        yield f"--jobs={slots}"
 
     def gitDescribe(self):
         """
@@ -1540,7 +1548,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         # if it's within the conda prefix, anchor it to {conda.prefix}
                         try:
                             relativePath = pybind11Root.relativeTo(prefix)
-                            print(f"pybind11.dir ?= $(conda.prefix)/{relativePath}", file=f)
+                            print(
+                                f"pybind11.dir ?= $(conda.prefix)/{relativePath}",
+                                file=f,
+                            )
                         # otherwise fall back to the absolute path
                         except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
