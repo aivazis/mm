@@ -358,8 +358,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "conda": self._condaPrefix,
             "macports": self._macportsPrefix,
         }
-        # verify both dispatch tables are in sync with the mode validator; scan for the first
-        # validator that carries a {choices} attribute (see pyre/pyre#176 for a better API)
+        # the pkgdb dispatch table
+        self._pkgdbDispatch = {
+            "adhoc": self._buildAdhocPackageDatabase,
+            "conda": self._buildCondaPackageDatabase,
+            "macports": self._buildMacportsPackageDatabase,
+            "dpkg": self._buildDpkgPackageDatabase,
+        }
+        # verify both mode dispatch tables are in sync with the mode validator; scan for the
+        # first validator that carries a {choices} attribute (see pyre/pyre#176 for a better API)
         for modeValidator in filter(
             lambda v: hasattr(v, "choices"), self.pyre_trait("mode").validators
         ):
@@ -385,6 +392,23 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.outdent()
                     # flush
                     channel.log()
+            # we only care about the first match
+            break
+        # verify the pkgdb dispatch table is in sync with the pkgdb validator
+        for pkgdbValidator in filter(
+            lambda v: hasattr(v, "choices"), self.pyre_trait("pkgdb").validators
+        ):
+            # if the keys don't match the validator choices, something is wrong
+            if set(self._pkgdbDispatch) != pkgdbValidator.choices:
+                # make a channel
+                channel = journal.firewall("mm.pkgdb")
+                # report
+                channel.line("pkgdb dispatch table is out of sync with the pkgdb validator")
+                channel.indent()
+                channel.line(f"dispatch keys:     {set(self._pkgdbDispatch)}")
+                channel.log(f"validator choices: {pkgdbValidator.choices}")
+                channel.outdent()
+                channel.log()
             # we only care about the first match
             break
         # all done
@@ -448,28 +472,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # explore the project layout so {locateBuildRoot} can find the project root
         self.explore()
-        # get the name of the package database manager
-        name = self.pkgdb
         # get the temporary staging area; already incorporates the build variant tag
         stage = self.locateBuildRoot()
         # the location of the package database
-        db = stage / f"pkg-{name}.db"
-
-        # dispatch to the appropriate builder
-        if name == "adhoc":
-            # assume that the user already has setup a custom package database
-            # in some configuration file, as is current mm practice; just create the db file
-            open(db, "w")
-            # and move on
-            return 0
-
-        # for conda
-        if name == "conda":
-            # query the package manager and find what's installed
-            return self._buildCondaPackageDatabase(db)
-
-        # all done
-        return 0
+        db = stage / f"pkg-{self.pkgdb}.db"
+        # dispatch to the mode-specific implementation
+        return self._pkgdbDispatch[self.pkgdb](db)
 
     def establishBranchContext(self):
         """
@@ -1389,6 +1397,16 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         r"(v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
     )
 
+    def _buildAdhocPackageDatabase(self, db):
+        """
+        Create an empty package database for an ad-hoc build; the user is expected to have
+        populated their own configuration files with the necessary package locations
+        """
+        # just touch the file so the build engine finds it
+        open(db, "w")
+        # all done
+        return 0
+
     def _buildCondaPackageDatabase(self, db):
         """
         Interrogate the active conda/micromamba environment and write a package database
@@ -1607,6 +1625,223 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 print(file=f)
         # all done
         return 0
+
+    def _buildMacportsPackageDatabase(self, db):
+        """
+        Interrogate the active MacPorts installation and write a package database
+        """
+        # grab a channel
+        channel = journal.info("mm.pkgdb")
+        # find the port executable
+        port = shutil.which("port")
+        # if not found
+        if not port:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("could not find the 'port' executable")
+            error.line("make sure MacPorts is installed and 'port' is on your PATH")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # derive the MacPorts prefix from the port executable location
+        prefix = pyre.primitives.path(port).parent.parent
+        # get the selected python3 version
+        result = subprocess.run(
+            [port, "select", "--show", "python3"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed or no version is selected
+        if result.returncode != 0 or "none" in result.stdout:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("no python3 version selected in MacPorts")
+            error.line("select one and retry, e.g.:")
+            error.line("  sudo port select python3 python312")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # parse the selected version name e.g. "python312" -> tag "312", version "3.12"
+        match = re.search(r"python(\d)(\d+)", result.stdout)
+        # if we couldn't parse it
+        if not match:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("could not parse the selected python3 version from 'port select'")
+            error.line(f"output: {result.stdout.strip()}")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # reconstruct the version tag and the interpreter path
+        pyTag = f"{match.group(1)}{match.group(2)}"
+        pyVersion = f"{match.group(1)}.{match.group(2)}"
+        python = prefix / "bin" / f"python{pyVersion}"
+        # log our starting state
+        channel.line("building macports package database")
+        channel.indent()
+        channel.line(f"port: {port}")
+        channel.line(f"prefix: {prefix}")
+        channel.line(f"python: {python}")
+        channel.line(f"db: {db}")
+        channel.outdent()
+        channel.log()
+        # query the installed ports
+        result = subprocess.run(
+            [port, "installed"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed
+        if result.returncode != 0:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line(f"failed to query installed ports: {result.stderr.strip()}")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # parse active ports; each active line ends with "(active)"
+        installed = set()
+        for line in result.stdout.splitlines():
+            # strip leading whitespace
+            line = line.strip()
+            # only active ports
+            if line.endswith("(active)"):
+                # the port name is the first token
+                installed.add(line.split()[0])
+        # the mapping from mm extern name to macports port name(s); try names in order;
+        # python-versioned ports use {pyTag} e.g. "312" for python 3.12
+        packages = {
+            "cantera": ["cantera"],
+            "cgal": ["cgal5", "cgal"],
+            "cspice": ["cspice"],
+            "eigen": ["eigen3"],
+            "fftw": ["fftw-3"],
+            "fmt": ["libfmt"],
+            "gdal": ["gdal"],
+            "geotiff": ["libgeotiff"],
+            "gmsh": ["gmsh"],
+            "gsl": ["gsl"],
+            "gtest": ["googletest"],
+            "hdf5": ["hdf5"],
+            "kokkos": ["kokkos"],
+            "libpq": ["libpq"],
+            "metis": ["metis5", "metis"],
+            "mpi": ["openmpi", "mpich"],
+            "numpy": [f"py{pyTag}-numpy"],
+            "openblas": ["OpenBLAS"],
+            "parmetis": ["parmetis"],
+            "petsc": ["petsc"],
+            "proj": ["proj"],
+            "pybind11": [f"py{pyTag}-pybind11"],
+            "python": [f"python{pyTag}"],
+            "slepc": ["slepc"],
+            "sundials": ["sundials"],
+            "vtk": ["vtk9", "vtk"],
+            "yaml": ["yaml-cpp"],
+        }
+        # collect the packages that are present in this installation
+        found = {}
+        for name, candidates in packages.items():
+            for candidate in candidates:
+                if candidate in installed:
+                    found[name] = candidate
+                    break
+        # report what we found
+        channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        channel.indent()
+        for name, candidate in sorted(found.items()):
+            channel.line(f"{name}  (macports: {candidate})")
+        channel.outdent()
+        channel.log()
+        # open the database file
+        with open(db, "w") as f:
+            # the emacs mode line
+            print("# -*- Makefile -*-", file=f)
+            # identification
+            print("# macports package database", file=f)
+            # provenance
+            print("# generated by: mm --pkgdb=macports --setup", file=f)
+            # the agent and prefix
+            print(f"# port: {port}", file=f)
+            print(f"# prefix: {prefix}", file=f)
+            # blank line before the prefix declaration
+            print(file=f)
+            # the root of the MacPorts installation; factored out so all {.dir} entries track it
+            print(f"macports.prefix := {prefix}", file=f)
+            # blank line before package entries
+            print(file=f)
+            # write an entry for each found package in alphabetical order
+            for name in sorted(found):
+                # get the macports port name
+                candidate = found[name]
+                # a comment line showing the mm name and macports port name
+                print(f"# {name}  (macports: {candidate})", file=f)
+                # mpi needs its flavor to select the right library names
+                if name == "mpi":
+                    print(f"mpi.dir ?= $(macports.prefix)", file=f)
+                    print(f"mpi.flavor ?= {candidate}", file=f)
+                # numpy headers live under site-packages/numpy/core, not the macports prefix
+                elif name == "numpy":
+                    includePath = self._queryPythonExpression(
+                        "import numpy; print(numpy.get_include())",
+                        python=python,
+                    )
+                    if includePath:
+                        numpyCore = pyre.primitives.path(includePath).parent
+                        try:
+                            relativePath = numpyCore.relativeTo(prefix)
+                            print(f"numpy.dir ?= $(macports.prefix)/{relativePath}", file=f)
+                        except ValueError:
+                            print(f"numpy.dir ?= {numpyCore}", file=f)
+                    else:
+                        print(f"numpy.dir ?= $(macports.prefix)", file=f)
+                # pybind11 headers also live under site-packages
+                elif name == "pybind11":
+                    includePath = self._queryPythonExpression(
+                        "import pybind11; print(pybind11.get_include())",
+                        python=python,
+                    )
+                    if includePath:
+                        pybind11Root = pyre.primitives.path(includePath).parent
+                        try:
+                            relativePath = pybind11Root.relativeTo(prefix)
+                            print(f"pybind11.dir ?= $(macports.prefix)/{relativePath}", file=f)
+                        except ValueError:
+                            print(f"pybind11.dir ?= {pybind11Root}", file=f)
+                    else:
+                        print(f"pybind11.dir ?= $(macports.prefix)", file=f)
+                # python version is major.minor only, as used in filesystem paths
+                elif name == "python":
+                    print(f"python.version ?= {pyVersion}", file=f)
+                    print(f"python.dir ?= $(macports.prefix)", file=f)
+                # all other packages anchor to the macports prefix
+                else:
+                    print(f"{name}.dir ?= $(macports.prefix)", file=f)
+                # blank line after each entry
+                print(file=f)
+        # all done
+        return 0
+
+    def _buildDpkgPackageDatabase(self, db):
+        """
+        Build a package database from the dpkg package manager (not yet implemented)
+        """
+        # make a channel
+        channel = journal.error("mm.pkgdb")
+        # complain
+        channel.line("dpkg package database support is not yet implemented")
+        # flush
+        channel.log()
+        # bail
+        return 1
 
     def _queryPythonExpression(self, expression, *, python=sys.executable):
         """
