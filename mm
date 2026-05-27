@@ -113,6 +113,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     branch.default = False
     branch.doc = "generate a build context based on a repository branch"
 
+    activate = pyre.properties.bool()
+    activate.default = False
+    activate.doc = "print shell commands that add the build's bin and python packages to the session"
+
     syntax = pyre.properties.str()
     syntax.default = "sh"
     syntax.validators = pyre.constraints.isMember("sh", "csh", "fish")
@@ -305,6 +309,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.branch:
             # generate the {eval} script
             return self.establishBranchContext()
+        # if we are activating the build in the current session
+        if self.activate:
+            # generate the {eval} script
+            return self.activateSession()
         # otherwise, launch the build
         return self.launch()
 
@@ -347,6 +355,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._prefix = None
         # the python package installation directory; may be overridden by mode-specific logic
         self._pycPrefix = None
+        # the syntax dispatch table: maps shell names to (var, value) -> export statement
+        self._syntaxDispatch = {
+            "sh":   lambda var, value: f'export {var}="{value}"',
+            "csh":  lambda var, value: f'setenv {var} "{value}"',
+            "fish": lambda var, value: f'set -x {var} "{value}"',
+        }
         # the mode dispatch tables
         self._bldrootDispatch = {
             "dev": self._devBldroot,
@@ -409,6 +423,23 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel.indent()
                 channel.line(f"dispatch keys:     {set(self._pkgdbDispatch)}")
                 channel.log(f"validator choices: {pkgdbValidator.choices}")
+                channel.outdent()
+                channel.log()
+            # we only care about the first match
+            break
+        # verify the syntax dispatch table is in sync with the syntax validator
+        for syntaxValidator in filter(
+            lambda v: hasattr(v, "choices"), self.pyre_trait("syntax").validators
+        ):
+            # if the keys don't match the validator choices, something is wrong
+            if set(self._syntaxDispatch) != syntaxValidator.choices:
+                # make a channel
+                channel = journal.firewall("mm.syntax")
+                # report
+                channel.line("syntax dispatch table is out of sync with the syntax validator")
+                channel.indent()
+                channel.line(f"dispatch keys:     {set(self._syntaxDispatch)}")
+                channel.log(f"validator choices: {syntaxValidator.choices}")
                 channel.outdent()
                 channel.log()
             # we only care about the first match
@@ -494,22 +525,33 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the tag is the relative path that discriminates this build context; it is appended
         # to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix} respectively
         tag = f"{project}/{branch}"
-        # pick the right export syntax for the user's shell
-        sh = self.syntax
-        # sh and zsh
-        if sh == "sh":
-            # use {export}
-            template = 'export {var}="{value}"'
-        # csh and tcsh
-        elif sh == "csh":
-            # use {setenv}
-            template = 'setenv {var} "{value}"'
-        # fish
-        elif sh == "fish":
-            # does its own thing
-            template = 'set -x {var} "{value}"'
         # print the export statement for the shell to eval
-        print(template.format(var="mm_tag", value=tag))
+        print(self._syntaxDispatch[self.syntax]("mm_tag", tag))
+        # all done
+        return 0
+
+    def activateSession(self):
+        """
+        Print shell commands that prepend the build's {bin} and python packages to the session
+        """
+        # resolve all paths; {updateEnvironmentVariables} in {explore} already injects
+        # {prefix/bin} into {PATH}, so the {inject} calls below are idempotent for {PATH}
+        self.explore()
+        # build the updated PATH, using {inject} to avoid adding duplicates
+        path = os.pathsep.join(
+            str(p) for p in self.inject(var=self.PATH, path=(self._prefix / "bin"))
+        )
+        # build the updated PYTHONPATH, pointing at the mode-specific package directory
+        pythonpath = os.pathsep.join(
+            str(p) for p in self.inject(
+                var=self.PYTHONPATH,
+                path=(self._prefix / (self._pycPrefix or self.pycPrefix)),
+            )
+        )
+        # print the export statements for the shell to eval
+        printer = self._syntaxDispatch[self.syntax]
+        print(printer("PATH", path))
+        print(printer("PYTHONPATH", pythonpath))
         # all done
         return 0
 
@@ -1272,18 +1314,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def inject(self, var, path):
         """
-        Ensure {path} is in {var}
+        Prepend {path} to {var}, keeping each value's first appearance only
         """
-        # if {path} is already in {var}
-        if path in var:
-            # return it unchanged
-            yield from var
-            # and done
-        # otherwise, add {path} to the pile
+        # track what we have already yielded
+        seen = set()
+        # the new path always comes first
+        seen.add(path)
         yield path
-        # followed by the original list
-        yield from var
-        # and done
+        # yield existing values, skipping duplicates
+        for p in var:
+            if p not in seen:
+                seen.add(p)
+                yield p
+        # all done
         return
 
     def computeSlots(self):
