@@ -95,8 +95,17 @@ endef
 define compiler.options =
 ${strip
     ${foreach source, ${call compiler.option.sources,$(2),$(4)},
-        ${foreach category, $(languages.$(2).categories.$(1)),
+        ${foreach category, ${filter-out rpath, $(languages.$(2).categories.$(1))},
             $($(source).$(category):%=$($(3).prefix.$(category))%)
+        }
+    }
+    ${if ${filter rpath, $(languages.$(2).categories.$(1))},
+        ${patsubst %,$($(3).prefix.rpath)%,
+            ${sort
+                ${foreach source, ${call compiler.option.sources,$(2),$(4)},
+                    $($(source).rpath)
+                }
+            }
         }
     }
 }
