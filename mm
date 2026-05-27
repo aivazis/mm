@@ -360,15 +360,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the syntax dispatch table: maps shell names to (var, value) -> export/unset statement
         # {value} of None means unset the variable rather than export it
         self._syntaxDispatch = {
-            "sh": lambda var, value: f"unset {var}"
-            if value is None
-            else f'export {var}="{value}"',
-            "csh": lambda var, value: f"unsetenv {var}"
-            if value is None
-            else f'setenv {var} "{value}"',
-            "fish": lambda var, value: f"set -e {var}"
-            if value is None
-            else f'set -x {var} "{value}"',
+            "sh": lambda var, value: (
+                f"unset {var}" if value is None else f'export {var}="{value}"'
+            ),
+            "csh": lambda var, value: (
+                f"unsetenv {var}" if value is None else f'setenv {var} "{value}"'
+            ),
+            "fish": lambda var, value: (
+                f"set -e {var}" if value is None else f'set -x {var} "{value}"'
+            ),
         }
         # the mode dispatch tables
         self._bldrootDispatch = {
@@ -533,9 +533,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if self.branch:
             # find the project root to get the project name
             root = self.locateProjectRoot()
+            # get te branch name
+            branch = self.gitCurrentBranch()
             # the tag is the relative path that discriminates this build context; it is
             # appended to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix}
-            self.tag = f"{root.name}/{self.gitCurrentBranch()}"
+            self.tag = f"{root.name}/{branch}"
         # if branch is False, clear the tag so the tag-less paths are used
         else:
             self.tag = None
