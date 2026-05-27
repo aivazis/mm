@@ -1834,16 +1834,198 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def _buildDpkgPackageDatabase(self, db):
         """
-        Build a package database from the dpkg package manager (not yet implemented)
+        Interrogate the dpkg package manager and write a package database
         """
-        # make a channel
-        channel = journal.error("mm.pkgdb")
-        # complain
-        channel.line("dpkg package database support is not yet implemented")
-        # flush
+        # grab a channel
+        channel = journal.info("mm.pkgdb")
+        # dpkg-query is always present on Debian/Ubuntu
+        dpkg = shutil.which("dpkg-query")
+        # if not found, we're not on a dpkg-based system
+        if not dpkg:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("could not find 'dpkg-query'")
+            error.line("make sure you are on a Debian/Ubuntu system")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # the dpkg prefix is always /usr
+        prefix = pyre.primitives.path("/usr")
+        # query the Python interpreter for the correct package installation directory
+        platlib = self._queryPythonExpression(
+            "import sysconfig; print(sysconfig.get_path('platlib'))"
+        )
+        # if the query failed we can't reliably determine where to put python packages
+        if not platlib:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line("could not determine the python package installation directory")
+            error.line("make sure python3 is installed and on your PATH")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # make the platlib path relative to the prefix
+        try:
+            pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
+        # if it's not under /usr, use it as-is
+        except ValueError:
+            pycPrefix = pyre.primitives.path(platlib)
+        # log our starting state
+        channel.line("building dpkg package database")
+        channel.indent()
+        channel.line(f"dpkg-query: {dpkg}")
+        channel.line(f"prefix: {prefix}")
+        channel.line(f"python packages: {pycPrefix}")
+        channel.line(f"db: {db}")
+        channel.outdent()
         channel.log()
-        # bail
-        return 1
+        # query all installed packages with their versions and status
+        result = subprocess.run(
+            [dpkg, "-W", "-f=${Package}\t${Version}\t${db:Status-Status}\n"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed
+        if result.returncode != 0:
+            # make a channel
+            error = journal.error("mm.pkgdb")
+            # complain
+            error.line(f"failed to query installed packages: {result.stderr.strip()}")
+            # flush
+            error.log()
+            # bail
+            return 1
+        # build an index of installed packages keyed by name
+        installed = {}
+        for line in result.stdout.splitlines():
+            # split into package, version, status
+            parts = line.split("\t")
+            # skip malformed lines
+            if len(parts) != 3:
+                continue
+            name, version, status = parts
+            # only count fully installed packages
+            if status.strip() == "installed":
+                installed[name] = version
+        # the mapping from mm extern name to dpkg package name(s); try names in order
+        packages = {
+            "cantera": ["libcantera-dev"],
+            "cgal": ["libcgal-dev"],
+            "cspice": ["libcspice-dev"],
+            "eigen": ["libeigen3-dev"],
+            "fftw": ["libfftw3-dev"],
+            "fmt": ["libfmt-dev"],
+            "gdal": ["libgdal-dev"],
+            "geotiff": ["libgeotiff-dev"],
+            "gmsh": ["gmsh"],
+            "gsl": ["libgsl-dev"],
+            "gtest": ["libgtest-dev"],
+            "hdf5": ["libhdf5-dev"],
+            "kokkos": ["libkokkos-dev"],
+            "libpq": ["libpq-dev"],
+            "metis": ["libmetis-dev"],
+            "mpi": ["libopenmpi-dev", "libmpich-dev"],
+            "numpy": ["python3-numpy"],
+            "openblas": ["libopenblas-dev"],
+            "parmetis": ["libparmetis-dev"],
+            "petsc": ["petsc-dev"],
+            "proj": ["libproj-dev"],
+            "pybind11": ["pybind11-dev"],
+            "python": ["python3"],
+            "slepc": ["slepc-dev"],
+            "sundials": ["libsundials-dev"],
+            "vtk": ["libvtk9-dev", "libvtk7-dev"],
+            "yaml": ["libyaml-cpp-dev"],
+        }
+        # collect the packages present on this system
+        found = {}
+        for name, candidates in packages.items():
+            for candidate in candidates:
+                if candidate in installed:
+                    found[name] = (candidate, installed[candidate])
+                    break
+        # report what we found
+        channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        channel.indent()
+        for name, (candidate, version) in sorted(found.items()):
+            channel.line(f"{name}: {version}  (dpkg: {candidate})")
+        channel.outdent()
+        channel.log()
+        # open the database file
+        with open(db, "w") as f:
+            # the emacs mode line
+            print("# -*- Makefile -*-", file=f)
+            # identification
+            print("# dpkg package database", file=f)
+            # provenance
+            print("# generated by: mm --pkgdb=dpkg --setup", file=f)
+            print(f"# dpkg-query: {dpkg}", file=f)
+            print(f"# prefix: {prefix}", file=f)
+            # blank line before the prefix declaration
+            print(file=f)
+            # the system prefix; factored out so all {.dir} entries track it
+            print(f"dpkg.prefix := {prefix}", file=f)
+            # blank line before package entries
+            print(file=f)
+            # write an entry for each found package in alphabetical order
+            for name in sorted(found):
+                candidate, version = found[name]
+                # a comment line showing the mm name, version, and dpkg package name
+                print(f"# {name}: {version}  (dpkg: {candidate})", file=f)
+                # python version is major.minor only
+                if name == "python":
+                    pyVersion = self._queryPythonExpression(
+                        "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+                    )
+                    if pyVersion:
+                        print(f"python.version ?= {pyVersion}", file=f)
+                    print(f"python.dir ?= $(dpkg.prefix)", file=f)
+                # mpi needs its flavor to select the right library names
+                elif name == "mpi":
+                    print(f"mpi.dir ?= $(dpkg.prefix)", file=f)
+                    flavor = "openmpi" if "openmpi" in candidate else "mpich"
+                    print(f"mpi.flavor ?= {flavor}", file=f)
+                # numpy headers live under the python package directory
+                elif name == "numpy":
+                    includePath = self._queryPythonExpression(
+                        "import numpy; print(numpy.get_include())"
+                    )
+                    if includePath:
+                        numpyCore = pyre.primitives.path(includePath).parent
+                        try:
+                            relativePath = numpyCore.relativeTo(prefix)
+                            print(f"numpy.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
+                        except ValueError:
+                            print(f"numpy.dir ?= {numpyCore}", file=f)
+                    else:
+                        print(f"numpy.dir ?= $(dpkg.prefix)", file=f)
+                # pybind11 headers also live under the python package directory
+                elif name == "pybind11":
+                    includePath = self._queryPythonExpression(
+                        "import pybind11; print(pybind11.get_include())"
+                    )
+                    if includePath:
+                        pybind11Root = pyre.primitives.path(includePath).parent
+                        try:
+                            relativePath = pybind11Root.relativeTo(prefix)
+                            print(f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
+                        except ValueError:
+                            print(f"pybind11.dir ?= {pybind11Root}", file=f)
+                    else:
+                        print(f"pybind11.dir ?= $(dpkg.prefix)", file=f)
+                # all other packages anchor to the dpkg prefix
+                else:
+                    print(f"{name}.dir ?= $(dpkg.prefix)", file=f)
+                # version for packages whose init.mm has version-dependent logic
+                print(f"{name}.version ?= {version}", file=f)
+                # blank line after each entry
+                print(file=f)
+        # all done
+        return 0
 
     def _queryPythonExpression(self, expression, *, python=sys.executable):
         """
