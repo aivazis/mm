@@ -357,8 +357,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._pycPrefix = None
         # the syntax dispatch table: maps shell names to (var, value) -> export statement
         self._syntaxDispatch = {
-            "sh":   lambda var, value: f'export {var}="{value}"',
-            "csh":  lambda var, value: f'setenv {var} "{value}"',
+            "sh": lambda var, value: f'export {var}="{value}"',
+            "csh": lambda var, value: f'setenv {var} "{value}"',
             "fish": lambda var, value: f'set -x {var} "{value}"',
         }
         # the mode dispatch tables
@@ -419,7 +419,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # make a channel
                 channel = journal.firewall("mm.pkgdb")
                 # report
-                channel.line("pkgdb dispatch table is out of sync with the pkgdb validator")
+                channel.line(
+                    "pkgdb dispatch table is out of sync with the pkgdb validator"
+                )
                 channel.indent()
                 channel.line(f"dispatch keys:     {set(self._pkgdbDispatch)}")
                 channel.log(f"validator choices: {pkgdbValidator.choices}")
@@ -436,7 +438,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # make a channel
                 channel = journal.firewall("mm.syntax")
                 # report
-                channel.line("syntax dispatch table is out of sync with the syntax validator")
+                channel.line(
+                    "syntax dispatch table is out of sync with the syntax validator"
+                )
                 channel.indent()
                 channel.line(f"dispatch keys:     {set(self._syntaxDispatch)}")
                 channel.log(f"validator choices: {syntaxValidator.choices}")
@@ -514,25 +518,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def establishBranchContext(self):
         """
-        Compute a branch-keyed tag and print a shell export statement for the user to eval
+        Derive a branch-keyed tag and activate the corresponding session
         """
-        # explore the project layout to get {_root}, etc.
-        self.explore()
-        # the project name is the basename of the directory that contains the {.mm} marker
-        project = self._root.name
-        # the current git branch
-        branch = self.gitCurrentBranch()
+        # find the project root to get the project name
+        root = self.locateProjectRoot()
         # the tag is the relative path that discriminates this build context; it is appended
         # to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix} respectively
-        tag = f"{project}/{branch}"
-        # print the export statement for the shell to eval
-        print(self._syntaxDispatch[self.syntax]("mm_tag", tag))
-        # all done
-        return 0
+        self.tag = f"{root.name}/{self.gitCurrentBranch()}"
+        # let {activateSession} emit the full shell context, including the updated {mm_tag}
+        return self.activateSession()
 
     def activateSession(self):
         """
-        Print shell commands that prepend the build's {bin} and python packages to the session
+        Print shell commands that establish the build context in the current session
         """
         # resolve all paths; {updateEnvironmentVariables} in {explore} already injects
         # {prefix/bin} into {PATH}, so the {inject} calls below are idempotent for {PATH}
@@ -543,15 +541,20 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # build the updated PYTHONPATH, pointing at the mode-specific package directory
         pythonpath = os.pathsep.join(
-            str(p) for p in self.inject(
+            str(p)
+            for p in self.inject(
                 var=self.PYTHONPATH,
                 path=(self._prefix / (self._pycPrefix or self.pycPrefix)),
             )
         )
-        # print the export statements for the shell to eval
-        printer = self._syntaxDispatch[self.syntax]
-        print(printer("PATH", path))
-        print(printer("PYTHONPATH", pythonpath))
+        # emit the full shell context
+        emit = self._syntaxDispatch[self.syntax]
+        # the tag that discriminates this build context, so the setting persists across invocations
+        print(emit("mm_tag", self.tag or ""))
+        # the path to the build's executables
+        print(emit("PATH", path))
+        # the path to the build's python packages
+        print(emit("PYTHONPATH", pythonpath))
         # all done
         return 0
 
@@ -1717,7 +1720,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # make a channel
             error = journal.error("mm.pkgdb")
             # complain
-            error.line("could not parse the selected python3 version from 'port select'")
+            error.line(
+                "could not parse the selected python3 version from 'port select'"
+            )
             error.line(f"output: {result.stdout.strip()}")
             # flush
             error.log()
@@ -1843,7 +1848,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         numpyCore = pyre.primitives.path(includePath).parent
                         try:
                             relativePath = numpyCore.relativeTo(prefix)
-                            print(f"numpy.dir ?= $(macports.prefix)/{relativePath}", file=f)
+                            print(
+                                f"numpy.dir ?= $(macports.prefix)/{relativePath}",
+                                file=f,
+                            )
                         except ValueError:
                             print(f"numpy.dir ?= {numpyCore}", file=f)
                     else:
@@ -1858,7 +1866,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         pybind11Root = pyre.primitives.path(includePath).parent
                         try:
                             relativePath = pybind11Root.relativeTo(prefix)
-                            print(f"pybind11.dir ?= $(macports.prefix)/{relativePath}", file=f)
+                            print(
+                                f"pybind11.dir ?= $(macports.prefix)/{relativePath}",
+                                file=f,
+                            )
                         except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
@@ -2055,7 +2066,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         pybind11Root = pyre.primitives.path(includePath).parent
                         try:
                             relativePath = pybind11Root.relativeTo(prefix)
-                            print(f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
+                            print(
+                                f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f
+                            )
                         except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
@@ -2230,7 +2243,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.warning("mm.macports")
             # warn
             channel.line(f"no write access to the MacPorts prefix '{prefix}'")
-            channel.line("installing will fail unless mm is run with elevated privileges:")
+            channel.line(
+                "installing will fail unless mm is run with elevated privileges:"
+            )
             channel.line("  sudo mm")
             # flush
             channel.log()
@@ -2259,7 +2274,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # make a channel
             channel = journal.error("mm.macports")
             # complain
-            channel.line("could not parse the selected python3 version from 'port select'")
+            channel.line(
+                "could not parse the selected python3 version from 'port select'"
+            )
             channel.line(f"output: {result.stdout.strip()}")
             # flush
             channel.log()
@@ -2274,7 +2291,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line(f"expected python interpreter not found: {python}")
-            channel.line("check your MacPorts python3 selection with 'port select --show python3'")
+            channel.line(
+                "check your MacPorts python3 selection with 'port select --show python3'"
+            )
             # flush
             channel.log()
             # bail
