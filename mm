@@ -546,29 +546,39 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Print shell commands that establish the build context in the current session
         """
-        # resolve all paths; {updateEnvironmentVariables} in {explore} already injects
-        # {prefix/bin} into {PATH}, so the {inject} calls below are idempotent for {PATH}
+        # resolve all paths
         self.explore()
-        # build the updated PATH, using {inject} to avoid adding duplicates
-        path = os.pathsep.join(
-            str(p) for p in self.inject(var=self.PATH, path=(self._prefix / "bin"))
-        )
-        # build the updated PYTHONPATH, pointing at the mode-specific package directory
-        pythonpath = os.pathsep.join(
-            str(p)
-            for p in self.inject(
-                var=self.PYTHONPATH,
-                path=(self._prefix / (self._pycPrefix or self.pycPrefix)),
+        # the new installation prefix and python package directory
+        newPrefix = self._prefix
+        newPyc = newPrefix / (self._pycPrefix or self.pycPrefix)
+        # if a previous activation is recorded in the environment, remove its contributions
+        # from the path variables before injecting the new ones
+        oldPrefixStr = os.environ.get("mm_prefix")
+        oldPycStr = os.environ.get("mm_pyc")
+        if oldPrefixStr:
+            self.PATH = self.eject(
+                var=self.PATH, path=(pyre.primitives.path(oldPrefixStr) / "bin")
             )
+        if oldPycStr:
+            self.PYTHONPATH = self.eject(
+                var=self.PYTHONPATH, path=pyre.primitives.path(oldPycStr)
+            )
+        # build the updated PATH and PYTHONPATH with the new entries at the front
+        path = os.pathsep.join(
+            str(p) for p in self.inject(var=self.PATH, path=(newPrefix / "bin"))
+        )
+        pythonpath = os.pathsep.join(
+            str(p) for p in self.inject(var=self.PYTHONPATH, path=newPyc)
         )
         # emit the full shell context
         emit = self._syntaxDispatch[self.syntax]
-        # the tag that discriminates this build context, so the setting persists across invocations
-        # emit None when the tag is absent so the dispatch emits an unset rather than an export
+        # the tag: None triggers an unset rather than an export
         print(emit("mm_tag", self.tag or None))
-        # the path to the build's executables
+        # the prefix and python package path, so the next activation can undo this one
+        print(emit("mm_prefix", str(newPrefix)))
+        print(emit("mm_pyc", str(newPyc)))
+        # the updated path variables
         print(emit("PATH", path))
-        # the path to the build's python packages
         print(emit("PYTHONPATH", pythonpath))
         # all done
         return 0
@@ -603,7 +613,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldroot = self.locateBuildRoot()
         # figure out the install directory
         self._prefix = self.locatePrefix()
-        # adjust my envpaths with the build configuration
+        # adjust my environment variables with the build configuration
         self.updateEnvironmentVariables()
         # all done
         return
@@ -1337,12 +1347,29 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # track what we have already yielded
         seen = set()
         # the new path always comes first
-        seen.add(path)
         yield path
-        # yield existing values, skipping duplicates
+        # save it
+        seen.add(path)
+        # go through the rest of the values in {var}
         for p in var:
+            # if it hasn't been emitted before
             if p not in seen:
+                # emit
+                yield p
+                # and remember
                 seen.add(p)
+        # all done
+        return
+
+    def eject(self, var, path):
+        """
+        Remove {path} from {var}
+        """
+        # go through the values in {var}
+        for p in var:
+            # skip the one we want to remove
+            if p != path:
+                # pass everything else through
                 yield p
         # all done
         return
