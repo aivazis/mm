@@ -106,7 +106,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # compute branch-keyed build paths and print shell export statements
     mode = pyre.properties.str()
     mode.default = "dev"
-    mode.validators = pyre.constraints.isMember("dev", "conda", "macports")
+    mode.validators = pyre.constraints.isMember("dev", "conda", "macports", "ubuntu")
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
@@ -352,11 +352,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "dev": self._devBldroot,
             "conda": self._condaBldroot,
             "macports": self._macportsBldroot,
+            "ubuntu": self._ubuntuBldroot,
         }
         self._prefixDispatch = {
             "dev": self._devPrefix,
             "conda": self._condaPrefix,
             "macports": self._macportsPrefix,
+            "ubuntu": self._ubuntuPrefix,
         }
         # the pkgdb dispatch table
         self._pkgdbDispatch = {
@@ -2060,6 +2062,39 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if the query succeeded, set the python package prefix to the site-packages location
         if version:
             self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
+        # all done
+        return prefix
+
+    def _ubuntuBldroot(self):
+        """
+        Assemble the staging area path for an {ubuntu} build; a fixed {ubuntu} segment
+        discriminates these builds from dev builds in the same bldroot tree
+        """
+        # start with the user's opinion, falling back to the project tree
+        bldroot = self.bldroot or (self._root / "builds")
+        # fold in a fixed discriminator and the build variant tag
+        return bldroot / "ubuntu" / self._bldTag
+
+    def _ubuntuPrefix(self):
+        """
+        Resolve the installation prefix for an {ubuntu} build; defaults to {/usr} so builds
+        integrate with the system layout in docker containers; {pycPrefix} is derived from
+        the system Python's {sysconfig} to handle Debian's {dist-packages} convention
+        """
+        # default to the system prefix; the user can override with --prefix
+        prefix = self.prefix or pyre.primitives.path("/usr")
+        # query the system Python for the correct package installation directory
+        platlib = self._queryPythonExpression(
+            "import sysconfig; print(sysconfig.get_path('platlib'))"
+        )
+        # if the query succeeded, make {platlib} relative to the prefix
+        if platlib:
+            try:
+                # strip the prefix to get the relative path (e.g. lib/python3.12/dist-packages)
+                self._pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
+            # if {platlib} isn't under the prefix, something is unusual; use it as-is
+            except ValueError:
+                self._pycPrefix = pyre.primitives.path(platlib)
         # all done
         return prefix
 
