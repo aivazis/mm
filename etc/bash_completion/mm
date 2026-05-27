@@ -1044,6 +1044,18 @@ _comp_cmd_mm()
             fi
             return
             ;;
+        --mode)
+            COMPREPLY=($(compgen -W "dev conda macports ubuntu" -- "$cur"))
+            return
+            ;;
+        --branch)
+            COMPREPLY=($(compgen -W "yes no none" -- "$cur"))
+            return
+            ;;
+        --syntax)
+            COMPREPLY=($(compgen -W "sh csh fish" -- "$cur"))
+            return
+            ;;
         --pkgdb)
             COMPREPLY=($(compgen -W "adhoc conda macports dpkg" -- "$cur"))
             return
@@ -1084,6 +1096,18 @@ _comp_cmd_mm()
                     done
                     return
                     ;;
+                --mode)
+                    COMPREPLY=($(compgen -W "dev conda macports ubuntu" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
+                --branch)
+                    COMPREPLY=($(compgen -W "yes no none" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
+                --syntax)
+                    COMPREPLY=($(compgen -W "sh csh fish" -- "$value" | sed "s/^/${option}=/"))
+                    return
+                    ;;
                 --pkgdb)
                     COMPREPLY=($(compgen -W "adhoc conda macports dpkg" -- "$value" | sed "s/^/${option}=/"))
                     return
@@ -1109,6 +1133,7 @@ _comp_cmd_mm()
 
         # Complete option names
         local opts="--help --version --prefix --bldroot --target --compilers
+                    --mode --branch --activate --syntax --tag
                     --local --pkgdb --setup --serial --slots --jobs
                     --show --dry --quiet --color --palette
                     --ignore --verbose --rules --trace --make
@@ -1118,7 +1143,7 @@ _comp_cmd_mm()
 
         # Add = suffix for options that take values (no space after)
         if declare -F compopt >/dev/null 2>&1; then
-            if [[ " --target --compilers --prefix --bldroot --pkgdb --palette " =~ " ${COMPREPLY[0]:-} " ]]; then
+            if [[ " --target --compilers --mode --branch --syntax --prefix --bldroot --pkgdb --palette --tag " =~ " ${COMPREPLY[0]:-} " ]]; then
                 compopt -o nospace
                 COMPREPLY=("${COMPREPLY[0]}=")
             fi

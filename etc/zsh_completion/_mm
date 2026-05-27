@@ -1019,6 +1019,11 @@ _mm() {
         '(- *)--version[Show mm version]' \
         '--prefix=[Set install prefix]:prefix directory:_directories' \
         '--bldroot=[Set build root directory]:build directory:_directories' \
+        '--mode=[Build path strategy]:mode:(dev conda macports ubuntu)' \
+        '--branch=[Derive tag from repo (no clears mm_tag; none leaves it unchanged)]:branch:(yes no none)' \
+        '--activate[Print shell commands to activate the build in the current session]' \
+        '--syntax=[Shell syntax for eval output]:syntax:(sh csh fish)' \
+        '--tag=[Build context discriminator appended to bldroot and prefix]:tag:_default' \
         '*--target=[Set build variant (comma-separated)]:variant:->target_value' \
         '--compilers=[Select compiler suite]:compiler:(gcc clang intel nvcc)' \
         '--local=[Load additional configuration]:config file:_files -g "*.mm"' \
