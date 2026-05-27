@@ -106,7 +106,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # compute branch-keyed build paths and print shell export statements
     mode = pyre.properties.str()
     mode.default = "dev"
-    mode.validators = pyre.constraints.isMember("dev")
+    mode.validators = pyre.constraints.isMember("dev", "conda")
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
@@ -345,12 +345,16 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldTag = None
         # and the install directory
         self._prefix = None
+        # the python package installation directory; may be overridden by mode-specific logic
+        self._pycPrefix = None
         # the mode dispatch tables
         self._bldrootDispatch = {
             "dev": self._devBldroot,
+            "conda": self._condaBldroot,
         }
         self._prefixDispatch = {
             "dev": self._devPrefix,
+            "conda": self._condaPrefix,
         }
         # verify both dispatch tables are in sync with the mode validator; scan for the first
         # validator that carries a {choices} attribute (see pyre/pyre#176 for a better API)
@@ -1046,7 +1050,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"builder.dest.bin={self._prefix / self.binPrefix}/"
         yield f"builder.dest.lib={self._prefix / self.libPrefix}/"
         yield f"builder.dest.inc={self._prefix / self.incPrefix}/"
-        yield f"builder.dest.pyc={self._prefix / self.pycPrefix}/"
+        yield f"builder.dest.pyc={self._prefix / (self._pycPrefix or self.pycPrefix)}/"
         yield f"builder.dest.doc={self._prefix / self.docPrefix}/"
         yield f"builder.dest.share={self._prefix / self.sharePrefix}/"
         yield f"builder.dest.etc={self._prefix / self.etcPrefix}/"
@@ -1602,19 +1606,128 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # all done
         return 0
 
-    def _queryPythonExpression(self, expression):
+    def _queryPythonExpression(self, expression, *, python=sys.executable):
         """
-        Evaluate a python expression in the current interpreter and return its stdout,
+        Evaluate a python expression in the given interpreter and return its stdout,
         or None if the evaluation fails
         """
-        # run the expression in the current interpreter
+        # run the expression in the requested interpreter
         result = subprocess.run(
-            [sys.executable, "-c", expression],
+            [str(python), "-c", expression],
             capture_output=True,
             text=True,
         )
         # return the output on success, None on failure
         return result.stdout.strip() if result.returncode == 0 else None
+
+    def _condaBldroot(self):
+        """
+        Assemble the staging area path for a {conda} build; the environment name is always
+        included to keep builds for different environments from colliding
+        """
+        # start with the user's opinion, falling back to the project tree
+        bldroot = self.bldroot or (self._root / "builds")
+        # always fold in the environment name; it plays the role that {tag} plays in dev mode
+        bldroot /= self.environment
+        # append the build variant tag and return it
+        return bldroot / self._bldTag
+
+    def _condaPrefix(self):
+        """
+        Resolve the installation prefix for a {conda} build; the prefix is the root of the
+        named conda environment, and {pycPrefix} is set to the environment's site-packages
+        """
+        # get the environment name
+        envName = self.environment
+        # find the conda agent; prefer micromamba
+        agent = (
+            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
+        )
+        # if none found
+        if not agent:
+            # make a channel
+            channel = journal.error("mm.conda")
+            # complain
+            channel.line("no conda agent found on PATH")
+            channel.line("tried: micromamba, mamba, conda")
+            # flush
+            channel.log()
+            # and bail, in case errors aren't fatal
+            return None
+        # ask the agent for all known environments
+        result = subprocess.run(
+            [agent, "env", "list", "--json"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed
+        if result.returncode != 0:
+            # make a channel
+            channel = journal.error("mm.conda")
+            # complain
+            channel.line(f"failed to query conda environments")
+            channel.line(f"agent: {agent}")
+            channel.line(result.stderr.strip())
+            # flush
+            channel.log()
+            # and bail, in case errors aren't fatal
+            return None
+        # parse the result; each entry is a path whose basename is the environment name
+        envs = json.loads(result.stdout).get("envs", [])
+        # go through the prefixes
+        for prefix in envs:
+            # convert them to paths
+            prefix = pyre.primitives.path(prefix)
+            # if it's the target environment
+            if prefix.name == envName:
+                # we've found it
+                break
+        # otherwise
+        else:
+            # make a channel
+            channel = journal.error("mm.conda")
+            # complain
+            channel.line(f"conda environment '{envName}' not found")
+            channel.line(
+                f"known environments: {', '.join(pyre.primitives.path(p).name for p in envs)}"
+            )
+            # flush
+            channel.log()
+            # and bail, in case errors aren't fatal
+            return None
+
+        # verify the prefix actually exists on disk
+        if not prefix.isDirectory():
+            # make a channel
+            channel = journal.error("mm.conda")
+            # complain
+            channel.line(f"conda environment '{envName}' prefix does not exist")
+            channel.line(f"expected: {prefix}")
+            # flush
+            channel.log()
+            # and bail, in case errors aren't fatal
+            return None
+        # query the Python version from the environment's own interpreter
+        version = self._queryPythonExpression(
+            "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
+            python=prefix / "bin" / "python",
+        )
+        # if the query failed
+        if not version:
+            # make a channel
+            channel = journal.error("mm.conda")
+            # complain
+            channel.line(f"unable to determine the version of the python interpreter")
+            channel.line(f"in the '{envName}' conda environment")
+            channel.line(f"so i don't have a place to deposit pythonpackages")
+            # flush
+            channel.log()
+            # and bail, in case errors aren't fatal
+            return None
+        # otherwise, set the python package prefix to the site-packages location
+        self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
+        # all done
+        return prefix
 
     def _devBldroot(self):
         """
