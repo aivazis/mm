@@ -301,8 +301,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         The main entry point
         """
-        print(f"branch: {self.branch}")
-        return 0
         # if we are just setting up the package database
         if self.setup:
             # build the package database
