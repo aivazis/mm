@@ -106,7 +106,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # compute branch-keyed build paths and print shell export statements
     mode = pyre.properties.str()
     mode.default = "dev"
-    mode.validators = pyre.constraints.isMember("dev", "conda")
+    mode.validators = pyre.constraints.isMember("dev", "conda", "macports")
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
@@ -351,10 +351,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldrootDispatch = {
             "dev": self._devBldroot,
             "conda": self._condaBldroot,
+            "macports": self._macportsBldroot,
         }
         self._prefixDispatch = {
             "dev": self._devPrefix,
             "conda": self._condaPrefix,
+            "macports": self._macportsPrefix,
         }
         # verify both dispatch tables are in sync with the mode validator; scan for the first
         # validator that carries a {choices} attribute (see pyre/pyre#176 for a better API)
@@ -1726,6 +1728,103 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return None
         # otherwise, set the python package prefix to the site-packages location
         self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
+        # all done
+        return prefix
+
+    def _macportsBldroot(self):
+        """
+        Assemble the staging area path for a {macports} build; a fixed {macports} segment
+        discriminates these builds from dev builds in the same bldroot tree
+        """
+        # start with the user's opinion, falling back to the project tree
+        bldroot = self.bldroot or (self._root / "builds")
+        # fold in a fixed discriminator and the build variant tag
+        return bldroot / "macports" / self._bldTag
+
+    def _macportsPrefix(self):
+        """
+        Resolve the installation prefix for a {macports} build; the prefix is the MacPorts
+        root, write access is verified, and {pycPrefix} is set from the selected python3
+        """
+        # find the port executable
+        port = shutil.which("port")
+        # if not found, macports is not installed
+        if not port:
+            # make a channel
+            channel = journal.error("mm.macports")
+            # complain
+            channel.line("could not find the 'port' executable")
+            channel.line("make sure MacPorts is installed and 'port' is on your PATH")
+            # flush
+            channel.log()
+            # bail
+            return None
+        # the MacPorts prefix is the grandparent of the {port} executable
+        prefix = pyre.primitives.path(port).parent.parent
+        # warn that installing into the MacPorts tree requires elevated privileges;
+        # make will fail loudly at the install step if mm is not run with sudo
+        if not os.access(str(prefix), os.W_OK):
+            # make a channel
+            channel = journal.warning("mm.macports")
+            # warn
+            channel.line(f"no write access to the MacPorts prefix '{prefix}'")
+            channel.line("installing will fail unless mm is run with elevated privileges:")
+            channel.line("  sudo mm")
+            # flush
+            channel.log()
+        # ask port which python3 version is currently selected
+        result = subprocess.run(
+            [port, "select", "--show", "python3"],
+            capture_output=True,
+            text=True,
+        )
+        # if the query failed or no version is selected
+        if result.returncode != 0 or "none" in result.stdout:
+            # make a channel
+            channel = journal.error("mm.macports")
+            # complain
+            channel.line("no python3 version selected in MacPorts")
+            channel.line("select one and retry, e.g.:")
+            channel.line("  sudo port select python3 python312")
+            # flush
+            channel.log()
+            # bail
+            return None
+        # parse the selected version name, e.g. "python312" -> "3.12"
+        match = re.search(r"python(\d)(\d+)", result.stdout)
+        # if we couldn't parse it
+        if not match:
+            # make a channel
+            channel = journal.error("mm.macports")
+            # complain
+            channel.line("could not parse the selected python3 version from 'port select'")
+            channel.line(f"output: {result.stdout.strip()}")
+            # flush
+            channel.log()
+            # bail
+            return None
+        # reconstruct the version string and the interpreter path
+        pyVersion = f"{match.group(1)}.{match.group(2)}"
+        python = prefix / "bin" / f"python{pyVersion}"
+        # verify the interpreter actually exists
+        if not python.exists():
+            # make a channel
+            channel = journal.error("mm.macports")
+            # complain
+            channel.line(f"expected python interpreter not found: {python}")
+            channel.line("check your MacPorts python3 selection with 'port select --show python3'")
+            # flush
+            channel.log()
+            # bail
+            return None
+        # query the site-packages path from the interpreter itself
+        version = self._queryPythonExpression(
+            "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
+            python=python,
+        )
+        # if the query succeeded, set the python package prefix to the site-packages location
+        if version:
+            self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
         # all done
         return prefix
 
