@@ -103,6 +103,25 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     version.default = None
     version.doc = "the project version; try to deduce it, if not set"
 
+    # compute branch-keyed build paths and print shell export statements
+    mode = pyre.properties.str()
+    mode.default = "dev"
+    mode.validators = pyre.constraints.isMember("dev")
+    mode.doc = "the strategy for generating locations for the build products"
+
+    branch = pyre.properties.bool()
+    branch.default = False
+    branch.doc = "generate a build context based on a repository branch"
+
+    syntax = pyre.properties.str()
+    syntax.default = "sh"
+    syntax.validators = pyre.constraints.isMember("sh", "csh", "fish")
+    syntax.doc = "the shell syntax to use when printing export statements"
+
+    tag = pyre.properties.str()
+    tag.default = os.environ.get("mm_tag")
+    tag.doc = "an optional discriminator appended to {bldroot} and {prefix} to separate build contexts"
+
     prefix = pyre.properties.path()
     prefix.default = None
     prefix.doc = "the path to the installation directory"
@@ -111,25 +130,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
-    tag = pyre.properties.str()
-    tag.default = os.environ.get("mm_tag")
-    tag.doc = "an optional discriminator appended to bldroot and prefix to separate build contexts"
-
-    # branch mode: compute branch-keyed build paths and print shell export statements
-    branch = pyre.properties.bool()
-    branch.default = False
-    branch.doc = "print shell commands that establish a branch-keyed build context"
-
-    syntax = pyre.properties.str()
-    syntax.default = "sh"
-    syntax.validators = pyre.constraints.isMember("sh", "csh", "fish")
-    syntax.doc = "the shell syntax to use when printing export statements"
-
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
     target.doc = "the list of target variants to build"
 
     compilers = pyre.properties.strings()
+    compilers.default = ["clang", "python/python3"]
     compilers.doc = "the set of compilers to use"
 
     local = pyre.properties.str()
@@ -328,6 +334,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._projectCfg = None
         # the path to the optional makefile with additional configuration and targets
         self._localMakefile = None
+        # the name of the compiler suite used to compile C/C++ code, and hence is responsible
+        # for setting the runtime ABI
+        self._suite = None
         # the path to the intermediate products of the build
         self._bldroot = None
         # the target identification
@@ -336,6 +345,42 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldTag = None
         # and the install directory
         self._prefix = None
+        # the mode dispatch tables
+        self._bldrootDispatch = {
+            "dev": self._devBldroot,
+        }
+        self._prefixDispatch = {
+            "dev": self._devPrefix,
+        }
+        # verify both dispatch tables are in sync with the mode validator; scan for the first
+        # validator that carries a {choices} attribute (see pyre/pyre#176 for a better API)
+        for modeValidator in filter(
+            lambda v: hasattr(v, "choices"), self.pyre_trait("mode").validators
+        ):
+            # check both tables
+            for name, table in [
+                ("bldroot", self._bldrootDispatch),
+                ("prefix", self._prefixDispatch),
+            ]:
+                # if the keys don't match the validator choices, something is wrong
+                if set(table) != modeValidator.choices:
+                    # make a channel
+                    channel = journal.firewall("mm.mode")
+                    # report
+                    channel.line(
+                        f"{name} dispatch table is out of sync with the mode validator"
+                    )
+                    # indent
+                    channel.indent()
+                    # details:
+                    channel.line(f"dispatch keys: {set(table)}")
+                    channel.log(f"validator choices: {modeValidator.choices}")
+                    # outdent
+                    channel.outdent()
+                    # flush
+                    channel.log()
+            # we only care about the first match
+            break
         # all done
         return
 
@@ -426,18 +471,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # explore the project layout to get {_root}, etc.
         self.explore()
-        # the active conda environment
-        env = self.environment or "default"
         # the project name is the basename of the directory that contains the {.mm} marker
         project = self._root.name
         # the current git branch
         branch = self.gitCurrentBranch()
-        # the C++ suite is the first suite-level entry (no slash) in the compilers list
-        cxxSuite = next((c for c in self.compilers if "/" not in c), None)
-        compilers = cxxSuite or "default"
         # the tag is the relative path that discriminates this build context; it is appended
         # to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix} respectively
-        tag = pyre.primitives.path(env) / project / branch / compilers
+        tag = f"{project}/{branch}"
         # pick the right export syntax for the user's shell
         sh = self.syntax
         # sh and zsh
@@ -479,6 +519,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._origin = pyre.primitives.path.cwd()
         # mark the path that will become the {cwd} for make
         self._anchor = self._localMakefile.parent if self._localMakefile else self._root
+        # determine the compiler suite
+        self._suite = self.deduceCompilerSuite()
         # construct the build tag; must precede {locateBuildRoot} since it needs {_bldTag}
         self._bldTarget, self._bldVariants, self._bldTag = self.assembleBuildTarget()
         # figure out where to put the intermediate products of the build
@@ -836,16 +878,27 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Figure out where to put the intermediate products of the build
         """
-        # get the user's opinion
-        bldroot = self.bldroot or (self._root / "builds")
-        # if a tag is set, use it to discriminate the build context; the build variant tag
-        # is always appended so bldroot and prefix land at the same depth
-        tag = self.tag
-        return bldroot / tag / self._bldTag if tag else bldroot / self._bldTag
+        return self._bldrootDispatch[self.mode]()
+
+    def locatePrefix(self):
+        """
+        Figure out where to install the build products
+        """
+        return self._prefixDispatch[self.mode]()
+
+    def deduceCompilerSuite(self):
+        """
+        Look through the set of {compilers} to deduce the name of the compiler suite that
+        determines the runtime ABI
+        """
+        # for now, look for the first chosen compiler that is not fully resolved
+        suite = next((c for c in self.compilers if "/" not in c), "")
+        # and call it a day
+        return suite
 
     def assembleBuildTarget(self):
         """
-        Construct the build tag that used to indicate platform and build characteristics
+        Construct the build tag that indicates platform and build characteristics
         """
         # get the target platform; note that this may be different that
         # the machine on which mm is running
@@ -858,18 +911,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         tag = "-".join(filter(None, variants + target))
         # all done
         return target, variants, tag
-
-    def locatePrefix(self):
-        """
-        Figure out where to put the build products
-        """
-        # get the user's opinion
-        prefix = self.prefix or (self._root / "products")
-        # if a tag is set, use it to discriminate the build context; prefix also gets the
-        # build variant tag so installs for different targets land in separate directories
-        tag = self.tag
-        # append both when present
-        return prefix / tag / self._bldTag if tag else prefix
 
     def loadProjectConfig(self):
         """
@@ -1574,6 +1615,42 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # return the output on success, None on failure
         return result.stdout.strip() if result.returncode == 0 else None
+
+    def _devBldroot(self):
+        """
+        Assemble the staging area path for a {dev} build
+        """
+        # start with the user's opinion, falling back to the project tree
+        bldroot = self.bldroot or (self._root / "builds")
+        # if a compiler suite is set, add it to the path to separate ABI-incompatible builds
+        suite = self._suite
+        if suite:
+            bldroot /= suite
+        # if a branch tag is set, use it to discriminate the build context
+        tag = self.tag
+        if tag:
+            # include the build variant so builds for different targets land separately
+            return bldroot / tag / self._bldTag
+        # otherwise, append just the build variant tag
+        return bldroot / self._bldTag
+
+    def _devPrefix(self):
+        """
+        Assemble the installation path for a {dev} build
+        """
+        # start with the user's opinion, falling back to the project tree
+        prefix = self.prefix or (self._root / "products")
+        # if a compiler suite is set, add it to the path to separate ABI-incompatible installs
+        suite = self._suite
+        if suite:
+            prefix /= suite
+        # if a branch tag is set, use it to discriminate the build context
+        tag = self.tag
+        if tag:
+            # include the build variant so installs for different targets land separately
+            return prefix / tag / self._bldTag
+        # otherwise, use the default location
+        return prefix / self._bldTag
 
 
 # bootstrap
