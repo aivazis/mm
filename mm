@@ -110,8 +110,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
-    branch.default = False
-    branch.doc = "generate a build context based on a repository branch"
+    branch.default = None
+    branch.doc = "derive the {tag} from repository state (False clears it; None leaves it unchanged)"
 
     activate = pyre.properties.bool()
     activate.default = False
@@ -301,12 +301,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         The main entry point
         """
+        print(f"branch: {self.branch}")
+        return 0
         # if we are just setting up the package database
         if self.setup:
             # build the package database
             return self.buildPackageDatabase()
-        # if we are printing a branch-keyed build context
-        if self.branch:
+        # if we are setting or clearing the branch context
+        if self.branch is not None:
             # generate the {eval} script
             return self.establishBranchContext()
         # if we are activating the build in the current session
@@ -355,11 +357,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._prefix = None
         # the python package installation directory; may be overridden by mode-specific logic
         self._pycPrefix = None
-        # the syntax dispatch table: maps shell names to (var, value) -> export statement
+        # the syntax dispatch table: maps shell names to (var, value) -> export/unset statement
+        # {value} of None means unset the variable rather than export it
         self._syntaxDispatch = {
-            "sh": lambda var, value: f'export {var}="{value}"',
-            "csh": lambda var, value: f'setenv {var} "{value}"',
-            "fish": lambda var, value: f'set -x {var} "{value}"',
+            "sh": lambda var, value: f"unset {var}"
+            if value is None
+            else f'export {var}="{value}"',
+            "csh": lambda var, value: f"unsetenv {var}"
+            if value is None
+            else f'setenv {var} "{value}"',
+            "fish": lambda var, value: f"set -e {var}"
+            if value is None
+            else f'set -x {var} "{value}"',
         }
         # the mode dispatch tables
         self._bldrootDispatch = {
@@ -518,13 +527,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def establishBranchContext(self):
         """
-        Derive a branch-keyed tag and activate the corresponding session
+        Set or clear the branch-keyed tag and activate the corresponding session
         """
-        # find the project root to get the project name
-        root = self.locateProjectRoot()
-        # the tag is the relative path that discriminates this build context; it is appended
-        # to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix} respectively
-        self.tag = f"{root.name}/{self.gitCurrentBranch()}"
+        # if branch is True, derive a tag from the repository state
+        if self.branch:
+            # find the project root to get the project name
+            root = self.locateProjectRoot()
+            # the tag is the relative path that discriminates this build context; it is
+            # appended to {bldroot} and {prefix} by {locateBuildRoot} and {locatePrefix}
+            self.tag = f"{root.name}/{self.gitCurrentBranch()}"
+        # if branch is False, clear the tag so the tag-less paths are used
+        else:
+            self.tag = None
         # let {activateSession} emit the full shell context, including the updated {mm_tag}
         return self.activateSession()
 
@@ -550,7 +564,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # emit the full shell context
         emit = self._syntaxDispatch[self.syntax]
         # the tag that discriminates this build context, so the setting persists across invocations
-        print(emit("mm_tag", self.tag or ""))
+        # emit None when the tag is absent so the dispatch emits an unset rather than an export
+        print(emit("mm_tag", self.tag or None))
         # the path to the build's executables
         print(emit("PATH", path))
         # the path to the build's python packages
