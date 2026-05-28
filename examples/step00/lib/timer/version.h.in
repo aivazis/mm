@@ -10,27 +10,34 @@
 
 // support
 #include <string>
-#include <tuple>
 
 
-// version symbols; available two ways so compile-time and run-time values can be compared
+// version symbols live in their own namespace so the short names don't pollute {timer::}
 // N.B.: this file is generated from version.h.in at build time; do not edit directly
-namespace timer {
+// N.B.: available two ways so compile-time and run-time values can be compared
+namespace timer::version {
     // type aliases
-    using string_type = std::string;
-    using version_type = std::tuple<int, int, int, string_type>;
+    using string_t = std::string;
+
+    // the version as a struct with named fields
+    struct version_t {
+        int major;
+        int minor;
+        int micro;
+        string_t revision;
+    };
 
     // run-time query
-    auto version() -> version_type;
+    auto version() -> version_t;
 
     // compile-time constants
     // clang-format off
-    const int major_version    = @MAJOR@;
-    const int minor_version    = @MINOR@;
-    const int micro_version    = @MICRO@;
-    const string_type revision = "@REVISION@";
+    const int major    = @MAJOR@;
+    const int minor    = @MINOR@;
+    const int micro    = @MICRO@;
+    const string_t revision = "@REVISION@";
     // clang-format on
-}
+} // namespace timer::version
 
 
 // end of file

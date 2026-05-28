@@ -9,11 +9,11 @@
 #include "version.h"
 
 
-// build and return the version tuple
+// build and return the version struct
 auto
-timer::version() -> version_type
+timer::version::version() -> version_t
 {
-    return { major_version, minor_version, micro_version, revision };
+    return { major, minor, micro, revision };
 }
 
 
