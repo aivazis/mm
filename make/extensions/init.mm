@@ -91,10 +91,12 @@ endef
 # identify the extension main file
 #   usage: extension.module.main {extension}
 define extension.module.main
-    ${strip
-        ${foreach suffix,$(languages.sources),
-            ${wildcard $($(1).prefix)$($(1).module)$(suffix)}
-            ${wildcard $($(1).prefix)__init__$(suffix)}
+    ${firstword
+        ${strip
+            ${foreach suffix,$(languages.sources),
+                ${wildcard $($(1).prefix)__init__$(suffix)}
+                ${wildcard $($(1).prefix)$($(1).module)$(suffix)}
+            }
         }
     }
 endef
