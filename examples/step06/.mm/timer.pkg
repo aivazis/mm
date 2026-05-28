@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the timer python package
+timer.pkg.stem := timer
+# the command-line driver installed into {prefix}/bin/
+timer.pkg.drivers := timer
+
+
+# end of file
