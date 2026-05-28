@@ -1,0 +1,4 @@
+# mm places compiled test drivers (extensionless) and .d dependency files alongside source
+*
+!*.cc
+!.gitignore

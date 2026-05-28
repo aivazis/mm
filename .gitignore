@@ -12,6 +12,12 @@
 # the default build locations
 /examples/hello/builds
 /examples/hello/products
+/examples/step00/builds
+/examples/step00/products
+/examples/step01/builds
+/examples/step01/products
+/examples/step02/builds
+/examples/step02/products
 
 # auctex lint
 /doc/**/auto
