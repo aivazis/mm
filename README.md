@@ -1,68 +1,55 @@
 # mm
-A framework for building projects based on GNU make
+
+A build orchestration framework for projects that mix C, C++, Fortran, CUDA,
+and Python. You declare what you are building in one small configuration file;
+mm discovers your sources and drives GNU make to compile, link, and install
+everything in parallel.
+
+## Requirements
+
+- Python 3.10 or later (plus the [pyre](https://github.com/pyre/pyre) framework)
+- GNU make 4.2.1 or later
 
 ## Installation
-
-Install mm to a prefix of your choice:
-
-```bash
-./install.sh /path/to/prefix
-```
-
-For example, to install to `~/.local`:
 
 ```bash
 ./install.sh ~/.local
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-### Bash Completion (Optional)
+Pass `--bash-completion` to also install tab-completion support for bash.
 
-mm supports tab completion for build targets and options. To enable it during installation:
+## Quick start
 
-```bash
-./install.sh ~/.local --bash-completion
+Create a `.mm/` directory at the root of your project and add a file named
+after your project:
+
+```makefile
+# .mm/myproject.mm
+# -*- Makefile -*-
+
+myproject.libraries := mylib.lib
+
+mylib.lib.stem := mylib
+mylib.lib.root := lib/mylib/
+mylib.lib.c++.flags += $($(compiler.c++).std.c++17)
 ```
 
-After installation, you may need to restart your shell or manually source the completion script:
+Then run:
 
 ```bash
-source ~/.local/share/bash-completion/completions/mm
+mm
 ```
 
-#### Development/Testing
+mm walks up from the current directory to find `.mm/`, discovers all source
+files under `lib/mylib/`, compiles them, and installs the results under
+`products/`.
 
-If you're working on mm from source, you can test the completion without installing:
+## Documentation
 
-```bash
-source etc/bash_completion/mm
-./mm <TAB>  # Now tab completion works
-```
+- `docs/` — guides, reference, and internals
+- `examples/` — working projects of increasing complexity
 
-#### How It Works
+## License
 
-The bash completion for mm provides:
-
-- **Target completion**: Press TAB to see available make targets from your mm project
-- **Option completion**: Complete mm command-line options (e.g., `--target`, `--prefix`)
-- **Value completion**: Smart suggestions for option values (e.g., `--target=<TAB>` suggests debug, opt, shared, etc.)
-
-The completion works by:
-1. Detecting mm projects (directories with `.mm/` subdirectories)
-2. Using `make -npq` to extract available targets from the makefile database
-3. Filtering out internal/special targets to show only user-relevant targets
-
-**Note**: Target completion requires that mm and its dependencies (pyre) are properly configured in your environment. If mm cannot run, the completion will fall back to common target names (all, clean, test, install, etc.).
-
-## Usage
-
-See the documentation in `docs/` for detailed usage information.
-
-Quick start:
-
-```bash
-cd your-project
-mm            # Build with default targets (debug, shared)
-mm test       # Run tests
-mm --target=opt         # Build optimized variant
-```
+See `LICENSE`.

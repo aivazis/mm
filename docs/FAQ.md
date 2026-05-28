@@ -1,201 +1,103 @@
-# mm Frequently Asked Questions
+# mm — Frequently Asked Questions
 
-## Getting Started
+## Getting started
 
-### Q: Do I need to write makefiles?
+### Do I need to write makefiles?
 
-**No.** That's the whole point of mm. You only need one configuration file: `.mm/{project}.mm`
+No. You write one declarative configuration file, `.mm/{project}.mm`, that
+lists what you are building. mm discovers your sources and drives GNU make
+from there.
 
-The configuration file just declares *what* you're building:
 ```makefile
 myproject.libraries := mylib.lib
+
 mylib.lib.stem := mylib
 mylib.lib.root := lib/mylib/
 ```
 
-mm automatically discovers all source files and generates the makefiles.
+### How does mm find my source files?
 
-### Q: How does mm find my source files?
+mm scans the directory named in `{asset}.root` and picks up every `.cc`,
+`.c`, `.cu`, `.f`, etc. file it finds there. For larger projects that span
+multiple subdirectories, list them explicitly:
 
-mm scans the directory specified in `{library}.root` and automatically finds all `.cc`, `.c`, `.cu`, `.f`, etc. files.
-
-For large projects, you can specify which subdirectories to scan:
 ```makefile
 mylib.lib.root := src/
-mylib.lib.directories := geometry/ physics/ io/
+mylib.lib.directories := ./ geometry/ physics/ io/
 ```
 
-### Q: Where do build products go?
+### Where do the build products go?
 
 By default:
-- **Intermediate files** (`.o`, `.d`): `builds/{target}/`
-- **Final products**: `products/{bin,lib,include,packages}/`
+- intermediate files (`.o`, `.d`): `builds/{target-tag}/`
+- installed products: `products/{bin,lib,include,packages}/`
 
-You can override with `--prefix` or `--bldroot`.
+Both locations can be overridden with `--bldroot` and `--prefix`.
 
-### Q: Can I have multiple build configurations?
+### Can I build more than one configuration at a time?
 
-Yes! Use `--target`:
+Each invocation produces one configuration. Use `--target` to choose it:
+
 ```bash
-mm --target=debug        # Debug build
-mm --target=opt          # Optimized build  
-mm --target=opt,shared   # Optimized + shared libs
+mm                       # default: debug + shared
+mm --target=opt          # optimised
+mm --target=opt,shared   # optimised + shared libraries
 ```
 
-Each target gets its own directory in `builds/`.
+Each target lands in its own subdirectory of `builds/`, so configurations
+do not interfere with each other.
 
 ## Configuration
 
-### Q: Where should I configure external dependencies?
+### Where do I configure external dependencies?
 
-Three places, in order of preference:
+In order of preference:
 
-1. **User config** (`~/.mm/config.mm`) - for system-wide packages
-2. **Host config** (`~/.mm/{user}@{host}.mm`) - for machine-specific paths
-3. **Project config** (`.mm/{project}.mm`) - rarely needed, usually not the right place
+1. `~/.mm/{user}@{hostname}.mm` — machine-specific paths, never committed
+2. `~/.mm/config.mm` — user-wide defaults
+3. `.mm/{project}.mm` — project-level overrides (rarely the right place)
 
-Example in `~/.mm/config.mm`:
 ```makefile
-cuda.dir := /usr/local/cuda-12.0
-cuda.incpath := $(cuda.dir)/include
-cuda.libpath := $(cuda.dir)/lib64
+# ~/.mm/config.mm
+cuda.dir    := /usr/local/cuda-12
+hdf5.dir    := /opt/hdf5
+mpi.flavor  := openmpi
 ```
 
-### Q: How do I use a dependency that's already configured?
+### How do I declare that a library depends on an external package?
 
-Just add it to `extern`:
+Add the package name to `extern`:
+
 ```makefile
-mylib.lib.extern := mpi cuda hdf5 gsl
+mylib.lib.extern := mpi hdf5 cuda
 ```
 
-mm knows about 20+ packages. See the quickstart for the full list.
+mm has pre-configured support for most common scientific packages. If a
+package is not pre-configured, define its variables in `~/.mm/config.mm`:
 
-### Q: What if my dependency isn't pre-configured?
-
-Add it to your `~/.mm/config.mm`:
 ```makefile
-# My custom library
-mypackage.version := 1.0
-mypackage.dir := /opt/mypackage
+mypackage.dir     := /opt/mypackage
 mypackage.incpath := $(mypackage.dir)/include
 mypackage.libpath := $(mypackage.dir)/lib
-mypackage.libraries := mylib1 mylib2
+mypackage.libraries := foo bar
 ```
 
-Then use: `mylib.lib.extern := mypackage`
+### How do I set compiler flags?
 
-### Q: How do I set compiler flags?
-
-In your `.mm/{project}.mm`:
-```makefile
-# For a specific library
-mylib.lib.c++.flags := -Wall -O3 $($(compiler.c++).std.c++20)
-
-# For all libraries in the project
-myproject.common.c++.flags := -Wall -O3
-${foreach lib, $(myproject.libraries), \
-    ${eval $(lib).c++.flags := $(myproject.common.c++.flags)} \
-}
-```
-
-### Q: Can I use environment variables?
-
-Yes:
-```bash
-export mm_prefix=/opt/myproject
-export mm_targets="opt,shared"
-export mm_compiler=gcc
-
-mm
-```
-
-This is useful for CI/CD and environment modules.
-
-## Building
-
-### Q: How do I do a clean build?
-
-```bash
-# Remove all build artifacts
-rm -rf builds products
-mm
-```
-
-mm also provides make-level clean targets: `mm clean` removes build products,
-`mm tidy` removes intermediate objects, and `mm tests.clean` removes test
-artifacts.  For a guaranteed fresh start, removing the directories is simplest.
-
-### Q: How do I build in parallel?
-
-mm builds in parallel by default, using all CPU cores.
-
-Control it with:
-```bash
-mm -j 8          # Use 8 cores
-mm --serial      # Single-threaded (for debugging)
-```
-
-### Q: How do I see what mm is doing?
-
-```bash
-mm --show        # Show the make command
-mm --verbose     # Show all compiler commands
-```
-
-### Q: My build is failing. How do I debug?
-
-1. **See the actual commands**: `mm --verbose`
-2. **Build serially**: `mm --serial --verbose` (cleaner output)
-3. **Check configuration**: `mm --show`
-4. **Dry run**: `mm --dry` (shows what would happen)
-
-### Q: Can I pass arguments to make?
-
-Yes, everything after `mm` options goes to make:
-```bash
-mm some-target           # Build specific target
-mm VERBOSE=1             # Make variable
-mm --target=debug test   # Build tests in debug mode
-```
-
-## Projects & Dependencies
-
-### Q: How do I link one library to another in the same project?
-
-Use `prerequisites`:
-```makefile
-myproject.libraries := base.lib derived.lib
-
-derived.lib.prerequisites := base.lib
-derived.lib.extern := base.lib
-```
-
-### Q: How do I build Python extensions?
+On a specific asset:
 
 ```makefile
-myproject.libraries := mylib.lib
-myproject.packages := myapp.pkg
-myproject.extensions := myext.ext
-
-myext.ext.stem := myext
-myext.ext.pkg := myapp.pkg          # Install into this package
-myext.ext.wraps := mylib.lib        # Link against this library
-myext.ext.extern := mylib.lib python
+mylib.lib.c++.flags += $($(compiler.c++).std.c++20) -Wall
 ```
 
-### Q: Can I exclude specific source files?
+### How do I exclude files from a library?
 
-Yes:
 ```makefile
-mylib.lib.sources.exclude := \
-    src/old_code.cc \
-    src/broken.cc
-
-mylib.lib.headers.exclude := \
-    src/deprecated.h
+mylib.lib.sources.exclude := src/old.cc src/scratch.cc
+mylib.lib.headers.exclude := src/deprecated.h
 ```
 
-### Q: How do I conditionally compile based on available dependencies?
+### How do I do a conditional build based on whether a package is available?
 
 ```makefile
 ifdef cuda.dir
@@ -205,173 +107,100 @@ else
 endif
 ```
 
-## Testing
+## Building
 
-### Q: How do I run tests?
+### How do I do a clean build?
 
 ```bash
-mm test                  # Run all tests
-mm test.mylib            # Run specific test suite
+rm -rf builds products && mm
 ```
 
-### Q: How do I set up tests?
+mm also exposes `mm clean` and `mm tidy` make targets for lighter-weight
+cleanup.
 
-For implicit tests (each source file is a test driver):
+### How do I control parallelism?
+
+mm uses all available cores by default.
+
+```bash
+mm --slots=4     # use 4 cores
+mm --serial      # single-threaded
+```
+
+### How do I see what mm is doing?
+
+```bash
+mm --show        # print the make command line before running it
+mm --verbose     # pass --verbose to make; shows every compiler invocation
+mm --dry         # print what would happen without doing anything
+```
+
+## Testing
+
+### How do I run tests?
+
+```bash
+mm test
+```
+
+This passes the `test` target to make. Individual test suites can be
+targeted by name.
+
+### How do I declare a test suite?
+
+For implicit tests (each source file is a self-contained test driver):
+
 ```makefile
 myproject.tests := mylib.tests
 
-mylib.tests.stem := mylib.tests
-mylib.tests.extern := mylib.lib
+mylib.tests.stem         := mylib.tests
+mylib.tests.extern       := mylib.lib
 mylib.tests.prerequisites := mylib.lib
 ```
 
-For explicit test cases:
+For tests that need command-line arguments, declare explicit cases:
+
 ```makefile
-tests.myapp.driver.cases := case1 case2 case3
+tests.myapp.driver.cases := case1 case2
 case1.argv := --input test1.dat
 case2.argv := --input test2.dat --verbose
 ```
 
-## Advanced
-
-### Q: How do I integrate with environment modules?
-
-Create a modulefile:
-```lua
-setenv("mm_prefix", "/opt/myproject/gcc/opt")
-setenv("mm_targets", "opt,shared")
-prepend_path("PATH", pathJoin(os.getenv("mm_prefix"), "bin"))
-prepend_path("PYTHONPATH", pathJoin(os.getenv("mm_prefix"), "packages"))
-```
-
-Or use mm's built-in support:
-```bash
-eval $(mm --paths=sh)      # Inject build env into shell
-```
-
-### Q: Can I use mm with Docker?
-
-Yes, mm has docker-images support:
-```makefile
-myproject.docker-images := myapp.focal myapp.jammy
-
-myapp.focal.name := focal-gcc-mm
-myapp.jammy.name := jammy-gcc-mm
-```
-
-### Q: How do I build for multiple compilers/targets?
-
-Use environment variables or modules:
-```bash
-# GCC debug
-export mm_compiler=gcc mm_targets=debug
-mm
-
-# Clang optimized  
-export mm_compiler=clang++ mm_targets=opt,shared
-mm
-```
-
-Each combination gets its own build directory.
-
-### Q: Can I override prefix and bldroot per invocation?
-
-Yes:
-```bash
-mm --prefix=/tmp/test --bldroot=/tmp/build
-```
-
-Or via environment:
-```bash
-export mm_prefix=/tmp/test
-export mm_bldroot=/tmp/build
-mm
-```
-
 ## Troubleshooting
 
-### Q: mm says "GNU Make 4.2.1 or higher required"
+### mm says my GNU make is too old
 
-Your make is too old. Install a newer version:
-```bash
-# Ubuntu/Debian
-sudo apt install make
+You need GNU make 4.2.1 or later. On macOS, `make` is BSD make; install
+`gmake` via Homebrew or MacPorts and make sure it is on your `PATH`.
 
-# Or install from source
-wget https://ftp.gnu.org/gnu/make/make-4.4.tar.gz
-```
+### mm cannot find my project configuration
 
-### Q: mm can't find my project configuration
+mm walks up from the current directory looking for a `.mm/` subdirectory.
+Make sure `.mm/{project}.mm` exists and you are running mm from somewhere
+inside the project tree.
 
-Make sure:
-1. You have a `.mm/` directory in your project root
-2. The file is named `.mm/{project}.mm` 
-3. You're running mm from within the project tree
+### My library is not linking against a dependency
 
-mm walks up from the current directory looking for `.mm/`.
+Check that `extern` names the package and that the package variables
+(`{pkg}.dir`, `{pkg}.libpath`, etc.) are set in your configuration.
 
-### Q: My library isn't linking against dependencies
+### Headers are not being installed
 
-Make sure you specified `extern`:
-```makefile
-mylib.lib.extern := cuda mpi hdf5
-```
-
-Check that the dependencies are configured in `~/.mm/config.mm`.
-
-### Q: Headers aren't being installed
-
-By default, all `.h` files in `{library}.root` are installed.
-
-If they're not, check:
-1. Are they in subdirectories? Specify `{library}.directories`
-2. Are they in `{library}.headers.exclude`?
-
-### Q: Python package isn't importing
-
-Check:
-1. Is `products/packages/` in your `PYTHONPATH`?
-2. Run: `eval $(mm --paths=sh)` to set up environment
-3. Is the package actually installed? Check `products/packages/`
+All `.h` files under `{asset}.root` are installed by default. If some are
+missing, check that the relevant subdirectory is listed in
+`{asset}.directories` and not excluded via `{asset}.headers.exclude`.
 
 ## Philosophy
 
-### Q: Why not CMake/Autotools/SCons?
+### Why not CMake?
 
-mm is **opinionated** and **convention-based**:
-- No hand-written makefiles or CMakeLists.txt
-- Auto-discovers sources (convention over configuration)
-- Pre-configured for common dependencies
-- Designed for scientific computing workflows
+mm is optimised for a specific workflow: projects that combine C++, Fortran,
+CUDA, and Python, targeting high-performance computing environments where
+developers maintain their own toolchain configurations. It trades generality
+for very low per-project configuration overhead.
 
-It trades flexibility for simplicity and speed.
+### Does mm generate makefiles?
 
-### Q: When should I NOT use mm?
-
-If you need:
-- Windows native builds (mm is Unix/Linux focused)
-- Non-standard project layouts mm doesn't support
-- Build systems that are part of your API (e.g., header-only libraries with CMake configs)
-- Complete control over every compiler flag for every file
-
-### Q: Can I see the generated makefiles?
-
-mm doesn't generate makefiles. It uses a library of makefile fragments in `{mm}/make/`.
-
-To see what make does: `mm --verbose`
-
-## Getting Help
-
-### Q: Where can I find more examples?
-
-- `examples/hello/` - Comprehensive multi-language project
-- `examples/simple/` - Minimal examples
-- `examples/prep/` - Test dependency examples
-
-### Q: How do I report bugs or request features?
-
-Open an issue at the [mm repository on GitHub](https://github.com/aivazis/mm).
-
-### Q: Is there a community/mailing list?
-
-See the [mm repository on GitHub](https://github.com/aivazis/mm) for discussions and contributions.
+No. mm uses a library of make fragments in `{mm-install}/share/mm/make/`.
+GNU make includes those fragments directly at run time. There are no
+generated files to check in.
