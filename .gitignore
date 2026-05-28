@@ -26,6 +26,8 @@
 /examples/step05/products
 /examples/step06/builds
 /examples/step06/products
+/examples/step07/builds
+/examples/step07/products
 
 # auctex lint
 /doc/**/auto
