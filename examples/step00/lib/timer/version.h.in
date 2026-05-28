@@ -1,0 +1,36 @@
+// -*- C++ -*-
+// -*- coding: utf-8 -*-
+//
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
+// (c) 1998-2026 all rights reserved
+
+// code guard
+#pragma once
+
+
+// support
+#include <string>
+#include <tuple>
+
+
+// version symbols; available two ways so compile-time and run-time values can be compared
+// N.B.: this file is generated from version.h.in at build time; do not edit directly
+namespace timer {
+    // type aliases
+    using string_type = std::string;
+    using version_type = std::tuple<int, int, int, string_type>;
+
+    // run-time query
+    auto version() -> version_type;
+
+    // compile-time constants
+    // clang-format off
+    const int major_version    = @MAJOR@;
+    const int minor_version    = @MINOR@;
+    const int micro_version    = @MICRO@;
+    const string_type revision = "@REVISION@";
+    // clang-format on
+}
+
+
+// end of file
