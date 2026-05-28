@@ -1,0 +1,45 @@
+// -*- C++ -*-
+// -*- coding: utf-8 -*-
+//
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
+// (c) 1998-2026 all rights reserved
+
+// code guard
+#pragma once
+
+// support
+#include <string>
+
+// N.B.:
+//  - version symbols live in their own namespace so the short names don't pollute {timer::}
+//  - {version.h} is generated from {version.h.in} at build time by substituting the
+//    @TOKEN@ placeholders with version numbers extracted from the most recent git tag;
+//    edit {version.h.in}, not {version.h}
+//  - version information is available at compile time (constants in this header) and at
+//    run time ({timer::version::version()}); comparing the two lets the application detect
+//    whether the headers it was compiled against match the shared library it linked with
+namespace timer::version {
+    // type aliases
+    using string_t = std::string;
+
+    // the version as a struct with named fields
+    struct version_t {
+        int major;
+        int minor;
+        int micro;
+        string_t revision;
+    };
+
+    // run-time query
+    auto version() -> version_t;
+
+    // compile-time constants
+    // clang-format off
+    const int major = @MAJOR@;
+    const int minor = @MINOR@;
+    const int micro = @MICRO@;
+    const string_t revision = "@REVISION@";
+    // clang-format on
+} // namespace timer::version
+
+// end of file
