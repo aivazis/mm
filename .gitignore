@@ -18,6 +18,12 @@
 /examples/step01/products
 /examples/step02/builds
 /examples/step02/products
+/examples/step03/builds
+/examples/step03/products
+/examples/step04/builds
+/examples/step04/products
+/examples/step05/builds
+/examples/step05/products
 
 # auctex lint
 /doc/**/auto

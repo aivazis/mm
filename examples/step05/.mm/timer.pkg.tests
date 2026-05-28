@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the test suite for the timer python package
+timer.pkg.tests.stem := timer.pkg
+# the package must be built and on PYTHONPATH before the tests can run
+timer.pkg.tests.prerequisites := timer.pkg
+
+
+# end of file

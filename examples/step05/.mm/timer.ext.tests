@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the test suite for the timer extension
+timer.ext.tests.stem := timer.ext
+# both the package (for __init__.py files) and the extension .so must exist before tests run
+timer.ext.tests.prerequisites := timer.pkg timer.ext
+
+
+# end of file

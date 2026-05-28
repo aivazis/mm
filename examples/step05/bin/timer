@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+# support
+import argparse
+import subprocess
+
+# pyre
+import journal
+
+# use the C++ backed timer when the extension is available; fall back to pure Python
+try:
+    from timer.ext import Timer
+except ImportError:
+    from timer import Timer
+
+
+def main() -> int:
+    """
+    Parse arguments, run the requested command the given number of times, and report timing.
+    """
+    # build the argument parser
+    parser = argparse.ArgumentParser(
+        prog="timer",
+        description="run a command and report its wall-clock time",
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        default=False,
+        help="print the version and exit",
+    )
+    parser.add_argument(
+        "-n",
+        dest="count",
+        type=int,
+        default=1,
+        metavar="N",
+        help="number of times to run the command (default: 1)",
+    )
+    parser.add_argument(
+        "command",
+        nargs=argparse.REMAINDER,
+        help="the command to time",
+    )
+    # parse the command line
+    args = parser.parse_args()
+
+    # --version: print and exit
+    if args.version:
+        import timer.meta as meta
+
+        print(f"timer {meta.major}.{meta.minor}.{meta.micro} rev {meta.revision}")
+        return 0
+
+    # a command is required for timing
+    if not args.command:
+        parser.print_help()
+        return 1
+
+    # run the command {count} times, recording elapsed time for each run
+    samples = []
+    result = None
+    for _ in range(args.count):
+        t = Timer()
+        t.start()
+        result = subprocess.run(args.command)
+        t.stop()
+        samples.append(t.elapsed)
+
+    # make a channel for timing results
+    channel = journal.info("timer.driver")
+    # single run: one number
+    if args.count == 1:
+        channel.log(f"{samples[0]:.6f} s")
+        return result.returncode
+
+    # multiple runs: min / avg / max
+    channel.line(f"min: {min(samples):.6f} s")
+    channel.line(f"avg: {sum(samples) / len(samples):.6f} s")
+    channel.log(f"max: {max(samples):.6f} s")
+    return result.returncode
+
+
+# main
+if __name__ == "__main__":
+    status = main()
+    raise SystemExit(status)
+
+
+# end of file
