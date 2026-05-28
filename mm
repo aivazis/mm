@@ -518,6 +518,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self.explore()
         # get the temporary staging area; already incorporates the build variant tag
         stage = self.locateBuildRoot()
+        # ensure the staging directory exists on a fresh checkout
+        stage.mkdir(parents=True, exist_ok=True)
         # the location of the package database
         db = stage / f"pkg-{self.pkgdb}.db"
         # dispatch to the mode-specific implementation
