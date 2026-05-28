@@ -11,9 +11,12 @@ Sanity check: verify the timer package is importable and its public API is prese
 
 
 def test() -> int:
-    """Import the package and spot-check the public names."""
+    """
+    Import the package and spot-check the public names.
+    """
     # import the package
     import timer
+
     # verify the public API is reachable; AttributeError here is a meaningful failure
     _ = timer.Timer
     # all done

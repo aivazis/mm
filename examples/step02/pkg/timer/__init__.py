@@ -7,5 +7,4 @@
 # the timer class
 from .Timer import Timer
 
-
 # end of file

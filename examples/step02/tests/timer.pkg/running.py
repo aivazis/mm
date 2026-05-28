@@ -12,7 +12,9 @@ from timer import Timer
 
 
 def test() -> int:
-    """Verify that running transitions correctly across start() and stop()."""
+    """
+    Verify that running transitions correctly across start() and stop().
+    """
     t = Timer()
     # a freshly constructed timer is not running
     if t.running:

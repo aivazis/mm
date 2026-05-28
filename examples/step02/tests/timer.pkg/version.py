@@ -11,9 +11,12 @@ Verify the package version info is present and show it.
 
 
 def test() -> int:
-    """Print the version and confirm the expected fields are present."""
+    """
+    Print the version and confirm the expected fields are present.
+    """
     # get the metadata module
     import timer.meta as meta
+
     # show me
     print(f"version: {meta.major}.{meta.minor}.{meta.micro} rev {meta.revision}")
     # all done

@@ -13,7 +13,9 @@ from timer import Timer
 
 
 def test() -> int:
-    """Verify that reset() clears elapsed time and stops the timer."""
+    """
+    Verify that reset() clears elapsed time and stops the timer.
+    """
     t = Timer()
     t.start()
     time.sleep(0.01)

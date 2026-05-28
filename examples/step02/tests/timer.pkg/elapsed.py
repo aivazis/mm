@@ -13,7 +13,9 @@ from timer import Timer
 
 
 def test() -> int:
-    """Verify that elapsed time is positive after a start/stop cycle."""
+    """
+    Verify that elapsed time is positive after a start/stop cycle.
+    """
     t = Timer()
     t.start()
     # sleep long enough that perf_counter records non-zero elapsed time
@@ -21,7 +23,10 @@ def test() -> int:
     t.stop()
     # the elapsed time must be strictly positive
     if t.elapsed <= 0.0:
-        print("FAILED: elapsed time should be positive after start()/stop()", file=sys.stderr)
+        print(
+            "FAILED: elapsed time should be positive after start()/stop()",
+            file=sys.stderr,
+        )
         return 1
     # all done
     return 0
