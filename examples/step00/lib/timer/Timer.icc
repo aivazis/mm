@@ -5,32 +5,32 @@
 // (c) 1998-2026 all rights reserved
 
 
-// open the namespace
-namespace timer {
+// code guard
+#pragma once
+
+// declarations
+#include "Timer.h"
 
 
-    inline auto
-    Timer::running() const -> bool
-    {
-        return _running;
+inline auto
+timer::Timer::running() const -> bool
+{
+    return _running;
+}
+
+
+inline auto
+timer::Timer::elapsed() const -> double
+{
+    // start with whatever has been accumulated from previous start/stop cycles
+    auto total = _elapsed;
+    // if the timer is still running, fold in the current open interval
+    if (_running) {
+        total += clock_type::now() - _start;
     }
-
-
-    inline auto
-    Timer::elapsed() const -> double
-    {
-        // start with whatever has been accumulated from previous start/stop cycles
-        auto total = _elapsed;
-        // if the timer is still running, fold in the current open interval
-        if (_running) {
-            total += clock_type::now() - _start;
-        }
-        // convert to seconds and return
-        return total.count();
-    }
-
-
-}  // of namespace timer
+    // convert to seconds and return
+    return total.count();
+}
 
 
 // end of file

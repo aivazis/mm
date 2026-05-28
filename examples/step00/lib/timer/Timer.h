@@ -10,6 +10,8 @@
 
 // support
 #include <chrono>
+// declarations
+#include "forward.h"
 
 
 // a wall-clock timer with accumulation across multiple start/stop cycles
@@ -18,7 +20,7 @@ class timer::Timer {
 public:
     using clock_type = std::chrono::steady_clock;
     using time_point_type = clock_type::time_point;
-    using duration_type = std::chrono::duration<double>;  // in seconds
+    using duration_type = std::chrono::duration<double>; // in seconds
 
     // interface
 public:

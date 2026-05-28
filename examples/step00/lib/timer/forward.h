@@ -12,7 +12,7 @@
 namespace timer {
     // the wall-clock timer
     class Timer;
-}
+} // namespace timer
 
 
 // end of file

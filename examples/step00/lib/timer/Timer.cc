@@ -9,53 +9,45 @@
 #include "Timer.h"
 
 
-// open the namespace
-namespace timer {
-
-
-    auto
-    Timer::start() -> Timer &
-    {
-        // only act if the timer is not already running
-        if (!_running) {
-            // record the start time
-            _start = clock_type::now();
-            // mark as running
-            _running = true;
-        }
-        // all done
-        return *this;
+// interface
+auto
+timer::Timer::start() -> Timer &
+{
+    // only act if the timer is not already running
+    if (!_running) {
+        // record the start time
+        _start = clock_type::now();
+        // mark as running
+        _running = true;
     }
+    // all done
+    return *this;
+}
 
-
-    auto
-    Timer::stop() -> Timer &
-    {
-        // only act if the timer is actually running
-        if (_running) {
-            // accumulate the elapsed time for this interval
-            _elapsed += clock_type::now() - _start;
-            // mark as stopped
-            _running = false;
-        }
-        // all done
-        return *this;
-    }
-
-
-    auto
-    Timer::reset() -> Timer &
-    {
-        // stop the timer
+auto
+timer::Timer::stop() -> Timer &
+{
+    // only act if the timer is actually running
+    if (_running) {
+        // accumulate the elapsed time for this interval
+        _elapsed += clock_type::now() - _start;
+        // mark as stopped
         _running = false;
-        // clear accumulated time
-        _elapsed = duration_type { 0 };
-        // all done
-        return *this;
     }
+    // all done
+    return *this;
+}
 
-
-}  // of namespace timer
+auto
+timer::Timer::reset() -> Timer &
+{
+    // stop the timer
+    _running = false;
+    // clear accumulated time
+    _elapsed = duration_type { 0 };
+    // all done
+    return *this;
+}
 
 
 // end of file
