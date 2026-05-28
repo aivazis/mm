@@ -1,0 +1,27 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the timer library
+timer.lib.stem := timer
+timer.lib.root := lib/timer/
+
+# no external dependencies
+timer.lib.extern :=
+
+# c++17 for std::chrono::steady_clock and friends
+timer.lib.c++.flags += $($(compiler.c++).std.c++17)
+
+# version header is generated from a template at build time
+timer.lib.headers.autogen := version.h.in
+# the substitution table: token|value pairs, one per line
+timer.lib.autogen = \
+    @MAJOR@|$(timer.major) \
+    @MINOR@|$(timer.minor) \
+    @MICRO@|$(timer.micro) \
+    @REVISION@|$(timer.revision) \
+
+
+# end of file
