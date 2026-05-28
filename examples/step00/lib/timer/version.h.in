@@ -12,8 +12,9 @@
 
 // N.B.:
 //  - version symbols live in their own namespace so the short names don't pollute {timer::}
-//  - this is a template; mm generates {version.h} from it at build time by substituting
-//    the @TOKEN@ placeholders with version numbers extracted from the most recent git tag
+//  - {version.h} is generated from {version.h.in} at build time by substituting the
+//    @TOKEN@ placeholders with version numbers extracted from the most recent git tag;
+//    edit {version.h.in}, not {version.h}
 //  - version information is available at compile time (constants in this header) and at
 //    run time ({timer::version::version()}); comparing the two lets the application detect
 //    whether the headers it was compiled against match the shared library it linked with
