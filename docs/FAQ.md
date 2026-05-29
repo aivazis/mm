@@ -27,11 +27,37 @@ mylib.lib.directories := ./ geometry/ physics/ io/
 
 ### Where do the build products go?
 
-By default:
-- intermediate files (`.o`, `.d`): `builds/{target}/`
-- installed products: `products/{bin,lib,include,packages}/`
+mm has four **modes** that control where build products land, selected with
+`--mode`:
 
-Both locations can be overridden with `--bldroot` and `--prefix`.
+| Mode | Intermediate files (`bldroot`) | Installed products (`prefix`) |
+|------|-------------------------------|-------------------------------|
+| `dev` (default) | `builds/{target}/` | `products/` |
+| `conda` | `builds/{env}/{target}/` | conda environment root (auto-detected) |
+| `macports` | `builds/macports/{target}/` | MacPorts root (auto-detected) |
+| `ubuntu` | `builds/ubuntu/{target}/` | `/usr` |
+
+The `conda`, `macports`, and `ubuntu` modes resolve their prefix automatically
+from the package manager and are the right choice when you want build products
+installed into a managed environment.
+
+The `dev` default puts everything inside the source tree — `builds/` and
+`products/` land at the project root. This is intentionally permissive for
+getting started, but it is not the recommended setup for anything beyond a quick
+experiment. Polluting the source tree makes clean-ups error-prone and breaks
+tools that assume the tree only contains sources.
+
+**Recommended practice for `dev` mode:** set `bldroot` and `prefix` in
+`.mm/mm.yaml` to locations outside the source tree:
+
+```yaml
+mm:
+  bldroot: ~/tmp/builds/myproject
+  prefix: ~/.local
+```
+
+Both can also be overridden at the command line with `--bldroot` and `--prefix`,
+or left in place via the `mm_bldroot` and `mm_prefix` environment variables.
 
 ### Can I build more than one configuration at a time?
 
@@ -64,6 +90,40 @@ cuda.dir   := /usr/local/cuda-12
 hdf5.dir   := /opt/hdf5
 mpi.flavor := openmpi
 ```
+
+### How do I configure mm itself?
+
+mm reads `.mm/mm.yaml` at the start of every build. Any option that can be
+passed on the command line can be set there instead. This is the right place
+to record your preferred `mode`, `bldroot`, `prefix`, compiler suite, and
+parallelism settings so you don't have to repeat them on every invocation:
+
+```yaml
+mm:
+  mode: dev
+  bldroot: ~/tmp/builds/myproject
+  prefix: ~/.local
+  target: opt, shared
+  compilers: clang, python/python3
+  slots: 8
+  local: Make.local
+```
+
+`pyre` environment variable interpolation is available inside string values,
+which is useful for building into a conda environment whose name changes:
+
+```yaml
+mm:
+  mode: conda
+  prefix: "{pyre.environ.CONDA_PREFIX}"
+  bldroot: "{pyre.environ.HOME}/tmp/builds/{pyre.environ.CONDA_DEFAULT_ENV}"
+```
+
+If you are on a branch named `feature-x`, mm also loads `.mm/feature-x.yaml`
+*after* `mm.yaml` so branch-specific overrides can live in their own file and
+don't pollute the shared configuration.
+
+See `docs/command-line-reference.md` for the full list of configurable options.
 
 ### How do I declare that a library depends on an external package?
 

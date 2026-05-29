@@ -44,6 +44,51 @@ mylib.lib.c++.flags += $($(compiler.c++).std.c++20)
 name to the correct include paths, compile definitions, and link flags.
 
 
+## Configuring mm
+
+mm reads `.mm/mm.yaml` at the start of every build. This file configures mm
+itself — where products land, which compilers to use, how many cores to
+occupy — as opposed to the `.mm/{project}.mm` files, which configure what is
+being built.
+
+```yaml
+mm:
+  mode: dev
+  bldroot: ~/tmp/builds/myproject
+  prefix: ~/.local
+  target: opt, shared
+  compilers: clang, python/python3
+  slots: 8
+```
+
+The `mode` option is the most important setting to get right. mm has four
+modes:
+
+| Mode | Intermediate files | Installed products |
+|------|-------------------|-------------------|
+| `dev` (default) | `builds/{target}/` inside source tree | `products/` inside source tree |
+| `conda` | `builds/{env}/{target}/` | conda environment root (auto-detected) |
+| `macports` | `builds/macports/{target}/` | MacPorts root (auto-detected) |
+| `ubuntu` | `builds/ubuntu/{target}/` | `/usr` |
+
+The `dev` default exists to get you started without any configuration. It is
+not suitable for CI, shared machines, or any workflow where you want a clean
+separation between source and build products. For `dev` builds beyond
+experiments, always set `bldroot` and `prefix` in `.mm/mm.yaml`.
+
+`pyre` environment variable interpolation works inside string values:
+
+```yaml
+mm:
+  mode: conda
+  prefix: "{pyre.environ.CONDA_PREFIX}"
+  bldroot: "{pyre.environ.HOME}/tmp/builds/{pyre.environ.CONDA_DEFAULT_ENV}"
+```
+
+See `docs/command-line-reference.md` for the full option list, grouped by
+how often you are likely to need each one.
+
+
 ## Asset types
 
 mm understands six asset types.
@@ -411,6 +456,8 @@ Pass `--bash-completion` to also install tab-completion support for bash.
   library with Python bindings, a pyre application driver, and full shell
   integration; eight progressive steps, each introducing one new concept
 - `docs/FAQ.md` — answers to common configuration and troubleshooting questions
+- `docs/command-line-reference.md` — all command-line options, classified as
+  common, advanced, and esoteric
 - `examples/` — the complete source for each tutorial step
 
 # end of file
