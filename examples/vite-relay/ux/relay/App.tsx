@@ -35,4 +35,4 @@ export function App() {
   );
 }
 
-// end of file
+/* end of file */

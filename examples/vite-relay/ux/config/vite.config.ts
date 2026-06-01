@@ -14,4 +14,4 @@ export default defineConfig({
   plugins: [relay, react()],
 });
 
-// end of file
+/* end of file */

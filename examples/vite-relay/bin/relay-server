@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+# -*- Python -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+# stdlib
+import json
+
+# third party
+import graphene
+import pyre
+
+
+# the graphql schema, defined python-first; mirrors ux/config/schema.graphql, which
+# relay-compiler reads at build time
+class Query(graphene.ObjectType):
+    """
+    The root query type: the single {greeting} field the relay demo fetches
+    """
+
+    greeting = graphene.String(required=True)
+
+    @staticmethod
+    def resolve_greeting(root, info):
+        """
+        Resolve the {greeting} field with the server's message
+        """
+        return "hello from the pyre graphql server"
+
+
+# assemble the executable schema
+schema = graphene.Schema(query=Query)
+
+
+# the server application
+class Server(pyre.application, family="relay.server"):
+    """
+    A tiny pyre web app that answers the relay demo's graphql queries
+    """
+
+    # run under the {web} shell so {pyre_respond} fields HTTP requests on a socket
+    shell = pyre.shells.shell()
+    shell.default = "web"
+
+    # framework hooks
+    def pyre_respond(self, server, request):
+        """
+        Route an HTTP {request}: graphql queries get resolved, everything else is a 404
+        """
+        # a browser preflights the cross-origin POST with an OPTIONS request
+        if request.command == "OPTIONS":
+            # answer with the permissive CORS headers and an empty body
+            return self.cors(response=server.documents.OK(server=server))
+        # the only endpoint we serve is the graphql one
+        if request.url != "/graphql":
+            # everything else is unknown
+            return server.responses.NotFound(server=server)
+        # reassemble the request body and decode the graphql envelope
+        envelope = json.loads(b"\n".join(request.payload))
+        # execute the query against the schema, passing along any variables
+        result = schema.execute(envelope.get("query"), variables=envelope.get("variables"))
+        # start the response document with the resolved data
+        doc = {"data": result.data}
+        # if the execution turned up errors, relay expects them under an {errors} key
+        if result.errors:
+            doc["errors"] = [{"message": str(error)} for error in result.errors]
+        # serve the document as json, with CORS so the vite dev server can reach us
+        return self.cors(response=server.documents.JSON(server=server, value=doc))
+
+    # implementation details
+    def cors(self, response):
+        """
+        Stamp {response} with permissive CORS headers for cross-origin dev requests
+        """
+        # allow any origin
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        # and the methods and headers relay's fetch uses
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        # hand it back for serving
+        return response
+
+
+# the entry point
+if __name__ == "__main__":
+    # build the server application
+    app = Server(name="relay.server")
+    # launch it; the listening port comes from the command line, e.g.
+    #   --nexus.services.web.address=ip4:0.0.0.0:8080
+    status = app.run()
+    # share the exit code with the shell
+    raise SystemExit(status)
+
+# end of file

@@ -31,4 +31,4 @@ export const environment = new Environment({
   store: new Store(new RecordSource()),
 });
 
-// end of file
+/* end of file */

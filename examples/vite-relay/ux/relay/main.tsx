@@ -19,4 +19,4 @@ createRoot(document.getElementById("root")!).render(
   </StrictMode>
 );
 
-// end of file
+/* end of file */
