@@ -87,6 +87,14 @@ define vite.init
     ${eval $(_bundle).staging.src ?= $($(_project).tmpdir)$($(_bundle).stem).ux/$($(_bundle).stem)/}
     # the folder with the node modules
     ${eval $(_bundle).stage.modules ?= $($(_bundle).staging.prefix)node_modules/}
+    # where vite writes its production bundle, relative to the staging root
+    ${eval $(_bundle).staging.dist ?= $($(_bundle).staging.prefix)dist/}
+
+    # the graphql strategy: none | relay | houdini; selects the codegen step mm runs
+    ${eval $(_bundle).graphql ?= none}
+
+    # the installation location for the built bundle
+    ${eval $(_bundle).install.prefix ?= $(builder.dest.etc)$($(_bundle).name)/ux/}
 
 
     # for the help system

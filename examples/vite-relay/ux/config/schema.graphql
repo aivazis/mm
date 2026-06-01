@@ -1,0 +1,4 @@
+# the tiny schema the demo talks to; resolved by the pyre graphql server (added in a later step)
+type Query {
+  greeting: String!
+}

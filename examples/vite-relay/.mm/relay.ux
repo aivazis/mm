@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the relay ux bundle: vite builds it, relay-compiler generates its query artifacts
+relay.ux.graphql := relay
+# stage the schema alongside the standard config files so relay-compiler can find it
+relay.ux.config.extra := schema.graphql
+
+
+# end of file
