@@ -1,0 +1,19 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the Catch2 runner suite for the timer library
+timer.catch2.stem := timer.catch2
+# delegate to the catch2 runner: compile every source into one self-registering binary and run it
+timer.catch2.runner := catch2
+# the library must be built before its tests can be compiled
+timer.catch2.prerequisites := timer.lib
+# headers and libraries: the library under test, its pyre dependency, and the Catch2 framework
+timer.catch2.extern := timer.lib pyre catch2
+# the language standard the library uses
+timer.catch2.c++.flags += $($(compiler.c++).std.c++17)
+
+
+# end of file

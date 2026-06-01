@@ -1,0 +1,17 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the test suite for the timer library
+timer.lib.tests.stem := timer.lib
+# the library must be built before the tests can be compiled or run
+timer.lib.tests.prerequisites := timer.lib
+# inherit the library's include and link paths
+timer.lib.tests.extern := timer.lib pyre
+# same language standard as the library under test
+timer.lib.tests.c++.flags += $($(compiler.c++).std.c++17)
+
+
+# end of file

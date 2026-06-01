@@ -1,0 +1,23 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the timer pybind11 extension
+timer.ext.stem := timer
+
+# these are bindings for
+timer.ext.wraps := timer.lib
+
+# no capsule sharing with other extensions
+timer.ext.capsule :=
+
+# external dependencies
+timer.ext.extern := timer.lib pyre pybind11 python
+
+# match the language standard used by the library
+timer.ext.lib.c++.flags += $($(compiler.c++).std.c++17)
+
+
+# end of file
