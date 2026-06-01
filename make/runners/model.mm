@@ -5,7 +5,7 @@
 
 
 # the registry of known test runners
-runners := playwright vitest
+runners := playwright vitest pytest catch2
 
 # load each runner's description
 include $(runners:%=make/runners/%.mm)
@@ -13,8 +13,10 @@ include $(runners:%=make/runners/%.mm)
 # fill in defaults for anything a runner left unset, so the workflow can reference them safely
 ${foreach runner,$(runners), \
     ${eval runner.$(runner).prepare ?= plain} \
+    ${eval runner.$(runner).launch ?=} \
     ${eval runner.$(runner).argv ?=} \
     ${eval runner.$(runner).env ?=} \
+    ${eval runner.$(runner).language ?=} \
 }
 
 

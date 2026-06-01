@@ -1559,6 +1559,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the mapping from mm extern name to conda package name(s); try names in order
         packages = {
             "cantera": ["cantera"],
+            "catch2": ["catch2"],
             "cgal": ["cgal"],
             "cspice": ["cspice", "naif-cspice"],
             "cuda": ["cuda-toolkit", "cudatoolkit", "cuda"],
