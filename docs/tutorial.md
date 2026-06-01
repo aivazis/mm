@@ -498,6 +498,62 @@ a path relative to wherever you cloned it.
 
 ---
 
+## step09 — test runners
+
+Step01 ran each test as its own small program: one file, one binary or
+interpreter invocation, silence is pass. That model is perfect for many small,
+independent checks, but it sidesteps the test frameworks people often reach for.
+Step09 adds the other model — *runners* — and applies it twice: Catch2 for the
+C++ library and pytest for the Python package.
+
+A suite opts into a runner with one line; mm then stops enumerating per-file
+drivers and instead prepares what the framework needs and invokes it once,
+treating the exit code as the verdict. Both new suites are wired in alongside the
+step01-style ones:
+
+```makefile
+timer.tests := timer.lib.tests timer.pkg.tests timer.ext.tests \
+               timer.catch2 timer.pytest
+```
+
+### Catch2 for the library
+
+```makefile
+# .mm/timer.catch2
+timer.catch2.runner        := catch2
+timer.catch2.prerequisites := timer.lib
+timer.catch2.extern        := timer.lib pyre catch2
+timer.catch2.c++.flags     += $($(compiler.c++).std.c++17)
+```
+
+`runner := catch2` makes mm compile *every* `.cc` under `tests/timer.catch2/`
+into a single binary that self-registers its `TEST_CASE`s, then run it once.
+Contrast that with step01, where each `.cc` is a standalone program with its own
+`main`: here the sources carry only `TEST_CASE`s, and the runner links the
+`Catch2Main` entry point for you. Catch2 must be installed and recorded in the
+package database (`mm --setup`); the `extern := … catch2` line puts its headers
+and library on the command lines.
+
+### pytest for the package
+
+```makefile
+# .mm/timer.pytest
+timer.pytest.runner        := pytest
+timer.pytest.prerequisites := timer.pkg
+```
+
+pytest runs in place, discovers `test_*.py` under `tests/timer.pytest/`, and runs
+them against the built package — no per-file wiring, no staging. The test files
+use plain `assert`s and `test_*` functions instead of the step01 convention of a
+`test()` returning a status code.
+
+Per-file drivers and runners coexist in the same project; pick whichever fits a
+given suite. For the full set of strategies — including `.mjs`/node drivers,
+staged execution, and the Playwright, Vitest, and GoogleTest runners — see
+[`testing.md`](testing.md).
+
+---
+
 ## What the steps demonstrate together
 
 | Step | New concept |
@@ -511,10 +567,12 @@ a path relative to wherever you cloned it.
 | 06 | `pyre.application`; traits; `self.argv`; built-in channels |
 | 07 | Protocols and components; `pyre_default`; runtime implementation selection |
 | 08 | `mm --activate`; `mm --branch`; branch-scoped build isolation |
+| 09 | Test runners; Catch2 for the library, pytest for the package |
 
 The progression is deliberate. Steps 00–04 build a working tool with no
 external dependencies beyond pybind11. Steps 05–07 add pyre incrementally,
 each step showing one layer of the framework. Step08 closes the loop by showing
-how the build system integrates with the development workflow.
+how the build system integrates with the development workflow, and step09 adds
+test frameworks alongside the per-file tests from step01.
 
 # end of file

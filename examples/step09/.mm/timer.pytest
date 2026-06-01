@@ -1,0 +1,15 @@
+# -*- Makefile -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the pytest runner suite for the timer python package
+timer.pytest.stem := timer.pytest
+# delegate to the pytest runner: discover test_*.py in place and run them
+timer.pytest.runner := pytest
+# the package must be built and importable before the tests run
+timer.pytest.prerequisites := timer.pkg
+
+
+# end of file
