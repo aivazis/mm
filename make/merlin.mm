@@ -21,7 +21,7 @@ config.db += ${if $(user.environment),$(user.environment) $(user.environment)@$(
 define model :=
     log mm
     languages platforms hosts users developers
-    compilers targets builder
+    compilers targets builder runners
 	extern projects
 endef
 
