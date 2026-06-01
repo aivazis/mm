@@ -91,7 +91,7 @@ endef
 #   usage: test.runner.object {testsuite} {source} {language} {stageroot}
 define test.runner.object =
     ${eval _obj := $(4)${basename ${subst $($(1).prefix),,$(2)}}$(builder.ext.obj)}
-$(_obj): $(2)
+$(_obj): $(2) | $($(1).prerequisites)
 	@${call log.action,$(3),${subst $($(1).home),,$(2)}}
 	@$(mkdirp) ${dir $(_obj)}
 	${call languages.compile,$(3),$(2),$(_obj),$(1).$(3) $(1) $($(1).extern)}
@@ -104,7 +104,7 @@ endef
 #   usage: test.runner.binary {testsuite} {language} {binary} {objects}
 define test.runner.binary =
 -include $(4:$(builder.ext.obj)=$(builder.ext.dep))
-$(3): $(4)
+$(3): $(4) $($(1).prerequisites)
 	@$(mkdirp) ${dir $(3)}
 	@${call log.action,link,${subst $($(1).home),,$(3)}}
 	${call languages.link,$(2),$(4),$(3),$(1).$(2) $(1) $($(1).extern)}
