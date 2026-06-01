@@ -1,0 +1,4 @@
+# the root route query; houdini injects its result into +page.tsx as the {AppGreeting} prop
+query AppGreeting {
+	greeting
+}

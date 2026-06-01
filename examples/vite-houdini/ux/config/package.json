@@ -1,0 +1,25 @@
+{
+	"name": "houdini-demo",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"houdini": "go",
+		"houdini-react": "go",
+		"houdini-adapter-auto": "go",
+		"react": "^19",
+		"react-dom": "^19",
+		"graphql": "^16"
+	},
+	"devDependencies": {
+		"@types/react": "^19",
+		"@types/react-dom": "^19",
+		"@vitejs/plugin-react": "^6",
+		"typescript": "^5",
+		"vite": "^8"
+	}
+}

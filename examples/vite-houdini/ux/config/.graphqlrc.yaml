@@ -1,0 +1,16 @@
+# -*- yaml -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+projects:
+    default:
+        schema:
+            - ./$houdini/graphql/schema.graphql
+        documents:
+            - '**/*.gql'
+            - '**/*.tsx'
+            - ./$houdini/graphql/documents.gql
+
+# end of file
