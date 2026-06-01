@@ -23,8 +23,9 @@ catch2.ldflags ?=
 catch2.libpath ?= $(catch2.dir)/lib
 # its rpath
 catch2.rpath = $(catch2.libpath)
-# the names of the libraries; {Catch2Main} supplies main() and depends on {Catch2}
-catch2.libraries += Catch2Main Catch2
+# the framework library; the {Catch2Main} entry point is added by the catch2 runner, so that
+# this extern can also serve drivers that provide their own main
+catch2.libraries += Catch2
 
 # my dependencies
 catch2.dependencies =

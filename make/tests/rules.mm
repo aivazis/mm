@@ -130,6 +130,9 @@ define test.workflows.runner =
     ${if $(runner.$(_runner).prepare),,${error unknown test runner '$(_runner)' in suite '$(1)'}}
     ${eval _prepare := $(runner.$(_runner).prepare)}
     ${eval _lang := $(runner.$(_runner).language)}
+    # a compiled runner contributes its entry-point library (e.g. Catch2Main, gtest_main); fold it
+    # into the suite libraries so the link picks it up ahead of the framework library from {extern}
+    ${eval $(1).libraries += $(runner.$(_runner).libraries)}
     # the staging area (used by {staged}) and the compiled runner binary and its objects
     ${eval _stageroot := $($(1).stage.prefix)}
     ${eval _binary := $(_stageroot)$($(1).name)}
