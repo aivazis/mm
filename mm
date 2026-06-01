@@ -1815,6 +1815,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # python-versioned ports use {pyTag} e.g. "312" for python 3.12
         packages = {
             "cantera": ["cantera"],
+            "catch2": ["catch2"],
             "cgal": ["cgal5", "cgal"],
             "cspice": ["cspice"],
             "eigen": ["eigen3"],
@@ -2013,6 +2014,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the mapping from mm extern name to dpkg package name(s); try names in order
         packages = {
             "cantera": ["libcantera-dev"],
+            # libcatch2-dev ships v3 with libraries on Ubuntu 25.10+ / Debian trixie+
+            "catch2": ["libcatch2-dev"],
             "cgal": ["libcgal-dev"],
             "cspice": ["libcspice-dev"],
             "eigen": ["libeigen3-dev"],
