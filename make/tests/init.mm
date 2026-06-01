@@ -21,6 +21,17 @@ define tests.init =
     # the stem for generating test suite specific names
     ${eval $(2).stem ?= $($(1).stem)}
 
+    # if set, the suite delegates to a self-discovering test runner (playwright, vitest, ...)
+    # instead of mm enumerating per-file drivers
+    ${eval $(2).runner ?=}
+    # an optional override of the runner's launch command, e.g. to select a playwright project
+    ${eval $(2).runner.launch ?=}
+    # extra environment to prefix to the runner invocation
+    ${eval $(2).env ?=}
+    # suite-level startup and teardown hooks (e.g. fixtures), as make prerequisites
+    ${eval $(2).pre ?=}
+    ${eval $(2).post ?=}
+
     # the list of external dependencies as requested by the user
     ${eval $(2).extern ?=}
     # initialize the list of requested project dependencies
@@ -45,7 +56,7 @@ define tests.init =
 
     # the directory structure
     ${eval $(2).directories ?= ${call test.directories,$(2)}}
-    ${eval $(2).drivers ?= ${call test.drivers,$(2)}}
+    ${eval $(2).drivers ?= ${if $($(2).runner),,${call test.drivers,$(2)}}}
 
     # build the language specific option database
     ${eval $(2).languages ?= ${call test.languages,$(2)}}
@@ -85,7 +96,7 @@ define tests.init =
     # category documentation
     $(2).meta.general := project stem name
     $(2).meta.extern := extern.requested extern.supported extern.available
-    $(2).meta.artifacts := root prefix staged stage.prefix stage.modules
+    $(2).meta.artifacts := root prefix runner staged stage.prefix stage.modules
 
     # document each one
     # general
@@ -99,6 +110,7 @@ define tests.init =
     # artifacts
     $(2).metadoc.root := "the path to the test suite directory relative to the project directory"
     $(2).metadoc.prefix := "the absolute path to the test suite"
+    $(2).metadoc.runner := "the self-discovering test runner this suite delegates to, if any"
     $(2).metadoc.staged := "whether interpreted drivers run from a staging area (opt-in)"
     $(2).metadoc.stage.prefix := "the staging directory where drivers and node_modules are assembled"
     $(2).metadoc.stage.modules := "an existing node_modules to link into the staging area"

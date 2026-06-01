@@ -19,8 +19,11 @@ tests.info: mm.banner
 # make the test suite specific targets
 #  usage: test.workflows {test suite}
 define tests.workflows =
-    # build recipes
-    ${call test.workflows.build,$(1)}
+    # build recipes: a single self-discovering runner, or the per-driver workflow
+    ${if $($(1).runner), \
+        ${call test.workflows.runner,$(1)}, \
+        ${call test.workflows.build,$(1)} \
+    }
     # info recipes: show values
     ${call test.workflows.info,$(1)}
     # help recipes: show documentation
@@ -79,6 +82,72 @@ ${foreach case,$($(1).staging.targets), \
     ${eval ${call test.workflows.aliases,$(1),$(case)} \
     } \
 }
+
+# all done
+endef
+
+
+# build targets
+# target factory for a runner suite: rather than enumerating per-file drivers, mm prepares the
+# environment a self-discovering test runner needs (playwright, vitest, pytest, ...) and invokes
+# it once, treating the process exit code as the verdict. the runner owns discovery, parallelism,
+# fixtures, and -- for browser runners -- the servers under test
+#   usage: test.workflows.runner {testsuite}
+define test.workflows.runner =
+
+    # resolve the runner and how it wants the environment prepared
+    ${eval _runner := $($(1).runner)}
+    ${if $(runner.$(_runner).prepare),,${error unknown test runner '$(_runner)' in suite '$(1)'}}
+    ${eval _prepare := $(runner.$(_runner).prepare)}
+    # the launch command: a per-suite override wins over the runner default, then the args
+    ${eval _base := ${if $($(1).runner.launch),$($(1).runner.launch),$(runner.$(_runner).launch)}}
+    ${eval _launch := ${strip $(_base) $(runner.$(_runner).argv) $($(1).argv)}}
+    ${eval _env := ${strip $(runner.$(_runner).env) $($(1).env)}}
+    # a {staged} runner runs from the staging area that carries the node_modules; everything else
+    # runs in place, in the suite directory
+    ${eval _stageroot := $($(1).stage.prefix)}
+    ${eval _workdir := ${if ${filter staged,$(_prepare)},$(_stageroot),$($(1).prefix)}}
+
+# the suite runs its runner once, after preparing the environment and before tearing it down
+$(1): $(1).post
+	@${call log.asset,"test suite",$(1)}
+
+# startup
+$(1).pre: $($(1).pre)
+
+# prepare the environment according to the runner's {prepare} kind; for {staged}, mirror the suite
+# into the staging area and link the modules in as node_modules
+$(1).prepare: $($(1).prerequisites) $(1).pre
+	@${call log.action,prepare,$(1)}
+	${if ${filter staged,$(_prepare)},@$(mkdirp) $(_stageroot) && $(cp.fr) $($(1).prefix). $(_stageroot)${if $($(1).stage.modules), && $(ln) -sfn $($(1).stage.modules) $(_stageroot)node_modules,},@true}
+
+# invoke the runner once, from the prepared working directory; its exit code decides pass/fail
+$(1).run: $(1).prepare
+	@${call log.action,$(_runner),$(1)}
+	@$(cd) $(_workdir) ; $(_env) $(_launch)
+
+# teardown
+$(1).post: $(1).run $($(1).post)
+${if $($(1).post),\
+    ${eval $($(1).post) :: $(1).run} \
+}
+
+# clean up the staging area
+$(1).clean::
+	@${call log.action,clean,$(1)}
+	@$(rm.force-recurse) $(_stageroot)
+
+# show info
+$(1).info.runner:
+	@${call log.sec,$(1),"a runner suite in project '$($(1).project)'"}
+	@${call log.var,runner,$(_runner)}
+	@${call log.var,prepare,$(_prepare)}
+	@${call log.var,launch,$(_launch)}
+	@${call log.var,workdir,$(_workdir)}
+	@${call log.var,modules,$($(1).stage.modules)}
+
+# just in case...
+.PHONY: $(1) $(1).pre $(1).prepare $(1).run $(1).post $(1).clean
 
 # all done
 endef
