@@ -48,7 +48,10 @@ ${foreach target, $($(1).staging.targets), \
     ${eval
         ${if $($(target).compiled),
             ${call test.workflows.target.compiled,$(target),$(1)}, \
-            ${call test.workflows.target.interpreted,$(target),$(1)} \
+            ${if $($(target).staged), \
+                ${call test.workflows.target.staged,$(target),$(1)}, \
+                ${call test.workflows.target.interpreted,$(target),$(1)} \
+            } \
         }
     }
 }
@@ -143,6 +146,105 @@ $(1).info:
 
 # just in case...
 .PHONY: $(1) $(1).cases $(1).clean
+
+# all done
+endef
+
+
+# build targets
+# target factory for a staged interpreted test case
+#
+# interpreted drivers normally run in place, from their spot in the source tree. that breaks down
+# for ESM (.mjs) drivers that import third-party packages: node resolves bare imports by walking
+# up from the driver's own directory looking for a {node_modules}, and we deliberately keep
+# {node_modules} out of the source tree -- it lives in the build staging area, where the web
+# client is assembled and webpack/vite/relay run. {NODE_PATH} is no help, since it is consulted
+# only by the legacy CommonJS loader, not by ESM.
+#
+# a suite opts in with
+#     <suite>.staged        := yes
+#     <suite>.stage.modules := <path to an existing node_modules>
+# and each driver is copied into a per-suite staging directory under the project tmpdir (outside
+# the source tree), with {stage.modules} symlinked in as {node_modules}; the driver then runs
+# from the staged copy, so the upward search reaches the modules. suites that leave {staged}
+# unset are unaffected.
+#
+#   usage: test.workflows.target.staged {target} {testsuite}
+define test.workflows.target.staged =
+
+    # local variables
+    ${eval _tag := ${subst $($(2).home),,$($(1).source)}}
+    ${eval _srcdir := ${dir $($(1).source)}}
+    ${eval _stageroot := $($(1).stage.prefix)}
+    ${eval _staged := $(_stageroot)${subst $($(2).prefix),,$($(1).source)}}
+    ${eval _stagedir := ${dir $(_staged)}}
+    ${eval _modules := $($(1).stage.modules)}
+    ${eval _launcher := $(compiler.$($(1).language)) $(_staged)}
+    ${eval _harness := ${if $($(1).harness),$($(1).harness) $(_launcher),$(_launcher)}}
+
+# the aggregator
+$(1): $(1).pre $(1).stage $(1).cases $(1).post
+
+# dependencies
+# startup
+$(1).pre: $($(1).pre)
+
+# cleanup
+$(1).post: $(1).pre $(1).cases $($(1).post)
+
+# make sure cleanup happens after startup; because this rule is in addition to its definition,
+# we must use a double colon; this in turn implies that the rule definition must be a
+# double-colon rule
+${if $($(1).post),\
+    ${eval $($(1).post) :: $($(1).pre) $(1).cases} \
+}
+
+# stage the driver alongside its neighbors and link in the modules
+$(1).stage: $(1).pre
+	@${call log.action,stage,$(_tag)}
+	@$(mkdirp) $(_stagedir)
+	@$(cp.fr) $(_srcdir). $(_stagedir)
+	@${if $(_modules),$(ln) -sfn $(_modules) $(_stageroot)node_modules,true}
+
+# invoking the driver for each registered test case, from the staging area
+$(1).cases: $($($(1).suite).prerequisites) $(1).pre $(1).stage
+	@$(cd) $(_stagedir) ; \
+        ${if $($(1).cases), \
+            ${foreach case, $($(1).cases), \
+                ${call log.action,test,$($(case).harness) $(_tag) $($(case).argv)}; \
+                $($(case).harness) $(_launcher) $($(case).argv); \
+                }, \
+	    ${call log.action,test,$(_tag)}; \
+                $($(1).harness) $(_launcher) $($(1).argv) \
+        }
+
+# clean up; double colon, since it may be used as a {post} rule
+$(1).clean::
+	@${if $($(1).clean), \
+            ${call log.action,clean,$(1)}; \
+            $(rm.force-recurse) ${addprefix $($(1).home),$($(1).clean)}, \
+        }
+	@$(rm.force-recurse) $(_stageroot)
+
+# show info
+$(1).info:
+	@${call log.sec,$(1),"a staged test driver in test suite '$(2)' of project '$($(2).project)'"}
+	@${call log.var,source,$($(1).source)}
+	@${call log.var,interpreted,yes}
+	@${call log.var,staged,yes}
+	@${call log.var,language,$($(1).language)}
+	@${call log.var,compiler,$(compiler.$($(1).language))}
+	@${call log.var,staged source,$(_staged)}
+	@${call log.var,modules,$(_modules)}
+	@${call log.sec,$(log.indent)cases,}
+	@${if $($(1).cases), \
+            ${foreach case,$($(1).cases),\
+                ${call log.var,$(log.indent)$(case),${strip \
+                    $($(case).harness) $(_launcher) $($(case).argv)}};}, \
+            $(log) $(log.indent)$(log.indent)$($(1).harness) $(_launcher) $($(1).argv)}
+
+# just in case...
+.PHONY: $(1) $(1).stage $(1).cases $(1).clean
 
 # all done
 endef
