@@ -63,6 +63,12 @@ define tests.init =
     ${eval $(2).rpath ?=}
     ${eval $(2).libraries ?=}
 
+    # opt-in staged execution: copy interpreted drivers into a staging area that carries a
+    # {node_modules}, so module resolution succeeds without a {node_modules} in the source tree
+    ${eval $(2).staged ?=}
+    ${eval $(2).stage.prefix ?= $($(1).tmpdir)$(2)/}
+    ${eval $(2).stage.modules ?=}
+
     # derived quantities
     ${eval $(2).staging.targets ?= ${call test.staging.targets,$(2)}}
     ${eval $(2).staging.directories ?= ${call test.staging.directories,$(2)}}
@@ -79,7 +85,7 @@ define tests.init =
     # category documentation
     $(2).meta.general := project stem name
     $(2).meta.extern := extern.requested extern.supported extern.available
-    $(2).meta.artifacts := root prefix
+    $(2).meta.artifacts := root prefix staged stage.prefix stage.modules
 
     # document each one
     # general
@@ -93,6 +99,9 @@ define tests.init =
     # artifacts
     $(2).metadoc.root := "the path to the test suite directory relative to the project directory"
     $(2).metadoc.prefix := "the absolute path to the test suite"
+    $(2).metadoc.staged := "whether interpreted drivers run from a staging area (opt-in)"
+    $(2).metadoc.stage.prefix := "the staging directory where drivers and node_modules are assembled"
+    $(2).metadoc.stage.modules := "an existing node_modules to link into the staging area"
 
 endef
 
@@ -199,6 +208,9 @@ define test.staging.target =
         ${eval $(_trgt).libpath ?= $($(1).libpath)}
         ${eval $(_trgt).rpath ?= $($(1).rpath)}
         ${eval $(_trgt).libraries ?= $($(1).libraries)}
+        ${eval $(_trgt).staged ?= $($(1).staged)}
+        ${eval $(_trgt).stage.prefix ?= $($(1).stage.prefix)}
+        ${eval $(_trgt).stage.modules ?= $($(1).stage.modules)}
         ${foreach category,$(languages.$($(_trgt).language).categories.compile), \
             ${eval $(_trgt).$($(_trgt).language).$(category) ?=} \
         }
