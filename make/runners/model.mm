@@ -5,7 +5,7 @@
 
 
 # the registry of known test runners
-runners := playwright vitest pytest catch2
+runners := playwright vitest pytest catch2 gtest
 
 # load each runner's description
 include $(runners:%=make/runners/%.mm)
@@ -17,6 +17,7 @@ ${foreach runner,$(runners), \
     ${eval runner.$(runner).argv ?=} \
     ${eval runner.$(runner).env ?=} \
     ${eval runner.$(runner).language ?=} \
+    ${eval runner.$(runner).libraries ?=} \
 }
 
 

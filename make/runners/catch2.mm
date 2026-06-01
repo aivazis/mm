@@ -6,9 +6,11 @@
 
 # catch2: a compiled C++ runner; mm compiles all of the suite's sources into a single binary that
 # self-registers its TEST_CASEs, then runs it once; the suite supplies {extern := catch2} so the
-# Catch2 headers and libraries land on the compile and link command lines
+# Catch2 headers and library land on the command lines, and the runner links {Catch2Main} to
+# provide the entry point
 runner.catch2.prepare := compiled
 runner.catch2.language := c++
+runner.catch2.libraries := Catch2Main
 
 
 # end of file
