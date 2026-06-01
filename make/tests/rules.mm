@@ -87,11 +87,41 @@ ${foreach case,$($(1).staging.targets), \
 endef
 
 
+# compile one source of a {compiled} runner suite into an object under the staging root
+#   usage: test.runner.object {testsuite} {source} {language} {stageroot}
+define test.runner.object =
+    ${eval _obj := $(4)${basename ${subst $($(1).prefix),,$(2)}}$(builder.ext.obj)}
+$(_obj): $(2)
+	@${call log.action,$(3),${subst $($(1).home),,$(2)}}
+	@$(mkdirp) ${dir $(_obj)}
+	${call languages.compile,$(3),$(2),$(_obj),$(1).$(3) $(1) $($(1).extern)}
+	${call languages.makedep,$(3),$(2),$(_obj:$(builder.ext.obj)=$(builder.ext.dep)),$(1).$(3) $($(1).extern)}
+# all done
+endef
+
+
+# link the objects of a {compiled} runner suite into one self-registering test binary
+#   usage: test.runner.binary {testsuite} {language} {binary} {objects}
+define test.runner.binary =
+-include $(4:$(builder.ext.obj)=$(builder.ext.dep))
+$(3): $(4)
+	@$(mkdirp) ${dir $(3)}
+	@${call log.action,link,${subst $($(1).home),,$(3)}}
+	${call languages.link,$(2),$(4),$(3),$(1).$(2) $(1) $($(1).extern)}
+# all done
+endef
+
+
 # build targets
 # target factory for a runner suite: rather than enumerating per-file drivers, mm prepares the
-# environment a self-discovering test runner needs (playwright, vitest, pytest, ...) and invokes
-# it once, treating the process exit code as the verdict. the runner owns discovery, parallelism,
-# fixtures, and -- for browser runners -- the servers under test
+# environment a self-discovering test runner needs and invokes it once, treating the process exit
+# code as the verdict. the runner owns discovery, parallelism, fixtures, and -- for browser
+# runners -- the servers under test. the {prepare} kind decides what mm does first:
+#   staged   -- mirror the suite into a staging area and link {stage.modules} in as node_modules
+#               (playwright, vitest); run the launch command from there
+#   compiled -- compile the suite's sources into one binary and run it (catch2); the binary is
+#               the launch command
+#   plain    -- nothing; run the launch command in the suite directory (pytest)
 #   usage: test.workflows.runner {testsuite}
 define test.workflows.runner =
 
@@ -99,14 +129,24 @@ define test.workflows.runner =
     ${eval _runner := $($(1).runner)}
     ${if $(runner.$(_runner).prepare),,${error unknown test runner '$(_runner)' in suite '$(1)'}}
     ${eval _prepare := $(runner.$(_runner).prepare)}
-    # the launch command: a per-suite override wins over the runner default, then the args
-    ${eval _base := ${if $($(1).runner.launch),$($(1).runner.launch),$(runner.$(_runner).launch)}}
-    ${eval _launch := ${strip $(_base) $(runner.$(_runner).argv) $($(1).argv)}}
-    ${eval _env := ${strip $(runner.$(_runner).env) $($(1).env)}}
-    # a {staged} runner runs from the staging area that carries the node_modules; everything else
-    # runs in place, in the suite directory
+    ${eval _lang := $(runner.$(_runner).language)}
+    # the staging area (used by {staged}) and the compiled runner binary and its objects
     ${eval _stageroot := $($(1).stage.prefix)}
+    ${eval _binary := $(_stageroot)$($(1).name)}
+    ${eval _objects := ${foreach _s,$($(1).drivers),$(_stageroot)${basename ${subst $($(1).prefix),,$(_s)}}$(builder.ext.obj)}}
+    # the launch command: for {compiled} it is the built binary; otherwise a per-suite override
+    # wins over the runner default, then the args
+    ${eval _base := ${if $($(1).runner.launch),$($(1).runner.launch),$(runner.$(_runner).launch)}}
+    ${eval _launch := ${if ${filter compiled,$(_prepare)},$(_binary) $($(1).argv),${strip $(_base) $(runner.$(_runner).argv) $($(1).argv)}}}
+    ${eval _env := ${strip $(runner.$(_runner).env) $($(1).env)}}
+    # the working directory: a {staged} runner runs from the staging area, everything else in place
     ${eval _workdir := ${if ${filter staged,$(_prepare)},$(_stageroot),$($(1).prefix)}}
+
+# for a {compiled} runner, build one binary from all the suite's sources
+${if ${filter compiled,$(_prepare)}, \
+    ${foreach _s,$($(1).drivers),${eval ${call test.runner.object,$(1),$(_s),$(_lang),$(_stageroot)}}} \
+    ${eval ${call test.runner.binary,$(1),$(_lang),$(_binary),$(_objects)}} \
+,}
 
 # the suite runs its runner once, after preparing the environment and before tearing it down
 $(1): $(1).post
@@ -115,9 +155,9 @@ $(1): $(1).post
 # startup
 $(1).pre: $($(1).pre)
 
-# prepare the environment according to the runner's {prepare} kind; for {staged}, mirror the suite
-# into the staging area and link the modules in as node_modules
-$(1).prepare: $($(1).prerequisites) $(1).pre
+# prepare the environment; for {staged}, mirror the suite into the staging area and link the
+# modules in as node_modules; for {compiled}, depend on the built binary
+$(1).prepare: $($(1).prerequisites) $(1).pre ${if ${filter compiled,$(_prepare)},$(_binary),}
 	@${call log.action,prepare,$(1)}
 	${if ${filter staged,$(_prepare)},@$(mkdirp) $(_stageroot) && $(cp.fr) $($(1).prefix). $(_stageroot)${if $($(1).stage.modules), && $(ln) -sfn $($(1).stage.modules) $(_stageroot)node_modules,},@true}
 
@@ -132,7 +172,7 @@ ${if $($(1).post),\
     ${eval $($(1).post) :: $(1).run} \
 }
 
-# clean up the staging area
+# clean up the staging area (objects and the binary live here too)
 $(1).clean::
 	@${call log.action,clean,$(1)}
 	@$(rm.force-recurse) $(_stageroot)

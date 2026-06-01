@@ -56,7 +56,10 @@ define tests.init =
 
     # the directory structure
     ${eval $(2).directories ?= ${call test.directories,$(2)}}
-    ${eval $(2).drivers ?= ${if $($(2).runner),,${call test.drivers,$(2)}}}
+    # a runner that self-discovers at runtime needs no source list from mm; a {compiled} runner
+    # does, since mm must compile the suite's sources into the runner binary
+    ${eval $(2).discover ?= ${if $($(2).runner),${filter compiled,$(runner.$($(2).runner).prepare)},yes}}
+    ${eval $(2).drivers ?= ${if $($(2).discover),${call test.drivers,$(2)},}}
 
     # build the language specific option database
     ${eval $(2).languages ?= ${call test.languages,$(2)}}
