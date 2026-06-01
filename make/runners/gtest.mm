@@ -10,6 +10,8 @@
 runner.gtest.prepare := compiled
 runner.gtest.language := c++
 runner.gtest.libraries := gtest_main
+runner.gtest.doc := "compiled C++ runner (GoogleTest); one binary from all sources; self-registers TEST()s"
+runner.gtest.suite := "extern := gtest; c++.flags for the language standard"
 
 
 # end of file
