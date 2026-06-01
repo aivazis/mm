@@ -18,7 +18,12 @@ ${foreach runner,$(runners), \
     ${eval runner.$(runner).env ?=} \
     ${eval runner.$(runner).language ?=} \
     ${eval runner.$(runner).libraries ?=} \
+    ${eval runner.$(runner).doc ?=} \
+    ${eval runner.$(runner).suite ?=} \
 }
+
+# build the per-runner info recipes
+${foreach runner,$(runners),${eval ${call runner.recipes.info,$(runner)}}}
 
 
 # end of file

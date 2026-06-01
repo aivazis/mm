@@ -9,6 +9,8 @@
 # serial vs parallel routing and server fixtures are its concern, not ours
 runner.playwright.prepare := staged
 runner.playwright.launch := npx playwright test
+runner.playwright.doc := "node end-to-end runner; owns the browsers and the servers under test"
+runner.playwright.suite := "stage.modules: the ux bundle's node_modules"
 
 
 # end of file

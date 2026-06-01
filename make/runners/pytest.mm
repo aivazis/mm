@@ -9,6 +9,8 @@
 # staging
 runner.pytest.prepare := plain
 runner.pytest.launch := pytest
+runner.pytest.doc := "the python test runner; discovers test_*.py and runs in place"
+runner.pytest.suite := "prerequisites: the package under test"
 
 
 # end of file

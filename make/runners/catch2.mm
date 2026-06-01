@@ -11,6 +11,8 @@
 runner.catch2.prepare := compiled
 runner.catch2.language := c++
 runner.catch2.libraries := Catch2Main
+runner.catch2.doc := "compiled C++ runner; one binary from all sources; self-registers TEST_CASEs"
+runner.catch2.suite := "extern := catch2; c++.flags for the language standard"
 
 
 # end of file
