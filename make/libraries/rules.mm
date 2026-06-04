@@ -54,8 +54,12 @@ $(1).prerequisites: $($(1).prerequisites)
 
 $(1).directories: $($(1).libdir) $($(1).staging.incdirs) $($(1).tmpdir)
 
-${if ${findstring $($(1).libdir),$(builder.dest.lib)},,$($(1).libdir)} \
-$($(1).staging.incdirs) $($(1).tmpdir):
+# {sort} so that a library whose {libdir} coincides with its {tmpdir} (e.g. an extension's
+# support archive, kept out of the published tree) does not list the same directory twice
+${sort \
+    ${if ${findstring $($(1).libdir),$(builder.dest.lib)},,$($(1).libdir)} \
+    $($(1).staging.incdirs) $($(1).tmpdir) \
+}:
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
 
