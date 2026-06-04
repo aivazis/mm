@@ -1251,12 +1251,56 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # all done
         return
 
+    def _fromCommandLine(self, name):
+        """
+        Test whether the value of the trait named {name} came from the command line, as opposed
+        to a config file, an environment-derived default, or the trait default. Only command-
+        line overrides are invisible to a recursively launched {mm}: the child runs in the same
+        directory and inherits the same environment, so it reproduces everything else on its own
+        """
+        # the trait descriptor
+        trait = self.pyre_trait(name)
+        # the priority of its current value records which configuration category assigned it
+        priority = self.pyre_inventory.getTraitPriority(trait)
+        # command-line assignments belong to the {command} category; this is the same idiom
+        # pyre itself uses to recognize a category (see framework/NameServer)
+        return priority.category == priority.command.category
+
+    def relaunchArguments(self):
+        """
+        Yield the command-line arguments a recursively launched {mm} needs to reproduce this
+        invocation's build-product locations (e.g. so the pkgdb rebuild lands where the parent
+        expects it). The candidate set is an allowlist of the traits that shape {bldroot} and
+        {prefix} — so an action like {--setup} can never be forwarded — and within it only the
+        traits the user actually set on the command line are emitted
+        """
+        # the path-determining traits; this set has been stable for years and is cheap to extend
+        for name in ("mode", "bldroot", "prefix", "tag", "environment", "compilers", "target"):
+            # the child reconstructs config-file, environment, and default values by itself
+            if not self._fromCommandLine(name):
+                continue
+            # the resolved value
+            value = getattr(self, name)
+            # a path is a tuple of segments, so render it as a single string before anything
+            # mistakes it for a multi-valued trait
+            if isinstance(value, pyre.primitives.path):
+                value = str(value)
+            # genuinely multi-valued traits (compilers, target) are comma-separated
+            elif isinstance(value, (list, tuple)):
+                value = ",".join(map(str, value))
+            # everything else stringifies directly
+            else:
+                value = str(value)
+            # quote it so paths and values with spaces survive the make recipe shell
+            yield f"--{name}='{value}'"
+
     def configureBuilder(self):
         """
         Configure the engine
         """
-        # record how mm was invoked
-        yield f"mm={sys.executable} {__file__}"
+        # record how mm was invoked, including the arguments a recursive launch needs to land
+        # its build products — and the pkgdb — in the same place as this invocation
+        yield "mm=" + " ".join([sys.executable, __file__, *self.relaunchArguments()])
         # the version
         yield f"mm.version={self._version}"
         # the mm installation location
