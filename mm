@@ -2277,11 +2277,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 if candidate in installed:
                     found[name] = (candidate, installed[candidate])
                     break
+        # cuda is a capability: present only if the assets needed to compile and link cuda
+        # code are installed and locatable; {dpkg -L} is used to verify and place them
+        cuda = self._emitDpkgCuda(dpkg, installed, prefix)
         # report what we found
         channel.line(f"found {len(found)} of {len(packages)} supported packages")
         channel.indent()
         for name, (candidate, version) in sorted(found.items()):
             channel.line(f"{name}: {version}  (dpkg: {candidate})")
+        # and cuda, if it cleared the capability check
+        if cuda:
+            channel.line(f"cuda: {cuda[0]}  (capability verified)")
         channel.outdent()
         channel.log()
         # open the database file
@@ -2355,8 +2361,132 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 print(f"{name}.version ?= {version}", file=f)
                 # blank line after each entry
                 print(file=f)
+            # finally the cuda capability block, when cuda can actually be built against
+            if cuda:
+                # the ready-to-write makefile lines
+                _, lines = cuda
+                # emit each
+                for line in lines:
+                    print(line, file=f)
+                # blank line after the block
+                print(file=f)
         # all done
         return 0
+
+    def _dpkgFiles(self, dpkg, package):
+        """
+        Return the absolute paths of the files installed by a dpkg {package}, via {dpkg -L}; an
+        empty list if the package is unknown to dpkg
+        """
+        # ask for the package contents
+        result = subprocess.run([dpkg, "-L", package], capture_output=True, text=True)
+        # if the query failed, treat the package as having no files
+        if result.returncode != 0:
+            return []
+        # each non-empty line is an absolute path owned by the package
+        return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
+
+    def _dpkgAnchor(self, path, prefix):
+        """
+        Render {path} relative to {dpkg.prefix} when it lives under it, otherwise as an absolute
+        path; keeps the database tidy without assuming a layout
+        """
+        # the prefix itself collapses to the bare reference
+        if str(path) == str(prefix):
+            return "$(dpkg.prefix)"
+        # express it under the prefix when possible
+        try:
+            return f"$(dpkg.prefix)/{path.relativeTo(prefix)}"
+        # if it isn't under the prefix (e.g. /usr/local/cuda lives under /usr, but a custom
+        # toolkit might not), keep it absolute
+        except ValueError:
+            return str(path)
+
+    def _emitDpkgCuda(self, dpkg, installed, prefix):
+        """
+        Resolve cuda as a capability under dpkg: usable only if the compiler (nvcc), the runtime
+        headers (cuda.h) and the runtime library (libcudart) are all installed and locatable.
+        Debian/Ubuntu ships cuda in two very different layouts — the distro {nvidia-cuda-toolkit}
+        (headers in /usr/include, multiarch libs) and the NVIDIA apt repo ({cuda-nvcc-X-Y} etc.,
+        under /usr/local/cuda-X.Y with a {targets/<arch>} sysroot) — so the include and library
+        directories are read from {dpkg -L} rather than assumed. A partial install is reported
+        and cuda is omitted. Returns {(version, lines)}, or None if cuda is absent or unusable
+        """
+        # the installed packages that look cuda-related; capability is verified at the file
+        # level, so the exact (version-suffixed) package names need not be known ahead of time
+        candidates = [
+            name
+            for name in installed
+            if name.startswith(("cuda-", "nvidia-cuda")) or "cudart" in name
+        ]
+        # if nothing cuda-ish is installed, cuda is simply absent
+        if not candidates:
+            return None
+        # gather the file manifests of all the candidates once
+        files = []
+        for package in candidates:
+            files.extend(self._dpkgFiles(dpkg, package))
+        # locate the three assets that prove we can compile and link cuda code
+        nvcc = next((path for path in files if path.name == "nvcc"), None)
+        header = next((path for path in files if path.name == "cuda.h"), None)
+        library = next(
+            (path for path in files if path.name.startswith("libcudart.so")), None
+        )
+        # note which, if any, are missing
+        missing = []
+        if not nvcc:
+            missing.append("nvcc")
+        if not header:
+            missing.append("cuda.h")
+        if not library:
+            missing.append("libcudart")
+        # if any asset is missing, this is a systemic problem the user should fix; warn and
+        # leave cuda out of the database rather than let the compiler or linker fail later
+        if missing:
+            # a warning channel
+            warning = journal.warning("mm.pkgdb")
+            # what is wrong
+            warning.line("cuda is partially installed")
+            # which assets are missing
+            warning.line(f"missing: {', '.join(missing)}")
+            # the consequence
+            warning.line("cuda support disabled")
+            # flush
+            warning.log()
+            # not usable
+            return None
+        # the include directory holds cuda.h; the toolkit root is its parent, which makes the
+        # {cuda/init.mm} incpath default ({cuda.dir}/include plus the cccl wildcard) resolve
+        cudaDir = header.parent.parent
+        # the library directory is wherever libcudart actually landed (lib, lib64 or multiarch),
+        # so it always overrides init.mm's {lib64} default
+        libdir = library.parent
+        # the version: a {cuda-X.Y} segment in the asset path (NVIDIA apt layout), else the
+        # distro toolkit package version, trimmed to major.minor
+        match = re.search(r"cuda-(\d+\.\d+)", str(header))
+        if match:
+            version = match.group(1)
+        else:
+            # the distro toolkit package carries the version
+            pkgver = next(
+                (
+                    installed[pkg]
+                    for pkg in ("nvidia-cuda-toolkit", "nvidia-cuda-dev")
+                    if pkg in installed
+                ),
+                None,
+            )
+            # trim it, or admit we don't know
+            version = self._condaMajorMinor(pkgver) if pkgver else "unknown"
+        # the ready-to-write makefile lines
+        lines = [
+            f"# cuda: {version}  (dpkg: nvcc + cuda.h + libcudart located via dpkg -L)",
+            f"cuda.version ?= {version}",
+            f"cuda.dir ?= {self._dpkgAnchor(cudaDir, prefix)}",
+            f"cuda.libpath ?= {self._dpkgAnchor(libdir, prefix)}",
+        ]
+        # hand back the version (for the report) and the lines
+        return version, lines
 
     def _queryPythonExpression(self, expression, *, python=sys.executable):
         """
