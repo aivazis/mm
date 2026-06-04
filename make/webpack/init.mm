@@ -65,6 +65,21 @@ define webpack.init
     # the bundle
     ${eval $(2).staging.generated.assets := ${call webpack.staging.generated.assets,$(2)}}
 
+    # schema generation; opt-in by setting {schema.generator} to a command that writes
+    # the SDL to the path appended to it, e.g. an installed exporter that prints the
+    # project's schema; leaving it empty preserves the historical copy-from-source flow
+    ${eval $(2).schema.generator ?=}
+    # flags placed between the generator and the output path
+    ${eval $(2).schema.flags ?=}
+    # the inputs that should force a schema rebuild when they change
+    ${eval $(2).schema.sources ?=}
+    # order-only prerequisites that must exist before the generator runs, e.g. the
+    # package the generator imports
+    ${eval $(2).schema.requires ?=}
+    # where the generated schema lands, where {relay-compiler} expects to find it
+    ${eval $(2).staging.schema ?= $($(2).staging.prefix)schema/$($(2).name).gql}
+    ${eval $(2).staging.schema.dir ?= ${dir $($(2).staging.schema)}}
+
     # install locations
     ${eval $(2).install.prefix ?= $(builder.dest.etc)$($(2).name)/ux/}
     ${eval $(2).install.static.dirs ?= ${call webpack.install.static.dirs,$(2)}}

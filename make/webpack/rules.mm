@@ -42,6 +42,14 @@ $(1).clean:
 	@${call log.action,"rm",$($(1).staging.prefix)}
 	$(rm.force-recurse) $($(1).staging.prefix)
 
+# (re)generate the schema on demand
+$(1).schema: $($(1).staging.schema)
+
+# drop the generated schema so the next build refreshes it
+$(1).schema.clean:
+	@${call log.action,"rm",${subst $($(1).staging.prefix),,$($(1).staging.schema)}}
+	$(rm.force) $($(1).staging.schema)
+
 # the webpack bundle
 $(1).generated: $($(1).staging.relay_generated) $($(1).install.generated.assets)
 
@@ -51,7 +59,8 @@ $(1).chunks: ${foreach chunk,$($(1).chunks),$(1).chunks.$(chunk)}
 # group all the generated assets together (the '&:' in the rule separator)
 $($(1).staging.generated.assets) &: \
     $($(1).staging.babel_config) $($(1).staging.page) \
-    $($(1).staging.app.sources) | $(1).generate.prep
+    $($(1).staging.app.sources) \
+    ${if $($(1).schema.generator),$($(1).staging.schema),} | $(1).generate.prep
 	$(cd) $($(1).staging.prefix); npm run relay && npm run build
 
 $(1).generate.prep: $(1).config $(1).npm_modules $(1).sources
@@ -106,6 +115,20 @@ $($(1).staging.prefix):
 
 # the relay generated types
 $($(1).staging.relay_generated):
+	$(mkdirp) $$@
+	@${call log.action,"mkdir",$$@}
+
+# generate the schema from the project's source of truth into the staging area; the
+# {schema.sources} are real prerequisites so a change to them forces a rebuild, while
+# the generator and its {schema.requires} are order-only so they are installed first
+# without a newer binary needlessly triggering regeneration
+$($(1).staging.schema): $($(1).schema.sources) \
+    | $($(1).schema.generator) $($(1).schema.requires) $($(1).staging.schema.dir)
+	@${call log.action,"schema",$${subst $($(1).staging.prefix),,$$@}}
+	${if $($(1).schema.generator),$($(1).schema.generator) $($(1).schema.flags)$$@,@true}
+
+# the directory that receives the generated schema
+$($(1).staging.schema.dir):
 	$(mkdirp) $$@
 	@${call log.action,"mkdir",$$@}
 
