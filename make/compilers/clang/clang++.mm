@@ -40,6 +40,8 @@ clang++.opt := -O3
 clang++.cov := --coverage
 clang++.prof := -pg
 clang++.shared := -fPIC
+# openmp support
+clang++.openmp := -fopenmp
 
 # language level
 clang++.std.c++11 := -std=c++11

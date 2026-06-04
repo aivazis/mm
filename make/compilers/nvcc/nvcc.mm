@@ -37,6 +37,8 @@ nvcc.opt := -O3
 nvcc.cov := --coverage
 nvcc.prof := -pg
 nvcc.shared := -Xcompiler -fPIC
+# openmp support; hand the switch to the host compiler
+nvcc.openmp := -Xcompiler -fopenmp
 
 # language level
 nvcc.std.c++03 := --std=c++03

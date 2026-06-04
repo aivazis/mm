@@ -40,6 +40,8 @@ intel++.opt := -O3
 intel++.cov := --coverage
 intel++.prof := -pg
 intel++.shared := -fPIC
+# openmp support
+intel++.openmp := -qopenmp
 
 # language level
 intel++.std.c++11 := -std=c++11

@@ -38,6 +38,8 @@ flang.cov := --coverage
 # VERIFY: gprof-style -pg has limited support in LLVM Fortran; may silently do nothing
 flang.prof := -pg
 flang.shared := -fPIC
+# openmp support
+flang.openmp := -fopenmp
 
 # language level
 # VERIFY: all std flags below; they mirror gfortran but flang-new may differ

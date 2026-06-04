@@ -34,6 +34,8 @@ g++.opt := -O3
 g++.cov := --coverage
 g++.prof := -pg
 g++.shared := -fPIC
+# openmp support
+g++.openmp := -fopenmp
 
 # language level
 g++.std.c++11 := -std=c++11
