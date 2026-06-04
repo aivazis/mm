@@ -54,7 +54,7 @@ else:
     _mm_pyre = None
 
 # set the version
-_mm_version = "5.1.0"
+_mm_version = "5.2.0"
 # find out where i live
 _mm_home = pyre.primitives.path(__file__).resolve().parent
 # check whether i'm running from my source directory
