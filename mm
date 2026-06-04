@@ -1501,7 +1501,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def _buildCondaPackageDatabase(self, db):
         """
-        Interrogate the active conda/micromamba environment and write a package database
+        Interrogate the active conda/micromamba environment and write a package database by
+        reading the on-disk {conda-meta} install records, without invoking the conda agent
         """
         # grab a channel
         channel = journal.info("mm.pkgdb")
@@ -1517,95 +1518,39 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error.log()
             # and bail
             return 1
-        # find the conda agent; prefer micromamba
-        agent = (
-            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
-        )
-        # if none found
-        if not agent:
+        # the install database of the active environment
+        meta = pyre.primitives.path(prefix) / "conda-meta"
+        # if it isn't there, {CONDA_PREFIX} doesn't point at a real environment
+        if not meta.isDirectory():
             # grab an error channel
             error = journal.error("mm.pkgdb")
             # complain
-            error.line("no conda agent found on PATH (tried: micromamba, mamba, conda)")
+            error.line(f"'{prefix}' is not a conda environment")
+            error.line(f"no install database at {meta}")
+            # flush
             error.log()
             # and bail
             return 1
         # log our starting state
         channel.line("building conda package database")
         channel.indent()
-        channel.line(f"agent: {agent}")
         channel.line(f"environment: {os.environ.get('CONDA_DEFAULT_ENV', '?')}")
         channel.line(f"prefix: {prefix}")
         channel.line(f"db: {db}")
         channel.outdent()
         channel.log()
-        # query the installed packages
-        result = subprocess.run(
-            [agent, "list", "--json"],
-            capture_output=True,
-            text=True,
-        )
-        # if the query failed
-        if result.returncode != 0:
-            # grab an error channel
-            error = journal.error("mm.pkgdb")
-            # complain
-            error.line(f"failed to query package list: {result.stderr.strip()}")
-            error.log()
-            # and bail
-            return 1
-        # build an index of installed packages keyed by name
-        installed = {record["name"]: record for record in json.loads(result.stdout)}
-        # the mapping from mm extern name to conda package name(s); try names in order
-        packages = {
-            "cantera": ["cantera"],
-            "catch2": ["catch2"],
-            "cgal": ["cgal"],
-            "cspice": ["cspice", "naif-cspice"],
-            "cuda": ["cuda-toolkit", "cudatoolkit", "cuda"],
-            "eigen": ["eigen"],
-            "fftw": ["fftw"],
-            "fmt": ["fmt"],
-            "gdal": ["gdal"],
-            "geotiff": ["libgeotiff", "geotiff"],
-            "gmsh": ["gmsh"],
-            "gsl": ["gsl"],
-            "gtest": ["gtest", "libgtest"],
-            "hdf5": ["hdf5"],
-            "kokkos": ["kokkos"],
-            "libpq": ["libpq", "postgresql"],
-            "metis": ["metis"],
-            "mkl": ["mkl"],
-            "mpi": ["openmpi", "mpich"],
-            "numpy": ["numpy"],
-            "openblas": ["openblas"],
-            "parmetis": ["parmetis"],
-            "petsc": ["petsc"],
-            "proj": ["proj"],
-            "pybind11": ["pybind11"],
-            "python": ["python"],
-            "slepc": ["slepc"],
-            "sundials": ["sundials"],
-            "vtk": ["vtk"],
-            "yaml": ["yaml-cpp", "yaml"],
-        }
-        # collect the packages that are present in this environment
-        found = {}
-        # go through the supported packages
-        for name, candidates in packages.items():
-            # try each conda name in priority order
-            for candidate in candidates:
-                # if this one is installed
-                if candidate in installed:
-                    # record the match and move on to the next mm package
-                    found[name] = (candidate, installed[candidate])
-                    break
+        # index the installed packages by reading the {conda-meta} record names
+        index = self._condaMetaIndex(meta)
+        # the registry of supported externals and how each maps to conda packages
+        recipes = self._condaRecipes()
+        # resolve them against the installed packages
+        entries = self._condaResolve(recipes, index, prefix)
         # report what we found
-        channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        channel.line(f"found {len(entries)} of {len(recipes)} supported packages")
         # list each one
         channel.indent()
-        for name, (candidate, record) in sorted(found.items()):
-            channel.line(f"{name}: {record['version']}  (conda: {candidate})")
+        for entry in sorted(entries, key=lambda e: e["name"]):
+            channel.line(f"{entry['name']}: {entry['version']}")
         channel.outdent()
         # flush
         channel.log()
@@ -1619,8 +1564,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print("# conda package database", file=f)
             # provenance
             print("# generated by: mm --pkgdb=conda --setup", file=f)
-            # the agent that was queried
-            print(f"# agent: {agent}", file=f)
+            # how it was discovered: the on-disk install database, no agent involved
+            print(f"# source: {meta}", file=f)
             # the environment name
             print(f"# environment: {environmentName}", file=f)
             # and its prefix
@@ -1634,90 +1579,328 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # blank line before the package entries
             print(file=f)
             # write an entry for each package we found, in alphabetical order
-            for name in sorted(found):
-                # unpack the conda name and the package record
-                candidate, record = found[name]
-                # extract the version string
-                version = record.get("version", "?")
+            for entry in sorted(entries, key=lambda e: e["name"]):
                 # a comment line showing the mm name, full conda version, and origin
-                print(f"# {name} {version}  (conda: {candidate})", file=f)
-                # python.version in mm means major.minor: it's used to form interpreter names
-                # and directory paths like {lib/python3.12/}, so trim the patch level
-                if name == "python":
-                    # keep only the portion that appears in filesystem paths
-                    versionParts = version.split(".")
-                    version = (
-                        f"{versionParts[0]}.{versionParts[1]}"
-                        if len(versionParts) >= 2
-                        else version
-                    )
+                print(f"# {entry['comment']}", file=f)
                 # {?=} throughout so that anything the user set in {config.mm} takes precedence;
                 # the load order is config.mm first, then this db, so {?=} here correctly
                 # yields to user overrides while still providing the conda defaults
                 # the version, for packages whose {init.mm} has version-dependent logic
-                print(f"{name}.version ?= {version}", file=f)
-                # mpi also needs its flavor to select the right library names in {mpi/init.mm}
-                if name == "mpi":
-                    # a conditional lazy reference to {conda.prefix}
-                    print(f"mpi.dir ?= $(conda.prefix)", file=f)
-                    # the flavor (openmpi or mpich) controls which libraries get linked
-                    print(f"mpi.flavor ?= {candidate}", file=f)
-                # numpy headers and libs live under site-packages/numpy/core, not conda.prefix;
-                # point {numpy.dir} at the numpy core directory so the defaults in
-                # {numpy/init.mm} — {$(numpy.dir)/include} and {$(numpy.dir)/lib} — both resolve
-                # correctly without needing explicit {incpath} or {libpath} overrides
-                elif name == "numpy":
-                    # ask numpy where its headers are; their parent is the numpy core directory
-                    includePath = self._queryPythonExpression(
-                        "import numpy; print(numpy.get_include())"
-                    )
-                    # if we got a path
-                    if includePath:
-                        # the numpy core directory is the parent of the include directory
-                        numpyCore = pyre.primitives.path(includePath).parent
-                        # if it's within the conda prefix, anchor it to {conda.prefix}
-                        try:
-                            relativePath = numpyCore.relativeTo(prefix)
-                            print(
-                                f"numpy.dir ?= $(conda.prefix)/{relativePath}", file=f
-                            )
-                        # otherwise fall back to the absolute path
-                        except ValueError:
-                            print(f"numpy.dir ?= {numpyCore}", file=f)
-                    # if we couldn't query numpy, fall back to {conda.prefix}
-                    else:
-                        print(f"numpy.dir ?= $(conda.prefix)", file=f)
-                # pybind11 has the same header placement issue as numpy
-                elif name == "pybind11":
-                    # ask pybind11 where its headers are; their parent is the pybind11 root directory
-                    includePath = self._queryPythonExpression(
-                        "import pybind11; print(pybind11.get_include())"
-                    )
-                    # if we got a path
-                    if includePath:
-                        # the pybind11 root is the parent of the include directory
-                        pybind11Root = pyre.primitives.path(includePath).parent
-                        # if it's within the conda prefix, anchor it to {conda.prefix}
-                        try:
-                            relativePath = pybind11Root.relativeTo(prefix)
-                            print(
-                                f"pybind11.dir ?= $(conda.prefix)/{relativePath}",
-                                file=f,
-                            )
-                        # otherwise fall back to the absolute path
-                        except ValueError:
-                            print(f"pybind11.dir ?= {pybind11Root}", file=f)
-                    # if we couldn't query pybind11, fall back to {conda.prefix}
-                    else:
-                        print(f"pybind11.dir ?= $(conda.prefix)", file=f)
-                # all other packages: {dir} tracks {conda.prefix} and defaults work as-is
-                else:
-                    # a conditional lazy reference to {conda.prefix}
-                    print(f"{name}.dir ?= $(conda.prefix)", file=f)
+                print(f"{entry['name']}.version ?= {entry['version']}", file=f)
+                # the package-specific configuration lines that the recipe produced
+                for line in entry["lines"]:
+                    # emit each one
+                    print(line, file=f)
                 # blank line after each entry
                 print(file=f)
         # all done
         return 0
+
+    def _condaMetaIndex(self, meta):
+        """
+        Index the installed packages of a conda environment by reading the record names in
+        {meta}; each record is named {name}-{version}-{build}.json, so a package's presence
+        and version come straight from the filename without parsing any JSON
+        """
+        # the index we are building: conda package name -> (version, build, record path)
+        index = {}
+        # go through every file in the install database
+        for filename in os.listdir(str(meta)):
+            # we only care about package records
+            if not filename.endswith(".json"):
+                continue
+            # drop the extension
+            stem = filename[: -len(".json")]
+            # records always carry the two dashes that separate name, version, and build;
+            # anything else (a stray file) is not a package record we can parse
+            if stem.count("-") < 2:
+                continue
+            # split the stem from the right so that dashes in the package name survive
+            name, version, build = stem.rsplit("-", 2)
+            # stash the record, keyed by package name
+            index[name] = (version, build, meta / filename)
+        # hand it back
+        return index
+
+    def _condaManifestDir(self, record, predicate):
+        """
+        Parse a conda-meta {record} and return the directory — relative to the environment
+        prefix — of the first installed file that satisfies {predicate}, or None; the file
+        paths in a record are already prefix-relative, so the directory can be joined onto
+        {conda.prefix} directly
+        """
+        # read the record
+        with open(str(record)) as stream:
+            # as json
+            data = json.load(stream)
+        # the files it installed are listed relative to the prefix
+        for path in data.get("files", []):
+            # as a path
+            candidate = pyre.primitives.path(path)
+            # if it's the one we're after
+            if predicate(candidate):
+                # its directory is the answer
+                return candidate.parent
+        # nothing matched
+        return None
+
+    def _condaRecipes(self):
+        """
+        The registry mapping each supported mm external to the conda package(s) that provide
+        it; a boring package lists only its candidate names, a package with an unusual on-disk
+        layout names a {handler}, and a compound capability names a {capability}
+        """
+        # the registry; candidate names are tried in priority order
+        return {
+            "cantera": {"candidates": ["cantera"]},
+            "catch2": {"candidates": ["catch2"]},
+            "cgal": {"candidates": ["cgal"]},
+            "cspice": {"candidates": ["cspice", "naif-cspice"]},
+            "cuda": {"capability": "_emitCondaCuda"},
+            "eigen": {"candidates": ["eigen"]},
+            "fftw": {"candidates": ["fftw"]},
+            "fmt": {"candidates": ["fmt"]},
+            "gdal": {"candidates": ["gdal"]},
+            "geotiff": {"candidates": ["libgeotiff", "geotiff"]},
+            "gmsh": {"candidates": ["gmsh"]},
+            "gsl": {"candidates": ["gsl"]},
+            "gtest": {"candidates": ["gtest", "libgtest"]},
+            "hdf5": {"candidates": ["hdf5"]},
+            "kokkos": {"candidates": ["kokkos"]},
+            "libpq": {"candidates": ["libpq", "postgresql"]},
+            "metis": {"candidates": ["metis"]},
+            "mkl": {"candidates": ["mkl"]},
+            "mpi": {"candidates": ["openmpi", "mpich"], "handler": "_emitCondaMpi"},
+            "numpy": {
+                "candidates": ["numpy"],
+                "handler": "_emitCondaSitePackage",
+                "module": "numpy",
+            },
+            "openblas": {"candidates": ["openblas"]},
+            "parmetis": {"candidates": ["parmetis"]},
+            "petsc": {"candidates": ["petsc"]},
+            "proj": {"candidates": ["proj"]},
+            "pybind11": {
+                "candidates": ["pybind11"],
+                "handler": "_emitCondaSitePackage",
+                "module": "pybind11",
+            },
+            "python": {"candidates": ["python"], "trim": True},
+            "slepc": {"candidates": ["slepc"]},
+            "sundials": {"candidates": ["sundials"]},
+            "vtk": {"candidates": ["vtk"]},
+            "yaml": {"candidates": ["yaml-cpp", "yaml"]},
+        }
+
+    def _condaResolve(self, recipes, index, prefix):
+        """
+        Resolve each supported external in {recipes} against the {index} of installed conda
+        packages, returning a database entry for every one that is present and usable
+        """
+        # the entries we will write
+        entries = []
+        # go through the recipes
+        for name, recipe in recipes.items():
+            # a compound capability owns its own discovery and diagnostics
+            capability = recipe.get("capability")
+            # if this is one
+            if capability:
+                # let it decide whether the package can actually be built against
+                entry = getattr(self, capability)(index, prefix)
+                # record it if so
+                if entry:
+                    entries.append(entry)
+                # on to the next recipe
+                continue
+            # otherwise, find the first installed candidate, in priority order
+            candidate = next((c for c in recipe["candidates"] if c in index), None)
+            # if none of them are installed, the package is absent
+            if candidate is None:
+                continue
+            # unpack the record
+            version, build, record = index[candidate]
+            # trim to major.minor for packages that key interpreter names and paths off it
+            mmVersion = self._condaMajorMinor(version) if recipe.get("trim") else version
+            # the entry, ready for any package-specific configuration lines
+            entry = {
+                "name": name,
+                "comment": f"{name} {version}  (conda: {candidate})",
+                "version": mmVersion,
+                "lines": [],
+            }
+            # a custom emitter for packages whose layout isn't boring
+            handler = recipe.get("handler")
+            # if there is one
+            if handler:
+                # let it populate the configuration lines
+                getattr(self, handler)(entry, recipe, candidate, record, prefix)
+            # otherwise the boring default: {dir} tracks {conda.prefix} and the
+            # {name}/init.mm defaults ({dir}/include, {dir}/lib) do the rest
+            else:
+                # a conditional lazy reference to {conda.prefix}
+                entry["lines"].append(f"{name}.dir ?= $(conda.prefix)")
+            # keep it
+            entries.append(entry)
+        # hand back what we found
+        return entries
+
+    def _condaMajorMinor(self, version):
+        """
+        Trim a version string to {major.minor}; some packages (python) use this form in
+        interpreter names and filesystem paths like {lib/python3.12}
+        """
+        # split into components
+        parts = version.split(".")
+        # keep the first two if we have them, otherwise return it unchanged
+        return f"{parts[0]}.{parts[1]}" if len(parts) >= 2 else version
+
+    def _emitCondaMpi(self, entry, recipe, candidate, record, prefix):
+        """
+        Emit the configuration for mpi; besides {dir}, the flavor (openmpi or mpich) selects
+        the library names in {mpi/init.mm}
+        """
+        # {dir} tracks the environment root
+        entry["lines"].append("mpi.dir ?= $(conda.prefix)")
+        # the flavor is the conda package that satisfied the dependency
+        entry["lines"].append(f"mpi.flavor ?= {candidate}")
+
+    def _emitCondaSitePackage(self, entry, recipe, candidate, record, prefix):
+        """
+        Emit the configuration for a python package whose headers live in site-packages rather
+        than {prefix}/include (numpy, pybind11); ask the package where its headers are and
+        anchor {dir} to their parent so the {dir}/include and {dir}/lib defaults resolve
+        """
+        # the importable module name and the mm package name
+        module = recipe["module"]
+        target = entry["name"]
+        # ask the package where its headers are
+        includePath = self._queryPythonExpression(
+            f"import {module}; print({module}.get_include())"
+        )
+        # if the query failed, fall back to {conda.prefix}; the defaults won't be right,
+        # but it's the best we can do without the package telling us where it lives
+        if not includePath:
+            # the conservative fallback
+            entry["lines"].append(f"{target}.dir ?= $(conda.prefix)")
+            # nothing more to do
+            return
+        # the package root is the parent of its include directory
+        root = pyre.primitives.path(includePath).parent
+        # if it's within the conda prefix, anchor it to {conda.prefix} so the entry stays
+        # portable across environments
+        try:
+            # express it relative to the environment root
+            relativePath = root.relativeTo(prefix)
+            # and record the anchored form
+            entry["lines"].append(f"{target}.dir ?= $(conda.prefix)/{relativePath}")
+        # otherwise fall back to the absolute path
+        except ValueError:
+            # record where it actually is
+            entry["lines"].append(f"{target}.dir ?= {root}")
+
+    def _emitCondaCuda(self, index, prefix):
+        """
+        Resolve cuda as a capability: it is usable only if the compiler ({cuda-nvcc}) and the
+        runtime dev package ({cuda-cudart-dev}) are both present. The package set is version-
+        keyed — cuda <= 11 is a single {cudatoolkit}, 12.x+ is a split stack — so a partial
+        install is reported and cuda is left out of the database rather than letting the
+        compiler or linker fail later. Returns a database entry, or None if cuda is absent or
+        unusable
+        """
+        # a package family is present if any installed package starts with the stem; conda-forge
+        # ships cuda as cross-arch umbrellas ({cuda-nvcc}) that depend on arch-specific splits
+        # ({cuda-nvcc_linux-64}), and the umbrella is what the user installs
+        def installed(stem):
+            # the umbrella itself, or any of its arch splits
+            return any(name == stem or name.startswith(stem + "_") for name in index)
+
+        # modern conda-forge layout: a split stack pinned by {cuda-version}
+        if "cuda-version" in index:
+            # the families we must have to compile and link cuda code
+            required = ["cuda-nvcc", "cuda-cudart-dev"]
+            # any that are missing make the toolkit unusable
+            missing = [stem for stem in required if not installed(stem)]
+            # if the stack is incomplete
+            if missing:
+                # warn about a systemic problem the user should fix before building
+                warning = journal.warning("mm.pkgdb")
+                # what is wrong
+                warning.line(f"cuda is partially installed in '{prefix}'")
+                # which pieces are missing
+                warning.line(f"missing: {', '.join(missing)}")
+                # the consequence
+                warning.line("cuda support disabled")
+                # flush
+                warning.log()
+                # and leave cuda out of the database
+                return None
+            # the toolkit version comes free from the {cuda-version} pin
+            version = index["cuda-version"][0]
+            # the records that may carry the headers; conda-forge keeps them in the arch split
+            headerRecords = [
+                record
+                for name, (_, _, record) in index.items()
+                if name.startswith("cuda-cudart-dev")
+            ]
+            # provenance for the database comment
+            candidate = "cuda-version + " + " + ".join(required)
+        # legacy single-package layout: everything lives in {cudatoolkit}
+        elif "cudatoolkit" in index:
+            # the version and the one record that owns everything, headers included
+            version, _, record = index["cudatoolkit"]
+            # so that is the only place to look for the headers
+            headerRecords = [record]
+            # provenance
+            candidate = "cudatoolkit"
+        # cuda simply isn't installed in this environment
+        else:
+            # nothing to emit
+            return None
+        # locate {cuda.h} to discover the sysroot: conda-forge keeps it under
+        # targets/<arch>/include and does NOT symlink it into {prefix}/include, so the include
+        # directory and its parent (the root that holds both include/ and lib/) must be read
+        # from the manifest rather than assumed to be {prefix}
+        incdir = None
+        # scan the records that might own the headers
+        for record in headerRecords:
+            # probe this manifest for {cuda.h}
+            incdir = self._condaManifestDir(record, lambda path: path.name == "cuda.h")
+            # stop at the first hit
+            if incdir:
+                break
+        # if the headers turned up, the sysroot is the directory that holds include/ and lib/
+        if incdir:
+            # the cuda root is the parent of the include directory
+            sysroot = incdir.parent
+            # a sysroot of '.' means the headers sit directly under {prefix}/include
+            dirLine = (
+                "cuda.dir ?= $(conda.prefix)"
+                if str(sysroot) == "."
+                else f"cuda.dir ?= $(conda.prefix)/{sysroot}"
+            )
+        # otherwise we cannot trust the include path; warn and fall back to the prefix
+        else:
+            # a warning rather than a hard failure: cuda is installed, just not where we expect
+            warning = journal.warning("mm.pkgdb")
+            # what happened
+            warning.line(f"cuda is installed in '{prefix}' but cuda.h was not found")
+            # the consequence
+            warning.line("falling back to the environment prefix; the include path may be wrong")
+            # flush
+            warning.log()
+            # the conservative fallback
+            dirLine = "cuda.dir ?= $(conda.prefix)"
+        # {dir} drives the {cuda/init.mm} incpath default ({cuda.dir}/include plus the cuda-13
+        # cccl wildcard); the default libpath is {lib64}, which the conda sysroot does not use,
+        # so override it to the sibling {lib} of the include directory
+        lines = [dirLine, "cuda.libpath ?= $(cuda.dir)/lib"]
+        # hand back the entry
+        return {
+            "name": "cuda",
+            "comment": f"cuda {version}  (conda: {candidate})",
+            "version": self._condaMajorMinor(version),
+            "lines": lines,
+        }
 
     def _buildMacportsPackageDatabase(self, db):
         """
@@ -2157,6 +2340,24 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # append the build variant tag and return it
         return bldroot / self._bldTag
 
+    def _condaAgent(self):
+        """
+        Resolve the conda/mamba/micromamba executable. Installers expose the agent as a shell
+        function that finds the real binary through {$MAMBA_EXE} (micromamba, mamba) or
+        {$CONDA_EXE} (conda), so the binary is usually not on {PATH}; consult those exported
+        locations first, then fall back to a {PATH} search
+        """
+        # the installer-exported binary locations, in order of preference
+        for variable in ("MAMBA_EXE", "CONDA_EXE"):
+            # look it up
+            executable = os.environ.get(variable)
+            # if it's set and points at something runnable
+            if executable and os.access(executable, os.X_OK):
+                # use it
+                return executable
+        # otherwise fall back to a {PATH} search, preferring micromamba
+        return shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
+
     def _condaPrefix(self):
         """
         Resolve the installation prefix for a {conda} build; the prefix is the root of the
@@ -2164,17 +2365,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # get the environment name
         envName = self.environment
-        # find the conda agent; prefer micromamba
-        agent = (
-            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
-        )
+        # find the conda agent
+        agent = self._condaAgent()
         # if none found
         if not agent:
             # make a channel
             channel = journal.error("mm.conda")
             # complain
-            channel.line("no conda agent found on PATH")
-            channel.line("tried: micromamba, mamba, conda")
+            channel.line("no conda agent found")
+            channel.line("set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH")
             # flush
             channel.log()
             # and bail, in case errors aren't fatal
