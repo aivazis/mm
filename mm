@@ -364,16 +364,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the python package installation directory; may be overridden by mode-specific logic
         self._pycPrefix = None
         # the syntax dispatch table: maps shell names to (var, value) -> export/unset statement
-        # {value} of None means unset the variable rather than export it
+        # {value} of None means unset the variable rather than export it; every statement is
+        # terminated with a ';' so the lines survive being flattened onto one line — an unquoted
+        # 'eval $(mm --activate)' collapses the newlines, and without the terminator one statement
+        # runs into the next (zsh errors outright, bash silently mis-parses)
         self._syntaxDispatch = {
             "sh": lambda var, value: (
-                f"unset {var}" if value is None else f'export {var}="{value}"'
+                f"unset {var};" if value is None else f'export {var}="{value}";'
             ),
             "csh": lambda var, value: (
-                f"unsetenv {var}" if value is None else f'setenv {var} "{value}"'
+                f"unsetenv {var};" if value is None else f'setenv {var} "{value}";'
             ),
             "fish": lambda var, value: (
-                f"set -e {var}" if value is None else f'set -x {var} "{value}"'
+                f"set -e {var};" if value is None else f'set -x {var} "{value}";'
             ),
         }
         # the mode dispatch tables
