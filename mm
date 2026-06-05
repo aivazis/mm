@@ -134,6 +134,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
+    toolchains = pyre.properties.path()
+    toolchains.default = None
+    toolchains.doc = (
+        "the directory where environment-level developer toolchains are installed"
+    )
+
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
     target.doc = "the list of target variants to build"
@@ -353,6 +359,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldTag = None
         # and the install directory
         self._prefix = None
+        # the directory with the environment-level developer toolchains
+        self._toolchains = None
         # the python package installation directory; may be overridden by mode-specific logic
         self._pycPrefix = None
         # the syntax dispatch table: maps shell names to (var, value) -> export/unset statement
@@ -615,6 +623,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self._bldroot = self.locateBuildRoot()
         # figure out the install directory
         self._prefix = self.locatePrefix()
+        # figure out where the environment-level developer toolchains live
+        self._toolchains = self.locateToolchains()
         # adjust my environment variables with the build configuration
         self.updateEnvironmentVariables()
         # all done
@@ -974,6 +984,23 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         return self._prefixDispatch[self.mode]()
 
+    def locateToolchains(self):
+        """
+        Figure out where environment-level developer toolchains are installed; the location is
+        keyed by the active environment rather than the build context, so a toolchain is shared
+        across every build variant while still tracking where node and python come from
+        """
+        # if the user has expressed an opinion
+        if self.toolchains is not None:
+            # use it
+            return self.toolchains
+        # otherwise anchor on a per-environment directory under the user's tools tree
+        base = pyre.primitives.path("~/tools/mm").expanduser()
+        # get the active environment
+        env = self.environment
+        # and fold it the environment name, when there is one
+        return base / env / "toolchains" if env else base / "toolchains"
+
     def deduceCompilerSuite(self):
         """
         Look through the set of {compilers} to deduce the name of the compiler suite that
@@ -1275,7 +1302,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         traits the user actually set on the command line are emitted
         """
         # the path-determining traits; this set has been stable for years and is cheap to extend
-        for name in ("mode", "bldroot", "prefix", "tag", "environment", "compilers", "target"):
+        for name in (
+            "mode",
+            "bldroot",
+            "prefix",
+            "tag",
+            "environment",
+            "compilers",
+            "target",
+        ):
             # the child reconstructs config-file, environment, and default values by itself
             if not self._fromCommandLine(name):
                 continue
@@ -1309,6 +1344,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"mm.merlin={self._makefile}"
         # the location of the built-in package database
         yield f"mm.extern={self.engine / 'extern'}"
+        # the root of the environment-level developer toolchains
+        yield f"toolchains.home={self._toolchains}"
         # the package manager
         yield f"mm.pkgdb={self.pkgdb}"
         # the list of compilers
@@ -1764,7 +1801,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # unpack the record
             version, build, record = index[candidate]
             # trim to major.minor for packages that key interpreter names and paths off it
-            mmVersion = self._condaMajorMinor(version) if recipe.get("trim") else version
+            mmVersion = (
+                self._condaMajorMinor(version) if recipe.get("trim") else version
+            )
             # the entry, ready for any package-specific configuration lines
             entry = {
                 "name": name,
@@ -1851,6 +1890,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         compiler or linker fail later. Returns a database entry, or None if cuda is absent or
         unusable
         """
+
         # a package family is present if any installed package starts with the stem; conda-forge
         # ships cuda as cross-arch umbrellas ({cuda-nvcc}) that depend on arch-specific splits
         # ({cuda-nvcc_linux-64}), and the umbrella is what the user installs
@@ -1929,7 +1969,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # what happened
             warning.line(f"cuda is installed in '{prefix}' but cuda.h was not found")
             # the consequence
-            warning.line("falling back to the environment prefix; the include path may be wrong")
+            warning.line(
+                "falling back to the environment prefix; the include path may be wrong"
+            )
             # flush
             warning.log()
             # the conservative fallback
@@ -2384,7 +2426,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if result.returncode != 0:
             return []
         # each non-empty line is an absolute path owned by the package
-        return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
+        return [
+            pyre.primitives.path(line) for line in result.stdout.splitlines() if line
+        ]
 
     def _dpkgAnchor(self, path, prefix):
         """
@@ -2530,7 +2574,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # use it
                 return executable
         # otherwise fall back to a {PATH} search, preferring micromamba
-        return shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
+        return (
+            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
+        )
 
     def _condaPrefix(self):
         """
@@ -2547,7 +2593,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line("no conda agent found")
-            channel.line("set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH")
+            channel.line(
+                "set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH"
+            )
             # flush
             channel.log()
             # and bail, in case errors aren't fatal
