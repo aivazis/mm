@@ -68,6 +68,7 @@ typeset -a _mm_global_target_specs=(
     'docker-images.info:List known docker images'
     'webpack.info:List known webpack bundles'
     'vite.info:List known vite bundles'
+    'toolchains.info:List environment-level developer toolchains'
 )
 
 # =============================================================================
@@ -820,6 +821,29 @@ _mm_complete_extern_targets() {
     (( ${#specs} )) && _describe -t extern-targets 'extern package target' specs
 }
 
+# Generate <tool>.{install,update,verify,info,clean} targets from make/toolchains/
+_mm_complete_toolchain_targets() {
+    local mm_home
+    mm_home="$(_mm_find_mm_home)"
+    [[ -z "$mm_home" ]] && return 1
+
+    local tc_dir="$mm_home/make/toolchains"
+    [[ ! -d "$tc_dir" ]] && return 1
+
+    local specs=()
+    local tool_dir tool
+    for tool_dir in "$tc_dir"/*(N/); do
+        tool="${tool_dir:t}"
+        specs+=("${tool}.install:Install the ${tool} toolchain")
+        specs+=("${tool}.update:Update the ${tool} toolchain")
+        specs+=("${tool}.verify:Verify the ${tool} toolchain is present")
+        specs+=("${tool}.info:Show ${tool} toolchain settings")
+        specs+=("${tool}.clean:Remove the ${tool} toolchain")
+    done
+
+    (( ${#specs} )) && _describe -t toolchain-targets 'toolchain target' specs
+}
+
 # Generate targets.{variant}.info targets from make/targets/
 _mm_complete_variant_targets() {
     local mm_home
@@ -916,6 +940,7 @@ mm-target-help() {
             docker-images.info)  echo "List known docker images" ;;
             webpack.info)        echo "List known webpack bundles" ;;
             vite.info)           echo "List known vite bundles" ;;
+            toolchains.info)     echo "List environment-level developer toolchains" ;;
             *.directories)       echo "Create required directories" ;;
             *.assets)            echo "Build all assets" ;;
             *.clean)             echo "Clean artifacts" ;;
@@ -978,6 +1003,9 @@ mm-target-help() {
             *.stage.files)       echo "Stage source files" ;;
             *.stage.modules)     echo "Install/update node modules" ;;
             *.staging.prefix)    echo "Create staging area" ;;
+            *.install)           echo "Install (toolchain or ux bundle)" ;;
+            *.verify)            echo "Verify a toolchain is present" ;;
+            *.update)            echo "Update a toolchain to its pinned version" ;;
             *.info.files)        echo "List source files" ;;
             *.info.staged.files) echo "List staged files" ;;
             *.info.staged.directories) echo "List staged directories" ;;
@@ -1074,6 +1102,7 @@ _mm() {
                 'extern-targets:extern package:_mm_complete_extern_targets' \
                 'variant-targets:variant info:_mm_complete_variant_targets' \
                 'language-targets:language info:_mm_complete_language_targets' \
+                'toolchain-targets:toolchain target:_mm_complete_toolchain_targets' \
                 && ret=0
             ;;
     esac
