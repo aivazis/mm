@@ -55,6 +55,7 @@ tests.info
 docker-images.info
 webpack.info
 vite.info
+toolchains.info
 "
 
 # =============================================================================
@@ -272,6 +273,7 @@ _comp_cmd_mm__get_target_description()
         docker-images.info)  echo "List known docker images" ;;
         webpack.info)        echo "List known webpack bundles" ;;
         vite.info)           echo "List known vite bundles" ;;
+        toolchains.info)     echo "List environment-level developer toolchains" ;;
 
         # --- Per-asset suffix descriptions ---
         *.directories)       echo "Create required directories" ;;
@@ -336,6 +338,9 @@ _comp_cmd_mm__get_target_description()
         *.stage.files)       echo "Stage source files" ;;
         *.stage.modules)     echo "Install/update node modules" ;;
         *.staging.prefix)    echo "Create staging area" ;;
+        *.install)           echo "Install (toolchain or ux bundle)" ;;
+        *.verify)            echo "Verify a toolchain is present" ;;
+        *.update)            echo "Update a toolchain to its pinned version" ;;
         *.info.files)        echo "List source files" ;;
         *.info.staged.files) echo "List staged files" ;;
         *.info.staged.directories) echo "List staged directories" ;;
@@ -830,6 +835,35 @@ _comp_cmd_mm__get_extern_targets()
 }
 
 # =============================================================================
+# Developer toolchain discovery
+# =============================================================================
+
+# Scan the mm installation's make/toolchains/ directory to find available developer
+# toolchains and generate <tool>.{install,update,verify,info,clean} targets
+# @return List of toolchain action targets
+_comp_cmd_mm__get_toolchain_targets()
+{
+    local mm_home
+    mm_home=$(_comp_cmd_mm__find_mm_home)
+
+    [[ -z "$mm_home" ]] && return
+
+    local tc_dir="$mm_home/make/toolchains"
+    [[ ! -d "$tc_dir" ]] && return
+
+    for tool_dir in "$tc_dir"/*/; do
+        [[ ! -d "$tool_dir" ]] && continue
+        local tool
+        tool=$(basename "$tool_dir")
+        echo "$tool.install"
+        echo "$tool.update"
+        echo "$tool.verify"
+        echo "$tool.info"
+        echo "$tool.clean"
+    done
+}
+
+# =============================================================================
 # Dynamic target variant info targets
 # =============================================================================
 
@@ -974,6 +1008,13 @@ _comp_cmd_mm__get_all_targets()
     language_targets=$(_comp_cmd_mm__get_language_targets)
     if [[ -n "$language_targets" ]]; then
         targets="$targets $(echo "$language_targets" | tr '\n' ' ')"
+    fi
+
+    # 9. Developer toolchain action targets (from mm installation)
+    local toolchain_targets
+    toolchain_targets=$(_comp_cmd_mm__get_toolchain_targets)
+    if [[ -n "$toolchain_targets" ]]; then
+        targets="$targets $(echo "$toolchain_targets" | tr '\n' ' ')"
     fi
 
     echo "$targets"

@@ -147,6 +147,12 @@ conda environment with a versioned site-packages).
 : Additional paths to add to make's include path. Useful for injecting
   site-specific make fragments without modifying the project configuration.
 
+`--toolchains=PATH` (trait: `toolchains`)
+: Root directory for environment-level developer toolchains (e.g. playwright).
+  Defaults to `~/tools/mm/$CONDA_DEFAULT_ENV/toolchains`, keyed by the active
+  environment so a toolchain is shared across every build context rather than
+  tied to a build variant. See *Developer toolchains* in the README.
+
 `--color=yes|no`
 : Enable or disable colorised output. Default: `yes` on terminals that support
   it.

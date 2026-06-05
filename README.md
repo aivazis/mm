@@ -211,6 +211,34 @@ of installed packages and uses it to resolve external dependencies
 automatically.
 
 
+## Developer toolchains
+
+Some projects depend on external developer tools — a browser-automation runner,
+a bundler, a linter — that are heavy, version-sensitive, and naturally shared
+across every build of an environment rather than owned by any one project. mm
+installs these as **toolchains**: once per environment, at a shared location
+keyed by the active conda environment (`~/tools/mm/$CONDA_DEFAULT_ENV/toolchains`
+by default, overridable with `--toolchains`). Because the location tracks the
+environment and not the build variant, a toolchain is reused across every build
+context and is never disturbed by `mm clean`.
+
+A project declares the tools it uses; it never installs or reinstalls them. The
+lifecycle is driven from the command line:
+
+```
+mm toolchains          # list the available toolchains and the shared root
+mm playwright.install  # fetch and install one (a deliberate, online action)
+mm playwright.verify   # check it is present; fails a build if it is missing
+mm playwright.info     # show its pinned version and location
+mm playwright.clean    # remove the installation
+```
+
+Builds and tests only **verify** that a toolchain is present — they never reach
+the network. If a required tool is missing, the build stops with a one-line
+instruction to install it. Installation is always an explicit, deliberate step,
+so an offline build never surprises you by trying to download anything.
+
+
 ## Portability
 
 Every C++ source file in an mm project begins with:
