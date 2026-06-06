@@ -39,6 +39,8 @@ languages.info
 suffixes.info
 targets.info
 extern.info
+extern.verify
+extern.db.info
 extern.db.clean
 projects
 projects.boot
@@ -252,7 +254,10 @@ _comp_cmd_mm__get_target_description()
 
         # --- External packages ---
         extern.info)         echo "Show external package support" ;;
+        extern.verify)       echo "Verify all active externals resolve" ;;
+        extern.db.info)      echo "Show the active package database" ;;
         extern.db.clean)     echo "Remove package database file" ;;
+        extern.*.verify)     echo "Verify an external package resolves" ;;
         extern.*.info)       echo "Show info for external package" ;;
 
         # --- Project orchestration ---
@@ -814,8 +819,8 @@ _comp_cmd_mm__get_test_targets()
 # =============================================================================
 
 # Scan the mm installation's make/extern/ directory to find available
-# external packages and generate extern.{name}.info targets
-# @return List of extern.{name}.info targets
+# external packages and generate extern.{name}.{info,verify} targets
+# @return List of extern.{name}.{info,verify} targets
 _comp_cmd_mm__get_extern_targets()
 {
     local mm_home
@@ -831,6 +836,7 @@ _comp_cmd_mm__get_extern_targets()
         local pkg
         pkg=$(basename "$pkg_dir")
         echo "extern.$pkg.info"
+        echo "extern.$pkg.verify"
     done
 }
 

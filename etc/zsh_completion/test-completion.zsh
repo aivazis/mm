@@ -118,6 +118,8 @@ assert_contains "Has 'builder.info' target" "${_mm_global_target_specs[*]}" "bui
 assert_contains "Has 'platform.info' target" "${_mm_global_target_specs[*]}" "platform.info:Show platform"
 assert_contains "Has 'host.info' target" "${_mm_global_target_specs[*]}" "host.info:Show host"
 assert_contains "Has 'extern.info' target" "${_mm_global_target_specs[*]}" "extern.info:Show external"
+assert_contains "Has 'extern.verify' target" "${_mm_global_target_specs[*]}" "extern.verify:Verify all active"
+assert_contains "Has 'extern.db.info' target" "${_mm_global_target_specs[*]}" "extern.db.info:Show the active"
 assert_contains "Has 'extern.db.clean' target" "${_mm_global_target_specs[*]}" "extern.db.clean:Remove package"
 assert_contains "Has 'libraries.info' target" "${_mm_global_target_specs[*]}" "libraries.info:List known"
 assert_contains "Has 'packages.info' target" "${_mm_global_target_specs[*]}" "packages.info:List known"
@@ -521,12 +523,15 @@ echo "\n${BLUE}Test 14: Extern/variant/language target discovery${NC}"
     for pkg_dir in "$extern_dir"/*(N/); do
         local pkg="${pkg_dir:t}"
         extern_specs+=("extern.${pkg}.info")
+        extern_specs+=("extern.${pkg}.verify")
     done
     local extern_list="${extern_specs[*]}"
 
     assert_contains "Extern: gsl" "$extern_list" "extern.gsl.info"
     assert_contains "Extern: hdf5" "$extern_list" "extern.hdf5.info"
     assert_contains "Extern: pyre" "$extern_list" "extern.pyre.info"
+    assert_contains "Extern: gsl verify" "$extern_list" "extern.gsl.verify"
+    assert_contains "Extern: hdf5 verify" "$extern_list" "extern.hdf5.verify"
 
     # Test variant targets
     local targets_dir="$MM_TEMP/make/targets"
@@ -651,11 +656,11 @@ assert_line "Second of two packages" "$ASSETS" "package|edge.pkg2"
 # =============================================================================
 echo "\n${BLUE}Test 18: Global target count${NC}"
 
-# We expect exactly 42 global targets
-if (( ${#_mm_global_target_specs} == 42 )); then
-    pass "Exactly 42 global targets"
+# We expect exactly 45 global targets
+if (( ${#_mm_global_target_specs} == 45 )); then
+    pass "Exactly 45 global targets"
 else
-    fail "Expected 42 global targets, got ${#_mm_global_target_specs}"
+    fail "Expected 45 global targets, got ${#_mm_global_target_specs}"
 fi
 
 # =============================================================================

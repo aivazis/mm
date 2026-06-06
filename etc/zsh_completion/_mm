@@ -52,6 +52,8 @@ typeset -a _mm_global_target_specs=(
     'suffixes.info:Show file extension to language map'
     'targets.info:Show target tag and variants'
     'extern.info:Show external package support'
+    'extern.verify:Verify all active externals resolve'
+    'extern.db.info:Show the active package database'
     'extern.db.clean:Remove package database file'
     'projects:Build all projects'
     'projects.boot:Log build start and setup'
@@ -802,7 +804,7 @@ _mm_complete_verbatim_targets() {
     (( ${#specs} )) && _describe -t verbatim-targets 'verbatim target' specs
 }
 
-# Generate extern.{name}.info targets from make/extern/
+# Generate extern.{name}.{info,verify} targets from make/extern/
 _mm_complete_extern_targets() {
     local mm_home
     mm_home="$(_mm_find_mm_home)"
@@ -816,6 +818,7 @@ _mm_complete_extern_targets() {
     for pkg_dir in "$extern_dir"/*(N/); do
         pkg="${pkg_dir:t}"
         specs+=("extern.${pkg}.info:Show ${pkg} package info")
+        specs+=("extern.${pkg}.verify:Verify ${pkg} resolves")
     done
 
     (( ${#specs} )) && _describe -t extern-targets 'extern package target' specs
@@ -924,7 +927,10 @@ mm-target-help() {
             suffixes.info)       echo "Show file extension to language map" ;;
             targets.info)        echo "Show target tag and variants" ;;
             extern.info)         echo "Show external package support" ;;
+            extern.verify)       echo "Verify all active externals resolve" ;;
+            extern.db.info)      echo "Show the active package database" ;;
             extern.db.clean)     echo "Remove package database file" ;;
+            extern.*.verify)     echo "Verify an external package resolves" ;;
             projects)            echo "Build all projects" ;;
             projects.boot)       echo "Log build start and setup" ;;
             projects.shutdown)   echo "Log build finish" ;;
