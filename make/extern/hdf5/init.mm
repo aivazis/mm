@@ -18,6 +18,8 @@ hdf5.flags ?=
 hdf5.defines := WITH_HDF5
 # the canonical form of the include directory
 hdf5.incpath ?= $(hdf5.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+hdf5.markers.headers ?= hdf5.h H5Cpp.h
 
 # linker flags
 hdf5.ldflags ?=

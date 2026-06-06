@@ -16,6 +16,8 @@ eigen.flags ?=
 eigen.defines := WITH_EIGEN3
 # the canonical form of the include directory
 eigen.incpath ?= $(eigen.dir)/include/eigen3
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+eigen.markers.headers ?= Eigen/Core
 
 # linker flags
 eigen.ldflags ?=

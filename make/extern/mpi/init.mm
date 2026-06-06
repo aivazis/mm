@@ -27,6 +27,8 @@ mpi.defines := \
     ${if ${findstring openmpi,$(mpi.flavor)}, WITH_OPENMPI,} \
 # the canonical form of the include directory
 mpi.incpath ?= $(mpi.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+mpi.markers.headers ?= mpi.h
 
 # linker flags
 mpi.ldflags ?=

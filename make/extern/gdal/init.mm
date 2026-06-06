@@ -16,6 +16,8 @@ gdal.flags ?=
 gdal.defines := WITH_GDAL
 # the canonical form of the include directory
 gdal.incpath ?= $(gdal.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+gdal.markers.headers ?= gdal.h
 
 # linker flags
 gdal.ldflags ?=

@@ -16,6 +16,8 @@ cantera.flags ?=
 cantera.defines ?= WITH_CANTERA
 # the canonical form of the include directory
 cantera.incpath ?= $(cantera.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+cantera.markers.headers ?= cantera/base/ct_defs.h
 
 # linker flags
 cantera.ldflags ?=

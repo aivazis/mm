@@ -19,6 +19,8 @@ vtk.flags ?=
 vtk.defines := WITH_VTK
 # the canonical form of the include directory
 vtk.incpath ?= $(vtk.dir)/include/vtk-$(vtk.version)
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+vtk.markers.headers ?= vtkVersion.h
 
 # linker flags
 vtk.ldflags ?=

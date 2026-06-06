@@ -16,6 +16,8 @@ openblas.flags ?=
 openblas.defines := WITH_OPENBLAS
 # the canonical form of the include directory
 openblas.incpath ?= $(openblas.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+openblas.markers.headers ?= cblas.h
 
 # linker flags
 openblas.ldflags ?=

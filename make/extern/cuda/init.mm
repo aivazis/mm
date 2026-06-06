@@ -16,6 +16,8 @@ cuda.flags ?=
 cuda.defines += WITH_CUDA
 # the canonical form of the include directory; cuda 13+ reorganized headers under cccl/
 cuda.incpath ?= $(cuda.dir)/include ${wildcard $(cuda.dir)/include/cccl}
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+cuda.markers.headers ?= cuda_runtime.h
 
 # linker flags
 cuda.ldflags ?=

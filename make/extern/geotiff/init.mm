@@ -16,6 +16,8 @@ geotiff.flags ?=
 geotiff.defines := WITH_GEOTIFF
 # the canonical form of the include directory
 geotiff.incpath ?= $(geotiff.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+geotiff.markers.headers ?= geotiff.h
 
 # linker flags
 geotiff.ldflags ?=

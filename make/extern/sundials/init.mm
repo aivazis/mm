@@ -16,6 +16,8 @@ sundials.flags ?=
 sundials.defines ?= WITH_SUNDIALS
 # the canonical form of the include directory
 sundials.incpath ?= $(sundials.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+sundials.markers.headers ?= sundials/sundials_config.h
 
 # linker flags
 sundials.ldflags ?=

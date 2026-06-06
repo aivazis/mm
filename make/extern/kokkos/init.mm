@@ -16,6 +16,8 @@ kokkos.flags ?=
 kokkos.defines := WITH_KOKKOS
 # the canonical form of the include directory
 kokkos.incpath ?= $(kokkos.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+kokkos.markers.headers ?= Kokkos_Core.hpp
 
 # linker flags
 kokkos.ldflags ?=
