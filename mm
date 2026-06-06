@@ -1778,7 +1778,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": {"candidates": ["slepc"]},
             "sundials": {"candidates": ["sundials"]},
             "vtk": {"candidates": ["vtk"]},
-            "yaml": {"candidates": ["yaml-cpp", "yaml"]},
+            "yaml-cpp": {"candidates": ["yaml-cpp"]},
         }
 
     def _condaExceptions(self):
@@ -2179,7 +2179,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": ["slepc"],
             "sundials": ["sundials"],
             "vtk": ["vtk9", "vtk"],
-            "yaml": ["yaml-cpp"],
+            "yaml-cpp": ["yaml-cpp"],
         }
         # collect the packages that are present in this installation
         found = {}
@@ -2379,7 +2379,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": ["slepc-dev"],
             "sundials": ["libsundials-dev"],
             "vtk": ["libvtk9-dev", "libvtk7-dev"],
-            "yaml": ["libyaml-cpp-dev"],
+            "yaml-cpp": ["libyaml-cpp-dev"],
         }
         # collect the packages present on this system
         found = {}

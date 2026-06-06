@@ -27,7 +27,7 @@ cantera.rpath = $(cantera.libpath)
 cantera.libraries ?= cantera cantera_fortran
 
 # my dependencies
-cantera.dependencies := eigen sundials openblas yaml fmt fortran
+cantera.dependencies := eigen sundials openblas yaml-cpp fmt fortran
 
 
 # end of file
