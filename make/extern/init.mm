@@ -92,4 +92,62 @@ extern.link.options = \
     }
 
 
+# the header markers of a package that do not resolve anywhere on its include path; a
+# non-empty result is proof the package cannot be compiled against as currently configured
+#  usage: extern.markers.headers.missing {package}
+extern.markers.headers.missing = \
+    ${strip \
+        ${foreach marker, $($(1).markers.headers), \
+            ${if ${wildcard ${addsuffix /$(marker),$($(1).incpath)}},,$(marker)} \
+        } \
+    }
+
+
+# the candidate linker filenames for a library across a package's library path; the linker
+# resolves {-lfoo} to {libfoo} with a shared or static suffix, so probe all three
+#  usage: extern.markers.lib.candidates {package} {library}
+extern.markers.lib.candidates = \
+    ${foreach dir, $($(1).libpath), \
+        ${addprefix $(dir)/lib$(2),.so .dylib .a} \
+    }
+
+
+# the libraries of a package that resolve to no file on its library path; a non-empty result
+# is proof the package cannot be linked against as currently configured
+#  usage: extern.markers.libraries.missing {package}
+extern.markers.libraries.missing = \
+    ${strip \
+        ${foreach lib, $($(1).libraries), \
+            ${if ${wildcard ${call extern.markers.lib.candidates,$(1),$(lib)}},,$(lib)} \
+        } \
+    }
+
+
+# the complete set of unresolved markers for a package; empty when the package checks out
+#  usage: extern.markers.problems {package}
+extern.markers.problems = \
+    ${strip \
+        ${call extern.markers.headers.missing,$(1)} \
+        ${call extern.markers.libraries.missing,$(1)} \
+    }
+
+
+# the loaded externals whose every marker resolves
+extern.markers.ok = \
+    ${strip \
+        ${foreach package, $(projects.extern.loaded), \
+            ${if ${call extern.markers.problems,$(package)},,$(package)} \
+        } \
+    }
+
+
+# the loaded externals with at least one unresolved marker
+extern.markers.broken = \
+    ${strip \
+        ${foreach package, $(projects.extern.loaded), \
+            ${if ${call extern.markers.problems,$(package)},$(package),} \
+        } \
+    }
+
+
 # end of file
