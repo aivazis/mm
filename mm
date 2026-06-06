@@ -1743,7 +1743,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "cantera": {"candidates": ["cantera"]},
             "catch2": {"candidates": ["catch2"]},
             "cgal": {"candidates": ["cgal"]},
-            "cspice": {"candidates": ["cspice", "naif-cspice"]},
+            "cspice": {
+                "candidates": ["cspice", "naif-cspice"],
+                "handler": "_emitCondaCspice",
+            },
             "cuda": {"capability": "_emitCondaCuda"},
             "eigen": {"candidates": ["eigen"]},
             "fftw": {"candidates": ["fftw"]},
@@ -1915,6 +1918,34 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         entry["lines"].append("mpi.dir ?= $(conda.prefix)")
         # the flavor is the conda package that satisfied the dependency
         entry["lines"].append(f"mpi.flavor ?= {candidate}")
+
+    def _emitCondaCspice(self, entry, recipe, candidate, record, prefix):
+        """
+        Emit the configuration for cspice; CSPICE code includes its umbrella header flat, as
+        {<SpiceUsr.h>}, but conda relocates the canonically flat headers into an
+        {include/cspice} subdirectory, so the include path must point at wherever
+        {SpiceUsr.h} actually landed rather than the {cspice/init.mm} default of {dir}/include
+        """
+        # {dir} tracks the environment root so the {libpath} default still resolves
+        entry["lines"].append("cspice.dir ?= $(conda.prefix)")
+        # ask the install manifest which directory the umbrella header landed in
+        incdir = self._condaManifestDir(record, lambda path: path.name == "SpiceUsr.h")
+        # if the header turned up, point {incpath} straight at its directory so the flat
+        # {<SpiceUsr.h>} include resolves; this absorbs the conda {cspice} subdirectory and
+        # collapses to {dir}/include for a canonically flat install
+        if incdir:
+            # anchor it to the environment root
+            entry["lines"].append(f"cspice.incpath ?= $(conda.prefix)/{incdir}")
+        # otherwise we cannot trust the include path; warn and leave the init.mm default
+        else:
+            # a warning rather than a hard failure: cspice is installed, just not where we expect
+            warning = journal.warning("mm.pkgdb")
+            # what happened
+            warning.line(f"cspice is installed in '{prefix}' but SpiceUsr.h was not found")
+            # the consequence
+            warning.line("leaving the default include path; it may be wrong")
+            # flush
+            warning.log()
 
     def _emitCondaSitePackage(self, entry, recipe, candidate, record, prefix):
         """
