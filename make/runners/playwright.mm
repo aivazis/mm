@@ -8,9 +8,12 @@
 # a staging area; it discovers its own specs and starts servers through playwright.config.ts, so
 # serial vs parallel routing and server fixtures are its concern, not ours
 runner.playwright.prepare := staged
-runner.playwright.launch := npx playwright test
+# invoke the executable directly rather than through {npx}: with the toolchain's {node_modules/.bin}
+# on {PATH}, {playwright} resolves to the installed binary, and a missing one fails loudly instead
+# of {npx} silently fetching a copy from the network
+runner.playwright.launch := playwright test
 runner.playwright.doc := "node end-to-end runner; owns the browsers and the servers under test"
-runner.playwright.suite := "stage.modules: the ux bundle's node_modules"
+runner.playwright.suite := "toolchain: declare {playwright} so mm wires NODE_PATH, PATH, and browsers"
 
 
 # end of file
