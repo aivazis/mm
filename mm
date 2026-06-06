@@ -1627,6 +1627,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         index = self._condaMetaIndex(meta)
         # the registry of supported externals and how each maps to conda packages
         recipes = self._condaRecipes()
+        # the externals that intentionally have no conda recipe
+        exceptions = self._condaExceptions()
+        # warn if make/extern has gained a package neither registry accounts for
+        self._condaCheckCoverage(recipes, exceptions)
         # resolve them against the installed packages
         entries = self._condaResolve(recipes, index, prefix)
         # report what we found
@@ -1769,12 +1773,74 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 "handler": "_emitCondaSitePackage",
                 "module": "pybind11",
             },
+            "pyre": {"candidates": ["pyre"]},
             "python": {"candidates": ["python"], "trim": True},
             "slepc": {"candidates": ["slepc"]},
             "sundials": {"candidates": ["sundials"]},
             "vtk": {"candidates": ["vtk"]},
             "yaml": {"candidates": ["yaml-cpp", "yaml"]},
         }
+
+    def _condaExceptions(self):
+        """
+        The registry of supported externals that intentionally have no conda recipe, each
+        mapped to the reason; these are packages mm knows how to use but that cannot — or
+        should not — be discovered in a conda environment because they are installed from
+        source, managed by the user, or are not conda packages at all. Listed here so the
+        coverage check can tell a deliberate omission from a genuine gap
+        """
+        # name -> why it has no conda recipe
+        return {
+            "fmm3d": "user-managed; not generally available on conda-forge",
+            "fortran": "pseudo-package; enables mixing fortran into a build, contributing "
+            "the compiler's fortran runtime ($(compiler.fortran).mixed.libraries) at link "
+            "time — a toolchain capability, not a discoverable conda library",
+            "libtorch": "user-managed; not generally available on conda-forge",
+            "p2": "internal; sandbox for the next generation of pyre",
+            "summit": "source-only; in-house finite element code",
+        }
+
+    def _condaCheckCoverage(self, recipes, exceptions):
+        """
+        Compare the externals mm supports — the package directories under {engine}/extern —
+        against the union of the conda {recipes} and the {exceptions} registry, and warn about
+        any covered by neither; such an orphan means a package was added to make/extern without
+        teaching the conda layer how to find it or marking it deliberately exempt
+        """
+        # the directory that holds one subdirectory per supported external
+        externDir = self.engine / "extern"
+        # if it isn't there, there is nothing to check; mm is installed in an unexpected way
+        if not externDir.isDirectory():
+            # quietly skip
+            return
+        # the externals the conda layer accounts for, one way or another
+        known = set(recipes) | set(exceptions)
+        # the supported externals are the subdirectories; loose files (init.mm, rules.mm, ...)
+        # are framework glue, not packages
+        orphans = sorted(
+            entry
+            for entry in os.listdir(str(externDir))
+            if (externDir / entry).isDirectory() and entry not in known
+        )
+        # if every supported package is accounted for, we are done
+        if not orphans:
+            return
+        # otherwise tell the developer; a warning rather than an error so it never blocks a
+        # build — the orphan may deserve a recipe, an exception entry, or neither in this env
+        warning = journal.warning("mm.pkgdb")
+        # what happened
+        warning.line("these externals under make/extern have no conda recipe:")
+        # name them
+        warning.indent()
+        # one per line
+        for orphan in orphans:
+            # the offending package
+            warning.line(orphan)
+        warning.outdent()
+        # what to do about it
+        warning.line("add a recipe to _condaRecipes, or list it in _condaExceptions")
+        # flush
+        warning.log()
 
     def _condaResolve(self, recipes, index, prefix):
         """
