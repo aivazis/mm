@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring geotiff,$(extern)},,geotiff}
+extern += ${if ${filter geotiff,$(extern)},,geotiff}
 
 # # find my configuration file
 geotiff.config := ${dir ${call extern.config,geotiff}}

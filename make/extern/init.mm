@@ -34,7 +34,7 @@ extern.exists = \
 define extern.is.supported =
     ${strip
         ${foreach dependency, $(1),
-            ${findstring $(dependency),$(extern.supported)}
+            ${filter $(dependency),$(extern.supported)}
         }
     }
 endef
@@ -45,7 +45,7 @@ endef
 define extern.is.available =
     ${strip
         ${foreach dependency, $(1),
-            ${findstring $(dependency),$(extern.available)}
+            ${filter $(dependency),$(extern.available)}
         }
     }
 endef

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring kokkos,$(extern)},,kokkos}
+extern += ${if ${filter kokkos,$(extern)},,kokkos}
 
 # find my configuration file
 kokkos.config := ${dir ${call extern.config,kokkos}}

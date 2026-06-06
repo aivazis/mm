@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring petsc,$(extern)},,petsc}
+extern += ${if ${filter petsc,$(extern)},,petsc}
 
 # # find my configuration file
 petsc.config := ${dir ${call extern.config,petsc}}

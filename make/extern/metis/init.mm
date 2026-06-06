@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring metis,$(extern)},,metis}
+extern += ${if ${filter metis,$(extern)},,metis}
 
 # # find my configuration file
 metis.config := ${dir ${call extern.config,metis}}

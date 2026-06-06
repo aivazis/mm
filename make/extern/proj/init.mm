@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring proj,$(extern)},,proj}
+extern += ${if ${filter proj,$(extern)},,proj}
 
 # # find my configuration file
 proj.config := ${dir ${call extern.config,proj}}

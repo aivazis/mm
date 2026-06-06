@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring yaml-cpp,$(extern)},,yaml-cpp}
+extern += ${if ${filter yaml-cpp,$(extern)},,yaml-cpp}
 
 # find my configuration file
 yaml-cpp.config := ${dir ${call extern.config,yaml-cpp}}

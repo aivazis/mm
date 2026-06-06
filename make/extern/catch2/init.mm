@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring catch2,$(extern)},,catch2}
+extern += ${if ${filter catch2,$(extern)},,catch2}
 
 # find my configuration file
 catch2.config := ${dir ${call extern.config,catch2}}

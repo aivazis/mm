@@ -4,8 +4,7 @@
 # (c) 1998-2026 all rights reserved
 
 
-# add me to the pile; {filter} matches whole words, so it does not collide with {yaml-cpp}
-# the way {findstring} would
+# add me to the pile
 extern += ${if ${filter yaml,$(extern)},,yaml}
 
 # find my configuration file

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring gtest,$(extern)},,gtest}
+extern += ${if ${filter gtest,$(extern)},,gtest}
 
 # # find my configuration file
 gtest.config := ${dir ${call extern.config,gtest}}
