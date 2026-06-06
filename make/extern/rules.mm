@@ -19,6 +19,37 @@ extern.info:
 	@${call log.var,$(mm.pkgdb),$(builder.staging)pkg-$(mm.pkgdb).db}
 
 
+# the body of a per-package verification report, rendered as recipe lines; it is expanded
+# only for packages whose {init.mm} has been loaded, so the marker variables it reads are
+# guaranteed to be defined
+define extern.verify.report =
+	@${call log.var,"incpath","$($(1).incpath)"}
+	@${call log.var,"header markers","$($(1).markers.headers)"}
+	@${if ${call extern.markers.headers.missing,$(1)},${call log.error,"unresolved headers: ${call extern.markers.headers.missing,$(1)}"},${call log.info,"headers ok"}}
+	@${call log.var,"libpath","$($(1).libpath)"}
+	@${call log.var,"libraries","$($(1).libraries)"}
+	@${if ${call extern.markers.libraries.missing,$(1)},${call log.error,"unresolved libraries: ${call extern.markers.libraries.missing,$(1)}"},${call log.info,"libraries ok"}}
+endef
+
+
+# verify that a package's declared markers resolve against its fully-resolved include and
+# library paths; this reads the effective make variables, so it honors anything the user
+# overrode in their adhoc config, which a package-database-time check cannot see. only the
+# project's loaded externs carry their marker declarations, so anything else gets a hint
+extern.%.verify:
+	@${call log.sec,"$*","marker verification"}
+	${if ${filter $*,$(projects.extern.loaded)}, \
+	    ${call extern.verify.report,$*}, \
+	    @${call log.warning,"$* is not an active external here; add it to the .extern of an asset to verify it"}}
+
+
+# verify every external the project actually loads, reported as a verified set and a broken set
+extern.verify:
+	@${call log.sec,"extern","marker verification"}
+	@${call log.var,"verified","$(extern.markers.ok)"}
+	@${call log.var,"broken","$(extern.markers.broken)"}
+
+
 # package database management
 define extern.workflows.pkgdb
 
