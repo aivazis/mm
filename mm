@@ -1781,6 +1781,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": {"candidates": ["slepc"]},
             "sundials": {"candidates": ["sundials"]},
             "vtk": {"candidates": ["vtk"]},
+            "yaml": {"candidates": ["yaml"]},
             "yaml-cpp": {"candidates": ["yaml-cpp"]},
         }
 
@@ -2210,6 +2211,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": ["slepc"],
             "sundials": ["sundials"],
             "vtk": ["vtk9", "vtk"],
+            "yaml": ["libyaml"],
             "yaml-cpp": ["yaml-cpp"],
         }
         # collect the packages that are present in this installation
@@ -2410,6 +2412,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "slepc": ["slepc-dev"],
             "sundials": ["libsundials-dev"],
             "vtk": ["libvtk9-dev", "libvtk7-dev"],
+            "yaml": ["libyaml-dev"],
             "yaml-cpp": ["libyaml-cpp-dev"],
         }
         # collect the packages present on this system
