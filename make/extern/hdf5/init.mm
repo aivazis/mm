@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring hdf5,$(extern)},,hdf5}
+extern += ${if ${filter hdf5,$(extern)},,hdf5}
 
 # find my configuration file
 hdf5.config := ${dir ${call extern.config,hdf5}}

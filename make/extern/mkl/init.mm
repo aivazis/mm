@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring mkl,$(extern)},,mkl}
+extern += ${if ${filter mkl,$(extern)},,mkl}
 
 # find my configuration file
 mkl.config := ${dir ${call extern.config,mkl}}

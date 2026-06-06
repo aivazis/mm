@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring sundials,$(extern)},,sundials}
+extern += ${if ${filter sundials,$(extern)},,sundials}
 
 # # find my configuration file
 sundials.config := ${dir ${call extern.config,sundials}}

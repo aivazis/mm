@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring gsl,$(extern)},,gsl}
+extern += ${if ${filter gsl,$(extern)},,gsl}
 
 # # find my configuration file
 gsl.config := ${dir ${call extern.config,gsl}}

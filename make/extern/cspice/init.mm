@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring cspice,$(extern)},,cspice}
+extern += ${if ${filter cspice,$(extern)},,cspice}
 
 # # find my configuration file
 cspice.config := ${dir ${call extern.config,cspice}}

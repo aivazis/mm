@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring libpq,$(extern)},,libpq}
+extern += ${if ${filter libpq,$(extern)},,libpq}
 
 # # find my configuration file
 libpq.config := ${dir ${call extern.config,libpq}}

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring cgal,$(extern)},,cgal}
+extern += ${if ${filter cgal,$(extern)},,cgal}
 
 # find my configuration file
 cgal.config := ${dir ${call extern.config,cgal}}

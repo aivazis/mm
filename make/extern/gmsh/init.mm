@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring gmsh,$(extern)},,gmsh}
+extern += ${if ${filter gmsh,$(extern)},,gmsh}
 
 # # find my configuration file
 gmsh.config := ${dir ${call extern.config,gmsh}}

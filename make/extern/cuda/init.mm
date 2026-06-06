@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring cuda,$(extern)},,cuda}
+extern += ${if ${filter cuda,$(extern)},,cuda}
 
 # find my configuration file
 cuda.config := ${dir ${call extern.config,cuda}}

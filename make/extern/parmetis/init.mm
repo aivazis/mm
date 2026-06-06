@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring parmetis,$(extern)},,parmetis}
+extern += ${if ${filter parmetis,$(extern)},,parmetis}
 
 # # find my configuration file
 parmetis.config := ${dir ${call extern.config,parmetis}}

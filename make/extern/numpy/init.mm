@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring numpy,$(extern)},,numpy}
+extern += ${if ${filter numpy,$(extern)},,numpy}
 
 # # find my configuration file
 numpy.config := ${dir ${call extern.config,numpy}}

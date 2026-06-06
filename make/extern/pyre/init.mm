@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring pyre,$(extern)},,pyre}
+extern += ${if ${filter pyre,$(extern)},,pyre}
 
 # # find my configuration file
 pyre.config := ${dir ${call extern.config,pyre}}

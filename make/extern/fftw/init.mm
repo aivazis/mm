@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring fftw,$(extern)},,fftw}
+extern += ${if ${filter fftw,$(extern)},,fftw}
 
 # # find my configuration file
 fftw.config := ${dir ${call extern.config,fftw}}

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring cantera,$(extern)},,cantera}
+extern += ${if ${filter cantera,$(extern)},,cantera}
 
 # # find my configuration file
 cantera.config := ${dir ${call extern.config,cantera}}

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring gdal,$(extern)},,gdal}
+extern += ${if ${filter gdal,$(extern)},,gdal}
 
 # # find my configuration file
 gdal.config := ${dir ${call extern.config,gdal}}

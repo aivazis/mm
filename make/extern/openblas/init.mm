@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring openblas,$(extern)},,openblas}
+extern += ${if ${filter openblas,$(extern)},,openblas}
 
 # # find my configuration file
 openblas.config := ${dir ${call extern.config,openblas}}

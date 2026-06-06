@@ -4,7 +4,7 @@
 # (c) 1998-2025 all rights reserved
 
 # add to extern list unless already present
-extern += ${if ${findstring libtorch,$(extern)},,libtorch}
+extern += ${if ${filter libtorch,$(extern)},,libtorch}
 
 # # find my configuration file
 libtorch.config := ${dir ${call extern.config,libtorch}}

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring pybind11,$(extern)},,pybind11}
+extern += ${if ${filter pybind11,$(extern)},,pybind11}
 
 # # find my configuration file
 pybind11.config := ${dir ${call extern.config,pybind11}}

@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring mpi,$(extern)},,mpi}
+extern += ${if ${filter mpi,$(extern)},,mpi}
 
 # # find my configuration file
 mpi.config := ${dir ${call extern.config,mpi}}

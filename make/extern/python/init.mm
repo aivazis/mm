@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring python,$(extern)},,python}
+extern += ${if ${filter python,$(extern)},,python}
 
 # find my configuration file
 python.config := ${dir ${call extern.config,python}}

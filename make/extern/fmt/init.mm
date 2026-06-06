@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring fmt,$(extern)},,fmt}
+extern += ${if ${filter fmt,$(extern)},,fmt}
 
 # # find my configuration file
 fmt.config := ${dir ${call extern.config,fmt}}

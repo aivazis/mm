@@ -5,7 +5,7 @@
 
 
 # add me to the pile
-extern += ${if ${findstring vtk,$(extern)},,vtk}
+extern += ${if ${filter vtk,$(extern)},,vtk}
 
 # # find my configuration file
 vtk.config := ${dir ${call extern.config,vtk}}
