@@ -29,6 +29,17 @@ define toolchain.init =
     ${eval toolchain.$(1).home := $(toolchains.home)/$(1)}
     # the artifact whose presence proves the tool is installed and intact
     ${eval toolchain.$(1).sentinel ?= $(toolchain.$(1).home)/node_modules/.bin/$(1)}
+
+    # the consumer interface: what a project that declares it uses this tool needs in order to
+    # reach the installation. a {node} tool contributes its {node_modules} to {NODE_PATH} so the
+    # suite's own sources resolve their bare imports, and its {node_modules/.bin} to {PATH} so the
+    # runner can invoke the tool's executable; other kinds contribute nothing here and rely entirely
+    # on {env} below
+    ${eval toolchain.$(1).modules ?= ${if ${filter node,$(toolchain.$(1).kind)},$(toolchain.$(1).home)/node_modules,}}
+    ${eval toolchain.$(1).bin ?= ${if ${filter node,$(toolchain.$(1).kind)},$(toolchain.$(1).home)/node_modules/.bin,}}
+    # extra environment a consumer must set to use the tool, beyond {NODE_PATH} and {PATH}; tool
+    # specific, so each definition fills it in (e.g. a browser path); empty when nothing more is needed
+    ${eval toolchain.$(1).env ?=}
 # all done
 endef
 

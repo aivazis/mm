@@ -14,6 +14,11 @@ toolchain.playwright.version := 1.60.0
 # self-contained, so {playwright.clean} removes everything and environments cannot drift
 toolchain.playwright.browsers = $(toolchain.playwright.home)/browsers
 
+# the consumer environment: a project using playwright must point it at these browsers, since they
+# live inside the toolchain rather than the default per-user cache. {modules} is supplied generically
+# by {toolchain.init} for {node} tools, so it is not repeated here
+toolchain.playwright.env = PLAYWRIGHT_BROWSERS_PATH=$(toolchain.playwright.browsers)
+
 
 # install the toolchain: stage the pinned manifest, fetch the framework, then the browsers
 playwright.install:

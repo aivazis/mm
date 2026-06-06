@@ -141,7 +141,19 @@ define test.workflows.runner =
     # wins over the runner default, then the args
     ${eval _base := ${if $($(1).runner.launch),$($(1).runner.launch),$(runner.$(_runner).launch)}}
     ${eval _launch := ${if ${filter compiled,$(_prepare)},$(_binary) $($(1).argv),${strip $(_base) $(runner.$(_runner).argv) $($(1).argv)}}}
-    ${eval _env := ${strip $(runner.$(_runner).env) $($(1).env)}}
+    # the toolchains this suite opted into, if any; fold each one's consumer interface into the
+    # runner environment: {node} tools contribute their {node_modules} to a single {NODE_PATH} -- a
+    # list, so several tools coexist without colliding -- plus whatever extra environment each tool
+    # needs to be found (e.g. a browser path). this is scoped to the suite launch, so a project that
+    # does not opt in is untouched
+    ${eval _tools := $($(1).toolchain)}
+    ${eval _modules := ${strip ${foreach _t,$(_tools),$(toolchain.$(_t).modules)}}}
+    ${eval _nodepath := ${if $(_modules),NODE_PATH=${subst $(space),:,$(_modules)},}}
+    # the tool bin directories, colon-joined, prepended to {PATH} at launch (see {.run}) so the
+    # launch command resolves to the toolchain's executable
+    ${eval _toolbin := ${subst $(space),:,${strip ${foreach _t,$(_tools),$(toolchain.$(_t).bin)}}}}
+    ${eval _toolenv := ${strip ${foreach _t,$(_tools),$(toolchain.$(_t).env)}}}
+    ${eval _env := ${strip $(runner.$(_runner).env) $(_nodepath) $(_toolenv) $($(1).env)}}
     # the working directory: a {staged} runner runs from the staging area, everything else in place
     ${eval _workdir := ${if ${filter staged,$(_prepare)},$(_stageroot),$($(1).prefix)}}
 
@@ -159,15 +171,20 @@ $(1): $(1).post
 $(1).pre: $($(1).pre)
 
 # prepare the environment; for {staged}, mirror the suite into the staging area and link the
-# modules in as node_modules; for {compiled}, depend on the built binary
-$(1).prepare: $($(1).prerequisites) $(1).pre ${if ${filter compiled,$(_prepare)},$(_binary),}
+# modules in as node_modules; for {compiled}, depend on the built binary. before anything, verify
+# every toolchain the suite opted into is installed, so a missing tool fails here with an
+# actionable message rather than partway through the runner
+$(1).prepare: $($(1).prerequisites) $(1).pre ${foreach _t,$(_tools),$(_t).verify} ${if ${filter compiled,$(_prepare)},$(_binary),}
 	@${call log.action,prepare,$(1)}
 	${if ${filter staged,$(_prepare)},@$(mkdirp) $(_stageroot) && $(cp.fr) $($(1).prefix). $(_stageroot)${if $($(1).stage.modules), && $(ln) -sfn $($(1).stage.modules) $(_stageroot)node_modules,},@true}
 
-# invoke the runner once, from the prepared working directory; its exit code decides pass/fail
+# invoke the runner once, from the prepared working directory; its exit code decides pass/fail.
+# the tool bin directories are prepended to the inherited {PATH} ({$(PATH)} is the environment path
+# make imported at startup), so the launch resolves the toolchain executable while node, git, and
+# the server under test stay reachable
 $(1).run: $(1).prepare
 	@${call log.action,$(_runner),$(1)}
-	@$(cd) $(_workdir) ; $(_env) $(_launch)
+	@$(cd) $(_workdir) ; ${if $(_toolbin),PATH="$(_toolbin):$(PATH)" ,}$(_env) $(_launch)
 
 # teardown
 $(1).post: $(1).run $($(1).post)
@@ -188,6 +205,9 @@ $(1).info.runner:
 	@${call log.var,launch,$(_launch)}
 	@${call log.var,workdir,$(_workdir)}
 	@${call log.var,modules,$($(1).stage.modules)}
+	@${call log.var,toolchain,$(_tools)}
+	@${call log.var,path,$(_toolbin)}
+	@${call log.var,env,$(_env)}
 
 # just in case...
 .PHONY: $(1) $(1).pre $(1).prepare $(1).run $(1).post $(1).clean

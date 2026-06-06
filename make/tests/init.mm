@@ -21,6 +21,12 @@ define tests.init =
     # the stem for generating test suite specific names
     ${eval $(2).stem ?= $($(1).stem)}
 
+    # the environment-level toolchains this suite uses, if any; opt-in and empty by default, so a
+    # suite that names none is untouched. mm verifies each is installed before the suite runs and
+    # folds its consumer interface (node_modules onto NODE_PATH, plus any tool specific env) into
+    # the runner invocation, scoped to this suite
+    ${eval $(2).toolchain ?=}
+
     # if set, the suite delegates to a self-discovering test runner (playwright, vitest, ...)
     # instead of mm enumerating per-file drivers
     ${eval $(2).runner ?=}
@@ -97,7 +103,7 @@ define tests.init =
     $(2).metadoc.artifacts := "information about the test cases"
 
     # category documentation
-    $(2).meta.general := project stem name
+    $(2).meta.general := project stem name toolchain
     $(2).meta.extern := extern.requested extern.supported extern.available
     $(2).meta.artifacts := root prefix runner staged stage.prefix stage.modules
 
@@ -106,6 +112,7 @@ define tests.init =
     $(2).metadoc.project := "the name of the project to which this test suite belongs"
     $(2).metadoc.name := "the name of the test suite"
     $(2).metadoc.stem := "the stem for generating test suite specific names"
+    $(2).metadoc.toolchain := "the environment-level toolchains this suite uses (opt-in)"
     # dependencies
     $(2).metadoc.extern.requested := "requested dependencies"
     $(2).metadoc.extern.supported := "the dependencies for which there is mm support"
