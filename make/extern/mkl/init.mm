@@ -16,6 +16,8 @@ mkl.flags ?=
 mkl.defines := WITH_MKL
 # the canonical form of the include directory
 mkl.incpath ?= $(mkl.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+mkl.markers.headers ?= mkl.h
 
 # linker flags
 mkl.ldflags ?=

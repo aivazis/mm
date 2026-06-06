@@ -16,6 +16,8 @@ fmt.flags ?=
 fmt.defines ?= WITH_FMT
 # the canonical form of the include directory
 fmt.incpath ?= $(fmt.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+fmt.markers.headers ?= fmt/format.h
 
 # linker flags
 fmt.ldflags ?=

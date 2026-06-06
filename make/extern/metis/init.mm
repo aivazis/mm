@@ -16,6 +16,8 @@ metis.flags ?=
 metis.defines := WITH_METIS
 # the canonical form of the include directory
 metis.incpath ?= $(metis.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+metis.markers.headers ?= metis.h
 
 # linker flags
 metis.ldflags ?=

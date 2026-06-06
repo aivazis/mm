@@ -19,6 +19,8 @@ fftw.flags ?=
 fftw.defines := WITH_FFTW WITH_FFTW3
 # the canonical form of the include directory
 fftw.incpath ?= $(fftw.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+fftw.markers.headers ?= fftw3.h
 
 # linker flags
 fftw.ldflags ?=

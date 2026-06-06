@@ -16,6 +16,8 @@ libtorch.flags ?=
 libtorch.defines ?= WITH_TORCH
 # include path (PyTorch uses nested include/torch/csrc)
 libtorch.incpath ?= $(libtorch.dir)/include $(libtorch.dir)/include/torch/csrc/api/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+libtorch.markers.headers ?= torch/torch.h
 
 # linker flags
 libtorch.ldflags ?=

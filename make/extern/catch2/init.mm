@@ -16,6 +16,8 @@ catch2.flags ?=
 catch2.defines := WITH_CATCH2
 # the canonical form of the include directory
 catch2.incpath ?= $(catch2.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+catch2.markers.headers ?= catch2/catch_test_macros.hpp
 
 # linker flags
 catch2.ldflags ?=

@@ -16,6 +16,8 @@ yaml-cpp.flags ?=
 yaml-cpp.defines ?= WITH_YAML_CPP
 # the canonical form of the include directory
 yaml-cpp.incpath ?= $(yaml-cpp.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+yaml-cpp.markers.headers ?= yaml-cpp/yaml.h
 
 # linker flags
 yaml-cpp.ldflags ?=

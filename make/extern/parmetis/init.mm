@@ -16,6 +16,8 @@ parmetis.flags ?=
 parmetis.defines := WITH_PARMETIS
 # the canonical form of the include directory
 parmetis.incpath ?= $(parmetis.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+parmetis.markers.headers ?= parmetis.h
 
 # linker flags
 parmetis.ldflags ?=

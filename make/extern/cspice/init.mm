@@ -16,6 +16,8 @@ cspice.flags ?=
 cspice.defines := WITH_CSPICE
 # the canonical form of the include directory
 cspice.incpath ?= $(cspice.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+cspice.markers.headers ?= SpiceUsr.h
 
 # linker flags
 cspice.ldflags ?=

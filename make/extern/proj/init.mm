@@ -16,6 +16,8 @@ proj.flags ?=
 proj.defines := WITH_PROJ
 # the canonical form of the include directory
 proj.incpath ?= $(proj.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+proj.markers.headers ?= proj.h
 
 # linker flags
 proj.ldflags ?=

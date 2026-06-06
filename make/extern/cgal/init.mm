@@ -16,6 +16,8 @@ cgal.flags ?=
 cgal.defines := WITH_CGAL
 # the canonical form of the include directory
 cgal.incpath ?= $(cgal.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+cgal.markers.headers ?= CGAL/version.h
 
 # linker flags
 cgal.ldflags ?=

@@ -16,6 +16,8 @@ gmsh.flags ?=
 gmsh.defines := WITH_GMSH
 # the canonical form of the include directory
 gmsh.incpath ?= $(gmsh.dir)/include
+# header marker(s): files that must resolve on {incpath}; absence proves breakage
+gmsh.markers.headers ?= gmsh.h
 
 # linker flags
 gmsh.ldflags ?=
