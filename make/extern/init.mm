@@ -60,6 +60,24 @@ define extern.if.available =
 endef
 
 
+# the depth-first visitor behind {extern.closure}; a 3-color walk that marks a node {gray} while it
+# is on the current stack and {black} once finished, so a {gray} hit is a genuine cycle (warn) while
+# a {black} hit is a shared dependency (skip). prepending each node as it finishes yields the post
+# order already reversed, i.e. link order: a dependent always precedes the packages it pulls in.
+# kept on a single logical line on purpose — newlines inside a {define} leak into the expansion
+#   usage: extern.closure.visit {package}
+define extern.closure.visit =
+${if ${filter $(1),$(extern.closure.black)},,${if ${filter $(1),$(extern.closure.gray)},${warning extern: dependency cycle detected at '$(1)'},${eval extern.closure.gray += $(1)}${foreach dep,$($(1).dependencies),${call extern.closure.visit,$(dep)}}${eval extern.closure.black += $(1)}${eval extern.closure.order := $(1) $(extern.closure.order)}}}
+endef
+
+
+# the transitive {.dependencies} closure of a set of root packages, in link order (each dependent
+# ahead of the packages it requires); the result is a superset of {roots}. relies on globals mutated
+# through {eval}, so it must not be called while it is already expanding (it is not re-entrant)
+#   usage: extern.closure {roots}
+extern.closure = ${strip ${eval extern.closure.gray :=}${eval extern.closure.black :=}${eval extern.closure.order :=}${foreach root,$(1),${call extern.closure.visit,$(root)}}$(extern.closure.order)}
+
+
 # construct the contribution of an external package to the compile line
 #   usage: extern.compile.options.this {language} {package}
 extern.compile.options.this = \
