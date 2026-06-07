@@ -35,6 +35,10 @@ vtk.libraries := \
         $(vtk.required), \
         vtk$(requirement)-$(vtk.version) \
     }
+# {libraries} is built from the user's {vtk.required} module list; with none nominated it comes out
+# empty and the link drops every vtk symbol, so declare it required and hint at the fix
+vtk.markers.required ?= libraries
+vtk.markers.required.hint ?= "(set vtk.required to the vtk modules you need, e.g. CommonCore IOXML)"
 
 
 # end of file

@@ -30,6 +30,10 @@ fftw.libpath ?= $(fftw.dir)/lib
 fftw.rpath = $(fftw.libpath)
 # the name of the library is flavor dependent
 fftw.libraries := ${addprefix fftw,$(fftw.flavor)}
+# {libraries} is flavor-derived: an empty {flavor} leaves it empty and the link silently drops the
+# fftw symbols, so declare it required and hint at the most likely cause
+fftw.markers.required ?= libraries
+fftw.markers.required.hint ?= "(fftw.flavor='$(fftw.flavor)' empty; expected 3, 3f, 3l, 3_threads, ...)"
 
 # my dependencies
 fftw.dependencies =

@@ -44,13 +44,18 @@ extern.available := \
         ${if ${call extern.exists,$(package)},$(package),} \
     }
 
-# load the configuration files for a set of dependencies
+# load the configuration files for a set of dependencies; {markers.required} and its hint are
+# opt-in, so they get defaulted to empty for every package — otherwise the marker checks reference
+# an undefined variable and trip -warn-undefined. the defaults live in the body below; they cannot
+# be written as comments inside the {define} because comment text would leak into the expansion
 #   usage extern.load {dependencies}
 define extern.load =
     ${foreach dep, $(1),
         ${foreach loc, ${extern.all},
             ${eval include ${realpath $(loc)/$(dep)/init.mm $(loc)/$(dep)/rules.mm}}
         }
+        ${eval $(dep).markers.required ?=}
+        ${eval $(dep).markers.required.hint ?=}
 	$(dep)
     }
 endef

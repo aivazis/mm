@@ -51,7 +51,7 @@ mpi.libraries := \
 # {libraries} is critical: an unrecognized flavor leaves it empty and the link silently drops the
 # mpi symbols, so declare it required and hint at the most likely cause
 mpi.markers.required ?= libraries
-mpi.markers.required.hint ?= (mpi.flavor='$(mpi.flavor)' unrecognized; expected openmpi or mpich)
+mpi.markers.required.hint ?= "(mpi.flavor='$(mpi.flavor)' unrecognized; expected openmpi or mpich)"
 
 
 # end of file
