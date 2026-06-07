@@ -60,6 +60,13 @@ define extern.if.available =
 endef
 
 
+# a token's {.dependencies}, or empty when the variable was never defined; the {flavor} probe lets
+# the closure walk a heterogeneous {.extern} (internal libraries, externals that never set the field)
+# without tripping -warn-undefined, since {flavor} reports on a name without referencing it
+#   usage: extern.deps.of {token}
+extern.deps.of = ${if ${filter-out undefined,${flavor $(1).dependencies}},$($(1).dependencies)}
+
+
 # the depth-first visitor behind {extern.closure}; a 3-color walk that marks a node {gray} while it
 # is on the current stack and {black} once finished, so a {gray} hit is a genuine cycle (warn) while
 # a {black} hit is a shared dependency (skip). prepending each node as it finishes yields the post
@@ -67,7 +74,7 @@ endef
 # kept on a single logical line on purpose — newlines inside a {define} leak into the expansion
 #   usage: extern.closure.visit {package}
 define extern.closure.visit =
-${if ${filter $(1),$(extern.closure.black)},,${if ${filter $(1),$(extern.closure.gray)},${warning extern: dependency cycle detected at '$(1)'},${eval extern.closure.gray += $(1)}${foreach dep,$($(1).dependencies),${call extern.closure.visit,$(dep)}}${eval extern.closure.black += $(1)}${eval extern.closure.order := $(1) $(extern.closure.order)}}}
+${if ${filter $(1),$(extern.closure.black)},,${if ${filter $(1),$(extern.closure.gray)},${warning extern: dependency cycle detected at '$(1)'},${eval extern.closure.gray += $(1)}${foreach dep,${call extern.deps.of,$(1)},${call extern.closure.visit,$(dep)}}${eval extern.closure.black += $(1)}${eval extern.closure.order := $(1) $(extern.closure.order)}}}
 endef
 
 
@@ -76,6 +83,54 @@ endef
 # through {eval}, so it must not be called while it is already expanding (it is not re-entrant)
 #   usage: extern.closure {roots}
 extern.closure = ${strip ${eval extern.closure.gray :=}${eval extern.closure.black :=}${eval extern.closure.order :=}${foreach root,$(1),${call extern.closure.visit,$(root)}}$(extern.closure.order)}
+
+
+# resolve an asset's external dependencies now that the whole graph is loaded: {requested} is the
+# transitive {.dependencies} closure of the declared {.extern}, while {supported} and {available}
+# narrow it to what mm can configure and what is actually installed, all in link order. this runs
+# post-load because a load-time edge (a parallel {hdf5} electing {mpi}) is invisible at the earlier,
+# pre-load pass that seeds the loader. the final step folds the asset's internal dependencies and its
+# installed external closure back into {.extern} — computed once here — so the build recipes pick
+# them up unchanged; the induced-but-uninstalled complaint runs first, while {.extern} still holds
+# the original declaration that tells an induced package apart from a directly requested one
+#   usage: extern.resolve {asset}
+define extern.resolve =
+    ${eval $(1).extern.requested := ${call extern.closure,$($(1).extern)}}
+    ${eval $(1).extern.supported := ${call extern.is.supported,$($(1).extern.requested)}}
+    ${eval $(1).extern.available := ${call extern.is.available,$($(1).extern.supported)}}
+    ${eval _induced := ${call extern.unsatisfied.induced,$(1)}}
+    ${if $(_induced),
+        ${call extern.complain,extern $(1): induced dependency '$(_induced)' is not installed (no <pkg>.dir); the link will likely fail}
+    }
+    ${eval $(1).extern := ${filter-out $(extern.supported),$($(1).extern)} $($(1).extern.available)}
+endef
+
+
+# the externals an asset needs that mm can configure but cannot find installed (no {<pkg>.dir}),
+# restricted to the ones induced by the dependency closure rather than declared directly. these are
+# the surprising failures the user cannot see in their own config, so they are worth a build-time
+# complaint; directly-declared shortfalls are left for {extern.verify} to audit
+#   usage: extern.unsatisfied.induced {asset}
+extern.unsatisfied.induced = \
+    ${filter-out $($(1).extern) $($(1).extern.available),$($(1).extern.supported)}
+
+
+# a package's own direct {.dependencies} that are not installed; used by the verify report to flag,
+# for instance, a parallel {hdf5} whose {mpi} has no install to link against
+#   usage: extern.deps.missing {package}
+extern.deps.missing = ${filter-out $(extern.available),$($(1).dependencies)}
+
+
+# the severity of a build-configuration complaint. {warning} lets the build proceed so the user can
+# reach a real authority — the compiler or the linker — before stopping; flip to {error} to fail
+# early instead. {extern.verify} audits the configuration on its own and is never gated by this
+extern.complain.severity ?= warning
+
+# emit a build-configuration complaint at the configured severity. the severity must select a
+# literal {warning}/{error} function name: make resolves the function at parse time, so an indirect
+# {${$(severity) ...}} would be read as a reference to an undefined variable instead
+#   usage: extern.complain {message}
+extern.complain = ${if ${filter error,$(extern.complain.severity)},${error $(1)},${warning $(1)}}
 
 
 # construct the contribution of an external package to the compile line
