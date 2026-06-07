@@ -483,6 +483,10 @@ Pass `--bash-completion` to also install tab-completion support for bash.
 - `docs/tutorial.md` — a step-by-step walkthrough that builds a C++ timer
   library with Python bindings, a pyre application driver, and full shell
   integration; eight progressive steps, each introducing one new concept
+- `docs/testing.md` — the two testing models (per-file drivers and runners) and
+  how to wire up a test suite
+- `docs/externals.md` — how to add support for an external package, including
+  dependencies, verification markers, and flavor-driven libraries
 - `docs/FAQ.md` — answers to common configuration and troubleshooting questions
 - `docs/command-line-reference.md` — all command-line options, classified as
   common, advanced, and esoteric
