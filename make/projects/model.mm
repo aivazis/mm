@@ -67,6 +67,10 @@ projects.extern.loaded := ${sort \
     ${call extern.load, $(projects.extern.requested)} \
 }
 
+# warn loudly about any loaded external that could not set a critical value, before the build
+# reaches a link that would fail with a far less obvious message
+${call extern.markers.required.warn, $(projects.extern.loaded)}
+
 # ${info --   project workflows}
 ${foreach project,$(projects), ${eval ${call project.boot.workflows,$(project)}}}
 

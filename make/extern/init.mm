@@ -123,12 +123,25 @@ extern.markers.libraries.missing = \
     }
 
 
+# the required values of a package that came out empty; a non-empty result names the critical
+# variables (e.g. {libraries}) the package could not set, proving it is misconfigured even when
+# its declared headers and libraries happen to resolve. packages opt in via {<pkg>.markers.required}
+#  usage: extern.markers.required.missing {package}
+extern.markers.required.missing = \
+    ${strip \
+        ${foreach var, $($(1).markers.required), \
+            ${if ${strip $($(1).$(var))},,$(var)} \
+        } \
+    }
+
+
 # the complete set of unresolved markers for a package; empty when the package checks out
 #  usage: extern.markers.problems {package}
 extern.markers.problems = \
     ${strip \
         ${call extern.markers.headers.missing,$(1)} \
         ${call extern.markers.libraries.missing,$(1)} \
+        ${call extern.markers.required.missing,$(1)} \
     }
 
 
@@ -148,6 +161,21 @@ extern.markers.broken = \
             ${if ${call extern.markers.problems,$(package)},$(package),} \
         } \
     }
+
+
+# emit a build-time warning for every loaded package that left a required value empty; this runs at
+# load time, so a misconfiguration (e.g. an unrecognized {mpi.flavor} that yields no {libraries})
+# surfaces immediately as a loud, self-describing warning instead of an opaque link failure further
+# downstream. a package may set {<pkg>.markers.required.hint} to append the likely cause and fix
+#  usage: extern.markers.required.warn {packages}
+define extern.markers.required.warn =
+    ${foreach package, $(1),
+        ${eval _missing := ${call extern.markers.required.missing,$(package)}}
+        ${if $(_missing),
+            ${warning extern $(package): required value(s) '$(_missing)' empty ${strip $($(package).markers.required.hint)} -- the link will likely fail}
+        }
+    }
+endef
 
 
 # end of file

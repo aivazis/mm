@@ -29,6 +29,7 @@ define extern.verify.report =
 	@${call log.var,"libpath","$($(1).libpath)"}
 	@${call log.var,"libraries","$($(1).libraries)"}
 	@${if ${call extern.markers.libraries.missing,$(1)},${call log.error,"unresolved libraries: ${call extern.markers.libraries.missing,$(1)}"},${call log.info,"libraries ok"}}
+	@${if ${call extern.markers.required.missing,$(1)},${call log.error,"unset required values: ${call extern.markers.required.missing,$(1)}"},:}
 endef
 
 
