@@ -16,8 +16,13 @@ toolchain.playwright.browsers = $(toolchain.playwright.home)/browsers
 
 # the consumer environment: a project using playwright must point it at these browsers, since they
 # live inside the toolchain rather than the default per-user cache. {modules} is supplied generically
-# by {toolchain.init} for {node} tools, so it is not repeated here
-toolchain.playwright.env = PLAYWRIGHT_BROWSERS_PATH=$(toolchain.playwright.browsers)
+# by {toolchain.init} for {node} tools, so it is not repeated here. the {DEP0205} suppression is a
+# stopgap: playwright 1.60 installs its TS loader through node's now-deprecated {module.register()},
+# which recent node flags loudly on every worker; it is harmless and silenced narrowly (only this one
+# code) until a playwright release that adopts {module.registerHooks()} lets us drop it
+toolchain.playwright.env = \
+    PLAYWRIGHT_BROWSERS_PATH=$(toolchain.playwright.browsers) \
+    NODE_OPTIONS=--disable-warning=DEP0205
 
 
 # install the toolchain: stage the pinned manifest, fetch the framework, then the browsers
