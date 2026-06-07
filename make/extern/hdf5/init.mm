@@ -33,8 +33,10 @@ hdf5.rpath = $(hdf5.libpath)
 # the names of the libraries
 hdf5.libraries := hdf5_cpp hdf5
 
-# my dependencies
-hdf5.dependencies =
+# my dependencies; a parallel build links against {mpi}, so a {parallel} value naming it induces a
+# load-time edge that pulls {mpi} into any asset that depends on {hdf5}. evaluated lazily so it sees
+# the effective {hdf5.parallel}, whether defaulted here, set by the user, or detected by the pkgdb
+hdf5.dependencies = ${if ${findstring mpi,$(hdf5.parallel)},mpi}
 
 
 # end of file
