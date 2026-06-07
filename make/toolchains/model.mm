@@ -5,7 +5,7 @@
 
 
 # the registry of known toolchains
-toolchains := playwright
+toolchains := playwright docker
 
 # load each tool's definition
 include ${foreach tool,$(toolchains),$(toolchains.mm)/$(tool)/$(tool).mm}
