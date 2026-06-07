@@ -59,6 +59,7 @@ define extern.load.one =
         }
         ${eval $(1).markers.required ?=}
         ${eval $(1).markers.required.hint ?=}
+        ${eval $(1).dependencies ?=}
         ${foreach dep, $($(1).dependencies),
             ${call extern.load.one,$(dep)}
         }
