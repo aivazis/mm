@@ -11,6 +11,11 @@ toolchain.docker.doc := "the docker cli; build and run containers (vendor-instal
 toolchain.docker.kind := vendor
 toolchain.docker.url := https://docs.docker.com/get-docker/
 
+# docker is not version-pinned, so report whatever is installed by asking the cli. the lazy {=}
+# assignment keeps the query out of every parse — {info} references it deferred, so the shell runs
+# only when {docker.info} is actually invoked
+toolchain.docker.version = $(shell $(toolchain.docker.cli) --version 2>/dev/null)
+
 
 # install: docker cannot be fetched by mm; send the user to the vendor's download page
 docker.install:

@@ -30,7 +30,7 @@ define toolchain.workflows =
 $(1).info:
 	@${call log.sec,$(1),$(toolchain.$(1).doc)}
 	@${call log.var,kind,$(toolchain.$(1).kind)}
-	@${call log.var,version,$(toolchain.$(1).version)}
+	@${call log.var,version,$$(toolchain.$(1).version)}
 ${call toolchain.info.$(toolchain.$(1).kind),$(1)}
 
 # confirm the tool is present; if it isn't, fail with a one-line instruction so a build that
