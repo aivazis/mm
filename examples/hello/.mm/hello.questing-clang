@@ -9,8 +9,9 @@ hello.questing-clang.name := questing-clang
 hello.questing-clang.root := etc/docker/
 
 # {hello} lives inside the {mm} repository, so mounting that one repo brings along both the
-# build tool and this example; its parent is three levels up from {examples/hello}
-hello.questing-clang.mounts.source := ${realpath $(hello.home)/../../..}/
+# build tool and this example; its parent is three levels up from {examples/hello}. defer
+# expansion with {=} so {hello.home} is read when the mount is assembled, not at include time
+hello.questing-clang.mounts.source = ${realpath $(hello.home)/../../..}/
 # mount the {mm} repository at /usr/local/src/mm
 hello.questing-clang.launch.mounts := mm
 
