@@ -38,7 +38,7 @@ def config():
 
 # hello
 @foundry(implements=action, tip="compute the result of an operation")
-def hello():
+def greet():
     """
     Say "hello" to a friend
     """
