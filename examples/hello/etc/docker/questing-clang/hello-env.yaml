@@ -18,6 +18,7 @@ dependencies:
   - clang
   - clangxx
   - flang
+  - libflang-rt
   # python and runtime packages
   - python
   - pybind11

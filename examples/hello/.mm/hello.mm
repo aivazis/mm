@@ -25,7 +25,8 @@ hello.pkg.drivers := say
 
 # the library meta-data
 hello.lib.stem := hello
-hello.lib.extern := pyre
+# {fortran} pulls in the flang runtime so the c++-driven link resolves {mat.f03}'s symbols
+hello.lib.extern := pyre fortran
 hello.lib.c++.flags += $($(compiler.c++).std.c++17)
 
 # the extension meta-data
