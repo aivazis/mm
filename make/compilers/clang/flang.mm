@@ -22,8 +22,8 @@ flang.prefix.rpath := -Wl,-rpath,
 flang.prefix.libraries := -l
 
 # compile time flags
-# VERIFY: -pipe is likely fine for flang-new (LLVM infrastructure) but not confirmed
-flang.compile.base := -pipe
+# flang has no {-pipe}; leave the base empty
+flang.compile.base :=
 flang.compile.only := -c
 flang.compile.output := -o
 flang.compile.makedep :=
@@ -63,10 +63,7 @@ flang.mixed.defines ?=
 flang.mixed.incpath ?=
 flang.mixed.ldflags ?=
 flang.mixed.libpath ?=
-# VERIFY: runtime library name depends heavily on the flang distribution:
-#   flang-new (LLVM 16+): FortranRuntime and possibly FortranDecimal
-#   classic flang (PGI/conda): flang
-flang.mixed.libraries += FortranRuntime
+flang.mixed.libraries += flang_rt.runtime
 
 # dependency generation
 # flang cannot generate dependencies (leave empty; revisit if flang-new gains -MD support)
