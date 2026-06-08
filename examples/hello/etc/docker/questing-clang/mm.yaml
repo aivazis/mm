@@ -1,0 +1,24 @@
+# -*- yaml -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+# mm configuration
+mm:
+
+  # let conda place the build products; no need for {prefix}, {bldroot}, or {pycPrefix}
+  mode: conda
+  # resolve external dependencies straight from the active conda environment
+  pkgdb: conda
+  # targets
+  target: opt,shared
+  # compilers; the {clang} family supplies clang/clang++ for C/C++ and flang for Fortran
+  compilers: clang, python/python3
+
+  # misc
+  # the name of GNU make
+  make: make
+  # local makefiles
+  local: Make.mmm
+
+# end of file
