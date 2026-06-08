@@ -16,6 +16,8 @@ hello.libraries := hello.lib
 hello.extensions := hello.ext
 # and a test suite
 hello.tests := hello.tests.hello.pkg hello.tests.hello.lib
+# a docker image for building and testing on linux64 (clang/flang on a recent ubuntu)
+hello.docker-images := hello.questing-clang
 
 # the package meta-data
 hello.pkg.stem := hello
@@ -64,6 +66,9 @@ say.hello.ally.argv := hello ally
 say.hello.mac.argv := hello mac
 # say goodbye to matthias
 say.goodbye.matthias.argv := goodbye mat
+
+# pull in the docker image configuration
+include $(hello.docker-images)
 
 # show me
 # ${info -- done with hello }

@@ -1,0 +1,27 @@
+# -*- yaml -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+name: hello
+
+channels:
+  - conda-forge
+
+dependencies:
+  # tools for building from source
+  - binutils
+  - git
+  - make
+  - vim
+  # the clang/flang toolchain: clang and clang++ for C/C++, flang for Fortran
+  - clang
+  - clangxx
+  - flang
+  # python and runtime packages
+  - python
+  - pybind11
+  # the framework {hello} depends on
+  - pyre
+
+# end of file
