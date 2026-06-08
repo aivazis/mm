@@ -20,7 +20,7 @@ from pyre import (
 )
 
 # bootstrap
-package = executive.registerPackage(name='nisar', file=__file__)
+package = executive.registerPackage(name='hello', file=__file__)
 # save the geography
 home, prefix, defaults = package.layout()
 
