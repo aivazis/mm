@@ -19,17 +19,19 @@ version = (major, minor, micro, revision)
 
 
 # decorations for the help system
-copyright = "copyright (c) 1998-YEAR all rights reserved"
+copyright = "copyright (c) 1998-@YEAR@ all rights reserved"
 
 banner = f"""
     hello {major}.{minor}.{micro} revision {revision}
     {copyright}
 """
 
-header = banner + """
+authors = """
 authors:
     michael a.g. aïvázis <michael.aivazis@para-sim.com>
 """
+
+header = banner + authors
 
 license = header + """
 license:
