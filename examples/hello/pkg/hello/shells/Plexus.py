@@ -6,6 +6,8 @@
 #
 
 
+# externals
+import textwrap
 # access the pyre framework
 import pyre
 # and my package
@@ -32,6 +34,20 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         """
         # show the license header
         return hello.meta.header
+
+   # support for the help system
+    def pyre_banner(self):
+        """
+        Generate the help banner
+        """
+        # the project header
+        yield from textwrap.dedent(hello.meta.banner).splitlines()
+        # the doc string
+        yield from self.pyre_showSummary(indent="")
+        # the authors
+        yield from textwrap.dedent(hello.meta.authors).splitlines()
+        # all done
+        return
 
 
     # interactive session management
