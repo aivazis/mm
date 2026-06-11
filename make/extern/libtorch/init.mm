@@ -25,8 +25,10 @@ libtorch.ldflags ?=
 libtorch.libpath ?= $(libtorch.dir)/lib
 # its rpath
 libtorch.rpath = $(libtorch.libpath)
-# the names of the libraries
-libtorch.libraries ?= torch torch_cpu c10
+# set libtorch.cuda := 1 in the user config to link against a CUDA-enabled
+# libtorch distribution (must contain libtorch_cuda.so and libc10_cuda.so)
+libtorch.cuda ?=
+libtorch.libraries ?= torch torch_cpu c10 ${if $(libtorch.cuda),torch_cuda c10_cuda,}
 
 # my dependencies
 libtorch.dependencies :=
