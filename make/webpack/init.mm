@@ -43,6 +43,7 @@ define webpack.init
     # the configuration files
     ${eval $(2).source.page ?= $($(2).prefix)$($(2).name).html}
     ${eval $(2).source.npm_config ?= $($(2).prefix)$($(2).config)package.json}
+    ${eval $(2).source.npm_lock ?= $($(2).prefix)$($(2).config)package-lock.json}
     ${eval $(2).source.babel_config ?= $($(2).prefix)$($(2).config)babelrc}
     ${eval $(2).source.webpack_config ?= $($(2).prefix)$($(2).config)webpack.js}
     ${eval $(2).source.ts_config ?= $($(2).prefix)$($(2).config)tsconfig.json}
@@ -55,6 +56,7 @@ define webpack.init
     ${eval $(2).staging.prefix.generated ?= $($(2).staging.prefix)build/}
     ${eval $(2).staging.page ?= $($(2).staging.prefix)$($(2).name).html}
     ${eval $(2).staging.npm_config ?= $($(2).staging.prefix)package.json}
+    ${eval $(2).staging.npm_lock ?= $($(2).staging.prefix)package-lock.json}
     ${eval $(2).staging.babel_config ?= $($(2).staging.prefix).babelrc}
     ${eval $(2).staging.webpack_config ?= $($(2).staging.prefix)webpack.config.js}
     ${eval $(2).staging.ts_config ?= $($(2).staging.prefix)tsconfig.json}
@@ -121,15 +123,17 @@ define webpack.init
     $(2).metadoc.source.static.present := "directories with static assets"
 
     # sources: infromation about the sources
-    $(2).meta.source := source.npm_config
+    $(2).meta.source := source.npm_config source.npm_lock
     # document each one
     $(2).metadoc.source.npm_config := "the npm configuration file; typically called 'package.json'"
+    $(2).metadoc.source.npm_lock := "the committed dependency lock; staged in non-dev modes"
 
     # staging: the list of attributes
-    $(2).meta.staging := staging.prefix staging.npm_config
+    $(2).meta.staging := staging.prefix staging.npm_config staging.npm_lock
     # document each one
     $(2).metadoc.staging.prefix := "the root of the staging directory"
     $(2).metadoc.staging.npm_config := "the npm configuration file"
+    $(2).metadoc.staging.npm_lock := "the dependency lock in the staging area"
 
     # install: the list of attributes
     $(2).meta.install := install.prefix
