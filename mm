@@ -106,7 +106,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # compute branch-keyed build paths and print shell export statements
     mode = pyre.properties.str()
     mode.default = "dev"
-    mode.validators = pyre.constraints.isMember("dev", "conda", "macports", "ubuntu")
+    mode.validators = pyre.constraints.isMember("dev", "release", "conda", "macports", "ubuntu")
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
@@ -382,12 +382,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the mode dispatch tables
         self._bldrootDispatch = {
             "dev": self._devBldroot,
+            "release": self._releaseBldroot,
             "conda": self._condaBldroot,
             "macports": self._macportsBldroot,
             "ubuntu": self._ubuntuBldroot,
         }
         self._prefixDispatch = {
             "dev": self._devPrefix,
+            "release": self._releasePrefix,
             "conda": self._condaPrefix,
             "macports": self._macportsPrefix,
             "ubuntu": self._ubuntuPrefix,
@@ -1148,6 +1150,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # the project home
         yield f"project.home={self._root}"
+        # the build mode, so the make subsystem can gate behavior on {mode != dev}
+        yield f"project.mode={self.mode}"
         # the path to the mm configuration files
         yield f"project.config={self._projectCfg}"
         # the location to place the intermediate build products
@@ -1280,21 +1284,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"host.cores={host.cpus.cpus}"
         # all done
         return
-
-    def _fromCommandLine(self, name):
-        """
-        Test whether the value of the trait named {name} came from the command line, as opposed
-        to a config file, an environment-derived default, or the trait default. Only command-
-        line overrides are invisible to a recursively launched {mm}: the child runs in the same
-        directory and inherits the same environment, so it reproduces everything else on its own
-        """
-        # the trait descriptor
-        trait = self.pyre_trait(name)
-        # the priority of its current value records which configuration category assigned it
-        priority = self.pyre_inventory.getTraitPriority(trait)
-        # command-line assignments belong to the {command} category; this is the same idiom
-        # pyre itself uses to recognize a category (see framework/NameServer)
-        return priority.category == priority.command.category
 
     def relaunchArguments(self):
         """
@@ -1572,6 +1561,21 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     gitDescriptionParser = re.compile(
         r"(v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
     )
+
+    def _fromCommandLine(self, name):
+        """
+        Test whether the value of the trait named {name} came from the command line, as opposed
+        to a config file, an environment-derived default, or the trait default. Only command-
+        line overrides are invisible to a recursively launched {mm}: the child runs in the same
+        directory and inherits the same environment, so it reproduces everything else on its own
+        """
+        # the trait descriptor
+        trait = self.pyre_trait(name)
+        # the priority of its current value records which configuration category assigned it
+        priority = self.pyre_inventory.getTraitPriority(trait)
+        # command-line assignments belong to the {command} category; this is the same idiom
+        # pyre itself uses to recognize a category (see framework/NameServer)
+        return priority.category == priority.command.category
 
     def _buildAdhocPackageDatabase(self, db):
         """
@@ -2918,14 +2922,36 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Assemble the staging area path for a {dev} build
         """
+        # {dev} is the bare local layout, so it injects no mode discriminator
+        return self._localBldroot()
+
+    def _releaseBldroot(self):
+        """
+        Assemble the staging area path for a {release} build
+        """
+        # {release} is a local build that lives under its own discriminator so its
+        # artifacts never mix with the {dev} ones
+        return self._localBldroot(discriminator="release")
+
+    def _localBldroot(self, *, discriminator=None):
+        """
+        Assemble the staging area path for a local ({dev} or {release}) build
+        """
         # start with the user's opinion, falling back to the project tree
         bldroot = self.bldroot or (self._root / "builds")
-        # if a compiler suite is set, add it to the path to separate ABI-incompatible builds
+        # a non-{dev} local mode
+        if discriminator:
+            # keeps its products apart by carrying a discriminator
+            bldroot /= discriminator
+        # get the compiler suite
         suite = self._suite
+        # if it is set
         if suite:
+            # add it to the path to separate ABI-incompatible builds
             bldroot /= suite
-        # if a branch tag is set, use it to discriminate the build context
+        # get the branch tag
         tag = self.tag
+        # if it is set, use it to discriminate the build context
         if tag:
             # include the build variant so builds for different targets land separately
             return bldroot / tag / self._bldTag
@@ -2936,14 +2962,35 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Assemble the installation path for a {dev} build
         """
+        # {dev} is the bare local layout, so it injects no mode discriminator
+        return self._localPrefix()
+
+    def _releasePrefix(self):
+        """
+        Assemble the installation path for a {release} build
+        """
+        # {release} installs under its own discriminator so it never mixes with {dev}
+        return self._localPrefix(discriminator="release")
+
+    def _localPrefix(self, *, discriminator=None):
+        """
+        Assemble the installation path for a local ({dev} or {release}) build
+        """
         # start with the user's opinion, falling back to the project tree
         prefix = self.prefix or (self._root / "products")
-        # if a compiler suite is set, add it to the path to separate ABI-incompatible installs
+        # a non-{dev} local mode
+        if discriminator:
+            # keeps its installs apart by carrying a discriminator
+            prefix /= discriminator
+        # get the compiler suite
         suite = self._suite
+        # if a compiler suite is set
         if suite:
+            # add it to the path to separate ABI-incompatible installs
             prefix /= suite
-        # if a branch tag is set, use it to discriminate the build context
+        # get the tag
         tag = self.tag
+        # if a branch tag is set, use it to discriminate the build context
         if tag:
             # include the build variant so installs for different targets land separately
             return prefix / tag / self._bldTag
