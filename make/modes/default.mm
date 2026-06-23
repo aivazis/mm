@@ -4,10 +4,10 @@
 # (c) 1998-2026 all rights reserved
 
 
-# the baseline value of every mode-dependent knob, grouped by consumer
+# the baseline (non-dev) value of every mode-dependent knob, grouped by consumer
 
 # npm: empty installs fresh ({npm i}); non-empty installs from the committed lock ({npm ci})
-mode.npm.locked :=
+mode.npm.locked := yes
 
 
 # end of file

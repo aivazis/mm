@@ -4,8 +4,7 @@
 # (c) 1998-2026 all rights reserved
 
 
-# {release} pins dependencies to the committed lock
-mode.npm.locked := yes
+# {release} inherits the baseline and overrides nothing
 
 
 # end of file
