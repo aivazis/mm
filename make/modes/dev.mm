@@ -4,7 +4,8 @@
 # (c) 1998-2026 all rights reserved
 
 
-# {dev} inherits the baseline and overrides nothing
+# {dev} resolves dependencies fresh rather than from the committed lock
+mode.npm.locked :=
 
 
 # end of file

@@ -4,8 +4,7 @@
 # (c) 1998-2026 all rights reserved
 
 
-# {macports} pins dependencies to the committed lock
-mode.npm.locked := yes
+# {macports} inherits the baseline and overrides nothing
 
 
 # end of file
