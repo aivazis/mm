@@ -78,7 +78,7 @@ $(1).config: \
 $(1).sources: $($(1).staging.app.sources)
 
 # install the dependencies
-$(1).npm_modules: $($(1).staging.npm_config)
+$(1).npm_modules: $($(1).staging.modules)
 
 
 # the main page where the bundle gets injected
@@ -86,14 +86,17 @@ $($(1).staging.page): $($(1).source.page) | $($(1).staging.prefix)
 	@${call log.action,"cp", $${subst $($(1).prefix),,$$<}}
 	$(cp) $$< $$@
 
-# stage the npm config and install dependencies; the strategy depends on the build mode
+# stage the npm configuration file
+$($(1).staging.npm_config): $($(1).source.npm_config) | $($(1).staging.prefix)
+	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_config)}}
+	$(cp) $($(1).source.npm_config) $($(1).staging.npm_config)
+
+# install the node modules, keyed on the {node_modules} dir so a missing install re-runs
 ${eval ${call $(webpack.npm.install),$(1)}}
 
 # force a clean install from the committed lock; recovers from npm instability in {dev}
-$(1).lock: | $($(1).staging.prefix)
+$(1).lock: $($(1).staging.npm_config) | $($(1).staging.prefix)
 	@test -f $($(1).source.npm_lock) || { ${call log.error,no committed lock to install from}; false; }
-	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_config)}}
-	$(cp) $($(1).source.npm_config) $($(1).staging.npm_config)
 	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_lock)}}
 	$(cp) $($(1).source.npm_lock) $($(1).staging.npm_lock)
 	@${call log.action,"npm ci",$(1)}
@@ -180,24 +183,21 @@ endef
 
 
 # helpers
-# stage the npm config, then resolve dependencies fresh from {package.json}
+# install the node modules fresh from {package.json}
 define webpack.npm.install.fresh =
-$($(1).staging.npm_config): $($(1).source.npm_config) | $($(1).staging.prefix)
-	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_config)}}
-	$(cp) $($(1).source.npm_config) $($(1).staging.npm_config)
+$($(1).staging.modules): $($(1).staging.npm_config) | $($(1).staging.prefix)
 	@${call log.action,"npm i",$(1)}
 	$(cd) $($(1).staging.prefix); npm i
 # all done
 endef
 
 
-# stage the npm config and the committed lock, then install exactly from the lock
+# stage the committed lock, then install the node modules exactly from it
 define webpack.npm.install.locked =
-$($(1).staging.npm_config): $($(1).source.npm_config) $($(1).source.npm_lock) | $($(1).staging.prefix)
-	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_config)}}
-	$(cp) $($(1).source.npm_config) $($(1).staging.npm_config)
+$($(1).staging.npm_lock): $($(1).source.npm_lock) | $($(1).staging.prefix)
 	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_lock)}}
 	$(cp) $($(1).source.npm_lock) $($(1).staging.npm_lock)
+$($(1).staging.modules): $($(1).staging.npm_config) $($(1).staging.npm_lock) | $($(1).staging.prefix)
 	@${call log.action,"npm ci",$(1)}
 	$(cd) $($(1).staging.prefix); npm ci
 # all done

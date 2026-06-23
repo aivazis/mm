@@ -57,6 +57,7 @@ define webpack.init
     ${eval $(2).staging.page ?= $($(2).staging.prefix)$($(2).name).html}
     ${eval $(2).staging.npm_config ?= $($(2).staging.prefix)package.json}
     ${eval $(2).staging.npm_lock ?= $($(2).staging.prefix)package-lock.json}
+    ${eval $(2).staging.modules ?= $($(2).staging.prefix)node_modules/}
     ${eval $(2).staging.babel_config ?= $($(2).staging.prefix).babelrc}
     ${eval $(2).staging.webpack_config ?= $($(2).staging.prefix)webpack.config.js}
     ${eval $(2).staging.ts_config ?= $($(2).staging.prefix)tsconfig.json}
