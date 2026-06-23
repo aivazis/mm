@@ -19,7 +19,7 @@ config.db += ${if $(user.environment),$(user.environment) $(user.environment)@$(
 # projects can now declare new asset types and provide support for them in their {mm}
 # configuration directory
 define model :=
-    log mm
+    log mm modes
     languages platforms hosts users developers
     compilers targets builder runners toolchains
 	extern projects
