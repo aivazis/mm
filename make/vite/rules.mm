@@ -80,10 +80,21 @@ $(_bundle).stage.files::
 
 # the rule that installs/updates the node modules
 $(_bundle).stage.modules: $($(_bundle).stage.modules)
-# and its implementation
-$($(_bundle).stage.modules): $($(_bundle).config.prefix)$($(_bundle).config.npm) | $($(_bundle).staging.prefix)
-	@${call log.action,"npm",$($(_bundle).config.npm)}
-	$(cd) $($(_bundle).staging.prefix); npm install
+# and its implementation, selected by the build mode
+${eval ${call $(vite.npm.install),$(_bundle)}}
+
+# force a clean install from the committed lock; recovers from npm instability in {dev}
+$(_bundle).lock: $(_bundle).stage.config | $($(_bundle).staging.prefix)
+	@test -f $($(_bundle).source.npm_lock) || { ${call log.error,no committed lock to install from}; false; }
+	@${call log.action,"cp",$($(_bundle).config.npm_lock)}
+	$(cp) $($(_bundle).source.npm_lock) $($(_bundle).staging.npm_lock)
+	@${call log.action,"npm ci",$(_bundle)}
+	$(cd) $($(_bundle).staging.prefix); npm ci
+
+# promote the resolved staging lock back to the source tree for committing
+$(_bundle).lock.update:
+	@${call log.action,"cp",$($(_bundle).config.npm_lock)}
+	$(cp) $($(_bundle).staging.npm_lock) $($(_bundle).source.npm_lock)
 
 # make the rules that copy the configuration files to the staging area
 ${foreach file,
@@ -129,6 +140,31 @@ $($(_bundle).staging.prefix): | $($($(_bundle).project).tmpdir)
 
 # all done
 endef
+
+
+# stage the npm config (via the config rules), then resolve dependencies fresh
+define vite.npm.install.fresh =
+$($(1).stage.modules): $($(1).source.npm_config) | $($(1).staging.prefix)
+	@${call log.action,"npm i",$(1)}
+	$(cd) $($(1).staging.prefix); npm install
+# all done
+endef
+
+
+# stage the committed lock, then install exactly from it
+define vite.npm.install.locked =
+$($(1).staging.npm_lock): $($(1).source.npm_lock) | $($(1).staging.prefix)
+	@${call log.action,"cp",$($(1).config.npm_lock)}
+	$(cp) $($(1).source.npm_lock) $($(1).staging.npm_lock)
+$($(1).stage.modules): $($(1).source.npm_config) $($(1).staging.npm_lock) | $($(1).staging.prefix)
+	@${call log.action,"npm ci",$(1)}
+	$(cd) $($(1).staging.prefix); npm ci
+# all done
+endef
+
+
+# the install strategy selected by the build mode
+vite.npm.install := vite.npm.install.${if $(mode.npm.locked),locked,fresh}
 
 
 # rule factory for creating individual staging source directories
