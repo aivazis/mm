@@ -94,16 +94,16 @@ $($(1).staging.npm_config): $($(1).source.npm_config) | $($(1).staging.prefix)
 # install the node modules, keyed on the {node_modules} dir so a missing install re-runs
 ${eval ${call $(webpack.npm.install),$(1)}}
 
-# force a clean install from the committed lock; recovers from npm instability in {dev}
-$(1).lock: $($(1).staging.npm_config) | $($(1).staging.prefix)
+# seed a clean install from the committed lock; recovers from npm instability in {dev}
+$(1).lock.seed: $($(1).staging.npm_config) | $($(1).staging.prefix)
 	@test -f $($(1).source.npm_lock) || { ${call log.error,no committed lock to install from}; false; }
 	@${call log.action,"cp",${subst $($(1).prefix),,$($(1).source.npm_lock)}}
 	$(cp) $($(1).source.npm_lock) $($(1).staging.npm_lock)
 	@${call log.action,"npm ci",$(1)}
 	$(cd) $($(1).staging.prefix); npm ci
 
-# promote the resolved staging lock back to the source tree for committing
-$(1).lock.update:
+# harvest the freshly-resolved lock back to the source tree for committing
+$(1).lock.harvest:
 	@${call log.action,"cp",${subst $($(1).staging.prefix),,$($(1).staging.npm_lock)}}
 	$(cp) $($(1).staging.npm_lock) $($(1).source.npm_lock)
 

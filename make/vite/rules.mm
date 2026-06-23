@@ -83,16 +83,16 @@ $(_bundle).stage.modules: $($(_bundle).stage.modules)
 # and its implementation, selected by the build mode
 ${eval ${call $(vite.npm.install),$(_bundle)}}
 
-# force a clean install from the committed lock; recovers from npm instability in {dev}
-$(_bundle).lock: $(_bundle).stage.config | $($(_bundle).staging.prefix)
+# seed a clean install from the committed lock; recovers from npm instability in {dev}
+$(_bundle).lock.seed: $(_bundle).stage.config | $($(_bundle).staging.prefix)
 	@test -f $($(_bundle).source.npm_lock) || { ${call log.error,no committed lock to install from}; false; }
 	@${call log.action,"cp",$($(_bundle).config.npm_lock)}
 	$(cp) $($(_bundle).source.npm_lock) $($(_bundle).staging.npm_lock)
 	@${call log.action,"npm ci",$(_bundle)}
 	$(cd) $($(_bundle).staging.prefix); npm ci
 
-# promote the resolved staging lock back to the source tree for committing
-$(_bundle).lock.update:
+# harvest the freshly-resolved lock back to the source tree for committing
+$(_bundle).lock.harvest:
 	@${call log.action,"cp",$($(_bundle).config.npm_lock)}
 	$(cp) $($(_bundle).staging.npm_lock) $($(_bundle).source.npm_lock)
 
