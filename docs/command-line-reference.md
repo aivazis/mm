@@ -16,13 +16,16 @@ These are the options most users reach for regularly.
 
 ### Build location
 
-`--mode=dev|conda|macports|ubuntu`
-: Strategy for resolving where build products land. `dev` (default) puts
-  intermediates in `builds/` and installed products in `products/` relative to
-  the project root — fine for getting started, but set `bldroot` and `prefix`
-  to locations outside the source tree for anything serious. `conda`,
-  `macports`, and `ubuntu` resolve the prefix automatically from the package
-  manager.
+`--mode=dev|release|conda|macports|ubuntu`
+: Strategy for resolving where build products land — and, more broadly, the
+  deployment intent that the make layer can vary behavior on (see
+  [Build Modes](modes.md)). `dev` (default) puts intermediates in `builds/` and
+  installed products in `products/` relative to the project root — fine for
+  getting started, but set `bldroot` and `prefix` to locations outside the
+  source tree for anything serious. `release` is a local production-style build
+  that mirrors `dev` but lands under its own `release/` discriminator so its
+  artifacts never mix with dev ones. `conda`, `macports`, and `ubuntu` resolve
+  the prefix automatically from the package manager.
 
 `--bldroot=PATH`
 : Override the directory for intermediate build products (object files,
