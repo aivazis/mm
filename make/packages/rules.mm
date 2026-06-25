@@ -41,7 +41,11 @@ $(1): $(1).directories $(1).assets $($(1).extras)
 # clean up
 $(1).clean::
 	@${call log.action,"rm",$($(1).pycdir)}
-	$(rm.force-recurse) $($(1).pycdir)
+	$(rm.force-recurse) $($(1).pycdir)${if $($(1).staging.drivers),
+	@${call log.action,"rm",$($(1).staging.drivers)}
+	$(rm.force) $($(1).staging.drivers)}${if $($(1).staging.config),
+	@${call log.action,"rm",$($(1).staging.config)}
+	$(rm.force) $($(1).staging.config)}
 
 # second level targets
 # make all relevant directories
