@@ -41,6 +41,8 @@ $(1): $(1).static $(1).generated $(1).chunks
 $(1).clean:
 	@${call log.action,"rm",$($(1).staging.prefix)}
 	$(rm.force-recurse) $($(1).staging.prefix)
+	@${call log.action,"rm",$($(1).install.prefix)}
+	$(rm.force-recurse) $($(1).install.prefix)
 
 # (re)generate the schema on demand
 $(1).schema: $($(1).staging.schema)
