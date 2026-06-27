@@ -42,9 +42,9 @@ $(1): $(1).directories $(1).assets $($(1).extras)
 $(1).clean::
 	@${call log.action,"rm",$($(1).pycdir)}
 	$(rm.force-recurse) $($(1).pycdir)${if $($(1).staging.drivers),
-	@${call log.action,"rm",$($(1).staging.drivers)}
+	@${foreach driver,$($(1).staging.drivers),${call log.action,"rm",$(driver)};}
 	$(rm.force) $($(1).staging.drivers)}${if $($(1).staging.config),
-	@${call log.action,"rm",$($(1).staging.config)}
+	@${foreach config,$($(1).staging.config),${call log.action,"rm",$(config)};}
 	$(rm.force) $($(1).staging.config)}
 
 # second level targets

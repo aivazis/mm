@@ -74,7 +74,7 @@ $(1).autogen.cleanup:: $(1).assets
 
 # unconditional clean up of the autogen files
 $(1).cleangen:
-	@${call log.action,"rm",${addprefix $($(1).prefix),$($(1).files.autogen)}}
+	@${foreach file,${addprefix $($(1).prefix),$($(1).files.autogen)},${call log.action,"rm",$(file)};}
 	$(rm.force) ${addprefix $($(1).prefix),$($(1).files.autogen)}
 
 # make the rules that publish the gateway headers
