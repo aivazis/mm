@@ -130,10 +130,10 @@ assert_contains "Has 'extensions.info' target" "${_mm_global_target_specs[*]}" "
 # =============================================================================
 echo "\n${BLUE}Test 2: Suffix spec tables${NC}"
 
-if (( ${#_mm_library_suffix_specs} == 21 )); then
+if (( ${#_mm_library_suffix_specs} == 22 )); then
     pass "Library suffix specs: ${#_mm_library_suffix_specs} entries"
 else
-    fail "Library suffix specs: expected 21, got ${#_mm_library_suffix_specs}"
+    fail "Library suffix specs: expected 22, got ${#_mm_library_suffix_specs}"
 fi
 
 if (( ${#_mm_package_suffix_specs} == 18 )); then
