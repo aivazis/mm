@@ -72,6 +72,9 @@ $(1).headers: $($(1).staging.headers)
 # clean up the autogen files; nothing to do by default
 $(1).autogen.cleanup:: $(1).assets
 
+# unconditional generation of the autogen files
+$(1).gen: ${addprefix $($(1).prefix),$($(1).files.autogen)}
+
 # unconditional clean up of the autogen files
 $(1).cleangen:
 	@${foreach file,${addprefix $($(1).prefix),$($(1).files.autogen)},${call log.action,"rm",$(file)};}
