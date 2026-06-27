@@ -51,6 +51,8 @@ typeset -a _mm_global_target_specs=(
     'languages.info:List known languages'
     'suffixes.info:Show file extension to language map'
     'targets.info:Show target tag and variants'
+    'mode.info:Show the current build mode and its settings'
+    'mode.help:Explain the build mode and list the choices'
     'extern.info:Show external package support'
     'extern.verify:Verify all active externals resolve'
     'extern.db.info:Show the active package database'
@@ -177,10 +179,14 @@ typeset -a _mm_webpack_suffix_specs=(
     '.generated:Build relay-generated bundle'
     '.chunks:Build external dependency chunks'
     '.generate.prep:Prepare for generation'
+    '.schema:(Re)generate the schema on demand'
+    '.schema.clean:Remove the generated schema'
     '.static:Build static assets'
     '.config:Export configuration files'
     '.sources:Stage source files'
     '.npm_modules:Install npm dependencies'
+    '.lock.seed:Seed a clean npm install from the committed lock'
+    '.lock.harvest:Harvest the resolved lock to the source tree'
     '.info:Show metadata'
     '.info.sources:Show source files'
     '.info.staged:List staged files'
@@ -197,16 +203,23 @@ typeset -a _mm_webpack_suffix_specs=(
 
 # Per-vite bundle suffixes (from make/vite/rules.mm)
 typeset -a _mm_vite_suffix_specs=(
-    '.config:Export configuration files'
+    '.stage:Stage config, sources, and modules'
     '.stage.config:Stage configuration files'
     '.stage.dirs:Create staging directories'
     '.stage.files:Stage source files'
     '.stage.modules:Install/update node modules'
+    '.codegen:Run relay/houdini code generation'
+    '.bundle:Build the production bundle'
+    '.install:Install the built bundle'
+    '.dev:Run the vite dev server'
+    '.lock.seed:Seed a clean npm install from the committed lock'
+    '.lock.harvest:Harvest the resolved lock to the source tree'
+    '.clean:Clean artifacts'
+    '.config:Export configuration files'
     '.directories:Create required directories'
     '.staging.prefix:Create staging area'
     '.info:Show metadata'
     '.info.config:Show configuration files'
-    '.help:Show documentation'
 )
 
 # Per-verbatim suffixes (from make/verbatim/rules.mm)
@@ -926,6 +939,8 @@ mm-target-help() {
             languages.info)      echo "List known languages" ;;
             suffixes.info)       echo "Show file extension to language map" ;;
             targets.info)        echo "Show target tag and variants" ;;
+            mode.info)           echo "Show the current build mode and its settings" ;;
+            mode.help)           echo "Explain the build mode and list the choices" ;;
             extern.info)         echo "Show external package support" ;;
             extern.verify)       echo "Verify all active externals resolve" ;;
             extern.db.info)      echo "Show the active package database" ;;
@@ -949,6 +964,7 @@ mm-target-help() {
             toolchains.info)     echo "List environment-level developer toolchains" ;;
             *.directories)       echo "Create required directories" ;;
             *.assets)            echo "Build all assets" ;;
+            *.schema.clean)      echo "Remove the generated schema" ;;
             *.clean)             echo "Clean artifacts" ;;
             *.info)              echo "Show metadata" ;;
             *.info.contents)     echo "Show asset contents" ;;
@@ -1002,12 +1018,19 @@ mm-target-help() {
             *.info.root)         echo "Show pack prefix" ;;
             *.info.client)       echo "Show client path" ;;
             *.info.schema)       echo "Show schema path" ;;
+            *.schema)            echo "(Re)generate the schema on demand" ;;
             *.info.staging)      echo "Show staging prefix" ;;
             *.info.prefix)       echo "Show install prefix" ;;
             *.stage.config)      echo "Stage configuration files" ;;
             *.stage.dirs)        echo "Create staging directories" ;;
             *.stage.files)       echo "Stage source files" ;;
             *.stage.modules)     echo "Install/update node modules" ;;
+            *.stage)             echo "Stage config, sources, and modules" ;;
+            *.codegen)           echo "Run relay/houdini code generation" ;;
+            *.bundle)            echo "Build the production bundle" ;;
+            *.dev)               echo "Run the vite dev server" ;;
+            *.lock.seed)         echo "Seed a clean npm install from the committed lock" ;;
+            *.lock.harvest)      echo "Harvest the resolved lock to the source tree" ;;
             *.staging.prefix)    echo "Create staging area" ;;
             *.install)           echo "Install (toolchain or ux bundle)" ;;
             *.verify)            echo "Verify a toolchain is present" ;;

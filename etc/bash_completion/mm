@@ -11,7 +11,7 @@
 # make/extern/rules.mm, make/projects/model.mm, make/projects/rules.mm,
 # make/libraries/rules.mm, make/packages/rules.mm, make/extensions/rules.mm,
 # make/tests/rules.mm, make/docker-images/rules.mm, make/webpack/rules.mm,
-# make/vite/rules.mm
+# make/vite/rules.mm, make/modes/rules.mm
 _comp_cmd_mm__global_targets="
 help
 mm.usage
@@ -38,6 +38,8 @@ compilers.info
 languages.info
 suffixes.info
 targets.info
+mode.info
+mode.help
 extern.info
 extern.verify
 extern.db.info
@@ -165,10 +167,14 @@ _comp_cmd_mm__webpack_suffixes="
 .generated
 .chunks
 .generate.prep
+.schema
+.schema.clean
 .static
 .config
 .sources
 .npm_modules
+.lock.seed
+.lock.harvest
 .info
 .info.sources
 .info.staged
@@ -185,16 +191,23 @@ _comp_cmd_mm__webpack_suffixes="
 
 # Per-vite bundle suffixes (from make/vite/rules.mm)
 _comp_cmd_mm__vite_suffixes="
-.config
+.stage
 .stage.config
 .stage.dirs
 .stage.files
 .stage.modules
+.codegen
+.bundle
+.install
+.dev
+.lock.seed
+.lock.harvest
+.clean
+.config
 .directories
 .staging.prefix
 .info
 .info.config
-.help
 "
 
 # Per-verbatim suffixes (from make/verbatim/rules.mm)
@@ -252,6 +265,10 @@ _comp_cmd_mm__get_target_description()
         suffixes.info)       echo "Show file extension to language map" ;;
         targets.info)        echo "Show target tag and variants" ;;
 
+        # --- Build mode ---
+        mode.info)           echo "Show the current build mode and its settings" ;;
+        mode.help)           echo "Explain the build mode and list the choices" ;;
+
         # --- External packages ---
         extern.info)         echo "Show external package support" ;;
         extern.verify)       echo "Verify all active externals resolve" ;;
@@ -283,6 +300,7 @@ _comp_cmd_mm__get_target_description()
         # --- Per-asset suffix descriptions ---
         *.directories)       echo "Create required directories" ;;
         *.assets)            echo "Build all assets" ;;
+        *.schema.clean)      echo "Remove the generated schema" ;;
         *.clean)             echo "Clean artifacts" ;;
         *.info)              echo "Show metadata" ;;
         *.info.contents)     echo "Show asset contents" ;;
@@ -336,12 +354,19 @@ _comp_cmd_mm__get_target_description()
         *.info.root)         echo "Show pack prefix" ;;
         *.info.client)       echo "Show client path" ;;
         *.info.schema)       echo "Show schema path" ;;
+        *.schema)            echo "(Re)generate the schema on demand" ;;
         *.info.staging)      echo "Show staging prefix" ;;
         *.info.prefix)       echo "Show install prefix" ;;
         *.stage.config)      echo "Stage configuration files" ;;
         *.stage.dirs)        echo "Create staging directories" ;;
         *.stage.files)       echo "Stage source files" ;;
         *.stage.modules)     echo "Install/update node modules" ;;
+        *.stage)             echo "Stage config, sources, and modules" ;;
+        *.codegen)           echo "Run relay/houdini code generation" ;;
+        *.bundle)            echo "Build the production bundle" ;;
+        *.dev)               echo "Run the vite dev server" ;;
+        *.lock.seed)         echo "Seed a clean npm install from the committed lock" ;;
+        *.lock.harvest)      echo "Harvest the resolved lock to the source tree" ;;
         *.staging.prefix)    echo "Create staging area" ;;
         *.install)           echo "Install (toolchain or ux bundle)" ;;
         *.verify)            echo "Verify a toolchain is present" ;;

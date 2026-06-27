@@ -160,16 +160,16 @@ else
     fail "Docker suffix specs: expected 6, got ${#_mm_docker_suffix_specs}"
 fi
 
-if (( ${#_mm_webpack_suffix_specs} == 20 )); then
+if (( ${#_mm_webpack_suffix_specs} == 24 )); then
     pass "Webpack suffix specs: ${#_mm_webpack_suffix_specs} entries"
 else
-    fail "Webpack suffix specs: expected 20, got ${#_mm_webpack_suffix_specs}"
+    fail "Webpack suffix specs: expected 24, got ${#_mm_webpack_suffix_specs}"
 fi
 
-if (( ${#_mm_vite_suffix_specs} == 10 )); then
+if (( ${#_mm_vite_suffix_specs} == 17 )); then
     pass "Vite suffix specs: ${#_mm_vite_suffix_specs} entries"
 else
-    fail "Vite suffix specs: expected 10, got ${#_mm_vite_suffix_specs}"
+    fail "Vite suffix specs: expected 17, got ${#_mm_vite_suffix_specs}"
 fi
 
 if (( ${#_mm_verbatim_suffix_specs} == 7 )); then
@@ -656,11 +656,11 @@ assert_line "Second of two packages" "$ASSETS" "package|edge.pkg2"
 # =============================================================================
 echo "\n${BLUE}Test 18: Global target count${NC}"
 
-# We expect exactly 45 global targets
-if (( ${#_mm_global_target_specs} == 45 )); then
-    pass "Exactly 45 global targets"
+# We expect exactly 47 global targets
+if (( ${#_mm_global_target_specs} == 47 )); then
+    pass "Exactly 47 global targets"
 else
-    fail "Expected 45 global targets, got ${#_mm_global_target_specs}"
+    fail "Expected 47 global targets, got ${#_mm_global_target_specs}"
 fi
 
 # =============================================================================
