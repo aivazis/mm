@@ -87,6 +87,10 @@ typeset -a _mm_project_suffix_specs=(
     '.info:Show metadata'
     '.info.contents:Show asset contents'
     '.help:Show documentation'
+    '.boot:Assemble the bootstrap bundle (clean release)'
+    '.boot.stage:Stage all bootstrap packages'
+    '.boot.bundle:Zip the staged bootstrap contents'
+    '.boot.clean:Discard the bootstrap release directory'
 )
 
 # Per-library suffixes (from make/libraries/rules.mm)
@@ -966,6 +970,10 @@ mm-target-help() {
             *.directories)       echo "Create required directories" ;;
             *.assets)            echo "Build all assets" ;;
             *.schema.clean)      echo "Remove the generated schema" ;;
+            *.boot)              echo "Assemble the bootstrap bundle (clean release)" ;;
+            *.boot.stage)        echo "Stage all bootstrap packages" ;;
+            *.boot.bundle)       echo "Zip the staged bootstrap contents" ;;
+            *.boot.clean)        echo "Discard the bootstrap release directory" ;;
             *.clean)             echo "Clean artifacts" ;;
             *.info)              echo "Show metadata" ;;
             *.info.contents)     echo "Show asset contents" ;;

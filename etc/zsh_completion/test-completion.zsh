@@ -617,10 +617,10 @@ assert_contains "Verbatim: .info.staged.directories" "${_mm_verbatim_suffix_spec
 # =============================================================================
 echo "\n${BLUE}Test 16: Project suffix specs${NC}"
 
-if (( ${#_mm_project_suffix_specs} == 6 )); then
+if (( ${#_mm_project_suffix_specs} == 10 )); then
     pass "Project suffix specs: ${#_mm_project_suffix_specs} entries"
 else
-    fail "Project suffix specs: expected 6, got ${#_mm_project_suffix_specs}"
+    fail "Project suffix specs: expected 10, got ${#_mm_project_suffix_specs}"
 fi
 
 assert_contains "Project: .directories" "${_mm_project_suffix_specs[*]}" ".directories:Create required"
@@ -629,6 +629,10 @@ assert_contains "Project: .clean" "${_mm_project_suffix_specs[*]}" ".clean:Clean
 assert_contains "Project: .info" "${_mm_project_suffix_specs[*]}" ".info:Show metadata"
 assert_contains "Project: .info.contents" "${_mm_project_suffix_specs[*]}" ".info.contents:Show asset"
 assert_contains "Project: .help" "${_mm_project_suffix_specs[*]}" ".help:Show documentation"
+assert_contains "Project: .boot" "${_mm_project_suffix_specs[*]}" ".boot:Assemble the bootstrap"
+assert_contains "Project: .boot.stage" "${_mm_project_suffix_specs[*]}" ".boot.stage:Stage all bootstrap"
+assert_contains "Project: .boot.bundle" "${_mm_project_suffix_specs[*]}" ".boot.bundle:Zip the staged"
+assert_contains "Project: .boot.clean" "${_mm_project_suffix_specs[*]}" ".boot.clean:Discard the bootstrap"
 
 # =============================================================================
 # Test 17: Comments and inline values in config parsing
