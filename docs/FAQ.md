@@ -484,7 +484,7 @@ ready-made version of all three functions lives in
 
 ### mm says my GNU make is too old
 
-You need GNU make 4.2.1 or later. On macOS, `make` is BSD make; install
+You need GNU make 4.4 or later. On macOS, `make` is BSD make; install
 `gmake` via Homebrew or MacPorts and make sure it is on your `PATH`.
 
 ### mm cannot find my project configuration

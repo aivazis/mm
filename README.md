@@ -465,7 +465,7 @@ mm --slots=4
 
 - Python 3.10 or later
 - [pyre](https://github.com/pyre/pyre) framework
-- GNU make 4.2.1 or later (on macOS: install `gmake` via Homebrew or MacPorts)
+- GNU make 4.4 or later (on macOS: install `gmake` via Homebrew or MacPorts)
 
 
 ## Installation
