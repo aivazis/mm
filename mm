@@ -777,7 +777,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.line(f"while verifying my installation")
                     channel.indent()
                     channel.line(f"'{self.make}' doesn't seem to be GNU make")
-                    channel.line(f"you need GNU make 4.2.1 or higher")
+                    channel.line(f"you need GNU make 4.4 or higher")
                     channel.outdent()
                     channel.line(f"check your setting for my 'make' property")
                     # flush
@@ -786,15 +786,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     return
                 # get the version info
                 major, minor, micro = map(int, match.groups(default=0))
-                # we need 4.2.1 or higher
-                if (major, minor, micro) < (4, 2, 1):
+                # we need 4.4 or higher, for the {.WAIT} prerequisite ordering primitive
+                if (major, minor, micro) < (4, 4, 0):
                     # we have a problem
                     channel = journal.error("mm.gnu")
                     # complain
                     channel.line(f"your version of GNU make is too old")
                     channel.line(f"while verifying my installation")
                     channel.indent()
-                    channel.line(f"you need GNU make 4.2.1 or higher")
+                    channel.line(f"you need GNU make 4.4 or higher")
                     channel.line(
                         f"your '{self.make}' version is {major}.{minor}.{micro}"
                     )
