@@ -58,7 +58,7 @@ _mm_version = "5.3.0"
 # find out where i live
 _mm_home = pyre.primitives.path(__file__).resolve().parent
 # check whether i'm running from my source directory
-_mm_insitu = (_mm_home / "make").exists()
+_mm_insitu = (_mm_home / "make" / "merlin.mm").exists()
 
 # if i'm running in-place
 if _mm_insitu:
@@ -332,8 +332,6 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         #   investigate and rethink
         # get the current user
         self.user = self.pyre_executive.user
-        # record the mm installation directory
-        self._home = _mm_home
         # and the version
         self._version = _mm_version
         # prime the make executable
@@ -1330,8 +1328,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield "mm=" + " ".join([sys.executable, __file__, *self.relaunchArguments()])
         # the version
         yield f"mm.version={self._version}"
-        # the mm installation location
-        yield f"mm.home={self._home}"
+        # the directory that holds the make engine, so {mm.home}/make is the engine root
+        yield f"mm.home={self.engine.parent}"
         # the path to the top level makefile
         yield f"mm.merlin={self._makefile}"
         # the location of the built-in package database
