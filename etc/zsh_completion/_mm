@@ -601,6 +601,63 @@ _mm_complete_project_targets() {
     (( ${#specs} )) && _describe -t project-targets 'project target' specs
 }
 
+# Generate per-package bootstrap staging target completions
+# ({project}.boot.stage.{stem}) for projects that declare boot.packages; each
+# package reference is resolved to its stem, since that is what names the target
+_mm_complete_boot_stage_targets() {
+    local project_root
+    project_root="$(_mm_find_project_root)"
+    [[ -z "$project_root" ]] && return 1
+
+    local mm_dir="$project_root/.mm"
+    [[ ! -d "$mm_dir" ]] && return 1
+
+    # Map every package reference to its declared stem
+    typeset -A stems
+    local ref stem
+    while IFS='|' read -r ref stem; do
+        [[ -z "$ref" || -z "$stem" ]] && continue
+        stems[$ref]="$stem"
+    done < <(awk '
+        /\.stem[[:space:]]*:?=[[:space:]]/ {
+            ref = $0;
+            sub(/[[:space:]]*:?=.*$/, "", ref);
+            sub(/\.stem$/, "", ref);
+            sub(/^[[:space:]]*/, "", ref);
+            val = $0;
+            gsub(/#.*/, "", val);
+            sub(/^.*:?=[[:space:]]*/, "", val);
+            sub(/[[:space:]]+$/, "", val);
+            if (ref != "" && val != "") print ref "|" val;
+        }
+    ' "$mm_dir"/*.mm(N) 2>/dev/null)
+
+    local specs=()
+    local project pkgref
+    while IFS='|' read -r project pkgref; do
+        [[ -z "$project" || -z "$pkgref" ]] && continue
+        specs+=("${project}.boot.stage.${stems[$pkgref]:-$pkgref}:(Re)stage a single bootstrap package")
+    done < <(awk '
+        /\.boot\.packages[[:space:]]*:?=[[:space:]]/ {
+            proj = $0;
+            sub(/\.boot\.packages.*$/, "", proj);
+            sub(/^[[:space:]]*/, "", proj);
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print proj "|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print proj "|" a[i];
+            }
+        }
+    ' "$mm_dir"/*.mm(N) 2>/dev/null)
+
+    (( ${#specs} )) && _describe -t boot-stage-targets 'boot stage target' specs
+}
+
 # Generate per-library target completions
 _mm_complete_library_targets() {
     local project_root
@@ -971,6 +1028,7 @@ mm-target-help() {
             *.assets)            echo "Build all assets" ;;
             *.schema.clean)      echo "Remove the generated schema" ;;
             *.boot)              echo "Assemble the bootstrap bundle (clean release)" ;;
+            *.boot.stage.*)      echo "(Re)stage a single bootstrap package" ;;
             *.boot.stage)        echo "Stage all bootstrap packages" ;;
             *.boot.bundle)       echo "Zip the staged bootstrap contents" ;;
             *.boot.clean)        echo "Discard the bootstrap release directory" ;;
@@ -1130,6 +1188,7 @@ _mm() {
             _alternative \
                 'global-targets:global target:_mm_complete_global_targets' \
                 'project-targets:project target:_mm_complete_project_targets' \
+                'boot-stage-targets:boot stage target:_mm_complete_boot_stage_targets' \
                 'library-targets:library target:_mm_complete_library_targets' \
                 'package-targets:package target:_mm_complete_package_targets' \
                 'extension-targets:extension target:_mm_complete_extension_targets' \
