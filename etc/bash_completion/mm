@@ -307,6 +307,7 @@ _comp_cmd_mm__get_target_description()
         *.assets)            echo "Build all assets" ;;
         *.schema.clean)      echo "Remove the generated schema" ;;
         *.boot)              echo "Assemble the bootstrap bundle (clean release)" ;;
+        *.boot.stage.*)      echo "(Re)stage a single bootstrap package" ;;
         *.boot.stage)        echo "Stage all bootstrap packages" ;;
         *.boot.bundle)       echo "Zip the staged bootstrap contents" ;;
         *.boot.clean)        echo "Discard the bootstrap release directory" ;;
@@ -652,6 +653,63 @@ _comp_cmd_mm__get_project_names()
     done
 }
 
+# Generate the per-package bootstrap staging targets for projects that opt in
+# with a non-empty {project}.boot.packages. Each package reference is resolved
+# to its stem, since the target is {project}.boot.stage.{stem}.
+# @param project_root  Path to the project root directory
+# @return List of {project}.boot.stage.{stem} targets (one per line)
+_comp_cmd_mm__get_boot_stage_targets()
+{
+    local project_root=$1
+    local mm_dir="$project_root/.mm"
+
+    [[ ! -d "$mm_dir" ]] && return
+
+    # Map every package reference to its declared stem
+    local -A stems
+    local ref stem
+    while IFS='|' read -r ref stem; do
+        [[ -z "$ref" || -z "$stem" ]] && continue
+        stems["$ref"]="$stem"
+    done < <(awk '
+        /\.stem[[:space:]]*:?=[[:space:]]/ {
+            ref = $0;
+            sub(/[[:space:]]*:?=.*$/, "", ref);
+            sub(/\.stem$/, "", ref);
+            sub(/^[[:space:]]*/, "", ref);
+            val = $0;
+            gsub(/#.*/, "", val);
+            sub(/^.*:?=[[:space:]]*/, "", val);
+            sub(/[[:space:]]+$/, "", val);
+            if (ref != "" && val != "") print ref "|" val;
+        }
+    ' "$mm_dir"/*.mm 2>/dev/null)
+
+    # For each declared boot.packages entry, emit {project}.boot.stage.{stem}
+    local project pkgref
+    while IFS='|' read -r project pkgref; do
+        [[ -z "$project" || -z "$pkgref" ]] && continue
+        # fall back to the reference itself if no explicit stem was found
+        echo "${project}.boot.stage.${stems[$pkgref]:-$pkgref}"
+    done < <(awk '
+        /\.boot\.packages[[:space:]]*:?=[[:space:]]/ {
+            proj = $0;
+            sub(/\.boot\.packages.*$/, "", proj);
+            sub(/^[[:space:]]*/, "", proj);
+            sub(/^[^:+]*:?=[[:space:]]*/, "");
+            gsub(/#.*/, "");
+            n = split($0, a);
+            for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print proj "|" a[i];
+            while ($0 ~ /\\[[:space:]]*$/) {
+                if (getline <= 0) break;
+                gsub(/#.*/, "");
+                n = split($0, a);
+                for (i = 1; i <= n; i++) if (a[i] != "" && a[i] !~ /\\/) print proj "|" a[i];
+            }
+        }
+    ' "$mm_dir"/*.mm 2>/dev/null) | sort -u
+}
+
 # =============================================================================
 # Test target discovery (filesystem scan)
 # =============================================================================
@@ -991,6 +1049,13 @@ _comp_cmd_mm__get_all_targets()
                 targets="$targets ${proj}${suffix}"
             done
         done
+
+        # 3b. Per-package bootstrap staging targets ({project}.boot.stage.{stem})
+        local boot_stage_targets
+        boot_stage_targets=$(_comp_cmd_mm__get_boot_stage_targets "$project_root")
+        if [[ -n "$boot_stage_targets" ]]; then
+            targets="$targets $(echo "$boot_stage_targets" | tr '\n' ' ')"
+        fi
 
         # 4. Parse asset declarations and generate suffixed targets
         local assets
