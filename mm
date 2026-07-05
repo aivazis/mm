@@ -104,7 +104,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # compute branch-keyed build paths and print shell export statements
     mode = pyre.properties.str()
     mode.default = "dev"
-    mode.validators = pyre.constraints.isMember("dev", "release", "conda", "macports", "ubuntu")
+    mode.validators = pyre.constraints.isMember(
+        "dev", "release", "conda", "macports", "ubuntu"
+    )
     mode.doc = "the strategy for generating locations for the build products"
 
     branch = pyre.properties.bool()
@@ -1942,7 +1944,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # a warning rather than a hard failure: cspice is installed, just not where we expect
             warning = journal.warning("mm.pkgdb")
             # what happened
-            warning.line(f"cspice is installed in '{prefix}' but SpiceUsr.h was not found")
+            warning.line(
+                f"cspice is installed in '{prefix}' but SpiceUsr.h was not found"
+            )
             # the consequence
             warning.line("leaving the default include path; it may be wrong")
             # flush
