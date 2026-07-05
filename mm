@@ -1986,12 +1986,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     def _emitCondaCuda(self, index, prefix):
         """
-        Resolve cuda as a capability by asking whether this environment can actually compile and
-        link cuda code, rather than by recognizing package names: locate the runtime header
-        ({cuda_runtime.h}) for the include path, the runtime library ({libcudart}) for the
-        library path, and the compiler ({nvcc}) on the PATH. Where conda placed the parts is
-        irrelevant; if all three are present the build can be configured. Returns a database
-        entry, or None along with a precise account of what is missing
+        Deduce the layout of the conda package
         """
 
         # find the first {cuda-*} package whose manifest owns a file matching {predicate} and
@@ -2015,7 +2010,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # no cuda package owns such a file
             return None, None
 
-        #  deduce the include path: the directory holding the runtime header the build marks against
+        # deduce the include path: the directory holding the runtime header the build marks against
         incdir, incver = locate(lambda path: path.name == "cuda_runtime.h")
         # deduce the library path: the directory holding the runtime library, shared or static
         libdir, _ = locate(lambda path: path.name.startswith("libcudart"))
@@ -2040,58 +2035,30 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
         # if any part is missing, cuda cannot be configured here
         if missing:
-            # explain rather than silently skip
-            warning = journal.warning("mm.pkgdb")
-            # where we looked
-            warning.line(f"cuda cannot be configured from '{prefix}'")
-            # what we could not find
-            warning.line(f"missing: {'; '.join(missing)}")
-            # the common, easily fixed case: the toolkit is installed but nvcc is not visible
-            if nvcc is None and incdir is not None and libdir is not None:
-                # nudge the user toward the fix rather than declaring cuda unusable
-                warning.line("the toolkit is installed; put nvcc on your PATH and try again")
-            # the consequence
-            warning.line("cuda support disabled")
-            # flush
-            warning.log()
-            # and leave cuda out of the database
+            # so leave it out of the database
             return None
 
         # the version, for display only: the {cuda-version} pin when conda ships it, otherwise the
         # version of the package that owns the headers (e.g. cuda-cudart-dev 11.8.89 -> 11.8)
         raw = index["cuda-version"][0] if "cuda-version" in index else incver
 
-        # configure the build from where the parts actually live. when the headers and libraries
-        # share a parent -- the usual conda layouts, {prefix} on the nvidia channel and
-        # {targets/<arch>} on conda-forge -- treat that parent as the cuda home and derive the
-        # include and library paths from it, mirroring the {cuda/init.mm} home + derived model
-        incParent, libParent = incdir.parent, libdir.parent
-        # the parts sit under a single home
-        if str(incParent) == str(libParent):
-            # which is the environment prefix itself when the shared parent is {.}
-            home = (
-                "$(conda.prefix)"
-                if str(incParent) == "."
-                else f"$(conda.prefix)/{incParent}"
-            )
-            # the home, then the include path (keeping the cuda-13 {cccl} reorg) and the library
-            # path, both derived from it
-            lines = [
-                f"cuda.dir ?= {home}",
-                f"cuda.incpath ?= $(cuda.dir)/{incdir.name} "
-                f"${{wildcard $(cuda.dir)/{incdir.name}/cccl}}",
-                f"cuda.libpath ?= $(cuda.dir)/{libdir.name}",
-            ]
-        # otherwise the headers and libraries live in unrelated trees, so there is no single home:
-        # keep the prefix as the {info} home and the rpath base, and pin each path on its own
-        else:
-            # the prefix is the home, with the include and library paths pinned independently
-            lines = [
-                "cuda.dir ?= $(conda.prefix)",
-                f"cuda.incpath ?= $(conda.prefix)/{incdir} "
-                f"${{wildcard $(conda.prefix)/{incdir}/cccl}}",
-                f"cuda.libpath ?= $(conda.prefix)/{libdir}",
-            ]
+        # configure the build from where the parts actually live: the cuda home is the deepest
+        # directory that is an ancestor of both the headers and the libraries, mirroring the
+        # {cuda/init.mm} home + derived model. this is the environment prefix when the parts share
+        # no ancestor below it (nvidia channel: {include} + {lib}), and the shared subtree
+        # otherwise (conda-forge: {targets/<arch>/include} + {targets/<arch>/lib})
+        root = incdir.commonRoot(libdir)
+        # splice the shared root onto the prefix, collapsing the {.} root to the prefix itself
+        home = "$(conda.prefix)" if str(root) == "." else f"$(conda.prefix)/{root}"
+        # express the include and library directories relative to that home
+        inc, lib = incdir.relativeTo(root), libdir.relativeTo(root)
+        # the home, then the include path (keeping the cuda-13 {cccl} reorg) and the library path,
+        # both derived from it
+        lines = [
+            f"cuda.dir ?= {home}",
+            f"cuda.incpath ?= $(cuda.dir)/{inc} ${{wildcard $(cuda.dir)/{inc}/cccl}}",
+            f"cuda.libpath ?= $(cuda.dir)/{lib}",
+        ]
 
         # hand back the entry
         return {
