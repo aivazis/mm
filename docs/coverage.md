@@ -47,18 +47,26 @@ support trails clang's; if a build rejects the flags, fall back to `--coverage` 
 
 ## What the report covers
 
-The llvm reporter attributes the profiles to a set of binaries. mm discovers every
-shared library installed under the prefix automatically. Code that lives **only** in a
-test driver — most importantly instantiated templates from a header-only library — is
-not in any `.so`, so the driver binary must be named explicitly:
+The llvm reporter attributes the profiles to a set of binaries, discovered automatically
+in the model pass: every shared library installed under the prefix, plus every compiled
+test-driver binary registered by the test suites. The drivers matter because a header-only
+template library instantiates most of its code into them rather than into any `.so` — the
+pyre grid case, where a report built from the shared libraries alone would miss nearly
+everything. A `wildcard` keeps only the binaries a given run actually built, so a partial
+test run never hands the reporter a missing object.
+
+A project rarely needs to name binaries by hand, but `coverage.objects` remains as an
+escape hatch for anything mm cannot find on its own:
 
 ```makefile
 # in a project's .mm configuration
-coverage.objects += $(builder.staging)<path-to-compiled-test-driver>
+coverage.objects += $(builder.staging)<path-to-some-other-instrumented-binary>
 ```
 
-This is the pyre case: the grid templates are instantiated into the drivers, so without
-adding the drivers the report only sees whatever the shared libraries instantiated.
+When the same inline or template function is instantiated across many binaries — the
+shared library and dozens of drivers — llvm-cov reports "functions have mismatched data"
+and skips the conflicting instances. This is expected for a template-heavy suite and does
+not corrupt the totals; it is a mild undercount of the skipped functions.
 
 Two caveats worth keeping in front of you when reading a coverage number:
 
