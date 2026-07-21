@@ -73,6 +73,9 @@ typeset -a _mm_global_target_specs=(
     'webpack.info:List known webpack bundles'
     'vite.info:List known vite bundles'
     'toolchains.info:List environment-level developer toolchains'
+    'coverage:Merge coverage data and render the report'
+    'coverage.info:Show coverage settings for the current build'
+    'coverage.clean:Discard collected coverage data and the report'
 )
 
 # =============================================================================
@@ -1024,6 +1027,9 @@ mm-target-help() {
             webpack.info)        echo "List known webpack bundles" ;;
             vite.info)           echo "List known vite bundles" ;;
             toolchains.info)     echo "List environment-level developer toolchains" ;;
+            coverage)            echo "Merge coverage data and render the report" ;;
+            coverage.info)       echo "Show coverage settings for the current build" ;;
+            coverage.clean)      echo "Discard collected coverage data and the report" ;;
             *.directories)       echo "Create required directories" ;;
             *.assets)            echo "Build all assets" ;;
             *.schema.clean)      echo "Remove the generated schema" ;;
@@ -1180,7 +1186,7 @@ _mm() {
                 'opt[Optimized build (-O3)]' \
                 'shared[Position-independent code (-fPIC)]' \
                 'prof[Profiling support (-pg)]' \
-                'cov[Coverage instrumentation (--coverage)]' \
+                'cov[Coverage instrumentation]' \
                 'reldeb[Release with debug info (-g -O)]' \
                 && ret=0
             ;;
