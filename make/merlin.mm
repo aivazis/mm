@@ -22,7 +22,7 @@ define model :=
     log mm modes
     languages platforms hosts users developers
     compilers targets builder runners toolchains
-	extern projects
+	extern projects coverage
 endef
 
 # the categories of methods each object provides
