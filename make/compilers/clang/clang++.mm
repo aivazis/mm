@@ -37,7 +37,10 @@ clang++.compile.isysroot := -isysroot
 clang++.debug := -g
 clang++.reldeb := -Og -fno-omit-frame-pointer
 clang++.opt := -O3
-clang++.cov := --coverage
+# llvm source based coverage; richer than the gcov compatible {--coverage} because it records
+# regions and branches rather than lines, and it resolves templates correctly. the same string is
+# valid at both compile and link time, so the single target variable serves both categories
+clang++.cov := -fprofile-instr-generate -fcoverage-mapping
 clang++.prof := -pg
 clang++.shared := -fPIC
 # openmp support

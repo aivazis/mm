@@ -33,8 +33,11 @@ flang.debug := -g
 # VERIFY: gfortran uses -g -O; using -g -O2 here as a conservative LLVM-friendly choice
 flang.reldeb := -g -O2
 flang.opt := -O3
-# VERIFY: --coverage (LLVM style) vs -coverage (GCC style); flang-new likely uses --coverage
-flang.cov := --coverage
+# match the llvm source based coverage the {clang} front ends use, so a mixed c++/fortran binary
+# links against a single coverage runtime and its objects feed the same {llvm-profdata} merge.
+# VERIFY: flang's coverage support trails clang's; if a build rejects these, fall back to the gcov
+# compatible {--coverage} and read this suite's fortran with {gcov}/{gcovr} instead of {llvm-cov}
+flang.cov := -fprofile-instr-generate -fcoverage-mapping
 # VERIFY: gprof-style -pg has limited support in LLVM Fortran; may silently do nothing
 flang.prof := -pg
 flang.shared := -fPIC
