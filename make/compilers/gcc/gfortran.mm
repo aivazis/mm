@@ -62,5 +62,10 @@ gfortran.mixed.libraries += gfortran
 define gfortran.makedep =
 endef
 
+# clean up temporaries left behind while compiling: the gcov coverage notes and data
+# ({.gcno}/{.gcda}) a {cov} build drops beside the object; gfortran emits no dependency file
+#  usage: gfortran.clean {base-name}
+gfortran.clean = $(1).gcno $(1).gcda
+
 
 # end of file

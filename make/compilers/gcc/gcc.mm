@@ -53,9 +53,10 @@ gcc.link.ext = $(platform.c.ext)
 # command line options
 gcc.defines = MM_COMPILER_gcc
 
-# clean up temporaries left behind while compiling
+# clean up temporaries left behind while compiling: the dependency file, plus the gcov coverage
+# notes and data ({.gcno}/{.gcda}) a {cov} build drops beside the object
 #  usage: gcc.clean {base-name}
-gcc.clean = $(1).d
+gcc.clean = $(1).d $(1).gcno $(1).gcda
 
 # dependency generation
 # gcc does this in one pass: the dependency file gets generated during the compilation phase so

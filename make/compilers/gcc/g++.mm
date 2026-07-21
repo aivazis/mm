@@ -57,9 +57,10 @@ g++.link.ext = $(platform.c++.ext)
 # command line options
 g++.defines = MM_COMPILER_gcc
 
-# clean up temporaries left behind while compiling
+# clean up temporaries left behind while compiling: the dependency file, plus the gcov coverage
+# notes and data ({.gcno}/{.gcda}) a {cov} build drops beside the object
 #  usage: g++.clean {base-name}
-g++.clean = $(1).d
+g++.clean = $(1).d $(1).gcno $(1).gcda
 
 # dependency generation
 # g++ does this in one pass: the dependency file gets generated during the compilation phase so
