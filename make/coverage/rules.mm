@@ -45,8 +45,10 @@ coverage.llvm:
 	@${call log.action,"lcov","$(coverage.info)"}
 	@llvm-cov export -instr-profile=$(coverage.profdata) -format=lcov $(coverage.objargs) > $(coverage.info)
 
-# the gcov back end: {gcovr} discovers the {.gcno}/{.gcda} pairs beneath the project root and renders
-# both an html tree and an lcov file in one pass, keeping the two back ends interchangeable downstream
+# the gcov back end: {gcovr} discovers the {.gcno}/{.gcda} pairs and renders both an html tree and an
+# lcov file in one pass, keeping the two back ends interchangeable downstream. it searches two roots
+# because the coverage data is split: a test driver's data lands next to its in-tree source under the
+# project home, while a library object's data lands next to the object in the staging tree
 coverage.gcov:
 	@${if $(coverage.active),,${call log.error,"not a coverage build; add cov to the target variants and rerun"}; exit 1}
 	@command -v gcovr >/dev/null 2>&1 || ( \
@@ -58,7 +60,7 @@ coverage.gcov:
 	@gcovr --root $(project.home) --print-summary \
 	    --html-details $(coverage.report)index.html \
 	    --lcov $(coverage.info) \
-	    $(project.home)
+	    $(project.home) $(builder.staging)
 
 # discard the collected data and the rendered report, leaving the instrumented objects in place so a
 # fresh measurement run does not force a rebuild
