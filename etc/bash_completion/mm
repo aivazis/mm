@@ -11,7 +11,7 @@
 # make/extern/rules.mm, make/projects/model.mm, make/projects/rules.mm,
 # make/libraries/rules.mm, make/packages/rules.mm, make/extensions/rules.mm,
 # make/tests/rules.mm, make/docker-images/rules.mm, make/webpack/rules.mm,
-# make/vite/rules.mm, make/modes/rules.mm
+# make/vite/rules.mm, make/modes/rules.mm, make/coverage/rules.mm
 _comp_cmd_mm__global_targets="
 help
 mm.usage
@@ -60,6 +60,9 @@ docker-images.info
 webpack.info
 vite.info
 toolchains.info
+coverage
+coverage.info
+coverage.clean
 "
 
 # =============================================================================

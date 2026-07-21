@@ -124,6 +124,7 @@ assert_contains "Has 'extern.db.clean' target" "${_mm_global_target_specs[*]}" "
 assert_contains "Has 'libraries.info' target" "${_mm_global_target_specs[*]}" "libraries.info:List known"
 assert_contains "Has 'packages.info' target" "${_mm_global_target_specs[*]}" "packages.info:List known"
 assert_contains "Has 'extensions.info' target" "${_mm_global_target_specs[*]}" "extensions.info:List known"
+assert_contains "Has 'coverage' target" "${_mm_global_target_specs[*]}" "coverage:Merge coverage"
 
 # =============================================================================
 # Test 2: Suffix spec tables
@@ -660,11 +661,11 @@ assert_line "Second of two packages" "$ASSETS" "package|edge.pkg2"
 # =============================================================================
 echo "\n${BLUE}Test 18: Global target count${NC}"
 
-# We expect exactly 47 global targets
-if (( ${#_mm_global_target_specs} == 47 )); then
-    pass "Exactly 47 global targets"
+# We expect exactly 50 global targets
+if (( ${#_mm_global_target_specs} == 50 )); then
+    pass "Exactly 50 global targets"
 else
-    fail "Expected 47 global targets, got ${#_mm_global_target_specs}"
+    fail "Expected 50 global targets, got ${#_mm_global_target_specs}"
 fi
 
 # =============================================================================

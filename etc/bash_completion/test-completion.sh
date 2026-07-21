@@ -159,6 +159,7 @@ test_completion "Complete 'projects'" "mm projects" "projects"
 test_completion "Complete 'libraries'" "mm libraries" "libraries\\.info"
 test_completion "Complete 'packages'" "mm packages" "packages\\.info"
 test_completion "Complete 'extensions'" "mm extensions" "extensions\\.info"
+test_completion "Complete 'coverage'" "mm coverage" "coverage"
 
 # =============================================================================
 # Test 5: Options after target
