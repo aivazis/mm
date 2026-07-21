@@ -18,9 +18,12 @@ coverage.info ?=
 # the merged, indexed profile the llvm reporters read; the single product of folding all the raw
 # per-run profiles together
 coverage.profdata ?=
-# extra instrumented binaries a project wants folded into the llvm report beyond the shared
-# libraries mm discovers automatically; a header-only template library should add its compiled test
-# drivers here, since the templates are instantiated into the drivers rather than into any {.so}
+# the compiled test-driver binaries the report attributes template instantiations to; discovered
+# automatically from the registered test suites in the model pass
+coverage.drivers ?=
+# extra instrumented binaries a project wants folded into the llvm report beyond the shared libraries
+# and the test drivers mm discovers automatically; an escape hatch for binaries mm cannot find on its
+# own, not the normal path
 coverage.objects ?=
 
 

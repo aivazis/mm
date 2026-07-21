@@ -41,9 +41,29 @@ ${eval coverage: coverage.$(coverage.backend)}
 # the raw profiles the llvm reporter folds together; a recursively expanded {wildcard} so the glob
 # runs when the recipe fires, by which point the test run has deposited the files
 coverage.raws = ${wildcard $(coverage.raw)*.profraw}
+
+# the compiled test drivers, gathered from every registered suite. this matters because a header-only
+# template library instantiates most of its code into the drivers rather than into any shared library,
+# so a report built only from the installed {.so}s would not see it. the suite metadata is final by the
+# time this class loads -- it comes up after {projects} -- so an immediate {:=} walk is safe; only a
+# coverage build pays the traversal. each suite's {staging.targets} mixes compiled, staged, and
+# interpreted cases, so keep the ones flagged {compiled} and take their {base} binary
+coverage.drivers := \
+    ${if $(coverage.active), \
+        ${foreach suite,$(testsuites), \
+            ${foreach case,$($(suite).staging.targets), \
+                ${if $($(case).compiled),$($(case).base)} \
+            } \
+        } \
+    }
 # the instrumented binaries to attribute the profiles to: every shared library installed under the
-# prefix, plus whatever compiled drivers a project adds through {coverage.objects}
-coverage.binaries = ${wildcard $(builder.dest.lib)*.so $(builder.dest.lib)*.dylib} $(coverage.objects)
+# prefix, the compiled test drivers, and whatever extra objects a project names through
+# {coverage.objects}. the {wildcard} over the drivers keeps only those a given run actually built, so a
+# partial test run never hands llvm-cov a missing {-object}
+coverage.binaries = \
+    ${wildcard $(builder.dest.lib)*.so $(builder.dest.lib)*.dylib} \
+    ${wildcard $(coverage.drivers)} \
+    $(coverage.objects)
 # llvm-cov takes the first binary as a positional argument and every subsequent one behind its own
 # {-object} flag; assemble that argument vector once for the three reporters to share
 coverage.objargs = \
