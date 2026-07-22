@@ -41,6 +41,9 @@ clang++.opt := -O3
 # regions and branches rather than lines, and it resolves templates correctly. the same string is
 # valid at both compile and link time, so the single target variable serves both categories
 clang++.cov := -fprofile-instr-generate -fcoverage-mapping
+# the flag that rewrites a source path prefix in the coverage mapping; the coverage machinery uses it
+# to map installed header paths back to their source tree so the report attributes to editable files
+clang++.cov.prefixmap := -fcoverage-prefix-map
 clang++.prof := -pg
 clang++.shared := -fPIC
 # openmp support
