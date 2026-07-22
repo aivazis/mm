@@ -25,6 +25,9 @@ coverage.drivers ?=
 # and the test drivers mm discovers automatically; an escape hatch for binaries mm cannot find on its
 # own, not the normal path
 coverage.objects ?=
+# the {installed-header=source-header} pairs that map coverage paths back to the source tree, one per
+# library; computed from the library model in the model pass
+coverage.prefixmap ?=
 
 
 # end of file
