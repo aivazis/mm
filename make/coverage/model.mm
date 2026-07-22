@@ -82,19 +82,34 @@ coverage.objargs = \
 coverage.prefixmap = ${sort ${foreach lib,$(libraries),$($(lib).incdir)=$($(lib).prefix)}}
 
 # expose the coverage contribution to the compiler option machinery as a per language party:
-# {compiler.option.sources} adds a {coverage.<language>} source, but only under a {cov} filter, so these
-# flags reach a compile if and only if {cov} is a selected target. each compiled language whose compiler
-# names a {cov.prefixmap} flag gets a {coverage.<language>.flags} that turns every map pair into that
-# flag. it is recursively expanded so the map is computed at each object's bake, and it is defined here --
-# before {projects} -- so it exists by the time the first workflow bakes. only the map lookup is deferred;
-# the language and its compiler's flag name are fixed now
+# {compiler.option.sources} adds a {coverage.<language>} source, but only when {cov} is selected and the
+# language's compiler instruments -- so these flags reach a compile if and only if the compiler actually
+# does coverage. a language participates only if its compiler names a non-trivial {cov} flag; an empty
+# {cov} means the compiler does not instrument, so it contributes nothing. for a participating language,
+# first initialize each option category to empty -- exactly as {target.init} does for its own party -- so
+# the option assembly, which queries every category, never expands an undefined
+# {coverage.<language>.<category>}. then, if the compiler also names a {cov.prefixmap} flag, fill in the
+# flags category with the map: recursively expanded so the map is computed at each object's bake, and
+# defined here -- before {projects} -- so it exists by the time the first workflow bakes. only the map
+# lookup is deferred; the language and its compiler's flag name are fixed now. {value} reads the compiler
+# slot and {origin} tests the prefix-map flag without expanding either, so a missing compiler or flag
+# trips no undefined-variable warning
 ${foreach \
     language, \
     $(languages.compiled), \
-    ${if $($(compiler.$(language)).cov.prefixmap), \
-        ${eval \
-            coverage.$(language).flags = \
-                $${foreach pair,$$(coverage.prefixmap),$($(compiler.$(language)).cov.prefixmap)=$$(pair)} \
+    ${if ${value compiler.$(language)}, \
+        ${if $($(compiler.$(language)).cov), \
+            ${foreach \
+                category, \
+                $(languages.$(language).categories), \
+                ${eval coverage.$(language).$(category) ?=} \
+            } \
+            ${if ${filter-out undefined,${origin $(compiler.$(language)).cov.prefixmap}}, \
+                ${eval \
+                    coverage.$(language).flags = \
+                        $${foreach pair,$$(coverage.prefixmap),$($(compiler.$(language)).cov.prefixmap)=$$(pair)} \
+                } \
+            } \
         } \
     } \
 }
