@@ -68,6 +68,22 @@ shared library and dozens of drivers — llvm-cov reports "functions have mismat
 and skips the conflicting instances. This is expected for a template-heavy suite and does
 not corrupt the totals; it is a mild undercount of the skipped functions.
 
+### Header attribution
+
+A test driver includes a library's headers from the install prefix, so without help the
+compiler records the *installed* copy's path in the coverage data. That makes gcov's
+reporter (rooted at the project) drop the headers, and makes llvm-cov attribute them to the
+prefix rather than to the tree you edit. A `cov` build corrects this at compile time: for
+each library, mm emits a `-fprofile-prefix-map` (gcc) / `-fcoverage-prefix-map` (clang) that
+rewrites the library's installed header directory back to its source directory. The maps are
+generated from the library model — one per library — and ordered general-to-specific so the
+compilers' last-match-wins rule attributes each header to the correct source tree.
+
+The contribution is wired through `compiler.option.sources` as a `coverage.<language>`
+party, added only when `cov` is among the target variants, so a non-coverage build is
+untouched. The effect is that header coverage lands on the actual source files, both back
+ends agree, and the lcov the editor reads points at the tree you have open.
+
 Two caveats worth keeping in front of you when reading a coverage number:
 
 - It measures **execution, not correctness**. A line that runs but computes the wrong
@@ -123,3 +139,7 @@ The lcov file is what the editor reads. Install the **Coverage Gutters** extensi
 `coverage.info` prints the exact lcov path for the active build. "Watch" then paints
 covered/uncovered lines in the gutter and inline. The extension is tool-agnostic — it
 neither knows nor cares that mm produced the file.
+
+Because header coverage is attributed back to source (see *Header attribution* above), the
+lcov points at the files in your working tree — libraries and their headers alike — so the
+gutters light up on the source you actually edit, not on installed copies under the prefix.
