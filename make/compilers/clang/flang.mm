@@ -38,6 +38,9 @@ flang.opt := -O3
 # VERIFY: flang's coverage support trails clang's; if a build rejects these, fall back to the gcov
 # compatible {--coverage} and read this suite's fortran with {gcov}/{gcovr} instead of {llvm-cov}
 flang.cov := -fprofile-instr-generate -fcoverage-mapping
+# the flag that rewrites a source path prefix in the coverage mapping; the coverage machinery uses it
+# to map installed header paths back to their source tree so the report attributes to editable files
+flang.cov.prefixmap := -fcoverage-prefix-map
 # VERIFY: gprof-style -pg has limited support in LLVM Fortran; may silently do nothing
 flang.prof := -pg
 flang.shared := -fPIC

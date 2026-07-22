@@ -32,6 +32,9 @@ g++.debug := -g
 g++.reldeb := -g -O
 g++.opt := -O3
 g++.cov := --coverage
+# the flag that rewrites a source path prefix in the coverage notes; the coverage machinery uses it to
+# map installed header paths back to their source tree so the report attributes to editable files
+g++.cov.prefixmap := -fprofile-prefix-map
 g++.prof := -pg
 g++.shared := -fPIC
 # openmp support

@@ -32,6 +32,9 @@ gcc.debug := -g
 gcc.reldeb := -g -O
 gcc.opt := -O3
 gcc.cov := --coverage
+# the flag that rewrites a source path prefix in the coverage notes; the coverage machinery uses it to
+# map installed header paths back to their source tree so the report attributes to editable files
+gcc.cov.prefixmap := -fprofile-prefix-map
 gcc.prof := -pg
 gcc.shared := -fPIC
 # openmp support

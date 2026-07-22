@@ -31,6 +31,9 @@ gfortran.debug := -g
 gfortran.reldeb := -g -O
 gfortran.opt := -O3
 gfortran.cov := -coverage
+# the flag that rewrites a source path prefix in the coverage notes; the coverage machinery uses it to
+# map installed header paths back to their source tree so the report attributes to editable files
+gfortran.cov.prefixmap := -fprofile-prefix-map
 gfortran.prof := -pg
 gfortran.shared := -fPIC
 # openmp support
