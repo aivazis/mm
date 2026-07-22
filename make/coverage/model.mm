@@ -44,11 +44,11 @@ coverage.raws = ${wildcard $(coverage.raw)*.profraw}
 
 # the compiled test drivers, gathered from every registered suite. this matters because a header-only
 # template library instantiates most of its code into the drivers rather than into any shared library,
-# so a report built only from the installed {.so}s would not see it. the suite metadata is final by the
-# time this class loads -- it comes up after {projects} -- so an immediate {:=} walk is safe; only a
-# coverage build pays the traversal. each suite's {staging.targets} mixes compiled, staged, and
+# so a report built only from the installed {.so}s would not see it. recursively expanded so the walk
+# runs when a reporter fires: this class loads before {projects}, so the suite metadata is not yet final
+# here and a deferred read is required. each suite's {staging.targets} mixes compiled, staged, and
 # interpreted cases, so keep the ones flagged {compiled} and take their {base} binary
-coverage.drivers := \
+coverage.drivers = \
     ${if $(coverage.active), \
         ${foreach suite,$(testsuites), \
             ${foreach case,$($(suite).staging.targets), \
@@ -69,6 +69,35 @@ coverage.binaries = \
 coverage.objargs = \
     ${firstword $(coverage.binaries)} \
     ${patsubst %,-object %,${wordlist 2,${words $(coverage.binaries)},$(coverage.binaries)}}
+
+# rewrite installed header paths back to source. a test driver includes its project's headers from the
+# install prefix, so the coverage data records the installed copy's path; that makes gcov's reporter --
+# rooted at the project -- drop the headers, and makes the llvm reporter attribute them to the prefix
+# rather than to the tree the developer edits. for each library, map its installed header directory back
+# to the source directory the headers were copied from; both are already known to the library model. the
+# {sort} keys on the {incdir} left-hand side, and because a parent directory string sorts before any
+# child of it, this yields the general-to-specific order the compilers' last-match-wins mapping requires.
+# recursively expanded so it is evaluated where it is consumed -- in each object's compile options during
+# the projects pass -- by which point the libraries that object depends on have registered
+coverage.prefixmap = ${sort ${foreach lib,$(libraries),$($(lib).incdir)=$($(lib).prefix)}}
+
+# expose the coverage contribution to the compiler option machinery as a per language party:
+# {compiler.option.sources} adds a {coverage.<language>} source, but only under a {cov} filter, so these
+# flags reach a compile if and only if {cov} is a selected target. each compiled language whose compiler
+# names a {cov.prefixmap} flag gets a {coverage.<language>.flags} that turns every map pair into that
+# flag. it is recursively expanded so the map is computed at each object's bake, and it is defined here --
+# before {projects} -- so it exists by the time the first workflow bakes. only the map lookup is deferred;
+# the language and its compiler's flag name are fixed now
+${foreach \
+    language, \
+    $(languages.compiled), \
+    ${if $($(compiler.$(language)).cov.prefixmap), \
+        ${eval \
+            coverage.$(language).flags = \
+                $${foreach pair,$$(coverage.prefixmap),$($(compiler.$(language)).cov.prefixmap)=$$(pair)} \
+        } \
+    } \
+}
 
 
 # end of file

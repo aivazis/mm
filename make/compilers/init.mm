@@ -121,6 +121,7 @@ ${strip
     platform.$(1)
     $(compiler.$(1))
     $(target.variants:%=targets.%.$(1))
+    ${if ${filter cov,$(target.variants)},coverage.$(1)}
     $(developer:%=developers.%.$(1))
 }
 endef
