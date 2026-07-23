@@ -91,6 +91,65 @@ so a missing install always re-runs. Two operator-facing targets round it out:
 This consumer only *queries a knob*; it does not change the shape of the build. The
 next part is about the cases that do.
 
+### Second consumer — the assert / developer-check disposition
+
+Whether a build compiles in its developer-time checks — the `assert`s, the code under
+`#if defined(DEBUG)`, and `journal`'s `debug`/`firewall` channels — is a **mode**
+disposition, not an optimization-target one. An optimized developer build should still
+check its invariants; a release build should drop them regardless of optimization
+level. The knob is `mode.compiler.assertions` (baseline empty, set to `yes` in `dev`).
+
+Two independent preprocessor macros govern this in C/C++ (and, harmlessly, any
+cpp-run Fortran):
+
+- **`DEBUG`** — our own convention, the gate for developer-only code (`#if
+  defined(DEBUG)`).
+- **`NDEBUG`** — the standard `<cassert>` guard: when defined, `assert()` becomes a
+  no-op.
+
+They are independent, so all four combinations are reachable, and two of them are
+incoherent:
+
+| `DEBUG` | `NDEBUG` | `#if defined(DEBUG)` | bare `assert()` | disposition        |
+|---------|----------|----------------------|-----------------|--------------------|
+| on      | off      | compiled             | live            | coherent — dev     |
+| off     | on       | skipped              | no-op           | coherent — release |
+| on      | on       | compiled             | **no-op**       | incoherent         |
+| off     | off      | skipped              | **live**        | incoherent         |
+
+mm takes ownership of the pair and keeps it coherent: **exactly one of the two is
+defined at all times**, so client code can never land in an incoherent row. The
+single point of ownership is `make/modes/init.mm`:
+
+```makefile
+mode.compiler.defines := ${if $(mode.compiler.assertions),DEBUG,NDEBUG}
+```
+
+- **dev** → `-DDEBUG`, no `NDEBUG`: developer code compiles in, `assert()` is live,
+  `journal` `debug`/`firewall` channels are real.
+- **release / conda / macports / ubuntu** → `-DNDEBUG`, no `DEBUG`: developer code is
+  gone, `assert()` is a no-op, the `journal` developer channels resolve to `null_t`.
+
+The value rides in through a flat, language-independent option source `mode.compiler`
+(the same shape as `mm`) added to `compiler.option.sources`; like `mm`, it declares
+its full category set so no slot is ever an undefined variable. This is orthogonal to
+`target`: `--target=opt` under the default `dev` mode keeps asserts **live** (the
+optimized-but-checked build); `--target=debug --mode=release` gives debug symbols with
+asserts **off**.
+
+Guidance for client code under this convention:
+
+- Prefer a **bare `assert()`** for an invariant you want checked in dev and gone in
+  release — `NDEBUG` handles it, no wrapper needed.
+- Use `#if defined(DEBUG)` only for developer-only code that is *more* than an assert:
+  expensive diagnostics, an alternate slow-path validation, extra logging.
+- Wrapping an `assert()` in `#if defined(DEBUG)` is redundant but harmless — the
+  invariant guarantees the assert inside is live whenever the block compiles.
+- If code must disambiguate the two macros itself (as `journal`'s `api.h` does for the
+  benefit of non-mm consumers), let **`NDEBUG` dominate `DEBUG`**: explicit suppression
+  beats explicit request. mm's exclusivity makes the tie moot, but this is the
+  precedence to assume.
+
 ---
 
 ## Part 2 — Design space for mode-dependent behavior (speculative)
