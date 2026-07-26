@@ -48,6 +48,14 @@ directory` compiling the first hdf5 binding.
   state lazily from the parent's post-resolve values, or enroll child assets in
   `project.contents` so every global pass sees them. Audit the extensions
   constructor for other eagerly-copied parent state with the same hazard.
+- **The tests sibling (found 2026-07-26, patched):** `test.staging.target` took a
+  hard-`:=` snapshot of the suite's `.extern` for every per-driver target at staging
+  time, before the resolve pass enriched the suite's list, so compiled test drivers
+  missed induced dependencies too — same symptom (`mpi.h` not found), third asset type.
+  Patched by deferring the copy (`=` with an escaped reference), so the driver reads the
+  suite's post-resolve list. The audit for other eager parent-state copies should cover
+  every asset type that stamps out children: extensions (`.lib`), tests (staged drivers),
+  and whatever comes next.
 - **Diagnostic trail, for the next dragon:** discovery db was correct
   (`extern.hdf5.info` showed `dependencies = mpi`); the parent's closure was
   correct (probe in `extern.resolve`); the asymmetry showed only in
