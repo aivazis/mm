@@ -2410,7 +2410,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "gmsh": ["gmsh"],
             "gsl": ["libgsl-dev"],
             "gtest": ["libgtest-dev"],
-            "hdf5": ["libhdf5-dev"],
+            # hdf5: serial first, so it stays preferred when several flavors are installed;
+            # the parallel flavors win when they are the only ones on offer, and the handler
+            # derives {hdf5.parallel} from wherever the headers actually live
+            "hdf5": ["libhdf5-dev", "libhdf5-openmpi-dev", "libhdf5-mpich-dev"],
             "kokkos": ["libkokkos-dev"],
             "libpq": ["libpq-dev"],
             "metis": ["libmetis-dev"],
