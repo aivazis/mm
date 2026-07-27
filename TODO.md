@@ -63,7 +63,3 @@ directory` compiling the first hdf5 binding.
   esoteric feature; the brittleness came from the parent/child split, not the
   resolver.
 
-## Sync with merlin (after pyre's pkgdb branch lands)
-
-The dpkg hdf5 candidate-list fix and the extensions child-resolve fix must be
-mirrored into pyre's bundled `share/mm/make/` layer via the usual merlin sync.
