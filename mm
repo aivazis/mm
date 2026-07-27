@@ -105,7 +105,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     mode = pyre.properties.str()
     mode.default = "dev"
     mode.validators = pyre.constraints.isMember(
-        "dev", "release", "conda", "macports", "ubuntu"
+        "dev", "release", "conda", "macports", "ubuntu", "fedora"
     )
     mode.doc = "the strategy for generating locations for the build products"
 
@@ -384,6 +384,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "conda": self._condaBldroot,
             "macports": self._macportsBldroot,
             "ubuntu": self._ubuntuBldroot,
+            "fedora": self._fedoraBldroot,
         }
         self._prefixDispatch = {
             "dev": self._devPrefix,
@@ -391,6 +392,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "conda": self._condaPrefix,
             "macports": self._macportsPrefix,
             "ubuntu": self._ubuntuPrefix,
+            "fedora": self._fedoraPrefix,
         }
         # the pkgdb dispatch table
         self._pkgdbDispatch = {
@@ -3322,6 +3324,42 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # if the query succeeded, set the python package prefix to the site-packages location
         if version:
             self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
+        # all done
+        return prefix
+
+    def _fedoraBldroot(self):
+        """
+        Assemble the staging area path for a {fedora} build; a fixed {fedora} segment
+        discriminates these builds from dev builds in the same bldroot tree
+        """
+        # start with the user's opinion, falling back to the project tree
+        bldroot = self.bldroot or (self._root / "builds")
+        # fold in a fixed discriminator and the build variant tag
+        return bldroot / "fedora" / self._bldTag
+
+    def _fedoraPrefix(self):
+        """
+        Resolve the installation prefix for a {fedora} build; defaults to {/usr/local}, the
+        canonical home for locally built software, with the python packages deposited in
+        the site directory that fedora's interpreter places on its native path
+        """
+        # default to the canonical prefix for local software; the user can override
+        prefix = self.prefix or pyre.primitives.path("/usr/local")
+        # ask the system python where third party packages under this prefix belong; on
+        # fedora this lands in {lib64/python3.X/site-packages}, which the interpreter
+        # searches natively, so installed packages are importable with no environment
+        platlib = self._queryPythonExpression(
+            "import sysconfig; "
+            f"print(sysconfig.get_path('platlib', 'posix_prefix', vars={{'platbase': '{prefix}'}}))"
+        )
+        # if the query succeeded, make {platlib} relative to the prefix
+        if platlib:
+            try:
+                # strip the prefix to get the relative path
+                self._pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
+            # if {platlib} isn't under the prefix, something is unusual; use it as-is
+            except ValueError:
+                self._pycPrefix = pyre.primitives.path(platlib)
         # all done
         return prefix
 
