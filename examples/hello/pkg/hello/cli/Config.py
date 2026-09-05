@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2026 all rights reserved
@@ -14,7 +14,6 @@ class Config(hello.command, family="hello.cli.config"):
     Display configuration information about this package
     """
 
-
     # version info
     @hello.export(tip="the version information")
     def version(self, **kwds):
@@ -25,7 +24,6 @@ class Config(hello.command, family="hello.cli.config"):
         print(f"{hello.meta.version}")
         # all done
         return 0
-
 
     # configuration
     @hello.export(tip="the top level installation directory")
@@ -38,7 +36,6 @@ class Config(hello.command, family="hello.cli.config"):
         # all done
         return 0
 
-
     @hello.export(tip="the directory with the executable scripts")
     def path(self, **kwds):
         """
@@ -48,7 +45,6 @@ class Config(hello.command, family="hello.cli.config"):
         print(f"{hello.prefix}/bin")
         # all done
         return 0
-
 
     @hello.export(tip="the directory with the python packages")
     def pythonpath(self, **kwds):
@@ -60,7 +56,6 @@ class Config(hello.command, family="hello.cli.config"):
         # all done
         return 0
 
-
     @hello.export(tip="the location of the {hello} headers")
     def incpath(self, **kwds):
         """
@@ -71,7 +66,6 @@ class Config(hello.command, family="hello.cli.config"):
         # all done
         return 0
 
-
     @hello.export(tip="the location of the {hello} libraries")
     def libpath(self, **kwds):
         """
@@ -81,7 +75,6 @@ class Config(hello.command, family="hello.cli.config"):
         print(f"{hello.prefix}/lib")
         # all done
         return 0
-
 
 
 # end of file

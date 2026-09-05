@@ -6,6 +6,7 @@
 
 # external
 import re
+
 # support
 import hello
 
@@ -39,7 +40,6 @@ class UX:
         # invoke
         return handler(plexus=plexus, server=server, request=request, match=match)
 
-
     # handlers
     def version(self, plexus, server, **kwds):
         """
@@ -50,7 +50,6 @@ class UX:
         # all done
         return server.documents.JSON(server=server, value=version)
 
-
     def stop(self, plexus, **kwds):
         """
         The client is asking me to die
@@ -59,7 +58,6 @@ class UX:
         plexus.info.log("shutting down")
         # and exit
         raise SystemExit(0)
-
 
     def document(self, plexus, server, request, **kwds):
         """
@@ -70,7 +68,6 @@ class UX:
         # open the document and serve it
         return server.documents.File(uri=uri, server=server, application=plexus)
 
-
     def root(self, plexus, server, request, **kwds):
         """
         The client requested the root document
@@ -80,14 +77,17 @@ class UX:
         # open the document and serve it
         return server.documents.File(uri=uri, server=server, application=plexus)
 
-
     # private data
-    regex = re.compile("|".join([
-        r"/(?P<version>query/meta/version)",
-        r"/(?P<stop>action/meta/stop)",
-        r"/(?P<document>(fonts/.+)|(graphics/.+)|(scripts/.+)|(styles/.+)|(.+\.js))",
-        r"/(?P<root>.*)",
-        ]))
+    regex = re.compile(
+        "|".join(
+            [
+                r"/(?P<version>query/meta/version)",
+                r"/(?P<stop>action/meta/stop)",
+                r"/(?P<document>(fonts/.+)|(graphics/.+)|(scripts/.+)|(styles/.+)|(.+\.js))",
+                r"/(?P<root>.*)",
+            ]
+        )
+    )
 
 
 # end of file

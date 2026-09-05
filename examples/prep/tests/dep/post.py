@@ -9,11 +9,10 @@
 Final step: check that all the required files are there
 """
 
-
 # main
 if __name__ == "__main__":
     # make a pile
-    requirements = ['pre.dat', 'one.dat', 'two.dat']
+    requirements = ["pre.dat", "one.dat", "two.dat"]
 
     # go through them
     for req in requirements:

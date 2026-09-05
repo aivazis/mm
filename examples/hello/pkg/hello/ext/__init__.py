@@ -8,5 +8,4 @@
 # pull the extension module
 from . import hello as libhello
 
-
 # end of file

@@ -9,11 +9,10 @@ import hello
 
 
 # declaration
-class About(hello.command, family='hello.cli.about'):
+class About(hello.command, family="hello.cli.about"):
     """
     Display information about this application
     """
-
 
     # commands
     @hello.export(tip="print the copyright note")
@@ -26,7 +25,6 @@ class About(hello.command, family='hello.cli.about'):
         # all done
         return
 
-
     @hello.export(tip="print out the acknowledgments")
     def credits(self, plexus, **kwds):
         """
@@ -37,7 +35,6 @@ class About(hello.command, family='hello.cli.about'):
         # all done
         return
 
-
     @hello.export(tip="print out the license and terms of use")
     def license(self, plexus, **kwds):
         """
@@ -47,7 +44,6 @@ class About(hello.command, family='hello.cli.about'):
         plexus.info.log(hello.meta.license)
         # all done
         return
-
 
     @hello.export(tip="print the version number")
     def version(self, plexus, **kwds):

@@ -111,11 +111,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     branch = pyre.properties.bool()
     branch.default = None
-    branch.doc = "derive the {tag} from repository state (False clears it; None leaves it unchanged)"
+    branch.doc = (
+        "derive the {tag} from repository state (False clears it; None leaves it unchanged)"
+    )
 
     activate = pyre.properties.bool()
     activate.default = False
-    activate.doc = "print shell commands that add the build's bin and python packages to the session"
+    activate.doc = (
+        "print shell commands that add the build's bin and python packages to the session"
+    )
 
     syntax = pyre.properties.str()
     syntax.default = "sh"
@@ -124,7 +128,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     tag = pyre.properties.str()
     tag.default = os.environ.get("mm_tag")
-    tag.doc = "an optional discriminator appended to {bldroot} and {prefix} to separate build contexts"
+    tag.doc = (
+        "an optional discriminator appended to {bldroot} and {prefix} to separate build contexts"
+    )
 
     prefix = pyre.properties.path()
     prefix.default = None
@@ -136,9 +142,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
 
     toolchains = pyre.properties.path()
     toolchains.default = None
-    toolchains.doc = (
-        "the directory where environment-level developer toolchains are installed"
-    )
+    toolchains.doc = "the directory where environment-level developer toolchains are installed"
 
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
@@ -155,9 +159,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     pkgdb = pyre.properties.str()
     pkgdb.default = "adhoc"
     pkgdb.validators = pyre.constraints.isMember("adhoc", "conda", "macports", "dpkg", "rpm")
-    pkgdb.doc = (
-        "use one of the supported package managers for resolving external dependencies"
-    )
+    pkgdb.doc = "use one of the supported package managers for resolving external dependencies"
 
     # mm behavior
     setup = pyre.properties.bool()
@@ -417,9 +419,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # make a channel
                     channel = journal.firewall("mm.mode")
                     # report
-                    channel.line(
-                        f"{name} dispatch table is out of sync with the mode validator"
-                    )
+                    channel.line(f"{name} dispatch table is out of sync with the mode validator")
                     # indent
                     channel.indent()
                     # details:
@@ -440,9 +440,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # make a channel
                 channel = journal.firewall("mm.pkgdb")
                 # report
-                channel.line(
-                    "pkgdb dispatch table is out of sync with the pkgdb validator"
-                )
+                channel.line("pkgdb dispatch table is out of sync with the pkgdb validator")
                 channel.indent()
                 channel.line(f"dispatch keys:     {set(self._pkgdbDispatch)}")
                 channel.log(f"validator choices: {pkgdbValidator.choices}")
@@ -459,9 +457,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # make a channel
                 channel = journal.firewall("mm.syntax")
                 # report
-                channel.line(
-                    "syntax dispatch table is out of sync with the syntax validator"
-                )
+                channel.line("syntax dispatch table is out of sync with the syntax validator")
                 channel.indent()
                 channel.line(f"dispatch keys:     {set(self._syntaxDispatch)}")
                 channel.log(f"validator choices: {syntaxValidator.choices}")
@@ -572,20 +568,12 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         oldPrefixStr = os.environ.get("mm_prefix")
         oldPycStr = os.environ.get("mm_pyc")
         if oldPrefixStr:
-            self.PATH = self.eject(
-                var=self.PATH, path=(pyre.primitives.path(oldPrefixStr) / "bin")
-            )
+            self.PATH = self.eject(var=self.PATH, path=(pyre.primitives.path(oldPrefixStr) / "bin"))
         if oldPycStr:
-            self.PYTHONPATH = self.eject(
-                var=self.PYTHONPATH, path=pyre.primitives.path(oldPycStr)
-            )
+            self.PYTHONPATH = self.eject(var=self.PYTHONPATH, path=pyre.primitives.path(oldPycStr))
         # build the updated PATH and PYTHONPATH with the new entries at the front
-        path = os.pathsep.join(
-            str(p) for p in self.inject(var=self.PATH, path=(newPrefix / "bin"))
-        )
-        pythonpath = os.pathsep.join(
-            str(p) for p in self.inject(var=self.PYTHONPATH, path=newPyc)
-        )
+        path = os.pathsep.join(str(p) for p in self.inject(var=self.PATH, path=(newPrefix / "bin")))
+        pythonpath = os.pathsep.join(str(p) for p in self.inject(var=self.PYTHONPATH, path=newPyc))
         # emit the full shell context
         emit = self._syntaxDispatch[self.syntax]
         # the tag: None triggers an unset rather than an export
@@ -754,9 +742,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.error("mm.gnu")
                     # complain
                     channel.line(f"failed to launch '{self.make}'")
-                    channel.line(
-                        f"while attempting to retrieve the version of GNU make"
-                    )
+                    channel.line(f"while attempting to retrieve the version of GNU make")
                     channel.indent()
                     channel.line(f"'{self.make}' returned error code {status}")
                     channel.outdent()
@@ -796,9 +782,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.line(f"while verifying my installation")
                     channel.indent()
                     channel.line(f"you need GNU make 4.4 or higher")
-                    channel.line(
-                        f"your '{self.make}' version is {major}.{minor}.{micro}"
-                    )
+                    channel.line(f"your '{self.make}' version is {major}.{minor}.{micro}")
                     channel.outdent()
                     channel.line(f"check your setting for my 'make' property")
                     # flush
@@ -884,9 +868,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel.line(f"and your system doesn't have any good ideas")
                 channel.outdent()
                 channel.line(f"is this a cloud instance?")
-                channel.line(
-                    f"if not, check the value of your 'HOME' environment variable"
-                )
+                channel.line(f"if not, check the value of your 'HOME' environment variable")
                 # flush
                 channel.log()
             # nothing further to do
@@ -943,9 +925,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel.line(f"no '{marker}' directory")
                 channel.line(f"in '{root}' or any of its parents")
                 channel.outdent()
-                channel.line(
-                    f"if this is unexpected, check the value of my 'cfgdir' property"
-                )
+                channel.line(f"if this is unexpected, check the value of my 'cfgdir' property")
                 # flush
                 channel.log()
         # all done
@@ -1211,14 +1191,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.indent()
                     channel.line(f"no explicit setting was provided")
                     channel.line(f"and parsing the latest git tag failed")
-                    channel.line(
-                        f"using the default value of '{major}.{minor}.{micro}'"
-                    )
+                    channel.line(f"using the default value of '{major}.{minor}.{micro}'")
                     channel.line(f"but that's probably not what you want")
                     channel.outdent()
-                    channel.line(
-                        f"please use '--version' to provide a reasonable value"
-                    )
+                    channel.line(f"please use '--version' to provide a reasonable value")
                     # flush
                     channel.log()
         # in any case, we know have what we need to send to mm
@@ -1883,9 +1859,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # unpack the record
             version, build, record = index[candidate]
             # trim to major.minor for packages that key interpreter names and paths off it
-            mmVersion = (
-                self._condaMajorMinor(version) if recipe.get("trim") else version
-            )
+            mmVersion = self._condaMajorMinor(version) if recipe.get("trim") else version
             # the entry, ready for any package-specific configuration lines
             entry = {
                 "name": name,
@@ -1994,9 +1968,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # a warning rather than a hard failure: cspice is installed, just not where we expect
             warning = journal.warning("mm.pkgdb")
             # what happened
-            warning.line(
-                f"cspice is installed in '{prefix}' but SpiceUsr.h was not found"
-            )
+            warning.line(f"cspice is installed in '{prefix}' but SpiceUsr.h was not found")
             # the consequence
             warning.line("leaving the default include path; it may be wrong")
             # flush
@@ -2012,9 +1984,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         module = recipe["module"]
         target = entry["name"]
         # ask the package where its headers are
-        includePath = self._queryPythonExpression(
-            f"import {module}; print({module}.get_include())"
-        )
+        includePath = self._queryPythonExpression(f"import {module}; print({module}.get_include())")
         # if the query failed, fall back to {conda.prefix}; the defaults won't be right,
         # but it's the best we can do without the package telling us where it lives
         if not includePath:
@@ -2194,9 +2164,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # make a channel
             error = journal.error("mm.pkgdb")
             # complain
-            error.line(
-                "could not parse the selected python3 version from 'port select'"
-            )
+            error.line("could not parse the selected python3 version from 'port select'")
             error.line(f"output: {result.stdout.strip()}")
             # flush
             error.log()
@@ -2333,17 +2301,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     print(f"hdf5.parallel ?= {flavor}", file=f)
                     # a parallel build must link against the same mpi that mm selects;
                     # find the port the mpi entry resolves to, in candidate priority order
-                    mpi = next(
-                        (c for c in ("openmpi", "mpich") if c in installed), None
-                    )
+                    mpi = next((c for c in ("openmpi", "mpich") if c in installed), None)
                     # if hdf5 is mpi aware but bound to the other implementation
                     if flavor != "serial" and mpi is not None and mpi != flavor:
                         # the link line would mix mpi flavors; warn
                         warning = journal.warning("mm.pkgdb")
                         # what happened
-                        warning.line(
-                            f"hdf5 is built against {flavor} but mpi resolves to {mpi}"
-                        )
+                        warning.line(f"hdf5 is built against {flavor} but mpi resolves to {mpi}")
                         # the consequence
                         warning.line("parallel builds will mix mpi implementations")
                         # what to do about it
@@ -2577,9 +2541,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         (p for p in files if p.name == "mpi.h" and "/include/" in str(p)),
                         None,
                     )
-                    library = next(
-                        (p for p in files if p.name == "libmpi.so"), None
-                    )
+                    library = next((p for p in files if p.name == "libmpi.so"), None)
                     # point the include path at wherever {mpi.h} really lives
                     if header:
                         print(
@@ -2617,9 +2579,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         pybind11Root = pyre.primitives.path(includePath).parent
                         try:
                             relativePath = pybind11Root.relativeTo(prefix)
-                            print(
-                                f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f
-                            )
+                            print(f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
                         except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
@@ -2633,9 +2593,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._dpkgFiles(dpkg, candidate)
                     # locate the umbrella header and the dev-symlink library
                     header = next((path for path in files if path.name == "hdf5.h"), None)
-                    library = next(
-                        (path for path in files if path.name == "libhdf5.so"), None
-                    )
+                    library = next((path for path in files if path.name == "libhdf5.so"), None)
                     # point the include path at wherever {hdf5.h} really lives
                     if header:
                         print(
@@ -2709,9 +2667,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if result.returncode != 0:
             return []
         # each non-empty line is an absolute path owned by the package
-        return [
-            pyre.primitives.path(line) for line in result.stdout.splitlines() if line
-        ]
+        return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
 
     def _dpkgAnchor(self, path, prefix):
         """
@@ -2951,9 +2907,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         pybind11Root = pyre.primitives.path(includePath).parent
                         try:
                             relativePath = pybind11Root.relativeTo(prefix)
-                            print(
-                                f"pybind11.dir ?= $(rpm.prefix)/{relativePath}", file=f
-                            )
+                            print(f"pybind11.dir ?= $(rpm.prefix)/{relativePath}", file=f)
                         except ValueError:
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
@@ -3021,11 +2975,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._rpmFiles(rpm, candidate)
                     # locate a shared library dev symlink, if the package carries one
                     library = next(
-                        (
-                            p
-                            for p in files
-                            if p.name.startswith("lib") and p.name.endswith(".so")
-                        ),
+                        (p for p in files if p.name.startswith("lib") and p.name.endswith(".so")),
                         None,
                     )
                     # if there is one and it is not in the canonical {lib}
@@ -3055,9 +3005,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         if result.returncode != 0:
             return []
         # each non-empty line is an absolute path owned by the package
-        return [
-            pyre.primitives.path(line) for line in result.stdout.splitlines() if line
-        ]
+        return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
 
     def _rpmAnchor(self, path, prefix):
         """
@@ -3101,9 +3049,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # locate the three assets that prove we can compile and link cuda code
         nvcc = next((path for path in files if path.name == "nvcc"), None)
         header = next((path for path in files if path.name == "cuda.h"), None)
-        library = next(
-            (path for path in files if path.name.startswith("libcudart.so")), None
-        )
+        library = next((path for path in files if path.name.startswith("libcudart.so")), None)
         # note which, if any, are missing
         missing = []
         if not nvcc:
@@ -3202,9 +3148,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # use it
                 return executable
         # otherwise fall back to a {PATH} search, preferring micromamba
-        return (
-            shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
-        )
+        return shutil.which("micromamba") or shutil.which("mamba") or shutil.which("conda")
 
     def _condaPrefix(self):
         """
@@ -3221,9 +3165,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line("no conda agent found")
-            channel.line(
-                "set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH"
-            )
+            channel.line("set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH")
             # flush
             channel.log()
             # and bail, in case errors aren't fatal
@@ -3340,9 +3282,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.warning("mm.macports")
             # warn
             channel.line(f"no write access to the MacPorts prefix '{prefix}'")
-            channel.line(
-                "installing will fail unless mm is run with elevated privileges:"
-            )
+            channel.line("installing will fail unless mm is run with elevated privileges:")
             channel.line("  sudo mm")
             # flush
             channel.log()
@@ -3371,9 +3311,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # make a channel
             channel = journal.error("mm.macports")
             # complain
-            channel.line(
-                "could not parse the selected python3 version from 'port select'"
-            )
+            channel.line("could not parse the selected python3 version from 'port select'")
             channel.line(f"output: {result.stdout.strip()}")
             # flush
             channel.log()
@@ -3388,9 +3326,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line(f"expected python interpreter not found: {python}")
-            channel.line(
-                "check your MacPorts python3 selection with 'port select --show python3'"
-            )
+            channel.line("check your MacPorts python3 selection with 'port select --show python3'")
             # flush
             channel.log()
             # bail

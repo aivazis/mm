@@ -6,16 +6,16 @@
 
 # my package
 import hello
+
 # superclass
 from .Greet import Greet
 
 
 # declaration
-class Goodbye(Greet, family='hello.cli.goodbye'):
+class Goodbye(Greet, family="hello.cli.goodbye"):
     """
     Say "goodbye" to a friend
     """
-
 
     # my greeting
     greeting = hello.ext.libhello.goodbye()
