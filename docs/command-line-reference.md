@@ -34,6 +34,13 @@ These are the options most users reach for regularly.
 `--prefix=PATH`
 : Override the installation directory. Overrides the mode default.
 
+`--assertions=yes|no`
+: Pin whether the developer-time checks compile in — the `assert`s, the code under
+  `#if defined(DEBUG)`, and `journal`'s `debug`/`firewall` channels — whatever the
+  mode says. Left unset, the mode decides: on under `dev`, off everywhere else. The
+  case it exists for is testing a deployment layout with its checks live, e.g.
+  `--mode=conda --assertions=yes` (see [Build Modes](modes.md)).
+
 ### What to build
 
 `--target=VARIANT[,VARIANT...]`
