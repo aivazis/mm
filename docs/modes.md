@@ -137,6 +137,20 @@ its full category set so no slot is ever an undefined variable. This is orthogon
 optimized-but-checked build); `--target=debug --mode=release` gives debug symbols with
 asserts **off**.
 
+The mode's disposition is a baseline, and the driver can pin it. `--assertions=yes`
+compiles the checks in and `--assertions=no` leaves them out, whatever the mode says;
+left unset, the mode decides. The pin reaches the engine as `project.assertions`, and
+`make/modes/init.mm` applies it right after the mode's file is read, before the macro
+pair is derived, so everything downstream sees one coherent answer. The case it exists
+for is a continuous integration job that builds in a deployment layout, e.g.
+`--mode=conda`, and still wants its test drivers to check their assertions:
+
+```sh
+mm --mode=conda --assertions=yes
+```
+
+`mode.info` reports both the resolved disposition and whether it was pinned.
+
 Guidance for client code under this convention:
 
 - Prefer a **bare `assert()`** for an invariant you want checked in dev and gone in
