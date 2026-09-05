@@ -11,9 +11,7 @@ import timer
 
 
 # declaration
-class Timer(
-    timer.component, family="timer.timers.python", implements=timer.protocols.timer
-):
+class Timer(timer.component, family="timer.timers.python", implements=timer.protocols.timer):
     """
     A wall-clock timer backed by time.perf_counter.
     """

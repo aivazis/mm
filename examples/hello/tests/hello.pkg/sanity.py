@@ -13,6 +13,7 @@ Sanity check: verify that the {hello} package is accessible
 def test():
     # access the {hello} package
     import hello
+
     # all done
     return 0
 
@@ -23,7 +24,6 @@ if __name__ == "__main__":
     status = test()
     # share
     raise SystemExit(status)
-
 
 
 # end of file

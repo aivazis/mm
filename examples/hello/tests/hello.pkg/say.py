@@ -15,7 +15,7 @@ import hello
 # main
 if __name__ == "__main__":
     # build an instance of the plexus
-    app = hello.plexus(name='hello.plexus')
+    app = hello.plexus(name="hello.plexus")
     # and run it
     status = app.run()
     # pass the status on to the shell

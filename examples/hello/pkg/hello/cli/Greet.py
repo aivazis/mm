@@ -9,14 +9,13 @@ import hello
 
 
 # declaration
-class Greet(hello.command, family='hello.cli.greet'):
+class Greet(hello.command, family="hello.cli.greet"):
     """
     This is the base class for command that greet my friends
 
     N.B.: This command is not directly usable since it doesn't have a valid definition of the
     greeting to extend
     """
-
 
     # commands
     @hello.export(tip="greet Alec")
@@ -31,7 +30,6 @@ class Greet(hello.command, family='hello.cli.greet'):
         # report success
         return 0
 
-
     @hello.export(tip="greet Ally")
     def ally(self, plexus, **kwds):
         """
@@ -43,7 +41,6 @@ class Greet(hello.command, family='hello.cli.greet'):
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success
         return 0
-
 
     @hello.export(tip="greet Mac")
     def mac(self, plexus, **kwds):
@@ -57,7 +54,6 @@ class Greet(hello.command, family='hello.cli.greet'):
         # report success
         return 0
 
-
     @hello.export(tip="greet Mat")
     def mat(self, plexus, **kwds):
         """
@@ -69,7 +65,6 @@ class Greet(hello.command, family='hello.cli.greet'):
         plexus.info.log(f"{self.greeting} {friend}!")
         # report success
         return 0
-
 
     # my greeting
     greeting = None

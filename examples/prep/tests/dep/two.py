@@ -27,7 +27,7 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     # otherwise, go to sleep for a while
-    time.sleep(5*random.random())
+    time.sleep(5 * random.random())
     # write mine
     open("two.dat", mode="w")
     # and indicate success

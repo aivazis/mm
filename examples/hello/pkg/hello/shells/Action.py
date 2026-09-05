@@ -9,7 +9,7 @@ import pyre
 
 
 # protocol declaration
-class Action(pyre.action, family='hello.cli'):
+class Action(pyre.action, family="hello.cli"):
     """
     Protocol for hello commands
     """

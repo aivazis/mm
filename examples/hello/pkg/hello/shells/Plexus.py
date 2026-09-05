@@ -6,23 +6,25 @@
 
 # externals
 import textwrap
+
 # access the pyre framework
 import pyre
+
 # and my package
 import hello
+
 # my action protocol
 from .Action import Action
 
 
 # declaration
-class Plexus(pyre.plexus, family='hello.components.plexus'):
+class Plexus(pyre.plexus, family="hello.components.plexus"):
     """
     The main action dispatcher
     """
 
     # types
     from .Action import Action as pyre_action
-
 
     # pyre framework hooks
     # support for the help system
@@ -33,7 +35,7 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         # show the license header
         return hello.meta.header
 
-   # support for the help system
+    # support for the help system
     def pyre_banner(self):
         """
         Generate the help banner
@@ -47,7 +49,6 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         # all done
         return
 
-
     # interactive session management
     def pyre_interactiveSessionContext(self, context=None):
         """
@@ -56,10 +57,9 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         # prime the execution context
         context = context or {}
         # grant access to my package
-        context['hello'] = hello  # my package
+        context["hello"] = hello  # my package
         # and chain up
         return super().pyre_interactiveSessionContext(context=context)
-
 
     # virtual filesystem configuration
     def pyre_mountApplicationFolders(self, pfs, prefix):
@@ -76,7 +76,7 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         # potentially arbitrarily deep directory structures; starting at the topmost level
         docroot = prefix
         # descend into the following subdirectories in turn
-        for name in ['web', 'www', namespace]:
+        for name in ["web", "www", namespace]:
             # grab the contents
             docroot.discover(levels=1)
             # attempt to
@@ -94,15 +94,15 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
         # if all goes well
         else:
             # expand the directory structure below the document root and mount it
-            pfs['www'] = docroot.discover()
+            pfs["www"] = docroot.discover()
             # get the dispatcher
             from .UX import UX
+
             # instantiate and attach
             self.urlDispatcher = UX()
 
         # all done
         return pfs
-
 
     # shells
     def pyre_respond(self, server, request):
@@ -116,14 +116,13 @@ class Plexus(pyre.plexus, family='hello.components.plexus'):
             # everything is an error
             return server.responses.NotFound(server=server)
         # otherwise, refresh my understanding of my document root
-        self.pfs['www'].discover()
+        self.pfs["www"].discover()
         # and get it to do its thing
         return dispatcher.dispatch(plexus=self, server=server, request=request)
 
-
     # private data
-    nexus = None # the event dispatcher
-    urlDispatcher = None # converter of urls to actions
+    nexus = None  # the event dispatcher
+    urlDispatcher = None  # converter of urls to actions
 
 
 # end of file

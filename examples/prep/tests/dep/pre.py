@@ -9,7 +9,6 @@
 Prep the testsuite
 """
 
-
 # main
 if __name__ == "__main__":
     # simple stuff: create a "data" file that other tests depend on

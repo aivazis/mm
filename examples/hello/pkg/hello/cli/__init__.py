@@ -7,6 +7,7 @@
 # pull in the command decorators
 from .. import foundry, action
 
+
 # help
 @foundry(implements=action, tip="display information about this application")
 def about():
@@ -15,6 +16,7 @@ def about():
     """
     # pull the command
     from .About import About
+
     # steal its docstring
     __doc__ = About.__doc__
     # and publish it
@@ -28,6 +30,7 @@ def config():
     """
     # pull the command
     from .Config import Config
+
     # steal its docstring
     __doc__ = Config.__doc__
     # and publish it
@@ -42,6 +45,7 @@ def greet():
     """
     # pull the command
     from .Hello import Hello
+
     # steal its docstring
     __doc__ = Hello.__doc__
     # and publish it
@@ -56,6 +60,7 @@ def goodbye():
     """
     # pull the command
     from .Goodbye import Goodbye
+
     # steal its docstring
     __doc__ = Goodbye.__doc__
     # and publish it
@@ -70,6 +75,7 @@ def complete():
     """
     # pull the command
     from .Complete import Complete
+
     # and publish it
     return Complete
 
