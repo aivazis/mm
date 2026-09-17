@@ -10,6 +10,10 @@ toolchain.playwright.doc := "node end-to-end browser automation; owns its browse
 toolchain.playwright.kind := node
 toolchain.playwright.version := 1.63.0
 
+# the browser engines to fetch; a suite picks the ones it drives, and the rest are on hand for
+# reproducing engine specific behavior by hand
+toolchain.playwright.engines ?= chromium webkit firefox
+
 # the location of the browser binaries; keeping them inside the toolchain makes the install
 # self-contained, so {playwright.clean} removes everything and environments cannot drift
 toolchain.playwright.browsers = $(toolchain.playwright.home)/browsers
@@ -35,7 +39,7 @@ playwright.install:
 	@${call log.action,"npm","install"}
 	$(cd) $(toolchain.playwright.home) && npm install
 	@${call log.action,"playwright","browsers"}
-	$(cd) $(toolchain.playwright.home) && PLAYWRIGHT_BROWSERS_PATH=$(toolchain.playwright.browsers) npx playwright install chromium
+	$(cd) $(toolchain.playwright.home) && PLAYWRIGHT_BROWSERS_PATH=$(toolchain.playwright.browsers) npx playwright install $(toolchain.playwright.engines)
 
 # update the toolchain: re-stage the pinned manifest and refresh the framework and browsers
 playwright.update: playwright.install
