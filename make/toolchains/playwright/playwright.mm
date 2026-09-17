@@ -8,7 +8,7 @@
 # environment and owns its own browser binaries, so a project's test suite never reinstalls it
 toolchain.playwright.doc := "node end-to-end browser automation; owns its browsers"
 toolchain.playwright.kind := node
-toolchain.playwright.version := 1.60.0
+toolchain.playwright.version := 1.63.0
 
 # the location of the browser binaries; keeping them inside the toolchain makes the install
 # self-contained, so {playwright.clean} removes everything and environments cannot drift
