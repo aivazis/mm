@@ -63,7 +63,7 @@ $($(1).staging.generated.assets) &: \
     $($(1).staging.babel_config) $($(1).staging.page) \
     $($(1).staging.app.sources) \
     ${if $($(1).schema.generator),$($(1).staging.schema),} | $(1).generate.prep
-	$(cd) $($(1).staging.prefix); npm run relay && npm run build
+	$(cd) $($(1).staging.prefix); npm run relay && NODE_ENV=$(webpack.node_env) npm run build
 
 $(1).generate.prep: $(1).config $(1).npm_modules $(1).sources
 
@@ -208,6 +208,8 @@ endef
 
 # the install strategy selected by the build mode
 webpack.npm.install := webpack.npm.install.${if $(mode.npm.locked),locked,fresh}
+# the environment the build of the bundle runs in, selected by the build mode
+webpack.node_env := ${if $(mode.webpack.production),production,development}
 
 
 define webpack.workflows.static.asset =
