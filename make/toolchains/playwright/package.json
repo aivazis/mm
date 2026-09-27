@@ -4,6 +4,7 @@
     "private": true,
     "description": "pinned playwright toolchain managed by mm",
     "dependencies": {
-        "@playwright/test": "1.63.0"
+        "@playwright/test": "1.63.0",
+        "mm-playwright": "file:mm-playwright"
     }
 }

@@ -18,6 +18,10 @@ toolchain.playwright.engines ?= chromium webkit firefox
 # self-contained, so {playwright.clean} removes everything and environments cannot drift
 toolchain.playwright.browsers = $(toolchain.playwright.home)/browsers
 
+# the helper a suite asks for what the browsers need on each platform; {mm-playwright} is a local
+# package staged next to the pinned manifest, which names it, so {npm install} keeps it among the
+# modules, e.g. {launchOptions} gives the firefox of the toolchain a home of its own on macOS
+
 # the consumer environment: a project using playwright must point it at these browsers, since they
 # live inside the toolchain rather than the default per-user cache. {modules} is supplied generically
 # by {toolchain.init} for {node} tools, so it is not repeated here
@@ -32,6 +36,9 @@ playwright.install:
 	$(mkdirp) $(toolchain.playwright.home)
 	@${call log.action,"stage","package.json"}
 	$(cp) $(toolchains.mm)/playwright/package.json $(toolchain.playwright.home)/package.json
+	@${call log.action,"stage","mm-playwright"}
+	$(rm.force-recurse) $(toolchain.playwright.home)/mm-playwright
+	$(cp.r) $(toolchains.mm)/playwright/mm-playwright $(toolchain.playwright.home)/mm-playwright
 	@${call log.action,"npm","install"}
 	$(cd) $(toolchain.playwright.home) && npm install
 	@${call log.action,"playwright","browsers"}
