@@ -191,14 +191,15 @@ endef
 
 
 # helpers
-# install the node modules fresh from {package.json}; {npm i} leaves the modules alone when there
-# is nothing to install, so the recipe marks them as current, or every build that follows would
-# install again
+# install the node modules fresh from {package.json}; the lock is resolved by the same {npm i},
+# so the two are grouped (the '&:' in the rule separator) and the bundle that depends on the lock
+# has a rule that makes it; {npm i} leaves both alone when there is nothing to install, so the
+# recipe marks them as current, or every build that follows would install again
 define webpack.npm.install.fresh =
-$($(1).staging.modules): $($(1).staging.npm_config) | $($(1).staging.prefix)
+$($(1).staging.modules) $($(1).staging.npm_lock) &: $($(1).staging.npm_config) | $($(1).staging.prefix)
 	@${call log.action,"npm i",$(1)}
 	$(cd) $($(1).staging.prefix); npm i
-	$(touch) $($(1).staging.modules)
+	$(touch) $($(1).staging.modules) $($(1).staging.npm_lock)
 # all done
 endef
 
