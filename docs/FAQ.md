@@ -293,6 +293,17 @@ case1.argv := --input test1.dat
 case2.argv := --input test2.dat --verbose
 ```
 
+Cases declared on the suite apply to every one of its drivers, except those that name their
+own. This runs each driver once per case, for example against two implementations of the same
+interface:
+
+```makefile
+myapp.tests.cases := myapp.tests.native myapp.tests.fallback
+myapp.tests.fallback.harness := MYAPP_NATIVE=off
+```
+
+A suite case without a `harness` or `argv` of its own takes the suite's.
+
 ---
 
 ## pyre integration
