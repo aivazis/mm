@@ -63,24 +63,3 @@ directory` compiling the first hdf5 binding.
   esoteric feature; the brittleness came from the parent/child split, not the
   resolver.
 
-
-## `--activate` output is not always shell code
-
-`mm --activate` prints `export` statements meant for `eval "$(mm --activate ...)"`, but when mm has
-to bootstrap pyre first, the bootstrap announces itself on the same stdout, ahead of the exports
-(`mm`, around line 38):
-
-```
-downloading 'https://github.com/pyre/pyre/releases/download/v1.13.1/pyre-boot.zip
-```
-
-The `eval` then fails with `unexpected EOF while looking for matching '`, because the line is not
-shell code and its quote is never closed. It only happens on the first run of an mm checkout in an
-environment where `import pyre` fails, which is exactly a fresh checkout in a clean environment
-(found 2026-10-01 activating a new mm worktree in lambda's `pyre-test` env; reproducible with a new
-`git worktree` of mm and any env without pyre).
-
-- **Fix:** the bootstrap messages go to stderr, at least while `--activate` is on, and the message
-  closes its quote. The comment below it reads "from the wed" for "from the web".
-- **Check:** other output paths that can run before the activation lines (pkgdb construction,
-  `--setup`) for the same leak; the pkgdb build is clean today.
