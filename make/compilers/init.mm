@@ -121,13 +121,14 @@ ${if ${strip $(1)},${firstword $(1)} ${call compiler.unique,${filter-out ${first
 endef
 
 
-# assemble the list of option sources
+# assemble the list of option sources; the mode contributes its compiler options unless the
+# dependencies bring in {mode.tests}, which takes its place for test drivers that check
 #   usage: compiler.option.sources {language} {dependencies}
 define compiler.option.sources =
 ${strip
     $(2)
     mm
-    mode.compiler
+    ${if ${filter mode.tests,$(2)},,mode.compiler}
     platform.$(1)
     $(compiler.$(1))
     $(target.variants:%=targets.%.$(1))
