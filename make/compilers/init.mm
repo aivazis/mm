@@ -101,7 +101,7 @@ ${strip
     }
     ${if ${filter rpath, $(languages.$(2).categories.$(1))},
         ${patsubst %,$($(3).prefix.rpath)%,
-            ${sort
+            ${call compiler.unique,
                 ${foreach source, ${call compiler.option.sources,$(2),$(4)},
                     $($(source).rpath)
                 }
@@ -109,6 +109,15 @@ ${strip
         }
     }
 }
+endef
+
+
+# remove the duplicates from a list of words, keeping the first occurrence of each, so the rpath
+# searches the locations in the order of their sources, just like the libpath, and the private
+# areas of the build come ahead of the shared ones that may hold other versions of its libraries
+#   usage: compiler.unique {words}
+define compiler.unique =
+${if ${strip $(1)},${firstword $(1)} ${call compiler.unique,${filter-out ${firstword $(1)},$(1)}}}
 endef
 
 
