@@ -304,6 +304,16 @@ myapp.tests.fallback.harness := MYAPP_NATIVE=off
 
 A suite case without a `harness` or `argv` of its own takes the suite's.
 
+Compiled test drivers keep their checks in every mode: they build with the mode's options and
+defines, except that `DEBUG` replaces `NDEBUG`, so their `assert`s run even when the mode leaves
+them out of the code under test. A suite, or a single driver, that is meant to see the mode's
+own disposition opts out:
+
+```makefile
+myapp.lib.tests.assertions := no
+tests.myapp.lib.release_behavior.assertions := no
+```
+
 ---
 
 ## pyre integration

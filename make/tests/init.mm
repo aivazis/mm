@@ -72,6 +72,9 @@ define tests.init =
     # initialize the option database for each source language
     ${call test.languages.options,$(2)}
 
+    # whether compiled drivers check: {yes} compiles them with the checks on in every mode, so
+    # their asserts are live; {no} leaves them to the disposition of the mode
+    ${eval $(2).assertions ?= yes}
     # support for affecting how compiling, linking, and launching happen for all test cases
     ${eval $(2).harness ?=}
     ${eval $(2).argv ?=}
@@ -113,7 +116,7 @@ define tests.init =
     # category documentation
     $(2).meta.general := project stem name toolchain
     $(2).meta.extern := extern.requested extern.supported extern.available
-    $(2).meta.artifacts := root prefix runner cases staged stage.prefix stage.modules
+    $(2).meta.artifacts := root prefix runner cases assertions staged stage.prefix stage.modules
 
     # document each one
     # general
@@ -130,6 +133,7 @@ define tests.init =
     $(2).metadoc.prefix := "the absolute path to the test suite"
     $(2).metadoc.runner := "the self-discovering test runner this suite delegates to, if any"
     $(2).metadoc.cases := "the cases every driver runs, unless it names its own"
+    $(2).metadoc.assertions := "whether compiled drivers keep their checks in every mode (yes or no)"
     $(2).metadoc.staged :="whether interpreted drivers run from a staging area (opt-in)"
     $(2).metadoc.stage.prefix := "the staging directory where drivers and node_modules are assembled"
     $(2).metadoc.stage.modules := "an existing node_modules to link into the staging area"
@@ -233,6 +237,7 @@ define test.staging.target =
         ${eval $(_trgt).clean ?=}
         ${eval $(_trgt).pre ?=}
         ${eval $(_trgt).post ?=}
+        ${eval $(_trgt).assertions ?= $($(1).assertions)}
         ${eval $(_trgt).harness ?= $($(1).harness)}
         ${eval $(_trgt).argv ?= $($(1).argv)}
         ${eval $(_trgt).flags ?= $($(1).flags)}
