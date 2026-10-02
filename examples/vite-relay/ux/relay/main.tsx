@@ -1,8 +1,9 @@
-// -*- TypeScript -*-
+// -*- web -*-
 // -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -18,5 +19,6 @@ createRoot(document.getElementById("root")!).render(
     </RelayEnvironmentProvider>
   </StrictMode>
 );
+
 
 /* end of file */

@@ -1,8 +1,9 @@
-// -*- TypeScript -*-
+// -*- web -*-
 // -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -13,5 +14,6 @@ import relay from "vite-plugin-relay";
 export default defineConfig({
   plugins: [relay, react()],
 });
+
 
 /* end of file */

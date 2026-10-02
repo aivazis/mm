@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # Repository Guidelines
 
 ## Project Structure & Module Organization
@@ -21,3 +29,6 @@ Git history favors short, imperative summaries (`added intel compilers`, `remove
 
 ## Configuration Tips
 mm derives everything from `.mm/{project}.mm`. Use `mylib.lib.root := lib/mylib/` style assignments, keep secrets out of configs, and prefer environment overrides (`mm_prefix`, `mm_targets`) instead of editing tracked files for personal setups. When sharing new presets, document external toolchains in `docs/` and gate optional features behind `ifdef <dependency>.dir` blocks so default builds stay portable.
+
+
+<!-- end of file -->

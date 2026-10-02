@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 // portability
 #include <portinfo>
@@ -30,5 +31,6 @@ int main(int argc, char * argv[]) {
     // all done
     return 0;
 }
+
 
 // end of file

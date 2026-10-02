@@ -1,5 +1,11 @@
 #!/usr/bin/env zsh
+# -*- zsh -*-
+# -*- coding: utf-8 -*-
 #
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
 # Test script for mm zsh completion
 # This script tests the completion helper functions and target generation
 # Run with: zsh test-completion.zsh
@@ -684,3 +690,6 @@ else
     echo "\n${RED}Some tests failed!${NC}"
     exit 1
 fi
+
+
+# end of file

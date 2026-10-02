@@ -1,5 +1,12 @@
 #compdef mm
-# zsh completion for mm build system                        -*- shell-script -*-
+# -*- zsh -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# zsh completion for mm build system
 #
 # Installation:
 #   Option 1: Copy to a directory in your $fpath
@@ -1217,3 +1224,6 @@ _mm() {
 _mm "$@"
 
 # ex: filetype=zsh
+
+
+# end of file

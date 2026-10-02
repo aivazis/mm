@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm — workstream to-do
 
 ## External facilities (pick up soon)
@@ -63,3 +71,5 @@ directory` compiling the first hdf5 binding.
   esoteric feature; the brittleness came from the parent/child split, not the
   resolver.
 
+
+<!-- end of file -->

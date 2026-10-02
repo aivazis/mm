@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 #if !defined(hello_extension_greetings_h)
 #define hello_extension_greetings_h
@@ -27,5 +28,6 @@ namespace hello {
 } // of namespace hello
 
 #endif
+
 
 // end of file

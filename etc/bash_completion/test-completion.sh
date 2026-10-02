@@ -1,5 +1,11 @@
 #!/bin/bash
+# -*- bash -*-
+# -*- coding: utf-8 -*-
 #
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
 # Test script for mm bash completion
 # This script tests various completion scenarios
 
@@ -606,3 +612,6 @@ else
     echo -e "\n${RED}Some tests failed!${NC}"
     exit 1
 fi
+
+
+# end of file

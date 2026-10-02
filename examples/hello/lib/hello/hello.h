@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 // get the greetings
 #include "greetings/hello.h"
@@ -14,5 +15,6 @@
 #include "friends/ally.h"
 #include "friends/mac.h"
 #include "friends/mat.h"
+
 
 // end of file

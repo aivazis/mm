@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # Testing with mm
 
 mm supports two complementary testing models. You can mix them freely across a
@@ -144,4 +152,4 @@ mm tests              # run every suite in the project
 - C++ with a framework → **catch2** or **gtest**.
 
 
-# end of file
+<!-- end of file -->

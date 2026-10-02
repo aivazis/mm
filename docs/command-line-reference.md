@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm — Command-line Reference
 
 Every option here can also be set in `.mm/mm.yaml` under the `mm:` key (see
@@ -207,4 +215,5 @@ reason — incorrect values will silently produce a non-functional build.
 `--palette=NAME`
 : Color palette name for terminal output. Default: `builtin`.
 
-# end of file
+
+<!-- end of file -->
