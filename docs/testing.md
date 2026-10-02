@@ -57,6 +57,56 @@ qed.ux.tests.staged        := yes
 qed.ux.tests.stage.modules := $(qed.ux.stage.modules)   # the bundle's node_modules
 ```
 
+### Ordering drivers
+
+Drivers run in parallel. A driver that needs another to run first, because it
+reads a file the other writes or relies on external state the other sets up,
+names it in `pre`:
+
+```makefile
+# create the map, then write to it, then read it back
+tests.pyre.lib.memory.map_write.pre := tests.pyre.lib.memory.map_create
+tests.pyre.lib.memory.map_read.pre  := tests.pyre.lib.memory.map_write
+# the database must exist before a test attaches to it
+tests.postgres.ext.postgres_attach.pre := tests.postgres.ext.postgres_database
+```
+
+Every driver in such a chain is a test, and the chain runs every time the suite
+runs.
+
+### Drivers that produce files
+
+Some drivers are not tests but generators: running them writes fixtures that
+other suites read. Declare what a driver produces, relative to its directory:
+
+```makefile
+tests.data.native.c16.products := c16.dat
+```
+
+mm then treats the products as files:
+
+- one run of the driver, in its own directory, with its `harness` and `argv`,
+  makes all of its products, and only when they are missing or older than the
+  driver (its binary, or its source when it is interpreted);
+- the driver's test case is to bring its products up to date, so running the
+  suite does not regenerate fixtures that are current, and a fixture is never
+  rewritten while the suites that read it are running;
+- the suite `prerequisites` and the driver's `pre` order the run without making
+  the products stale, so whatever external state `pre` prepares is in place
+  before the driver runs;
+- the products are removed by the driver's `clean`.
+
+Other suites depend on a product by its path:
+
+```makefile
+qed.data.native.c16 := $(project.home)/tests/data/native/c16.dat
+qed.ux.playwright.webkit.prerequisites := qed.pkg qed.ext qed.ux $(qed.data.native.c16)
+```
+
+A driver with products runs once, so it cannot also name `cases`, and a staged
+driver cannot name products, since it runs from a copy elsewhere. Both are
+reported as errors.
+
 ---
 
 ## Runners
