@@ -4,14 +4,15 @@
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
+// code guard
+#pragma once
 
-#if !defined(mm_compilers_gcc)
+
+// mark
 #define mm_compilers_gcc
 
 // the gcc preprocessor defines __FUNC__
 #define HAVE__FUNC__
-
-#endif
 
 
 // end of file
