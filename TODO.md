@@ -24,6 +24,13 @@ prefix actually provides. Driving case: `pyre` shipping `libpyre-h5`,
 - **Next session:** the **producer half** — where in pyre's build the manifest
   is generated and what it enumerates. See "Open decisions" in the design note.
 
+## An example of a driver that names its products
+
+`<driver>.products` (docs/testing.md, "Drivers that produce files") is exercised
+by qed's `qed.data` suite but by no example here. Add a generator and a test that
+reads its product, e.g. under `examples/simple`, so the feature has a scenario
+test of its own.
+
 ## mpi launcher vocabulary (from pyre)
 
 Move the launcher vocabulary into mm's `extern/mpi` (`mpi.launch`); pyre is only
