@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -15,7 +14,9 @@
 #include <hello/greetings/goodbye.h>
 
 // entry point
-int main(int argc, char * argv[]) {
+int
+main(int argc, char * argv[])
+{
     // initialize the journal
     pyre::journal::init(argc, argv);
     pyre::journal::application("say-goodbye");
@@ -23,10 +24,8 @@ int main(int argc, char * argv[]) {
     pyre::journal::debug_t channel("say.goodbye");
 
     // print a message
-    channel
-        << pyre::journal::at(__HERE__)
-        << hello::goodbye() << " " << hello::ally() << "!"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__) << hello::goodbye() << " " << hello::ally() << "!"
+            << pyre::journal::endl;
 
     // all done
     return 0;

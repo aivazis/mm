@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -14,7 +13,9 @@
 #include "hello.h"
 
 // hello
-std::string hello::hello() {
+std::string
+hello::hello()
+{
     // easy enough
     return "hello";
 }

@@ -24,8 +24,8 @@ main(int argc, char * argv[])
     // get the run-time version
     const auto v = timer::version::version();
     // show me
-    std::cout << "version: " << v.major << "." << v.minor << "." << v.micro << " rev "
-              << v.revision << std::endl;
+    std::cout << "version: " << v.major << "." << v.minor << "." << v.micro << " rev " << v.revision
+              << std::endl;
     // compile-time constants must match the run-time values; a mismatch means the headers
     // used at compile time don't belong to the shared library that was linked at run time
     if (v.major != timer::version::major || v.minor != timer::version::minor
