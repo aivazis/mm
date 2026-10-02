@@ -29,7 +29,7 @@ namespace simple::py {
     // strings
     using string_t = std::string;
 
-}    // namespace simple::py
+} // namespace simple::py
 
 
 // end of file

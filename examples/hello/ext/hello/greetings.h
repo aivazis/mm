@@ -1,33 +1,27 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
-
-#if !defined(hello_extension_greetings_h)
-#define hello_extension_greetings_h
+// code guard
+#pragma once
 
 
 // place everything in my private namespace
-namespace hello {
-    namespace extension {
+namespace hello { namespace extension {
 
-        // hello: say hello
-        extern const char * const hello__name__;
-        extern const char * const hello__doc__;
-        PyObject * hello(PyObject *, PyObject *);
+    // hello: say hello
+    extern const char * const hello__name__;
+    extern const char * const hello__doc__;
+    PyObject * hello(PyObject *, PyObject *);
 
-        // goodbye: say goodbye
-        extern const char * const goodbye__name__;
-        extern const char * const goodbye__doc__;
-        PyObject * goodbye(PyObject *, PyObject *);
+    // goodbye: say goodbye
+    extern const char * const goodbye__name__;
+    extern const char * const goodbye__doc__;
+    PyObject * goodbye(PyObject *, PyObject *);
 
-    } // of namespace extension`
-} // of namespace hello
-
-#endif
+}} // namespace hello::extension
 
 
 // end of file

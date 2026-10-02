@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -18,17 +17,12 @@
 
 
 // alec
-const char * const
-hello::extension::
-alec__name__ = "alec";
+const char * const hello::extension::alec__name__ = "alec";
 
-const char * const
-hello::extension::
-alec__doc__ = "say alec";
+const char * const hello::extension::alec__doc__ = "say alec";
 
 PyObject *
-hello::extension::
-alec(PyObject *, PyObject * args)
+hello::extension::alec(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":alec");
@@ -43,17 +37,12 @@ alec(PyObject *, PyObject * args)
 }
 
 // ally
-const char * const
-hello::extension::
-ally__name__ = "ally";
+const char * const hello::extension::ally__name__ = "ally";
 
-const char * const
-hello::extension::
-ally__doc__ = "say ally";
+const char * const hello::extension::ally__doc__ = "say ally";
 
 PyObject *
-hello::extension::
-ally(PyObject *, PyObject * args)
+hello::extension::ally(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":ally");
@@ -68,17 +57,12 @@ ally(PyObject *, PyObject * args)
 }
 
 // mac
-const char * const
-hello::extension::
-mac__name__ = "mac";
+const char * const hello::extension::mac__name__ = "mac";
 
-const char * const
-hello::extension::
-mac__doc__ = "say mac";
+const char * const hello::extension::mac__doc__ = "say mac";
 
 PyObject *
-hello::extension::
-mac(PyObject *, PyObject * args)
+hello::extension::mac(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":mac");
@@ -93,17 +77,12 @@ mac(PyObject *, PyObject * args)
 }
 
 // mat
-const char * const
-hello::extension::
-mat__name__ = "mat";
+const char * const hello::extension::mat__name__ = "mat";
 
-const char * const
-hello::extension::
-mat__doc__ = "say mat";
+const char * const hello::extension::mat__doc__ = "say mat";
 
 PyObject *
-hello::extension::
-mat(PyObject *, PyObject * args)
+hello::extension::mat(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":mat");

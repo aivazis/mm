@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -18,17 +17,12 @@
 
 
 // hello
-const char * const
-hello::extension::
-hello__name__ = "hello";
+const char * const hello::extension::hello__name__ = "hello";
 
-const char * const
-hello::extension::
-hello__doc__ = "say hello";
+const char * const hello::extension::hello__doc__ = "say hello";
 
 PyObject *
-hello::extension::
-hello(PyObject *, PyObject * args)
+hello::extension::hello(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":hello");
@@ -43,17 +37,12 @@ hello(PyObject *, PyObject * args)
 }
 
 // goodbye
-const char * const
-hello::extension::
-goodbye__name__ = "goodbye";
+const char * const hello::extension::goodbye__name__ = "goodbye";
 
-const char * const
-hello::extension::
-goodbye__doc__ = "say goodbye";
+const char * const hello::extension::goodbye__doc__ = "say goodbye";
 
 PyObject *
-hello::extension::
-goodbye(PyObject *, PyObject * args)
+hello::extension::goodbye(PyObject *, PyObject * args)
 {
     // parse the arguments
     int ok = PyArg_ParseTuple(args, ":goodbye");

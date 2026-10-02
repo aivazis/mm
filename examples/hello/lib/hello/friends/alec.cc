@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -15,14 +14,13 @@
 #include "alec.h"
 
 // friends
-std::string hello::alec() {
+std::string
+hello::alec()
+{
     // make a channel
     pyre::journal::debug_t channel("hello.friends");
     // show me
-    channel
-        << pyre::journal::at(__HERE__)
-        << "friend: Alec"
-        << pyre::journal::endl;
+    channel << pyre::journal::at(__HERE__) << "friend: Alec" << pyre::journal::endl;
 
     // easy enough
     return "Alec";

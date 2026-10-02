@@ -10,7 +10,7 @@
 namespace simple::py {
     // top level functions
     void api(py::module &);
-}
+} // namespace simple::py
 
 
 // end of file

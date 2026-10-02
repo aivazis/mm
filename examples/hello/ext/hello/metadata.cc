@@ -1,8 +1,7 @@
 // -*- c++ -*-
 // -*- coding: utf-8 -*-
 //
-// michael a.g. aïvázis
-// parasim
+// michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
 
@@ -16,17 +15,12 @@
 
 
 // copyright
-const char * const
-hello::extension::
-copyright__name__ = "copyright";
+const char * const hello::extension::copyright__name__ = "copyright";
 
-const char * const
-hello::extension::
-copyright__doc__ = "the project copyright string";
+const char * const hello::extension::copyright__doc__ = "the project copyright string";
 
 PyObject *
-hello::extension::
-copyright(PyObject *, PyObject *)
+hello::extension::copyright(PyObject *, PyObject *)
 {
     // the value
     const char * const copyright_note =
@@ -38,19 +32,14 @@ copyright(PyObject *, PyObject *)
 
 
 // version
-const char * const
-hello::extension::
-version__name__ = "version";
+const char * const hello::extension::version__name__ = "version";
 
-const char * const
-hello::extension::
-version__doc__ = "the project version string";
+const char * const hello::extension::version__doc__ = "the project version string";
 
 PyObject *
-hello::extension::
-version(PyObject *, PyObject *)
+hello::extension::version(PyObject *, PyObject *)
 {
-        return Py_BuildValue("s", "4.0");
+    return Py_BuildValue("s", "4.0");
 }
 
 
