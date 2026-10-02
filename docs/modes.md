@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm — Build Modes
 
 The build *mode* is mm's deployment-intent axis: it answers "what kind of build is
@@ -336,3 +344,6 @@ Best resolved against a concrete case:
 - The **extension contract** each builder should expose (its stable step-targets and
   overridable operations) is undefined and should be settled per builder before
   mode-owned overrides are allowed to reach into it.
+
+
+<!-- end of file -->

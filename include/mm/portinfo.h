@@ -1,7 +1,9 @@
-// -*- C -*-
+// -*- c -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 #if !defined(mm_portinfo_h)
 #define mm_portinfo_h
@@ -35,5 +37,6 @@
 
 // all done
 #endif
+
 
 // end of file

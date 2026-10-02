@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # Building with mm — a step-by-step tutorial
 
 This tutorial walks through building a small C++ library with Python bindings,
@@ -575,4 +583,5 @@ each step showing one layer of the framework. Step08 closes the loop by showing
 how the build system integrates with the development workflow, and step09 adds
 test frameworks alongside the per-file tests from step01.
 
-# end of file
+
+<!-- end of file -->

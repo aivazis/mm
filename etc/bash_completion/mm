@@ -1,4 +1,11 @@
-# bash completion for mm build system                      -*- shell-script -*-
+# -*- bash -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# bash completion for mm build system
 
 # =============================================================================
 # Global targets
@@ -1322,3 +1329,6 @@ if [[ $- == *i* ]]; then
 fi
 
 # ex: filetype=sh
+
+
+# end of file

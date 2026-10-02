@@ -1,13 +1,15 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 namespace hello {
     // hello
     std::string hello();
 }
+
 
 // end of file

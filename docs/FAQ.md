@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm — Frequently Asked Questions
 
 ## Getting started
@@ -547,4 +555,5 @@ No. mm uses a library of make fragments installed to
 `{prefix}/share/mm/make/`. GNU make loads those fragments directly at run
 time. There are no generated files to check in or regenerate.
 
-# end of file
+
+<!-- end of file -->

@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 // declare the C implementation
 extern "C" {
@@ -14,5 +15,6 @@ namespace hello {
     // mac
     inline auto mac() { return ::mac(); }
 }
+
 
 // end of file

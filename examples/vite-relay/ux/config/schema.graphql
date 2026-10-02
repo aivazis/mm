@@ -1,4 +1,14 @@
+# -*- graphql -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
 # the tiny schema the demo talks to; resolved by the pyre graphql server (added in a later step)
 type Query {
   greeting: String!
 }
+
+
+# end of file

@@ -1,8 +1,9 @@
-// -*- TypeScript -*-
+// -*- web -*-
 // -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 import { useState } from "react";
 import type { PageProps } from "./$types";
@@ -20,5 +21,6 @@ export default function ({ AppGreeting }: PageProps) {
     </main>
   );
 }
+
 
 /* end of file */

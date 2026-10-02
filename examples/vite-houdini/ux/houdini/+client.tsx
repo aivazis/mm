@@ -1,8 +1,9 @@
-// -*- TypeScript -*-
+// -*- web -*-
 // -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 import { HoudiniClient } from "$houdini";
 
@@ -11,5 +12,6 @@ import { HoudiniClient } from "$houdini";
 export default new HoudiniClient({
   url: "http://localhost:8080/graphql",
 });
+
 
 /* end of file */

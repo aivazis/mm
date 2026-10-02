@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # Design note: facilities of a supported external
 
 **Status:** design agreed, not implemented. Pick up soon.
@@ -180,3 +188,6 @@ producer already gates on `${findstring hdf5,$(extern.available)}`:
   `.facilities` → requested-set rewrite; emit the `WITH_*` define.
 - Update [externals.md](externals.md) with a "facilities" section once the shape
   is real.
+
+
+<!-- end of file -->

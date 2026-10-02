@@ -1,7 +1,9 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 #if !defined(mm_platforms_darwin_arm64)
 // user code can use the code guard to know the specific architecture
@@ -15,5 +17,6 @@
 #define HAVE_SYSCTL_HW_DOT 1
 
 #endif
+
 
 // end of file

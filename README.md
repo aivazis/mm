@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm
 
 mm is a build orchestration framework for projects that mix C, C++, Fortran,
@@ -492,4 +500,5 @@ Pass `--bash-completion` to also install tab-completion support for bash.
   common, advanced, and esoteric
 - `examples/` — the complete source for each tutorial step
 
-# end of file
+
+<!-- end of file -->

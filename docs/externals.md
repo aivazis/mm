@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # Adding support for an external package
 
 An **external** is a third-party library or tool that your code compiles and
@@ -283,3 +291,6 @@ A later location overrides an earlier one, so you can shadow a built-in package
 for one project or one machine without touching mm itself. A package also gets an
 optional `rules.mm` alongside `init.mm` for any make rules it needs; the per-package
 verify report is wired up there.
+
+
+<!-- end of file -->

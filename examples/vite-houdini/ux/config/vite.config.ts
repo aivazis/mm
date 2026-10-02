@@ -1,8 +1,9 @@
-// -*- TypeScript -*-
+// -*- web -*-
 // -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
+
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -14,5 +15,6 @@ import adapter from "houdini-adapter-auto";
 export default defineConfig({
   plugins: [houdini({ adapter }), react({ fastRefresh: false })],
 });
+
 
 /* end of file */

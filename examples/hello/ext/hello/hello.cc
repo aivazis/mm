@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 // #include <portinfo>
 #include <Python.h>
@@ -69,5 +70,6 @@ PyInit_hello()
     // and return it
     return module;
 }
+
 
 // end of file

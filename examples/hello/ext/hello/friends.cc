@@ -1,9 +1,10 @@
-// -*- C++ -*-
+// -*- c++ -*-
+// -*- coding: utf-8 -*-
 //
 // michael a.g. aïvázis
 // parasim
 // (c) 1998-2026 all rights reserved
-//
+
 
 // configuration
 // #include <portinfo>
@@ -115,5 +116,6 @@ mat(PyObject *, PyObject * args)
     // all done
     return Py_BuildValue("s", hello::mat());
 }
+
 
 // end of file

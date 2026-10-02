@@ -1,3 +1,11 @@
+<!--
+-*- markdown -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
 # mm — Code Coverage
 
 Coverage is a `target` variant, `cov`, alongside `debug`, `opt`, `shared`. Adding it
@@ -143,3 +151,6 @@ neither knows nor cares that mm produced the file.
 Because header coverage is attributed back to source (see *Header attribution* above), the
 lcov points at the files in your working tree — libraries and their headers alike — so the
 gutters light up on the source you actually edit, not on installed copies under the prefix.
+
+
+<!-- end of file -->

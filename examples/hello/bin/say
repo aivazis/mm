@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- Python -*-
+# -*- python -*-
 # -*- coding: utf-8 -*-
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
@@ -10,7 +10,7 @@
 import hello
 
 # build an instance of the plexus
-app = hello.plexus(name='hello.plexus')
+app = hello.plexus(name="hello.plexus")
 # and run it
 status = app.run()
 # pass the status on to the shell

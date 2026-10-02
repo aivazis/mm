@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+# -*- python -*-
 # -*- coding: utf-8 -*-
 #
 # michael a.g. aïvázis <michael.aivazis@para-sim.com>
 # (c) 1998-2026 all rights reserved
+
 
 # externals
 import os
@@ -377,8 +379,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 f"mm.home={home}",
                 f"mm.merlin={merlin}",
                 f"mm.compilers={compilers}",
-                f"mm.incpath={home / 'include' / 'mm'} "
-                + " ".join(incpath.split(os.pathsep)),
+                f"mm.incpath={home / 'include' / 'mm'} " + " ".join(incpath.split(os.pathsep)),
                 f"mm.libpath=" + " ".join(libpath.split(os.pathsep)),
             ]
             # plus whatever the user put on the command line
@@ -825,9 +826,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # pick a channel
             channel = self.warning
             # complain
-            channel.log(
-                "could not figure out where to put the intermediate build products"
-            )
+            channel.log("could not figure out where to put the intermediate build products")
 
         # give up
         return None
@@ -972,9 +971,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # we have a problem
                 channel = self.error
                 # complain
-                channel.log(
-                    f"requires GNU Make 4.2.1 or higher; '{self.make}' is {major}.{minor}"
-                )
+                channel.log(f"requires GNU Make 4.2.1 or higher; '{self.make}' is {major}.{minor}")
                 # and bail
                 raise SystemExit(1)
 
@@ -1074,9 +1071,7 @@ class mm(pyre.application, family="pyre.applications.mm", namespace="mm"):
     # the XDG compliant fallback for user configuration
     XDG_CONFIG = pyre.primitives.path("~/.config")
     # make version
-    makeVersionParser = re.compile(
-        r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?"
-    )
+    makeVersionParser = re.compile(r"GNU Make (?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<micro>\d+))?")
     # parser of the {git describe} result
     gitDescriptionParser = re.compile(
         r"(v(?P<major>\d+)\.(?P<minor>\d+).(?P<micro>\d+)-(?P<ahead>\d+)-g)?(?P<commit>.+)"
