@@ -4,8 +4,11 @@
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
+// code guard
+#pragma once
 
-#if !defined(mm_portinfo)
+
+// mark
 #define mm_portinfo
 
 // platform redirects
@@ -33,9 +36,6 @@
 #elif defined(MM_COMPILER_nvcc)
 #include "compilers/nvcc/nvcc.h"
 
-#endif
-
-// all done
 #endif
 
 

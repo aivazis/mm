@@ -4,11 +4,12 @@
 // michael a.g. aïvázis <michael.aivazis@para-sim.com>
 // (c) 1998-2026 all rights reserved
 
+// code guard
+#pragma once
 
-#if !defined(mm_compilers_clang)
+
+// mark
 #define mm_compilers_clang
-
-#endif
 
 
 // end of file
