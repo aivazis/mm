@@ -86,7 +86,7 @@ $(1).headers.stale := ${filter-out $($(1).staging.headers.gateway) $($(1).stagin
 $(1).headers.prune: | $($(1).tmpdir)
 	@$${foreach header,$$($(1).headers.stale),$${call log.action,"prune",$$(header)};}
 	$${if $$($(1).headers.stale),$(rm.force) $$($(1).headers.stale)}
-	$${if $$($(1).headers.stale),${call library.prune.directories,$$(sort $$(dir $$($(1).headers.stale)))}}
+	$${if $$($(1).headers.stale),${call rmdir.empty,$$(sort $$(dir $$($(1).headers.stale)))}}
 	$$(file >$$($(1).headers.manifest),$$($(1).headers.published))
 
 # clean up the autogen files; nothing to do by default
@@ -145,15 +145,6 @@ endef
 
 
 # helpers
-# remove the directories in a list that are left empty, the deepest first, so that removing a
-# nested directory can empty its parent before the parent's turn comes; a directory that still
-# holds anything stays
-#  usage: library.prune.directories {directories}
-define library.prune.directories =
-for d in `printf '%s\n' $(1) | sort -r`; do $(rmdir) "$$$$d" 2>/dev/null || true; done
-endef
-
-
 # library gateway headers
 #  usage: library.workflows.header.gateway {library} {header}
 define library.workflows.header.gateway =
