@@ -14,7 +14,7 @@
 
     ! declare the return value of the function
     type(c_ptr) :: mat
-    ! declare the name of my firend
+    ! declare the name of my friend
     character(len=:), allocatable, target, save :: name
 
     ! set the name

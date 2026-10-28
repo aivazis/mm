@@ -35,7 +35,7 @@ tests.dep.post.pre := tests.dep.one tests.dep.two
 tests.dep.post.post := tests.dep.clean user-defined
 
 # user defined rule; the current implementation forces it to be a double colon rule, but that
-# might change; note that we want this to happen after final clean up so we give it an explict
+# might change; note that we want this to happen after final clean up so we give it an explicit
 # dependency
 user-defined :: tests.dep.clean
 	${call log.info,"all done"}

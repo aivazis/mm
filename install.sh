@@ -43,7 +43,7 @@ fi
 
 # ensure the installation location for the script exists
 mkdir -p ${prefix}/bin
-# and copy it ther
+# and copy it there
 cp mm ${prefix}/bin
 
 # ensure that the installation location for my headers exists

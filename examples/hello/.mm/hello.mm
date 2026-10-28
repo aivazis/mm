@@ -52,7 +52,7 @@ hello.tests.hello.lib.flags += -Wall $($(compiler.c++).std.c++17)
 # the hello package test suite
 # similarly, all source files here are expected to be test drivers; the ones that don't require
 # command line arguments do not have to be mentioned as they will be tested implicitly; the
-# rest must be dscribed explicitly
+# rest must be described explicitly
 hello.tests.hello.pkg.stem := hello.pkg
 hello.tests.hello.pkg.prerequisites := hello.pkg hello.ext
 
