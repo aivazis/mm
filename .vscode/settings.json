@@ -1,4 +1,11 @@
 {
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "cSpell.customDictionaries": {
+        "mm": {
+            "name": "mm",
+            "path": "${workspaceFolder}/etc/ci/conventions/codespell-words.txt",
+            "addWords": true
+        }
+    }
 }

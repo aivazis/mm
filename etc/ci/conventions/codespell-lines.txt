@@ -1,0 +1,2 @@
+**Safety.** A mode-keyed slot can silently no-op on a typo (`…​.relese` is never
+test_completion "Complete 'te'" "mm te" "tests"

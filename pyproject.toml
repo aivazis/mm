@@ -20,4 +20,15 @@ target-version = ["py311", "py312", "py313", "py314"]
 exempt = ["*Make.mm", "LICENSE"]
 
 
+# spell checking of the prose in comments, docstrings, and documentation, the way pyre does it:
+# {ignore-words} lists real words that codespell mistakes for misspellings, and that VS Code's
+# spell checker reads too, so both accept the same words; {exclude-file} lists exact lines that
+# are right as they are; {ignore-regex} leaves out mixed case identifiers, which are code
+[tool.codespell]
+skip = "*.png,*.jpg,*.gif,*.ico,*.pdf,*.svg,*.woff,*.woff2,*.ttf"
+ignore-words = "etc/ci/conventions/codespell-words.txt"
+exclude-file = "etc/ci/conventions/codespell-lines.txt"
+ignore-regex = "\\b[a-z]+[A-Z][A-Za-z0-9]*\\b"
+
+
 # end of file
