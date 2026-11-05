@@ -122,8 +122,8 @@ qed.ux.playwright.stage.modules := $(qed.ux.stage.modules)
 
 | Runner       | Language | Prepare    | Launch                | The suite supplies |
 |--------------|----------|------------|-----------------------|--------------------|
-| `playwright` | node     | `staged`   | `npx playwright test` | `stage.modules` |
-| `vitest`     | node     | `staged`   | `npx vitest run`      | `stage.modules` |
+| `playwright` | node     | `staged`   | `playwright test`     | `toolchain := playwright`, `stage.modules` |
+| `vitest`     | node     | `staged`   | `vitest run --globals` | `toolchain := vitest`, `stage.modules` |
 | `pytest`     | python   | `plain`    | `pytest`              | an importable package |
 | `catch2`     | c++      | `compiled` | the built binary      | `extern := catch2`, C++17 |
 | `gtest`      | c++      | `compiled` | the built binary      | `extern := gtest`, C++17 |
@@ -148,11 +148,31 @@ qed.ux.playwright.env           := CI=1
 
 Both run `staged`, so they need a populated `node_modules`. Point `stage.modules`
 at the web bundle's modules — mm's webpack/vite bundles install into their staging
-area, which is exactly where the runner should resolve packages. Playwright's
-browser binaries are located by `PLAYWRIGHT_BROWSERS_PATH` (set it once, in your
-shell profile, to a shared cache). Servers under test, and serial-vs-parallel
-routing, belong in `playwright.config.ts` (`webServer`, projects,
-`test.describe.serial`), not in mm.
+area, which is exactly where the code under test resolves its packages.
+
+The runners themselves are **toolchains**: tools mm installs once per environment,
+under `~/tools/mm/<environment>/toolchains`, and that a project declares it uses but
+never installs. A suite names its tool, and mm puts the tool's executables on `PATH`,
+its modules on `NODE_PATH`, and whatever else it needs in the environment of the
+launch; a suite whose tool is missing stops with the command that installs it:
+
+```makefile
+qed.ux.playwright.toolchain := playwright
+qef.ux.vitest.toolchain     := vitest
+```
+
+`mm toolchains.info` lists them; `mm <tool>.install` and `mm <tool>.update` fetch
+them, which are the only toolchain actions that reach the network. Playwright is
+pinned to an exact release, since its browser builds belong to it, and keeps them
+inside the toolchain. Vitest, and ESLint with its stylistic and comment length rules,
+follow the releases of their major versions, so `update` brings in fixes without
+anyone tending a pin, and a new major version is a deliberate edit of the manifest.
+
+Vitest tests use `describe`, `test` and `expect` as globals rather than importing
+them, since a staged test resolves its imports among the modules of the code under
+test, not the toolchain's. Servers under test, and serial-vs-parallel routing,
+belong in `playwright.config.ts` (`webServer`, projects, `test.describe.serial`),
+not in mm.
 
 ### Python runner (pytest)
 
