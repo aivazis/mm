@@ -168,6 +168,15 @@ inside the toolchain. Vitest, and ESLint with its stylistic and comment length r
 follow the releases of their major versions, so `update` brings in fixes without
 anyone tending a pin, and a new major version is a deliberate edit of the manifest.
 
+An ESLint configuration is an ES module, and the imports of ES modules don't consult
+`NODE_PATH`, so a project's configuration can't name the toolchain's plugins. The
+toolchain installs a module next to them that re-exports them, and puts its path in
+`MM_ESLINT_PLUGINS`:
+
+```javascript
+const { stylistic, commentLength } = await import(process.env.MM_ESLINT_PLUGINS)
+```
+
 Vitest tests use `describe`, `test` and `expect` as globals rather than importing
 them, since a staged test resolves its imports among the modules of the code under
 test, not the toolchain's. Servers under test, and serial-vs-parallel routing,
