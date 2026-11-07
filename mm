@@ -1615,6 +1615,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         channel.indent()
         channel.line(f"environment: {os.environ.get('CONDA_DEFAULT_ENV', '?')}")
         channel.line(f"prefix: {prefix}")
+        channel.line(f"python: {pyre.primitives.path(prefix) / 'bin' / 'python'}")
         channel.line(f"db: {db}")
         channel.outdent()
         channel.log()
@@ -1997,8 +1998,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the importable module name and the mm package name
         module = recipe["module"]
         target = entry["name"]
-        # ask the package where its headers are
-        includePath = self._queryPythonExpression(f"import {module}; print({module}.get_include())")
+        # ask the package where its headers are, through the interpreter of the environment
+        includePath = self._queryPythonExpression(
+            f"import {module}; print({module}.get_include())",
+            python=pyre.primitives.path(prefix) / "bin" / "python",
+        )
         # if the query failed, fall back to {conda.prefix}; the defaults won't be right,
         # but it's the best we can do without the package telling us where it lives
         if not includePath:
@@ -2399,7 +2403,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         prefix = pyre.primitives.path("/usr")
         # query the Python interpreter for the correct package installation directory
         platlib = self._queryPythonExpression(
-            "import sysconfig; print(sysconfig.get_path('platlib'))"
+            "import sysconfig; print(sysconfig.get_path('platlib'))",
+            python=self._systemPython(),
         )
         # if the query failed we can't reliably determine where to put python packages
         if not platlib:
@@ -2407,7 +2412,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not determine the python package installation directory")
-            error.line("make sure python3 is installed and on your PATH")
+            error.line(f"{self._systemPython()} is missing or could not answer")
             # flush
             error.log()
             # bail
@@ -2423,6 +2428,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         channel.indent()
         channel.line(f"dpkg-query: {dpkg}")
         channel.line(f"prefix: {prefix}")
+        channel.line(f"python: {self._systemPython()}")
         channel.line(f"python packages: {pycPrefix}")
         channel.line(f"db: {db}")
         channel.outdent()
@@ -2535,7 +2541,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # python version is major.minor only
                 if name == "python":
                     pyVersion = self._queryPythonExpression(
-                        "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+                        "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
+                        python=self._systemPython(),
                     )
                     if pyVersion:
                         print(f"python.version ?= {pyVersion}", file=f)
@@ -2573,7 +2580,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # numpy headers live under the python package directory
                 elif name == "numpy":
                     includePath = self._queryPythonExpression(
-                        "import numpy; print(numpy.get_include())"
+                        "import numpy; print(numpy.get_include())",
+                        python=self._systemPython(),
                     )
                     if includePath:
                         numpyCore = pyre.primitives.path(includePath).parent
@@ -2587,7 +2595,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # pybind11 headers also live under the python package directory
                 elif name == "pybind11":
                     includePath = self._queryPythonExpression(
-                        "import pybind11; print(pybind11.get_include())"
+                        "import pybind11; print(pybind11.get_include())",
+                        python=self._systemPython(),
                     )
                     if includePath:
                         pybind11Root = pyre.primitives.path(includePath).parent
@@ -2728,6 +2737,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         channel.indent()
         channel.line(f"rpm: {rpm}")
         channel.line(f"prefix: {prefix}")
+        channel.line(f"python: {self._systemPython()}")
         channel.line(f"db: {db}")
         channel.outdent()
         channel.log()
@@ -2833,7 +2843,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 if name == "python":
                     # the version, major.minor only, as used in filesystem paths
                     pyVersion = self._queryPythonExpression(
-                        "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+                        "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
+                        python=self._systemPython(),
                     )
                     if pyVersion:
                         print(f"python.version ?= {pyVersion}", file=f)
@@ -2901,7 +2912,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # numpy headers live under the python package directory
                 elif name == "numpy":
                     includePath = self._queryPythonExpression(
-                        "import numpy; print(numpy.get_include())"
+                        "import numpy; print(numpy.get_include())",
+                        python=self._systemPython(),
                     )
                     if includePath:
                         numpyCore = pyre.primitives.path(includePath).parent
@@ -2915,7 +2927,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 # pybind11 headers also live under the python package directory
                 elif name == "pybind11":
                     includePath = self._queryPythonExpression(
-                        "import pybind11; print(pybind11.get_include())"
+                        "import pybind11; print(pybind11.get_include())",
+                        python=self._systemPython(),
                     )
                     if includePath:
                         pybind11Root = pyre.primitives.path(includePath).parent
@@ -3120,17 +3133,29 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # hand back the version (for the report) and the lines
         return version, lines
 
-    def _queryPythonExpression(self, expression, *, python=sys.executable):
+    def _systemPython(self):
         """
-        Evaluate a python expression in the given interpreter and return its stdout,
-        or None if the evaluation fails
+        The interpreter of the system packages, which the dpkg and rpm databases and the ubuntu
+        and fedora layouts describe
+        """
+        # the distributions install it in the system prefix
+        return pyre.primitives.path("/usr/bin/python3")
+
+    def _queryPythonExpression(self, expression, *, python):
+        """
+        Evaluate a python expression in {python}, the interpreter the build targets, and return
+        its stdout, or None if the interpreter is missing or the evaluation fails
         """
         # run the expression in the requested interpreter
-        result = subprocess.run(
-            [str(python), "-c", expression],
-            capture_output=True,
-            text=True,
-        )
+        try:
+            result = subprocess.run(
+                [str(python), "-c", expression],
+                capture_output=True,
+                text=True,
+            )
+        # an interpreter that isn't there has nothing to say
+        except FileNotFoundError:
+            return None
         # return the output on success, None on failure
         return result.stdout.strip() if result.returncode == 0 else None
 
@@ -3379,7 +3404,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # searches natively, so installed packages are importable with no environment
         platlib = self._queryPythonExpression(
             "import sysconfig; "
-            f"print(sysconfig.get_path('platlib', 'posix_prefix', vars={{'platbase': '{prefix}'}}))"
+            f"print(sysconfig.get_path('platlib', 'posix_prefix', vars={{'platbase': '{prefix}'}}))",
+            python=self._systemPython(),
         )
         # if the query succeeded, make {platlib} relative to the prefix
         if platlib:
@@ -3412,7 +3438,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         prefix = self.prefix or pyre.primitives.path("/usr")
         # query the system Python for the correct package installation directory
         platlib = self._queryPythonExpression(
-            "import sysconfig; print(sysconfig.get_path('platlib'))"
+            "import sysconfig; print(sysconfig.get_path('platlib'))",
+            python=self._systemPython(),
         )
         # if the query succeeded, make {platlib} relative to the prefix
         if platlib:
