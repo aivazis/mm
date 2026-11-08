@@ -760,7 +760,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             # outdent
             channel.outdent()
             # what to check
-            channel.line(f"check your setting for my 'merlin' property")
+            channel.line(f"check your setting for my 'makefile' property")
             # flush
             channel.log()
         # if the path to the {portinfo} headers doesn't exist
