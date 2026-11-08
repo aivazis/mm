@@ -102,7 +102,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     version.default = None
     version.doc = "the project version; try to deduce it, if not set"
 
-    # compute branch-keyed build paths and print shell export statements
+    # what the build is for, which decides where its products go
     mode = pyre.properties.str()
     mode.default = "dev"
     mode.validators = pyre.constraints.isMember(
@@ -110,6 +110,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     )
     mode.doc = "the strategy for generating locations for the build products"
 
+    # whether the developer-time checks compile in, whatever the mode says
     assertions = pyre.properties.bool()
     assertions.default = None
     assertions.doc = "compile in the developer-time checks whatever the mode says (False leaves them out; None defers to the mode)"
@@ -119,53 +120,64 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     stubs.default = False
     stubs.doc = "write the type stubs of the extension modules, when their generator is installed"
 
+    # whether the tag follows the branch of the repository
     branch = pyre.properties.bool()
     branch.default = None
     branch.doc = (
         "derive the {tag} from repository state (False clears it; None leaves it unchanged)"
     )
 
+    # print the commands that add the build products to the shell session
     activate = pyre.properties.bool()
     activate.default = False
     activate.doc = (
         "print shell commands that add the build's bin and python packages to the session"
     )
 
+    # in the syntax of the shell that reads them
     syntax = pyre.properties.str()
     syntax.default = "sh"
     syntax.validators = pyre.constraints.isMember("sh", "csh", "fish")
     syntax.doc = "the shell syntax to use when printing export statements"
 
+    # the discriminator that keeps build contexts apart
     tag = pyre.properties.str()
     tag.default = os.environ.get("mm_tag")
     tag.doc = (
         "an optional discriminator appended to {bldroot} and {prefix} to separate build contexts"
     )
 
+    # where the build installs its products
     prefix = pyre.properties.path()
     prefix.default = None
     prefix.doc = "the path to the installation directory"
 
+    # where the build keeps its intermediate products
     bldroot = pyre.properties.path()
     bldroot.default = None
     bldroot.doc = "the path to the intermediate build products"
 
+    # where the developer toolchains of the environment live
     toolchains = pyre.properties.path()
     toolchains.default = None
     toolchains.doc = "the directory where environment-level developer toolchains are installed"
 
+    # the variants to build
     target = pyre.properties.strings()
     target.default = ["debug", "shared"]
     target.doc = "the list of target variants to build"
 
+    # the compilers to build with
     compilers = pyre.properties.strings()
     compilers.default = ["clang", "python/python3"]
     compilers.doc = "the set of compilers to use"
 
+    # a makefile with targets of the user's own
     local = pyre.properties.str()
     local.default = None
-    local.doc = "the name of a optional local makefile with additional targets"
+    local.doc = "the name of an optional local makefile with additional targets"
 
+    # the package manager that knows where the external dependencies live
     pkgdb = pyre.properties.str()
     pkgdb.default = "adhoc"
     pkgdb.validators = pyre.constraints.isMember("adhoc", "conda", "macports", "dpkg", "rpm")
@@ -176,33 +188,40 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     setup.default = False
     setup.doc = "build a package database, instead of invoking make"
 
+    # whether make runs one recipe at a time
     serial = pyre.properties.bool()
     serial.default = False
     serial.doc = "control whether to run make in parallel"
 
+    # or how many it runs at once
     slots = pyre.properties.int()
     slots.default = None
     slots.aliases |= {"j", "jobs"}
     slots.doc = "the number of recipes to execute simultaneously; defaults to all cores"
 
+    # show how make is invoked
     show = pyre.properties.bool()
     show.default = False
     show.doc = "display details about the invocation of make"
 
+    # go through the motions without invoking make
     dry = pyre.properties.bool()
     dry.default = False
     dry.aliases |= {"n"}
     dry.doc = "do everything except invoke make"
 
+    # keep the output to what matters
     quiet = pyre.properties.bool()
     quiet.default = False
     quiet.aliases |= {"q"}
     quiet.doc = "suppress all non-critical output"
 
+    # colorize the output
     color = pyre.properties.bool()
     color.default = True
     color.doc = "colorize screen output on supported terminals"
 
+    # with these colors
     palette = pyre.properties.str()
     palette.default = "builtin"
     palette.doc = "color palette for colorizing screen output on supported terminals"
@@ -213,15 +232,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     ignore.aliases |= {"k"}
     ignore.doc = "ask make to ignore build target failures and keep going"
 
+    # show the commands make runs
     verbose = pyre.properties.bool()
     verbose.default = False
     verbose.aliases |= {"v"}
     verbose.doc = "ask make to show each action taken"
 
+    # show the rule database of make
     rules = pyre.properties.bool()
     rules.default = False
     rules.doc = "ask make to print the rule database"
 
+    # show why make does what it does
     trace = pyre.properties.bool()
     trace.default = False
     trace.doc = "ask make to print trace information"
@@ -237,6 +259,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     host = pyre.platforms.platform()
     host.doc = "information about the current host"
 
+    # the active conda environment
     environment = pyre.properties.str()
     environment.default = os.environ.get("CONDA_DEFAULT_ENV", "")
     environment.doc = "the name of the conda environment"
@@ -246,42 +269,49 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     cfgdir.default = ".mm"
     cfgdir.doc = "the relative path to project and user makefile fragments"
 
-    # the layout out of the installation area
+    # the layout of the installation area: executables
     binPrefix = pyre.properties.path()
     binPrefix.default = "bin"
     binPrefix.aliases |= {"bin-prefix"}
     binPrefix.doc = "installation location for executables"
 
+    # libraries and shared objects
     libPrefix = pyre.properties.path()
     libPrefix.default = "lib"
     libPrefix.aliases |= {"lib-prefix"}
     libPrefix.doc = "installation location for libraries and shared objects"
 
+    # headers
     incPrefix = pyre.properties.path()
     incPrefix.default = "include"
     incPrefix.aliases |= {"include-prefix"}
     incPrefix.doc = "installation location for header files"
 
+    # python packages
     pycPrefix = pyre.properties.path()
     pycPrefix.default = "packages"
     pycPrefix.aliases |= {"python-prefix"}
     pycPrefix.doc = "installation location for python packages"
 
+    # documentation
     docPrefix = pyre.properties.path()
     docPrefix.default = "doc"
     docPrefix.aliases |= {"doc-prefix"}
     docPrefix.doc = "installation location for documentation files"
 
+    # auxiliary files
     etcPrefix = pyre.properties.path()
     etcPrefix.default = "etc"
     etcPrefix.aliases |= {"etc-prefix"}
     etcPrefix.doc = "installation location for system auxiliary files"
 
+    # platform independent files
     sharePrefix = pyre.properties.path()
     sharePrefix.default = "share"
     sharePrefix.aliases |= {"share-prefix"}
     sharePrefix.doc = "installation location for platform independent files"
 
+    # runtime files
     varPrefix = pyre.properties.path()
     varPrefix.default = "var"
     varPrefix.aliases |= {"var-prefix"}
@@ -292,24 +322,29 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     merlin.default = "merlin.mm"
     merlin.doc = "the name of the top level internal makefile; caveat emptor"
 
+    # where the make engine lives
     engine = pyre.properties.path()
     engine.default = _mm_mkdir
     engine.doc = "the path to the built-in make engine; caveat emptor"
 
+    # where the portinfo headers live
     portinfo = pyre.properties.path(default=_mm_incdir)
     portinfo.doc = "the directory with the built-in portinfo headers; caveat emptor"
 
+    # more places where make looks for makefiles
     runcfg = pyre.properties.paths()
     runcfg.doc = "a list of paths to add to the make include path; caveat emptor"
 
     # important environment variables
     PATH = pyre.properties.envpath(variable="PATH")
+    # and where python looks for packages
     PYTHONPATH = pyre.properties.envpath(variable="PYTHONPATH")
 
     # compiler search paths
     incpath = pyre.properties.paths()
     incpath.doc = "a list of paths to search for headers"
 
+    # and where to search for libraries
     libpath = pyre.properties.paths()
     libpath.doc = "a list of paths to search for libraries"
 
@@ -434,6 +469,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel.indent()
                     # details:
                     channel.line(f"dispatch keys: {set(table)}")
+                    # and the choices of the validator
                     channel.log(f"validator choices: {modeValidator.choices}")
                     # outdent
                     channel.outdent()
@@ -451,10 +487,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel = journal.firewall("mm.pkgdb")
                 # report
                 channel.line("pkgdb dispatch table is out of sync with the pkgdb validator")
+                # indent
                 channel.indent()
+                # the keys of the table
                 channel.line(f"dispatch keys:     {set(self._pkgdbDispatch)}")
+                # and the choices of the validator
                 channel.log(f"validator choices: {pkgdbValidator.choices}")
+                # outdent
                 channel.outdent()
+                # flush
                 channel.log()
             # we only care about the first match
             break
@@ -468,10 +509,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel = journal.firewall("mm.syntax")
                 # report
                 channel.line("syntax dispatch table is out of sync with the syntax validator")
+                # indent
                 channel.indent()
+                # the keys of the table
                 channel.line(f"dispatch keys:     {set(self._syntaxDispatch)}")
+                # and the choices of the validator
                 channel.log(f"validator choices: {syntaxValidator.choices}")
+                # outdent
                 channel.outdent()
+                # flush
                 channel.log()
             # we only care about the first match
             break
@@ -497,8 +543,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.help("mm.make")
             # show
             channel.line(argv[0])
+            # indent
             channel.indent()
+            # the arguments
             channel.report(report=argv[1:])
+            # outdent
             channel.outdent()
             # flush
             channel.log()
@@ -560,6 +609,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             self.tag = f"{root.name}/{branch}"
         # if branch is False, clear the tag so the tag-less paths are used
         else:
+            # by clearing it
             self.tag = None
         # let {activateSession} emit the full shell context, including the updated {mm_tag}
         return self.activateSession()
@@ -572,17 +622,24 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         self.explore()
         # the new installation prefix and python package directory
         newPrefix = self._prefix
+        # and the python packages under it
         newPyc = newPrefix / (self._pycPrefix or self.pycPrefix)
         # if a previous activation is recorded in the environment, remove its contributions
         # from the path variables before injecting the new ones
         oldPrefixStr = os.environ.get("mm_prefix")
+        # along with its python package directory
         oldPycStr = os.environ.get("mm_pyc")
+        # if there was a previous prefix
         if oldPrefixStr:
+            # take its executables off the path
             self.PATH = self.eject(var=self.PATH, path=(pyre.primitives.path(oldPrefixStr) / "bin"))
+        # if there was a previous python package directory
         if oldPycStr:
+            # take it off the python path
             self.PYTHONPATH = self.eject(var=self.PYTHONPATH, path=pyre.primitives.path(oldPycStr))
         # build the updated PATH and PYTHONPATH with the new entries at the front
         path = os.pathsep.join(str(p) for p in self.inject(var=self.PATH, path=(newPrefix / "bin")))
+        # and the python path
         pythonpath = os.pathsep.join(str(p) for p in self.inject(var=self.PYTHONPATH, path=newPyc))
         # emit the full shell context
         emit = self._syntaxDispatch[self.syntax]
@@ -590,9 +647,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         print(emit("mm_tag", self.tag or None))
         # the prefix and python package path, so the next activation can undo this one
         print(emit("mm_prefix", str(newPrefix)))
+        # along with the python package directory
         print(emit("mm_pyc", str(newPyc)))
         # the updated path variables
         print(emit("PATH", path))
+        # and the python path
         print(emit("PYTHONPATH", pythonpath))
         # all done
         return 0
@@ -668,11 +727,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.installation")
             # complain
             channel.line(f"could not find the path to my makefiles")
+            # what we were doing
             channel.line(f"while verifying my installation")
+            # indent
             channel.indent()
+            # the path
             channel.line(f"the path '{self.engine}'")
+            # what is wrong with it
             channel.line(f"doesn't exist or is not readable")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'engine' property")
             # flush
             channel.log()
@@ -684,11 +749,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.installation")
             # complain
             channel.line(f"could not find my main makefile")
+            # what we were doing
             channel.line(f"while verifying my installation")
+            # indent
             channel.indent()
+            # the file
             channel.line(f"the file '{merlin}'")
+            # what is wrong with it
             channel.line(f"doesn't exist or is not readable")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'merlin' property")
             # flush
             channel.log()
@@ -698,11 +769,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.installation")
             # complain
             channel.line(f"can't find my include directory")
+            # what we were doing
             channel.line(f"while verifying my installation")
+            # indent
             channel.indent()
+            # the path
             channel.line(f"the path '{self.portinfo}'")
+            # what is wrong with it
             channel.line(f"doesn't exist or is not readable")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'portinfo' property")
             # flush
             channel.log()
@@ -714,11 +791,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.installation")
             # complain
             channel.line(f"could not find my top level header file")
+            # what we were doing
             channel.line(f"while verifying my installation")
+            # indent
             channel.indent()
+            # the file
             channel.line(f"the file '{portinfo}'")
+            # what is wrong with it
             channel.line(f"doesn't exist or is not readable")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'portinfo' property")
             # flush
             channel.log()
@@ -752,10 +835,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.error("mm.gnu")
                     # complain
                     channel.line(f"failed to launch '{self.make}'")
+                    # what we were doing
                     channel.line(f"while attempting to retrieve the version of GNU make")
+                    # indent
                     channel.indent()
+                    # the status it returned
                     channel.line(f"'{self.make}' returned error code {status}")
+                    # outdent
                     channel.outdent()
+                    # what to check
                     channel.line(f"check your setting for my 'make' property")
                     # flush
                     channel.log()
@@ -771,11 +859,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.error("mm.gnu")
                     # complain
                     channel.line(f"could not find a suitable installation of GNU make")
+                    # what we were doing
                     channel.line(f"while verifying my installation")
+                    # indent
                     channel.indent()
+                    # what is wrong
                     channel.line(f"'{self.make}' doesn't seem to be GNU make")
+                    # and what is needed
                     channel.line(f"you need GNU make 4.4 or higher")
+                    # outdent
                     channel.outdent()
+                    # what to check
                     channel.line(f"check your setting for my 'make' property")
                     # flush
                     channel.log()
@@ -789,11 +883,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.error("mm.gnu")
                     # complain
                     channel.line(f"your version of GNU make is too old")
+                    # what we were doing
                     channel.line(f"while verifying my installation")
+                    # indent
                     channel.indent()
+                    # what is needed
                     channel.line(f"you need GNU make 4.4 or higher")
+                    # and what was found
                     channel.line(f"your '{self.make}' version is {major}.{minor}.{micro}")
+                    # outdent
                     channel.outdent()
+                    # what to check
                     channel.line(f"check your setting for my 'make' property")
                     # flush
                     channel.log()
@@ -805,11 +905,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.gnu")
             # complain
             channel.line(f"an unexpected error occurred")
+            # what we were doing
             channel.line(f"while attempting to retrieve the version of GNU make")
+            # indent
             channel.indent()
+            # the executable
             channel.line(f"could not find '{self.make}'")
+            # and what happened
             channel.line(f"launching it resulted in: {error}")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'make' property")
             # flush
             channel.log()
@@ -819,11 +925,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.gnu")
             # complain
             channel.line(f"an unexpected error occurred")
+            # what we were doing
             channel.line(f"while attempting to retrieve the version of GNU make")
+            # indent
             channel.indent()
+            # the executable
             channel.line(f"launching '{self.make}' returned")
+            # and what it said
             channel.line(f"{error}")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'make' property")
             # flush
             channel.log()
@@ -833,11 +945,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.gnu")
             # complain
             channel.line(f"an unexpected error occurred")
+            # what we were doing
             channel.line(f"while attempting to retrieve the version of GNU make")
+            # indent
             channel.indent()
+            # the executable
             channel.line(f"launching '{self.make}' failed with")
+            # and the error
             channel.line(f"{error}")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"check your setting for my 'make' property")
             # flush
             channel.log()
@@ -872,12 +990,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel = journal.warning("mm.user")
                 # complain
                 channel.line(f"could not find your home directory")
+                # what we were doing
                 channel.line(f"while looking for user specific makefile fragments")
+                # indent
                 channel.indent()
+                # the home directory
                 channel.line(f"'{home}' is not a valid path")
+                # is not usable
                 channel.line(f"and your system doesn't have any good ideas")
+                # outdent
                 channel.outdent()
+                # a likely cause
                 channel.line(f"is this a cloud instance?")
+                # and what to check otherwise
                 channel.line(f"if not, check the value of your 'HOME' environment variable")
                 # flush
                 channel.log()
@@ -895,17 +1020,29 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.warning("mm.user")
             # complain
             channel.line(f"could not find your makefile fragments")
+            # what we were doing
             channel.line(f"while looking for user specific configuration")
+            # indent
             channel.indent()
+            # the standard location
             channel.line(f"neither '{xdg}'")
+            # and the fallback
             channel.line(f"nor '{candidate}'")
+            # are both missing
             channel.line(f"exist and are readable")
+            # outdent
             channel.outdent()
+            # what to check
             channel.line(f"if this is unexpected, check")
+            # indent
             channel.indent()
+            # the standard location
             channel.line(f"the value of your 'XDG_CONFIG_HOME' environment variable")
+            # the fallback
             channel.line(f"or the value of your 'HOME' environment variable")
+            # and my configuration directory
             channel.line(f"and the value of my 'cfgdir' property")
+            # outdent
             channel.outdent()
             # flush
             channel.log()
@@ -930,11 +1067,17 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 channel = journal.warning("mm.project")
                 # complain
                 channel.line(f"could not find the project root directory")
+                # what we were doing
                 channel.line(f"while exploring the current workspace")
+                # indent
                 channel.indent()
+                # what is missing
                 channel.line(f"no '{marker}' directory")
+                # and where we looked
                 channel.line(f"in '{root}' or any of its parents")
+                # outdent
                 channel.outdent()
+                # what to check
                 channel.line(f"if this is unexpected, check the value of my 'cfgdir' property")
                 # flush
                 channel.log()
@@ -972,12 +1115,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         Figure out where to put the intermediate products of the build
         """
+        # the mode knows where the intermediate products go
         return self._bldrootDispatch[self.mode]()
 
     def locatePrefix(self):
         """
         Figure out where to install the build products
         """
+        # the mode knows where the products go
         return self._prefixDispatch[self.mode]()
 
     def locateToolchains(self):
@@ -1114,9 +1259,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.warning("mm.includes")
                     # complain
                     channel.line(f"while assembling the make command line")
+                    # indent
                     channel.indent()
+                    # the path
                     channel.line(f"the path '{cfg}' does not exist")
+                    # outdent
                     channel.outdent()
+                    # what to check
                     channel.line(f"check your setting for my 'runcfg' property")
                     # flush
                     channel.log()
@@ -1145,6 +1294,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"project.mode={self.mode}"
         # the assertion disposition; a pinned choice overrides the mode, an unset one defers to it
         pinned = "" if self.assertions is None else ("yes" if self.assertions else "no")
+        # and pass it on
         yield f"project.assertions={pinned}"
         # whether the build writes the type stubs of the extension modules
         yield f"project.stubs={'yes' if self.stubs else ''}"
@@ -1162,12 +1312,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         yield f"project.prefix={self._prefix}"
         # the layout of the installation area
         yield f"builder.dest.bin={self._prefix / self.binPrefix}/"
+        # libraries and shared objects
         yield f"builder.dest.lib={self._prefix / self.libPrefix}/"
+        # headers
         yield f"builder.dest.inc={self._prefix / self.incPrefix}/"
+        # python packages
         yield f"builder.dest.pyc={self._prefix / (self._pycPrefix or self.pycPrefix)}/"
+        # documentation
         yield f"builder.dest.doc={self._prefix / self.docPrefix}/"
+        # platform independent files
         yield f"builder.dest.share={self._prefix / self.sharePrefix}/"
+        # auxiliary files
         yield f"builder.dest.etc={self._prefix / self.etcPrefix}/"
+        # runtime files
         yield f"builder.dest.var={self._prefix / self.varPrefix}/"
         # all done
         return
@@ -1184,6 +1341,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             major, minor, micro = version.split(".")
             # give default values to the two other fields
             ahead = 0
+            # and no revision
             revision = ""
         # if we don't
         else:
@@ -1203,20 +1361,31 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     channel = journal.warning("mm.version")
                     # complain
                     channel.line(f"while figuring out the product version")
+                    # indent
                     channel.indent()
+                    # what is missing
                     channel.line(f"no explicit setting was provided")
+                    # and what went wrong
                     channel.line(f"and parsing the latest git tag failed")
+                    # what we did instead
                     channel.line(f"using the default value of '{major}.{minor}.{micro}'")
+                    # and why it matters
                     channel.line(f"but that's probably not what you want")
+                    # outdent
                     channel.outdent()
+                    # what to do
                     channel.line(f"please use '--version' to provide a reasonable value")
                     # flush
                     channel.log()
-        # in any case, we know have what we need to send to mm
+        # in any case, we now have what we need to send to mm
         yield f"repo.major={major}"
+        # the minor
         yield f"repo.minor={minor}"
+        # the micro
         yield f"repo.micro={micro}"
+        # the revision
         yield f"repo.revision={revision}"
+        # and the distance from the tag
         yield f"repo.ahead={ahead}"
         # all done
         return
@@ -1299,18 +1468,22 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         ):
             # the child reconstructs config-file, environment, and default values by itself
             if not self._fromCommandLine(name):
+                # so skip it
                 continue
             # the resolved value
             value = getattr(self, name)
             # a path is a tuple of segments, so render it as a single string before anything
             # mistakes it for a multi-valued trait
             if isinstance(value, pyre.primitives.path):
+                # as one string
                 value = str(value)
             # genuinely multi-valued traits (compilers, target) are comma-separated
             elif isinstance(value, (list, tuple)):
+                # into one string
                 value = ",".join(map(str, value))
             # everything else stringifies directly
             else:
+                # as is
                 value = str(value)
             # quote it so paths and values with spaces survive the make recipe shell
             yield f"--{name}='{value}'"
@@ -1325,6 +1498,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # from the boot bundle, this file lives inside a zip archive, and asking python to run
         # it runs the archive's entry point instead
         driver = os.path.abspath(sys.argv[0])
+        # so the relaunch names the interpreter, the driver, and the arguments it must forward
         yield "mm=" + " ".join([sys.executable, driver, *self.relaunchArguments()])
         # the version
         yield f"mm.version={self._version}"
@@ -1368,6 +1542,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             tip = trait.tip or trait.doc
             # skip nameless undocumented ones
             if not name or not tip:
+                # by moving on
                 continue
             # pile the rest
             public.append(name)
@@ -1503,9 +1678,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 return
             # otherwise, extract the version info
             major = match.group("major") or "1"
+            # the minor
             minor = match.group("minor") or "0"
+            # the micro
             micro = match.group("micro") or "0"
+            # the commit
             commit = match.group("commit")
+            # and the distance from the tag
             ahead = match.group("ahead")
             # if we are at a tagged commit
             if not ahead or int(ahead) == 0:
@@ -1600,7 +1779,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("no active conda environment found")
+            # what to do
             error.line("activate a conda environment and re-run mm")
+            # flush
             error.log()
             # and bail
             return 1
@@ -1612,6 +1793,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line(f"'{prefix}' is not a conda environment")
+            # what was missing
             error.line(f"no install database at {meta}")
             # flush
             error.log()
@@ -1619,12 +1801,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # log our starting state
         channel.line("building conda package database")
+        # indent
         channel.indent()
+        # the environment
         channel.line(f"environment: {os.environ.get('CONDA_DEFAULT_ENV', '?')}")
+        # its prefix
         channel.line(f"prefix: {prefix}")
+        # its interpreter
         channel.line(f"python: {pyre.primitives.path(prefix) / 'bin' / 'python'}")
+        # and the database
         channel.line(f"db: {db}")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # index the installed packages by reading the {conda-meta} record names
         index = self._condaMetaIndex(meta)
@@ -1640,8 +1829,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         channel.line(f"found {len(entries)} of {len(recipes)} supported packages")
         # list each one
         channel.indent()
+        # in alphabetical order
         for entry in sorted(entries, key=lambda e: e["name"]):
+            # with its version
             channel.line(f"{entry['name']}: {entry['version']}")
+        # outdent
         channel.outdent()
         # flush
         channel.log()
@@ -1699,12 +1891,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         for filename in os.listdir(str(meta)):
             # we only care about package records
             if not filename.endswith(".json"):
+                # so skip it
                 continue
             # drop the extension
             stem = filename[: -len(".json")]
             # records always carry the two dashes that separate name, version, and build;
             # anything else (a stray file) is not a package record we can parse
             if stem.count("-") < 2:
+                # so skip it
                 continue
             # split the stem from the right so that dashes in the package name survive
             name, version, build = stem.rsplit("-", 2)
@@ -1836,6 +2030,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # if every supported package is accounted for, we are done
         if not orphans:
+            # so we are done
             return
         # otherwise tell the developer; a warning rather than an error so it never blocks a
         # build — the orphan may deserve a recipe, an exception entry, or neither in this env
@@ -1848,6 +2043,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         for orphan in orphans:
             # the offending package
             warning.line(orphan)
+        # outdent
         warning.outdent()
         # what to do about it
         warning.line("add a recipe to _condaRecipes, or list it in _condaExceptions")
@@ -1871,6 +2067,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 entry = getattr(self, capability)(index, prefix)
                 # record it if so
                 if entry:
+                    # add it to the pile
                     entries.append(entry)
                 # on to the next recipe
                 continue
@@ -1878,6 +2075,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             candidate = next((c for c in recipe["candidates"] if c in index), None)
             # if none of them are installed, the package is absent
             if candidate is None:
+                # so move on
                 continue
             # unpack the record
             version, build, record = index[candidate]
@@ -2005,6 +2203,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # the importable module name and the mm package name
         module = recipe["module"]
+        # and the name of the external
         target = entry["name"]
         # ask the package where its headers are, through the interpreter of the environment
         includePath = self._queryPythonExpression(
@@ -2158,6 +2357,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not find the 'port' executable")
+            # what to do
             error.line("make sure MacPorts is installed and 'port' is on your PATH")
             # flush
             error.log()
@@ -2177,7 +2377,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("no python3 version selected in MacPorts")
+            # how to fix it
             error.line("select one and retry, e.g.:")
+            # for example
             error.line("  sudo port select python3 python312")
             # flush
             error.log()
@@ -2191,6 +2393,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not parse the selected python3 version from 'port select'")
+            # and what it said
             error.line(f"output: {result.stdout.strip()}")
             # flush
             error.log()
@@ -2198,16 +2401,25 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # reconstruct the version tag and the interpreter path
         pyTag = f"{match.group(1)}{match.group(2)}"
+        # the version
         pyVersion = f"{match.group(1)}.{match.group(2)}"
+        # and the interpreter
         python = prefix / "bin" / f"python{pyVersion}"
         # log our starting state
         channel.line("building macports package database")
+        # indent
         channel.indent()
+        # the agent
         channel.line(f"port: {port}")
+        # its prefix
         channel.line(f"prefix: {prefix}")
+        # its interpreter
         channel.line(f"python: {python}")
+        # and the database
         channel.line(f"db: {db}")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # query the installed ports
         result = subprocess.run(
@@ -2229,6 +2441,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # port name to its variant set, harvested from the version spec so flavor aware
         # handlers (hdf5) can consult it
         installed = {}
+        # go through the active ports
         for line in result.stdout.splitlines():
             # strip leading whitespace and split into tokens
             tokens = line.strip().split()
@@ -2275,17 +2488,27 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         }
         # collect the packages that are present in this installation
         found = {}
+        # by going through the supported ones
         for name, candidates in packages.items():
+            # and their candidates, in priority order
             for candidate in candidates:
+                # the first one that is installed
                 if candidate in installed:
+                    # is the one we use
                     found[name] = candidate
+                    # so look no further
                     break
         # report what we found
         channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        # indent
         channel.indent()
+        # in alphabetical order
         for name, candidate in sorted(found.items()):
+            # with its port
             channel.line(f"{name}  (macports: {candidate})")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # open the database file
         with open(db, "w") as f:
@@ -2297,6 +2520,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print("# generated by: mm --pkgdb=macports --setup", file=f)
             # the agent and prefix
             print(f"# port: {port}", file=f)
+            # and the prefix
             print(f"# prefix: {prefix}", file=f)
             # blank line before the prefix declaration
             print(file=f)
@@ -2312,7 +2536,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 print(f"# {name}  (macports: {candidate})", file=f)
                 # mpi needs its flavor to select the right library names
                 if name == "mpi":
+                    # it anchors to the macports prefix
                     print(f"mpi.dir ?= $(macports.prefix)", file=f)
+                    # and its flavor is the port that provides it
                     print(f"mpi.flavor ?= {candidate}", file=f)
                 # hdf5 encodes its flavor in the port variants: {+openmpi}/{+mpich} builds
                 # are mpi aware, and {hdf5.parallel} induces the mpi edge in {hdf5/init.mm}
@@ -2343,46 +2569,65 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         warning.log()
                 # numpy headers live under site-packages/numpy/core, not the macports prefix
                 elif name == "numpy":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import numpy; print(numpy.get_include())",
                         python=python,
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         numpyCore = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = numpyCore.relativeTo(prefix)
+                            # and anchor it there
                             print(
                                 f"numpy.dir ?= $(macports.prefix)/{relativePath}",
                                 file=f,
                             )
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"numpy.dir ?= {numpyCore}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"numpy.dir ?= $(macports.prefix)", file=f)
                 # pybind11 headers also live under site-packages
                 elif name == "pybind11":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import pybind11; print(pybind11.get_include())",
                         python=python,
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         pybind11Root = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = pybind11Root.relativeTo(prefix)
+                            # and anchor it there
                             print(
                                 f"pybind11.dir ?= $(macports.prefix)/{relativePath}",
                                 file=f,
                             )
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"pybind11.dir ?= $(macports.prefix)", file=f)
                 # python version is major.minor only, as used in filesystem paths
                 elif name == "python":
+                    # its version
                     print(f"python.version ?= {pyVersion}", file=f)
+                    # and its home
                     print(f"python.dir ?= $(macports.prefix)", file=f)
                 # all other packages anchor to the macports prefix
                 else:
+                    # the prefix is its home
                     print(f"{name}.dir ?= $(macports.prefix)", file=f)
                 # blank line after each entry
                 print(file=f)
@@ -2403,6 +2648,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not find 'dpkg-query'")
+            # what we expected
             error.line("make sure you are on a Debian/Ubuntu system")
             # flush
             error.log()
@@ -2421,6 +2667,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not determine the python package installation directory")
+            # and why
             error.line(f"{self._systemPython()} is missing or could not answer")
             # flush
             error.log()
@@ -2428,19 +2675,29 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # make the platlib path relative to the prefix
         try:
+            # by expressing it relative to the prefix
             pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
         # if it's not under /usr, use it as-is
         except ValueError:
+            # as is
             pycPrefix = pyre.primitives.path(platlib)
         # log our starting state
         channel.line("building dpkg package database")
+        # indent
         channel.indent()
+        # the agent
         channel.line(f"dpkg-query: {dpkg}")
+        # the prefix
         channel.line(f"prefix: {prefix}")
+        # its interpreter
         channel.line(f"python: {self._systemPython()}")
+        # where it keeps its python packages
         channel.line(f"python packages: {pycPrefix}")
+        # and the database
         channel.line(f"db: {db}")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # query all installed packages with their versions and status
         result = subprocess.run(
@@ -2460,15 +2717,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # build an index of installed packages keyed by name
         installed = {}
+        # from each line of the listing
         for line in result.stdout.splitlines():
             # split into package, version, status
             parts = line.split("\t")
             # skip malformed lines
             if len(parts) != 3:
+                # by moving on
                 continue
+            # unpack the fields
             name, version, status = parts
             # only count fully installed packages
             if status.strip() == "installed":
+                # record it
                 installed[name] = version
         # the mapping from mm extern name to dpkg package name(s); try names in order
         packages = {
@@ -2508,23 +2769,34 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         }
         # collect the packages present on this system
         found = {}
+        # go through the supported packages
         for name, candidates in packages.items():
+            # and their candidates, in priority order
             for candidate in candidates:
+                # the first one installed
                 if candidate in installed:
+                    # is the one we use
                     found[name] = (candidate, installed[candidate])
+                    # so look no further
                     break
         # cuda is a capability: present only if the assets needed to compile and link cuda
         # code are installed and locatable; {dpkg -L} is used to verify and place them
         cuda = self._emitDpkgCuda(dpkg, installed, prefix)
         # report what we found
         channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        # indent
         channel.indent()
+        # in alphabetical order
         for name, (candidate, version) in sorted(found.items()):
+            # with its version and the package that provides it
             channel.line(f"{name}: {version}  (dpkg: {candidate})")
         # and cuda, if it cleared the capability check
         if cuda:
+            # and cuda, if it checked out
             channel.line(f"cuda: {cuda[0]}  (capability verified)")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # open the database file
         with open(db, "w") as f:
@@ -2534,7 +2806,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print("# dpkg package database", file=f)
             # provenance
             print("# generated by: mm --pkgdb=dpkg --setup", file=f)
+            # the agent
             print(f"# dpkg-query: {dpkg}", file=f)
+            # and the prefix
             print(f"# prefix: {prefix}", file=f)
             # blank line before the prefix declaration
             print(file=f)
@@ -2544,17 +2818,22 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print(file=f)
             # write an entry for each found package in alphabetical order
             for name in sorted(found):
+                # the package that provides it, and its version
                 candidate, version = found[name]
                 # a comment line showing the mm name, version, and dpkg package name
                 print(f"# {name}: {version}  (dpkg: {candidate})", file=f)
                 # python version is major.minor only
                 if name == "python":
+                    # ask the interpreter of the system for its version
                     pyVersion = self._queryPythonExpression(
                         "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if pyVersion:
+                        # record it
                         print(f"python.version ?= {pyVersion}", file=f)
+                    # the prefix is its home
                     print(f"python.dir ?= $(dpkg.prefix)", file=f)
                 # mpi: debian/ubuntu tuck the flavor's headers and libraries under a
                 # {<multiarch>/<flavor>} subtree ({openmpi/include}, {openmpi/lib}) rather than the
@@ -2562,6 +2841,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 elif name == "mpi":
                     # the flavor selects the library names downstream
                     flavor = "openmpi" if "openmpi" in candidate else "mpich"
+                    # record it
                     print(f"mpi.flavor ?= {flavor}", file=f)
                     # the files the dev package installed
                     files = self._dpkgFiles(dpkg, candidate)
@@ -2571,15 +2851,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         (p for p in files if p.name == "mpi.h" and "/include/" in str(p)),
                         None,
                     )
+                    # and the library
                     library = next((p for p in files if p.name == "libmpi.so"), None)
                     # point the include path at wherever {mpi.h} really lives
                     if header:
+                        # record it
                         print(
                             f"mpi.incpath ?= {self._dpkgAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"mpi.libpath ?= {self._dpkgAnchor(library.parent, prefix)}",
                             file=f,
@@ -2588,33 +2871,49 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     print(f"mpi.dir ?= $(dpkg.prefix)", file=f)
                 # numpy headers live under the python package directory
                 elif name == "numpy":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import numpy; print(numpy.get_include())",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         numpyCore = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = numpyCore.relativeTo(prefix)
+                            # and anchor it there
                             print(f"numpy.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"numpy.dir ?= {numpyCore}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"numpy.dir ?= $(dpkg.prefix)", file=f)
                 # pybind11 headers also live under the python package directory
                 elif name == "pybind11":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import pybind11; print(pybind11.get_include())",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         pybind11Root = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = pybind11Root.relativeTo(prefix)
+                            # and anchor it there
                             print(f"pybind11.dir ?= $(dpkg.prefix)/{relativePath}", file=f)
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"pybind11.dir ?= $(dpkg.prefix)", file=f)
                 # hdf5: debian/ubuntu split the flavors into variant subdirectories — headers under
                 # {include/hdf5/<variant>} and libraries under {lib/<multiarch>/hdf5/<variant>} — so
@@ -2625,15 +2924,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._dpkgFiles(dpkg, candidate)
                     # locate the umbrella header and the dev-symlink library
                     header = next((path for path in files if path.name == "hdf5.h"), None)
+                    # and the library
                     library = next((path for path in files if path.name == "libhdf5.so"), None)
                     # point the include path at wherever {hdf5.h} really lives
                     if header:
+                        # record it
                         print(
                             f"hdf5.incpath ?= {self._dpkgAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"hdf5.libpath ?= {self._dpkgAnchor(library.parent, prefix)}",
                             file=f,
@@ -2654,15 +2956,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._dpkgFiles(dpkg, candidate)
                     # locate the client header and the dev-symlink library
                     header = next((p for p in files if p.name == "libpq-fe.h"), None)
+                    # and the library
                     library = next((p for p in files if p.name == "libpq.so"), None)
                     # point the include path at wherever {libpq-fe.h} really lives
                     if header:
+                        # record it
                         print(
                             f"libpq.incpath ?= {self._dpkgAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"libpq.libpath ?= {self._dpkgAnchor(library.parent, prefix)}",
                             file=f,
@@ -2671,6 +2976,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     print(f"libpq.dir ?= $(dpkg.prefix)", file=f)
                 # all other packages anchor to the dpkg prefix
                 else:
+                    # the prefix is its home
                     print(f"{name}.dir ?= $(dpkg.prefix)", file=f)
                 # version for packages whose init.mm has version-dependent logic
                 print(f"{name}.version ?= {version}", file=f)
@@ -2682,6 +2988,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 _, lines = cuda
                 # emit each
                 for line in lines:
+                    # write it out
                     print(line, file=f)
                 # blank line after the block
                 print(file=f)
@@ -2697,6 +3004,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         result = subprocess.run([dpkg, "-L", package], capture_output=True, text=True)
         # if the query failed, treat the package as having no files
         if result.returncode != 0:
+            # so say so
             return []
         # each non-empty line is an absolute path owned by the package
         return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
@@ -2708,13 +3016,16 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # the prefix itself collapses to the bare reference
         if str(path) == str(prefix):
+            # so say so
             return "$(dpkg.prefix)"
         # express it under the prefix when possible
         try:
+            # by rendering its location under the prefix
             return f"$(dpkg.prefix)/{path.relativeTo(prefix)}"
         # if it isn't under the prefix (e.g. /usr/local/cuda lives under /usr, but a custom
         # toolkit might not), keep it absolute
         except ValueError:
+            # so render it as is
             return str(path)
 
     def _buildRpmPackageDatabase(self, db):
@@ -2734,6 +3045,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             error = journal.error("mm.pkgdb")
             # complain
             error.line("could not find 'rpm'")
+            # what we expected
             error.line("make sure you are on a fedora/rhel style system")
             # flush
             error.log()
@@ -2743,12 +3055,19 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         prefix = pyre.primitives.path("/usr")
         # log our starting state
         channel.line("building rpm package database")
+        # indent
         channel.indent()
+        # the agent
         channel.line(f"rpm: {rpm}")
+        # the prefix
         channel.line(f"prefix: {prefix}")
+        # its interpreter
         channel.line(f"python: {self._systemPython()}")
+        # and the database
         channel.line(f"db: {db}")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # query all installed packages with their versions
         result = subprocess.run(
@@ -2768,12 +3087,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return 1
         # build an index of installed packages keyed by name
         installed = {}
+        # from each line of the listing
         for line in result.stdout.splitlines():
             # split into package and version
             parts = line.split("\t")
             # skip malformed lines
             if len(parts) != 2:
+                # by moving on
                 continue
+            # unpack the fields
             name, version = parts
             # rpm only reports installed packages, so no status filtering is needed
             installed[name] = version
@@ -2813,17 +3135,27 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         }
         # collect the packages present on this system
         found = {}
+        # go through the supported packages
         for name, candidates in packages.items():
+            # and their candidates, in priority order
             for candidate in candidates:
+                # the first one installed
                 if candidate in installed:
+                    # is the one we use
                     found[name] = (candidate, installed[candidate])
+                    # so look no further
                     break
         # report what we found
         channel.line(f"found {len(found)} of {len(packages)} supported packages")
+        # indent
         channel.indent()
+        # in alphabetical order
         for name, (candidate, version) in sorted(found.items()):
+            # with its version and the package that provides it
             channel.line(f"{name}: {version}  (rpm: {candidate})")
+        # outdent
         channel.outdent()
+        # flush
         channel.log()
         # open the database file
         with open(db, "w") as f:
@@ -2833,7 +3165,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print("# rpm package database", file=f)
             # provenance
             print("# generated by: mm --pkgdb=rpm --setup", file=f)
+            # the agent
             print(f"# rpm: {rpm}", file=f)
+            # and the prefix
             print(f"# prefix: {prefix}", file=f)
             # blank line before the prefix declaration
             print(file=f)
@@ -2843,6 +3177,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             print(file=f)
             # write an entry for each found package in alphabetical order
             for name in sorted(found):
+                # the package that provides it, and its version
                 candidate, version = found[name]
                 # a comment line showing the mm name, version, and rpm package name
                 print(f"# {name}: {version}  (rpm: {candidate})", file=f)
@@ -2855,12 +3190,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if pyVersion:
+                        # record it
                         print(f"python.version ?= {pyVersion}", file=f)
                     # the files the devel package installed
                     files = self._rpmFiles(rpm, candidate)
                     # locate the api header and the dev-symlink library
                     header = next((p for p in files if p.name == "Python.h"), None)
+                    # and the library
                     library = next(
                         (
                             p
@@ -2871,12 +3209,14 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     )
                     # point the include path at wherever {Python.h} really lives
                     if header:
+                        # record it
                         print(
                             f"python.incpath ?= {self._rpmAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"python.libpath ?= {self._rpmAnchor(library.parent, prefix)}",
                             file=f,
@@ -2889,6 +3229,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 elif name == "mpi":
                     # the flavor selects the library names downstream
                     flavor = "openmpi" if "openmpi" in candidate else "mpich"
+                    # record it
                     print(f"mpi.flavor ?= {flavor}", file=f)
                     # the files the devel package installed
                     files = self._rpmFiles(rpm, candidate)
@@ -2898,15 +3239,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                         (p for p in files if p.name == "mpi.h" and "/include" in str(p)),
                         None,
                     )
+                    # and the library
                     library = next((p for p in files if p.name == "libmpi.so"), None)
                     # point the include path at wherever {mpi.h} really lives
                     if header:
+                        # record it
                         print(
                             f"mpi.incpath ?= {self._rpmAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"mpi.libpath ?= {self._rpmAnchor(library.parent, prefix)}",
                             file=f,
@@ -2914,39 +3258,58 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # the flavor home is the parent of its {lib}; anchoring {dir} there
                     # makes {$(mpi.dir)/bin} resolve the launcher
                     if library:
+                        # the home of the flavor
                         home = library.parent.parent
+                        # anchors it
                         print(f"mpi.dir ?= {self._rpmAnchor(home, prefix)}", file=f)
                     else:
+                        # otherwise, the prefix is its home
                         print(f"mpi.dir ?= $(rpm.prefix)", file=f)
                 # numpy headers live under the python package directory
                 elif name == "numpy":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import numpy; print(numpy.get_include())",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         numpyCore = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = numpyCore.relativeTo(prefix)
+                            # and anchor it there
                             print(f"numpy.dir ?= $(rpm.prefix)/{relativePath}", file=f)
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"numpy.dir ?= {numpyCore}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"numpy.dir ?= $(rpm.prefix)", file=f)
                 # pybind11 headers also live under the python package directory
                 elif name == "pybind11":
+                    # ask the package where its headers are
                     includePath = self._queryPythonExpression(
                         "import pybind11; print(pybind11.get_include())",
                         python=self._systemPython(),
                     )
+                    # if it answered
                     if includePath:
+                        # its root is the parent of its include directory
                         pybind11Root = pyre.primitives.path(includePath).parent
+                        # attempt to
                         try:
+                            # express it relative to the prefix
                             relativePath = pybind11Root.relativeTo(prefix)
+                            # and anchor it there
                             print(f"pybind11.dir ?= $(rpm.prefix)/{relativePath}", file=f)
                         except ValueError:
+                            # otherwise, record where it is
                             print(f"pybind11.dir ?= {pybind11Root}", file=f)
                     else:
+                        # without an answer, anchor it to the prefix
                         print(f"pybind11.dir ?= $(rpm.prefix)", file=f)
                 # hdf5: fedora places the parallel flavors under mpi specific include and
                 # library trees; read the real locations from the package contents, which
@@ -2956,15 +3319,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._rpmFiles(rpm, candidate)
                     # locate the umbrella header and the dev-symlink library
                     header = next((p for p in files if p.name == "hdf5.h"), None)
+                    # and the library
                     library = next((p for p in files if p.name == "libhdf5.so"), None)
                     # point the include path at wherever {hdf5.h} really lives
                     if header:
+                        # record it
                         print(
                             f"hdf5.incpath ?= {self._rpmAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"hdf5.libpath ?= {self._rpmAnchor(library.parent, prefix)}",
                             file=f,
@@ -2973,11 +3339,16 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     # build; {openmpi}/{mpich} name mpi, so the {findstring mpi} gate in
                     # hdf5/init.mm folds mpi into {hdf5.dependencies} for parallel builds
                     location = str(header) if header else ""
+                    # a header under openmpi
                     if "openmpi" in location:
+                        # comes from the openmpi build
                         variant = "openmpi"
+                    # one under mpich
                     elif "mpich" in location:
+                        # from the mpich build
                         variant = "mpich"
                     else:
+                        # and everything else from the serial one
                         variant = "serial"
                     # {hdf5.parallel} carries the flavor so parallel builds induce mpi
                     print(f"hdf5.parallel ?= {variant}", file=f)
@@ -2989,15 +3360,18 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                     files = self._rpmFiles(rpm, candidate)
                     # locate the client header and the dev-symlink library
                     header = next((p for p in files if p.name == "libpq-fe.h"), None)
+                    # and the library
                     library = next((p for p in files if p.name == "libpq.so"), None)
                     # point the include path at wherever {libpq-fe.h} really lives
                     if header:
+                        # record it
                         print(
                             f"libpq.incpath ?= {self._rpmAnchor(header.parent, prefix)}",
                             file=f,
                         )
                     # and the library path at wherever the dev symlink really lives
                     if library:
+                        # record it
                         print(
                             f"libpq.libpath ?= {self._rpmAnchor(library.parent, prefix)}",
                             file=f,
@@ -3039,6 +3413,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         result = subprocess.run([rpm, "-ql", package], capture_output=True, text=True)
         # if the query failed, treat the package as having no files
         if result.returncode != 0:
+            # so say so
             return []
         # each non-empty line is an absolute path owned by the package
         return [pyre.primitives.path(line) for line in result.stdout.splitlines() if line]
@@ -3050,12 +3425,15 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # the prefix itself collapses to the bare reference
         if str(path) == str(prefix):
+            # so say so
             return "$(rpm.prefix)"
         # express it under the prefix when possible
         try:
+            # by rendering its location under the prefix
             return f"$(rpm.prefix)/{path.relativeTo(prefix)}"
         # if it isn't under the prefix, keep it absolute
         except ValueError:
+            # so render it as is
             return str(path)
 
     def _emitDpkgCuda(self, dpkg, installed, prefix):
@@ -3077,22 +3455,33 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         ]
         # if nothing cuda-ish is installed, cuda is simply absent
         if not candidates:
+            # so say so
             return None
         # gather the file manifests of all the candidates once
         files = []
+        # go through them
         for package in candidates:
+            # and add the files of each to the pile
             files.extend(self._dpkgFiles(dpkg, package))
         # locate the three assets that prove we can compile and link cuda code
         nvcc = next((path for path in files if path.name == "nvcc"), None)
+        # the header
         header = next((path for path in files if path.name == "cuda.h"), None)
+        # and the runtime library
         library = next((path for path in files if path.name.startswith("libcudart.so")), None)
         # note which, if any, are missing
         missing = []
+        # without the compiler
         if not nvcc:
+            # say so
             missing.append("nvcc")
+        # without the header
         if not header:
+            # say so
             missing.append("cuda.h")
+        # without the runtime library
         if not library:
+            # say so
             missing.append("libcudart")
         # if any asset is missing, this is a systemic problem the user should fix; warn and
         # leave cuda out of the database rather than let the compiler or linker fail later
@@ -3118,7 +3507,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the version: a {cuda-X.Y} segment in the asset path (NVIDIA apt layout), else the
         # distro toolkit package version, trimmed to major.minor
         match = re.search(r"cuda-(\d+\.\d+)", str(header))
+        # if the path names the version
         if match:
+            # use it
             version = match.group(1)
         else:
             # the distro toolkit package carries the version
@@ -3157,6 +3548,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         """
         # run the expression in the requested interpreter
         try:
+            # by launching the interpreter
             result = subprocess.run(
                 [str(python), "-c", expression],
                 capture_output=True,
@@ -3164,6 +3556,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             )
         # an interpreter that isn't there has nothing to say
         except FileNotFoundError:
+            # otherwise, it failed
             return None
         # return the output on success, None on failure
         return result.stdout.strip() if result.returncode == 0 else None
@@ -3213,6 +3606,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line("no conda agent found")
+            # where we looked
             channel.line("set $MAMBA_EXE or $CONDA_EXE, or put micromamba/mamba/conda on PATH")
             # flush
             channel.log()
@@ -3230,7 +3624,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line(f"failed to query conda environments")
+            # the agent
             channel.line(f"agent: {agent}")
+            # and what it said
             channel.line(result.stderr.strip())
             # flush
             channel.log()
@@ -3252,6 +3648,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line(f"conda environment '{envName}' not found")
+            # and the ones that exist
             channel.line(
                 f"known environments: {', '.join(pyre.primitives.path(p).name for p in envs)}"
             )
@@ -3266,6 +3663,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line(f"conda environment '{envName}' prefix does not exist")
+            # and where we expected it
             channel.line(f"expected: {prefix}")
             # flush
             channel.log()
@@ -3282,8 +3680,10 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.conda")
             # complain
             channel.line(f"unable to determine the version of the python interpreter")
+            # where
             channel.line(f"in the '{envName}' conda environment")
-            channel.line(f"so i don't have a place to deposit pythonpackages")
+            # and why it matters
+            channel.line(f"so i don't have a place to deposit python packages")
             # flush
             channel.log()
             # and bail, in case errors aren't fatal
@@ -3316,6 +3716,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line("could not find the 'port' executable")
+            # what we expected
             channel.line("make sure MacPorts is installed and 'port' is on your PATH")
             # flush
             channel.log()
@@ -3330,7 +3731,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.warning("mm.macports")
             # warn
             channel.line(f"no write access to the MacPorts prefix '{prefix}'")
+            # what will happen
             channel.line("installing will fail unless mm is run with elevated privileges:")
+            # and how to avoid it
             channel.line("  sudo mm")
             # flush
             channel.log()
@@ -3346,7 +3749,9 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line("no python3 version selected in MacPorts")
+            # how to fix it
             channel.line("select one and retry, e.g.:")
+            # for example
             channel.line("  sudo port select python3 python312")
             # flush
             channel.log()
@@ -3360,6 +3765,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line("could not parse the selected python3 version from 'port select'")
+            # and what it said
             channel.line(f"output: {result.stdout.strip()}")
             # flush
             channel.log()
@@ -3367,6 +3773,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             return None
         # reconstruct the version string and the interpreter path
         pyVersion = f"{match.group(1)}.{match.group(2)}"
+        # and the interpreter
         python = prefix / "bin" / f"python{pyVersion}"
         # verify the interpreter actually exists
         if not python.exists():
@@ -3374,6 +3781,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             channel = journal.error("mm.macports")
             # complain
             channel.line(f"expected python interpreter not found: {python}")
+            # what to check
             channel.line("check your MacPorts python3 selection with 'port select --show python3'")
             # flush
             channel.log()
@@ -3386,6 +3794,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # if the query succeeded, set the python package prefix to the site-packages location
         if version:
+            # the packages go to the site packages of that version
             self._pycPrefix = pyre.primitives.path(f"lib/python{version}/site-packages")
         # all done
         return prefix
@@ -3418,11 +3827,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # if the query succeeded, make {platlib} relative to the prefix
         if platlib:
+            # attempt to
             try:
                 # strip the prefix to get the relative path
                 self._pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
             # if {platlib} isn't under the prefix, something is unusual; use it as-is
             except ValueError:
+                # as is
                 self._pycPrefix = pyre.primitives.path(platlib)
         # all done
         return prefix
@@ -3452,11 +3863,13 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         )
         # if the query succeeded, make {platlib} relative to the prefix
         if platlib:
+            # attempt to
             try:
                 # strip the prefix to get the relative path (e.g. lib/python3.12/dist-packages)
                 self._pycPrefix = pyre.primitives.path(platlib).relativeTo(prefix)
             # if {platlib} isn't under the prefix, something is unusual; use it as-is
             except ValueError:
+                # as is
                 self._pycPrefix = pyre.primitives.path(platlib)
         # all done
         return prefix
