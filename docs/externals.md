@@ -96,6 +96,7 @@ Field by field:
 | `<pkg>.defines` | preprocessor macros that enable package-aware code |
 | `<pkg>.incpath` | include search path(s) — usually `$(<pkg>.dir)/include` |
 | `<pkg>.markers.headers` | headers that **must** resolve on `incpath` (see [Markers](#verification-markers)) |
+| `<pkg>.markers.modules` | python modules the interpreter of the build **must** import (see [Markers](#verification-markers)) |
 | `<pkg>.ldflags` | extra linker flags |
 | `<pkg>.libpath` | library search path(s) |
 | `<pkg>.rpath` | runtime library path baked into the binary |
@@ -165,13 +166,17 @@ ${if ${call extern.exists,$(gsl.blas)}, \
 ## Verification markers
 
 Markers are how mm proves a package is actually usable, rather than merely
-declared. There are three kinds.
+declared. There are four kinds.
 
 - **`<pkg>.markers.headers`** — header files that must exist somewhere on
   `incpath`. If one is missing, the package cannot be compiled against.
 - **Libraries** are checked implicitly: every name in `<pkg>.libraries` is probed
   on `libpath` as `lib<name>.{so,dylib,a}`. A name that resolves to no file is a
   broken library.
+- **`<pkg>.markers.modules`** — python modules that the interpreter of the build
+  must be able to import. This is the marker of a build tool that runs in that
+  interpreter rather than contributing to the compile and link lines, such as
+  `pybind11-stubgen`.
 - **`<pkg>.markers.required`** — names of variables that **must come out
   non-empty**. This is the subtle one.
 
@@ -254,8 +259,9 @@ Three targets, increasing in focus:
 - **`mm extern.info`** — the lay of the land: definition locations, and the
   supported / available / requested / provided sets.
 - **`mm <pkg>.verify`** — the per-package report: `incpath`, header markers and
-  whether they resolve, `libpath`, libraries and whether they resolve, any unset
-  required values, and the package's dependencies and whether they are available.
+  whether they resolve, `libpath`, libraries and whether they resolve, module
+  markers and whether they import, any unset required values, and the package's
+  dependencies and whether they are available.
 - **`mm extern.verify`** — every external the project loads, split into a
   *verified* set and a *broken* set.
 
