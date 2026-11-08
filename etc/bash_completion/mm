@@ -1291,7 +1291,7 @@ _comp_cmd_mm()
         # Complete option names
         local opts="--help --version --prefix --bldroot --target --compilers
                     --mode --branch --activate --syntax --tag
-                    --local --pkgdb --setup --serial --slots --jobs
+                    --local --pkgdb --setup --serial --slots --jobs --stubs
                     --show --dry --quiet --color --palette
                     --ignore --verbose --rules --trace --make
                     --cfgdir --engine --portinfo

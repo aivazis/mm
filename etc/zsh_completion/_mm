@@ -1169,6 +1169,7 @@ _mm() {
         '--setup[Show environment setup commands]' \
         '(-j --jobs --slots)'{-j,--jobs,--slots}'=[Number of parallel jobs]:jobs:({1..32})' \
         '--serial[Disable parallel builds]' \
+        '--stubs[Write the type stubs of the extension modules]' \
         '(-n --dry)'{-n,--dry}'[Dry run - show commands without executing]' \
         '(--show)--show[Show commands as they execute]' \
         '(-q --quiet)'{-q,--quiet}'[Suppress non-essential output]' \

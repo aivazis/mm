@@ -114,6 +114,11 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
     assertions.default = None
     assertions.doc = "compile in the developer-time checks whatever the mode says (False leaves them out; None defers to the mode)"
 
+    # whether the build writes the type stubs of the extension modules
+    stubs = pyre.properties.bool()
+    stubs.default = False
+    stubs.doc = "write the type stubs of the extension modules, when their generator is installed"
+
     branch = pyre.properties.bool()
     branch.default = None
     branch.doc = (
@@ -1141,6 +1146,8 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
         # the assertion disposition; a pinned choice overrides the mode, an unset one defers to it
         pinned = "" if self.assertions is None else ("yes" if self.assertions else "no")
         yield f"project.assertions={pinned}"
+        # whether the build writes the type stubs of the extension modules
+        yield f"project.stubs={'yes' if self.stubs else ''}"
         # the path to the mm configuration files
         yield f"project.config={self._projectCfg}"
         # the location to place the intermediate build products
@@ -1772,6 +1779,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
                 "handler": "_emitCondaSitePackage",
                 "module": "pybind11",
             },
+            "pybind11-stubgen": {"candidates": ["pybind11-stubgen"]},
             "pyre": {"candidates": ["pyre"]},
             "python": {
                 "candidates": ["python"],
@@ -2257,6 +2265,7 @@ class Builder(pyre.application, family="pyre.applications.mm", namespace="mm"):
             "petsc": ["petsc"],
             "proj": ["proj"],
             "pybind11": [f"py{pyTag}-pybind11"],
+            "pybind11-stubgen": [f"py{pyTag}-pybind11-stubgen"],
             "python": [f"python{pyTag}"],
             "slepc": ["slepc"],
             "sundials": ["sundials"],
