@@ -263,7 +263,8 @@ Three targets, increasing in focus:
   markers and whether they import, any unset required values, and the package's
   dependencies and whether they are available.
 - **`mm extern.verify`** — every external the project loads, split into a
-  *verified* set and a *broken* set.
+  *verified* set and a *broken* set, followed by the *missing* set: the externals
+  the project asks for that mm supports but cannot find installed.
 
 A healthy `mm hdf5.verify` reports `headers ok`, `libraries ok`, and (for a
 parallel build with MPI installed) `dependencies ok`.
