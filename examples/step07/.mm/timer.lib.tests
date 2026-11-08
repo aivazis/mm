@@ -12,7 +12,7 @@ timer.lib.tests.prerequisites := timer.lib
 # inherit the library's include and link paths
 timer.lib.tests.extern := timer.lib pyre
 # same language standard as the library under test
-timer.lib.tests.c++.flags += $($(compiler.c++).std.c++17)
+timer.lib.tests.c++.flags += $($(compiler.c++).std.c++20)
 
 
 # end of file

@@ -18,7 +18,7 @@ timer.ext.capsule :=
 timer.ext.extern := timer.lib pyre pybind11 python
 
 # match the language standard used by the library
-timer.ext.lib.c++.flags += $($(compiler.c++).std.c++17)
+timer.ext.lib.c++.flags += $($(compiler.c++).std.c++20)
 
 
 # end of file

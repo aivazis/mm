@@ -14,8 +14,8 @@ timer.lib.extern := pyre
 
 # enable the journal debug channels
 timer.lib.c++.defines += JOURNAL_DEBUG
-# c++17 for std::chrono::steady_clock and friends
-timer.lib.c++.flags += $($(compiler.c++).std.c++17)
+# c++20, which the headers of pyre need
+timer.lib.c++.flags += $($(compiler.c++).std.c++20)
 
 # version header is generated from a template at build time
 timer.lib.headers.autogen := version.h.in
