@@ -69,7 +69,10 @@ These are the options most users reach for regularly.
   build, which must be able to import it; without it the build skips the stubs, and
   `mm extern.verify` lists it as missing. Each module's log of the run goes to its
   area of the build tree, and the build reports how many names the generator could
-  not resolve.
+  not resolve. Rebuilding a module removes its stubs, so a build without `--stubs`
+  leaves none behind. The stubs can also be made without the switch, by naming them:
+  `mm <extension>.stubs` for one extension, `mm <project>.stubs` for the extensions
+  of a project, and `mm stubs` for those of every project.
 
 ### Parallelism
 
