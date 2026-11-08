@@ -247,7 +247,7 @@ knob:
 extern.complain.severity := error
 ```
 
-`mm <pkg>.verify` audits the configuration on its own and is never silenced by
+`mm extern.<pkg>.verify` audits the configuration on its own and is never silenced by
 this knob.
 
 ---
@@ -258,15 +258,15 @@ Three targets, increasing in focus:
 
 - **`mm extern.info`** — the lay of the land: definition locations, and the
   supported / available / requested / provided sets.
-- **`mm <pkg>.verify`** — the per-package report: `incpath`, header markers and
-  whether they resolve, `libpath`, libraries and whether they resolve, module
+- **`mm extern.<pkg>.verify`** — the per-package report: `incpath`, header markers
+  and whether they resolve, `libpath`, libraries and whether they resolve, module
   markers and whether they import, any unset required values, and the package's
   dependencies and whether they are available.
 - **`mm extern.verify`** — every external the project loads, split into a
   *verified* set and a *broken* set, followed by the *missing* set: the externals
   the project asks for that mm supports but cannot find installed.
 
-A healthy `mm hdf5.verify` reports `headers ok`, `libraries ok`, and (for a
+A healthy `mm extern.hdf5.verify` reports `headers ok`, `libraries ok`, and (for a
 parallel build with MPI installed) `dependencies ok`.
 
 ---
@@ -282,7 +282,7 @@ parallel build with MPI installed) `dependencies ok`.
 - [ ] `markers.required` **only** for a conditionally computed critical value,
       with a quoted hint.
 - [ ] `?=` for anything a user should be able to override.
-- [ ] `mm <pkg>.verify` is clean against a real install.
+- [ ] `mm extern.<pkg>.verify` is clean against a real install.
 
 ---
 
