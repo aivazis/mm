@@ -14,7 +14,7 @@ timer.catch2.prerequisites := timer.lib
 # headers and libraries: the library under test, its pyre dependency, and the Catch2 framework
 timer.catch2.extern := timer.lib pyre catch2
 # the language standard the library uses
-timer.catch2.c++.flags += $($(compiler.c++).std.c++17)
+timer.catch2.c++.flags += $($(compiler.c++).std.c++20)
 
 
 # end of file
