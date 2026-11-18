@@ -9,7 +9,8 @@
 import SwiftUI
 
 
-/// Draw a mosaic in a canvas that scrolls in both directions and scales with a pinch
+/// Draw a mosaic in a canvas that scrolls in both directions and scales with a pinch, and show
+/// the scale it is drawn at
 struct MosaicView: View {
     // the mosaic, kept for as long as the view lives
     @State private var mosaic = Mosaic(rows: 64, columns: 64)
@@ -49,12 +50,22 @@ struct MosaicView: View {
             // the canvas is as large as the mosaic at the current scale
             .frame(width: tile * Double(columns), height: tile * Double(rows))
         }
-        // a pinch scales the mosaic relative to where the pinch started
-        .gesture(
+        // a pinch scales the mosaic relative to where the pinch started; the scroll view has
+        // gestures of its own, so the pinch is recognized alongside them rather than instead
+        .simultaneousGesture(
             MagnifyGesture()
                 .onChanged { value in mosaic.zoom(to: baseline * value.magnification) }
                 .onEnded { _ in baseline = mosaic.scale }
         )
+        // show the current scale in a corner, above the tiles
+        .overlay(alignment: .topTrailing) {
+            Text("×\(mosaic.scale, format: .number.precision(.fractionLength(2)))")
+                .monospacedDigit()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.thinMaterial, in: Capsule())
+                .padding()
+        }
     }
 }
 
