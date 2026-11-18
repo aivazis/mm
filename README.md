@@ -234,7 +234,7 @@ A project declares the tools it uses; it never installs or reinstalls them. The
 lifecycle is driven from the command line:
 
 ```
-mm toolchains          # list the available toolchains and the shared root
+mm toolchains.info     # list the available toolchains and the shared root
 mm playwright.install  # fetch and install one (a deliberate, online action)
 mm playwright.verify   # check it is present; fails a build if it is missing
 mm playwright.info     # show its pinned version and location
