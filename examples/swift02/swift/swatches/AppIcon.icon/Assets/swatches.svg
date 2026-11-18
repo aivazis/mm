@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+-*- xml -*-
+-*- coding: utf-8 -*-
+
+michael a.g. aïvázis <michael.aivazis@para-sim.com>
+(c) 1998-2026 all rights reserved
+-->
+
+
+<!-- the foreground of the app icon: four swatches in a square, on a transparent background -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <!-- the top row -->
+    <rect x="232" y="232" width="264" height="264" rx="48" fill="#d9543a"/>
+    <rect x="528" y="232" width="264" height="264" rx="48" fill="#d1a878"/>
+    <!-- the bottom row -->
+    <rect x="232" y="528" width="264" height="264" rx="48" fill="#8ca861"/>
+    <rect x="528" y="528" width="264" height="264" rx="48" fill="#6b5c9e"/>
+</svg>
+
+
+<!-- end of file -->

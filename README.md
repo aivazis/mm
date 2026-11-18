@@ -251,10 +251,12 @@ them: `docker`, and `xcode`, Apple's developer tools. A project reaches every
 Apple tool through `$(toolchain.xcode.env) $(toolchain.xcode.cli)`, which is
 `xcrun` in the developer directory the environment selects, or in the one named
 by `toolchain.xcode.developer` when that is set. `mm xcode.info` reports the
-Xcode release and the sdk of each platform, and `mm xcode.verify` checks for the
-tools and sdks listed in `toolchain.xcode.tools` and `toolchain.xcode.platforms`.
-`examples/swift00` builds a command line tool in Swift with it, and
-`examples/swift01` an iPad app for the simulator.
+Xcode release, the sdk of each platform, and `toolchain.xcode.devicehub`, the app
+that shows simulated devices in a window; `mm xcode.verify` checks for the tools
+and sdks listed in `toolchain.xcode.tools` and `toolchain.xcode.platforms`.
+`examples/swift00` builds a command line tool in Swift with it,
+`examples/swift01` an iPad app for the simulator, and `examples/swift02` one
+whose colors and icon come from an asset catalog.
 
 
 ## Portability
