@@ -246,6 +246,16 @@ the network. If a required tool is missing, the build stops with a one-line
 instruction to install it. Installation is always an explicit, deliberate step,
 so an offline build never surprises you by trying to download anything.
 
+Some tools are distributed by their vendors, and mm only locates and verifies
+them: `docker`, and `xcode`, Apple's developer tools. A project reaches every
+Apple tool through `$(toolchain.xcode.env) $(toolchain.xcode.cli)`, which is
+`xcrun` in the developer directory the environment selects, or in the one named
+by `toolchain.xcode.developer` when that is set. `mm xcode.info` reports the
+Xcode release and the sdk of each platform, and `mm xcode.verify` checks for the
+tools and sdks listed in `toolchain.xcode.tools` and `toolchain.xcode.platforms`.
+`examples/swift00` builds a command line tool in Swift with it, and
+`examples/swift01` an iPad app for the simulator.
+
 
 ## Portability
 
