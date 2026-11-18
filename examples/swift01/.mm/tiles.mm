@@ -45,9 +45,34 @@ tiles.info := $(tiles.bundle)Info.plist
 # bundle instead
 tiles.signed := $(tiles.staging)$(tiles.app.name).signed
 
+# the simulated device the app runs on, picked by its name among the devices of a runtime, since
+# every runtime has its own devices and they share their names
+tiles.simulator.runtime := iOS 27.2
+tiles.simulator.device := iPad Pro 13-inch (M5)
+
 
 # building the project makes the signed bundle
 tiles: $(tiles.signed)
+
+# run the app in the simulator: find the device, boot it unless it is running, then install the
+# app and launch it. this changes the state of the simulator, so it is never part of a build, and
+# only runs when asked for
+tiles.simulator: $(tiles.signed) | xcode.verify
+	@${call log.action,"simulator","$(tiles.simulator.device) on $(tiles.simulator.runtime)"}
+	@udid=$$($(toolchain.xcode.env) $(toolchain.xcode.cli) simctl list devices available | \
+	    awk -v runtime="$(tiles.simulator.runtime)" -v name="$(tiles.simulator.device)" ' \
+	        /^-- / { current = $$0; next } \
+	        current == "-- " runtime " --" { \
+	            line = $$0; sub(/^ +/, "", line); \
+	            if (index(line, name " (") == 1) { print substr(line, length(name) + 3, 36); exit } \
+	        }') ; \
+	test -n "$$udid" || { \
+	    ${call log.error,"there is no '$(tiles.simulator.device)' on '$(tiles.simulator.runtime)'"} ; \
+	    exit 1 ; \
+	} ; \
+	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl bootstatus $$udid -b > /dev/null && \
+	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl install $$udid $(tiles.bundle) && \
+	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl launch $$udid $(tiles.app.identifier)
 
 # sign the bundle once its parts are in place; the signature covers all of them, so it is redone
 # whenever any of them changes
