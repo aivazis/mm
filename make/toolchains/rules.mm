@@ -94,7 +94,7 @@ define toolchain.verify.vendor =
 	    ${call log.info,"download and install it from $(toolchain.$(1).url)"} ; \
 	    exit 1 \
 	)
-	@${call log.action,"verify","$(1) is available"}
+	@${call log.action,"verify","$(toolchain.$(1).cli) is available"}
 endef
 
 # {vendor}: mm does not own the installation, so there is nothing for it to remove
