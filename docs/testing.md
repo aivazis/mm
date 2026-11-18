@@ -14,7 +14,7 @@ project — each test suite picks the model that fits.
 1. **Per-file drivers** — the classic mm model: every test file is its own small
    program. Silence is pass; the process exit code is the verdict.
 2. **Runners** — the suite delegates to a self-discovering test framework
-   (Playwright, Vitest, pytest, Catch2, GoogleTest). mm prepares the environment
+   (Playwright, Vitest, pytest, Catch2, GoogleTest, Swift Testing). mm prepares the environment
    the framework needs and invokes it once; the exit code is the verdict.
 
 A test suite is an asset type. It is declared in `.mm/<suite>` and wired into the
@@ -127,6 +127,7 @@ qed.ux.playwright.stage.modules := $(qed.ux.stage.modules)
 | `pytest`     | python   | `plain`    | `pytest`              | an importable package |
 | `catch2`     | c++      | `compiled` | the built binary      | `extern := catch2`, C++17 |
 | `gtest`      | c++      | `compiled` | the built binary      | `extern := gtest`, C++17 |
+| `swift-testing` | swift | `module`   | the built program     | `toolchain := xcode`, `sources` |
 
 The **prepare** kind decides what mm does before launching:
 
@@ -135,6 +136,9 @@ The **prepare** kind decides what mm does before launching:
 - `plain` — nothing; run the launch command in the suite directory. (pytest.)
 - `compiled` — compile the suite's sources into one binary and run it; the binary
   is the launch command. (Catch2, GoogleTest.)
+- `module` — compile the suite's sources, the sources they test and an entry
+  point into one program in a single step, as languages that build whole modules
+  do, and run it; the program is the launch command. (Swift Testing.)
 
 **Overrides.** A suite may refine the invocation:
 
@@ -207,6 +211,30 @@ After installing a framework — or after mm gains support for a new one — the
 package database may be stale; regenerate it with `mm extern.db.clean` (the next
 build rebuilds it), and confirm with `mm extern.db.info`.
 
+### Swift runner (Swift Testing)
+
+Swift compiles a module at once rather than file by file, so the `swift-testing`
+runner builds one program from three parts: the `.swift` files of the suite, the
+sources they test, which the suite names in `sources`, and a two-line entry point
+that mm writes into the staging area. The tests are part of the same module as
+the code they test, so they see its internal declarations. The program finds the
+functions marked `@Test` by itself and exits with the verdict. The compiler, the
+test library and its macros come from the `xcode` toolchain, so the tests run on
+the Mac that builds the app; code that uses SwiftUI or UIKit cannot be tested this
+way. A project lists the suite only where the toolchain can exist:
+
+```makefile
+# .mm/tiles.testing
+tiles.testing.runner    := swift-testing
+tiles.testing.toolchain := xcode
+tiles.testing.sources    = $(project.home)/swift/tiles/Mosaic.swift
+
+# .mm/tiles.mm
+tiles.tests := ${if $(toolchain.xcode.supported),tiles.testing,}
+```
+
+`examples/swift01` carries this suite.
+
 ---
 
 ## Running and inspecting
@@ -229,6 +257,7 @@ mm tests              # run every suite in the project
 - Browser/end-to-end against a running server → the **playwright** runner.
 - Python → **pytest**.
 - C++ with a framework → **catch2** or **gtest**.
+- Swift → **swift-testing**.
 
 
 <!-- end of file -->
