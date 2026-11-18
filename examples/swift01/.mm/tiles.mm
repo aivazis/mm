@@ -50,6 +50,10 @@ tiles.signed := $(tiles.staging)$(tiles.app.name).signed
 tiles.simulator.runtime := iOS 27.2
 tiles.simulator.device := iPad Pro 13-inch (M5)
 
+# the tests, which need apple's developer tools as much as the app does
+tiles.tests := ${if $(toolchain.xcode.supported),tiles.testing,}
+include $(tiles.tests)
+
 
 # building the project makes the signed bundle
 tiles: $(tiles.signed)

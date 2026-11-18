@@ -1,0 +1,20 @@
+# -*- makefile -*-
+# -*- coding: utf-8 -*-
+#
+# michael a.g. aïvázis <michael.aivazis@para-sim.com>
+# (c) 1998-2026 all rights reserved
+
+
+# the swift tests of the app: the model of the mosaic, which uses nothing from SwiftUI, so it can
+# be tested on the mac that builds the app
+tiles.testing.stem := tiles.testing
+# delegate to swift's test library: compile the tests and the sources they test into one program
+# and run it
+tiles.testing.runner := swift-testing
+# the compiler comes from apple's developer tools
+tiles.testing.toolchain := xcode
+# the sources under test
+tiles.testing.sources = $(project.home)/swift/tiles/Mosaic.swift
+
+
+# end of file
