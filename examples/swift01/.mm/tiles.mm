@@ -54,9 +54,9 @@ tiles.simulator.device := iPad Pro 13-inch (M5)
 # building the project makes the signed bundle
 tiles: $(tiles.signed)
 
-# run the app in the simulator: find the device, boot it unless it is running, then install the
-# app and launch it. this changes the state of the simulator, so it is never part of a build, and
-# only runs when asked for
+# run the app in the simulator: find the device, boot it unless it is running, install the app,
+# launch it, and bring up the window that shows it. this changes the state of the simulator, so it
+# is never part of a build, and only runs when asked for
 tiles.simulator: $(tiles.signed) | xcode.verify
 	@${call log.action,"simulator","$(tiles.simulator.device) on $(tiles.simulator.runtime)"}
 	@udid=$$($(toolchain.xcode.env) $(toolchain.xcode.cli) simctl list devices available | \
@@ -72,7 +72,8 @@ tiles.simulator: $(tiles.signed) | xcode.verify
 	} ; \
 	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl bootstatus $$udid -b > /dev/null && \
 	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl install $$udid $(tiles.bundle) && \
-	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl launch $$udid $(tiles.app.identifier)
+	$(toolchain.xcode.env) $(toolchain.xcode.cli) simctl launch $$udid $(tiles.app.identifier) && \
+	open "$(toolchain.xcode.devicehub)"
 
 # sign the bundle once its parts are in place; the signature covers all of them, so it is redone
 # whenever any of them changes
