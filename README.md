@@ -258,6 +258,15 @@ and sdks listed in `toolchain.xcode.tools` and `toolchain.xcode.platforms`.
 `examples/swift01` an iPad app for the simulator, and `examples/swift02` one
 whose colors and icon come from an asset catalog.
 
+A toolchain that exists only on some platforms says so in
+`toolchain.<tool>.supported`, which is `yes` by default and empty where the tool
+cannot exist; `xcode` is supported on macOS only. A project leaves out what
+depends on such a tool by testing it before it lists the asset:
+
+```make
+qed.ios := ${if $(toolchain.xcode.supported),qed.ios,}
+```
+
 
 ## Portability
 
