@@ -38,12 +38,17 @@ toolchain.xcode.sdk = \
     $(shell $(toolchain.xcode.env) $(toolchain.xcode.cli) --sdk $(1) --show-sdk-path 2>/dev/null)
 toolchain.xcode.sdk.version = \
     $(shell $(toolchain.xcode.env) $(toolchain.xcode.cli) --sdk $(1) --show-sdk-version 2>/dev/null)
+# the app that shows simulated and attached devices in a window; it ships inside xcode, beside
+# the developer directory
+toolchain.xcode.devicehub = \
+    ${abspath $(shell $(toolchain.xcode.env) xcode-select -p 2>/dev/null)/../Applications/DeviceHub.app}
 
 
-# report the developer directory and the sdk of each platform, beside the settings every vendor
-# tool reports
+# report the developer directory, the device window and the sdk of each platform, beside the
+# settings every vendor tool reports
 define toolchain.xcode.report =
 	@${call log.var,developer,"${if $(toolchain.xcode.developer),$(toolchain.xcode.developer),(from the environment)}"}
+	@${call log.var,devicehub,"$${toolchain.xcode.devicehub}"}
 	@${foreach platform,$(toolchain.xcode.platforms),${call log.var,$(platform),"$${call toolchain.xcode.sdk.version,$(platform)} $${call toolchain.xcode.sdk,$(platform)}"};}
 endef
 
