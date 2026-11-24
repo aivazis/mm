@@ -31,6 +31,23 @@ by qed's `qed.data` suite but by no example here. Add a generator and a test tha
 reads its product, e.g. under `examples/simple`, so the feature has a scenario
 test of its own.
 
+## Tests of the make functions
+
+mm's make functions have no tests of their own; only the examples exercise them,
+and only the parts the examples happen to reach. `extern.is.atLeast` and the
+version comparison behind it (`make/extern/init.mm`) are the first candidates: a
+scenario that asks for floors below, at and above a package of known version,
+for a version with a packaging suffix and epoch (`1:18.6-0ubuntu0.26.04.1`), one
+whose components are not all numbers (`18beta1`), and one with no version.
+
+## Package versions from their install location
+
+`extern.is.atLeast` lets a package with no recorded version pass, since only the
+conda, dpkg and rpm package databases record one; a package configured by hand,
+or found by the adhoc and macports engines, has none. Reading the version from
+the install location (a `pkg-config` file, a version header) for every package
+would let the floor apply everywhere.
+
 ## mpi launcher vocabulary (from pyre)
 
 Move the launcher vocabulary into mm's `extern/mpi` (`mpi.launch`); pyre is only
