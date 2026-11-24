@@ -265,7 +265,7 @@ ${call <builder>.<op>.default,$(1)}
 endef
 ```
 
-**Safety.** A mode-keyed slot can silently no-op on a typo (`…​.relese` is never
+**Safety.** A mode-keyed slot can silently no-op on a typo (`….relese` is never
 selected; the default quietly runs). To stay true to "don't silently fail," the
 resolver (or a load-time check) should firewall any `<builder>.<op>.<x>` whose `<x>`
 is not in `modes.available` — the make-layer echo of the driver's dispatch firewall.

@@ -144,7 +144,7 @@ Two things make this work:
   descends into `.dependencies`, so an induced edge is already defined when mm
   reaches it.
 
-The result: a consumer writes `…​.extern := … hdf5`, and `mpi` appears on the
+The result: a consumer writes `….extern := … hdf5`, and `mpi` appears on the
 compile and link lines if and only if HDF5 is parallel. No consumer ever mentions
 `mpi`.
 
