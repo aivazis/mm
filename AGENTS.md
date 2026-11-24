@@ -19,7 +19,7 @@ michael a.g. aïvázis <michael.aivazis@para-sim.com>
 - `./mm test` or `./mm test hello.pkg --target=cov` runs all tests or a focused suite with coverage objects.
 
 ## Coding Style & Naming Conventions
-Python sources (`mm.py`, `examples/hello/pkg/`) follow PEP 8: four-space indents, descriptive snake_case, f-strings, and module docstrings outlining CLI verbs. C++/Fortran samples under `examples/hello/lib/hello` use `.cc/.h`, four-space blocks, directory-mirroring namespaces (e.g., `hello::greetings`), STL types, and `static` helpers for internal linkage. Make fragments rely on lowercase, dot-delimited identifiers (`component.kind.setting := value`) and `:=` assignments; keep new knobs consistent.
+Python sources (`mm.py`, `examples/hello/pkg/`) follow PEP 8: four-space indents, descriptive snake_case, f-strings, and module docstrings outlining CLI verbs. C++/Fortran samples under `examples/hello/lib/hello` use `.cc/.h`, four-space blocks, directory-mirroring namespaces (e.g., `hello::greetings`), STL types, and `static` helpers for internal linkage. Make fragments rely on lowercase, dot-delimited identifiers (`component.kind.setting := value`) and `:=` assignments; keep new knobs consistent.
 
 ## Testing Guidelines
 Scenario tests live beside their feature (`examples/hello/tests`, `make/tests`). Follow the `component.variant` naming pattern (`hello.lib`, `hello.pkg`) and keep fixtures tiny so they run in seconds. Always run `./mm test` before opening a PR, paste the command in the description, and prefer `./mm test --target=cov` when touching discovery or planner code. Toolchain updates should include a smoke target in `examples/prep` that proves the new compiler or flag set.
