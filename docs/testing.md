@@ -104,6 +104,23 @@ pyre-postgres.pkg.tests.env := PGHOST=$(postgres.fixture.socket) PGUSER=pyre
 The example in `examples/prep`, suite `hooks`, writes a file in `pre`, names it
 in `env`, and removes it in `post`.
 
+A fixture that runs a postgres server of its own needs the server's programs,
+`initdb` and `pg_ctl`, which the client library `libpq` does not carry. When the
+package database finds a server installed, it names the directory that holds
+them in `postgres.bin`:
+
+| `--pkgdb` | the server package | `postgres.bin` |
+|-----------|--------------------|----------------|
+| `conda` | `postgresql` | `$(conda.prefix)/bin` |
+| `macports` | the selected `postgresqlNN`, or the newest | `$(macports.prefix)/lib/postgresqlNN/bin` |
+| `dpkg` | the newest `postgresql-NN` | `$(dpkg.prefix)/lib/postgresql/NN/bin` |
+| `rpm` | `postgresql-server` | `$(rpm.prefix)/bin` |
+
+The `adhoc` database names nothing, so a project's fixture falls back to the
+directory where `PATH` finds `initdb`, and a user can set `postgres.bin` in
+their own configuration. pyre's postgres fixture, and the settings of the
+clusters it runs, are described in pyre's documentation.
+
 ### Drivers that produce files
 
 Some drivers are not tests but generators: running them writes fixtures that
