@@ -15,8 +15,8 @@ prep.packages :=
 prep.libraries :=
 # no python extension
 prep.extensions :=
-# and two test suites
-prep.tests := prep.tests.dep prep.tests.hooks
+# and three test suites
+prep.tests := prep.tests.dep prep.tests.hooks prep.tests.runner
 
 
 # the dep test suite
@@ -60,6 +60,28 @@ hooks.start:
 hooks.stop:
 	@${call log.action,stop,"fixture"}
 	@$(rm.force) $(prep.tests.hooks.prefix)fixture.dat
+
+
+# the runner test suite, whose tests pytest finds and runs against a fixture of the suite
+prep.tests.runner.stem := runner
+prep.tests.runner.runner := pytest
+# the fixture is ready before the runner starts, and goes away after it is done
+prep.tests.runner.pre := runner.start
+prep.tests.runner.post := runner.stop
+# the tests find it through their environment, and leave no bytecode behind
+prep.tests.runner.env := PREP_FIXTURE=fixture.dat PYTHONDONTWRITEBYTECODE=1
+# and the runner keeps no cache in the source tree
+prep.tests.runner.argv := -p no:cacheprovider -q
+
+# make the fixture
+runner.start:
+	@${call log.action,start,"fixture"}
+	@echo ready > $(prep.tests.runner.prefix)fixture.dat
+
+# remove it, after the runner, which the suite makes it wait for
+runner.stop:
+	@${call log.action,stop,"fixture"}
+	@$(rm.force) $(prep.tests.runner.prefix)fixture.dat
 
 # show me
 # ${info -- done with hello }
