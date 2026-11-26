@@ -15,8 +15,8 @@ prep.packages :=
 prep.libraries :=
 # no python extension
 prep.extensions :=
-# and a test suite
-prep.tests := prep.tests.dep
+# and two test suites
+prep.tests := prep.tests.dep prep.tests.hooks
 
 
 # the dep test suite
@@ -39,6 +39,27 @@ tests.dep.post.post := tests.dep.clean user-defined
 # dependency
 user-defined :: tests.dep.clean
 	${call log.info,"all done"}
+
+
+# the hooks test suite, whose drivers rely on a fixture of the suite
+prep.tests.hooks.stem := hooks
+# the fixture is ready before the first driver runs, and goes away after the last one
+prep.tests.hooks.pre := hooks.start
+prep.tests.hooks.post := hooks.stop
+# the drivers find it through their environment
+prep.tests.hooks.env := PREP_FIXTURE=fixture.dat
+# a run of some of the drivers leaves the fixture behind, so cleaning the suite removes it
+tests.hooks.clean := fixture.dat
+
+# make the fixture
+hooks.start:
+	@${call log.action,start,"fixture"}
+	@echo ready > $(prep.tests.hooks.prefix)fixture.dat
+
+# remove it, after the last driver, which the suite makes it wait for
+hooks.stop:
+	@${call log.action,stop,"fixture"}
+	@$(rm.force) $(prep.tests.hooks.prefix)fixture.dat
 
 # show me
 # ${info -- done with hello }
