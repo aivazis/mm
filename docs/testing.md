@@ -74,6 +74,36 @@ tests.postgres.ext.postgres_attach.pre := tests.postgres.ext.postgres_database
 Every driver in such a chain is a test, and the chain runs every time the suite
 runs.
 
+### Fixtures of a suite
+
+A suite whose drivers share some external state, such as a server they all talk
+to, names the targets that set it up and tear it down, and the environment that
+tells the drivers where it is:
+
+```makefile
+# start a server before the first driver, and stop it after the last
+pyre-postgres.pkg.tests.pre := postgres.fixture.start
+pyre-postgres.pkg.tests.post := postgres.fixture.stop
+# and point every driver at it
+pyre-postgres.pkg.tests.env := PGHOST=$(postgres.fixture.socket) PGUSER=pyre
+```
+
+- Every driver waits for the targets in `pre`.
+- The targets in `post` run after the last driver. mm makes them wait for the
+  drivers, so they are ordinary rules with a single colon.
+- `env` goes in front of the launch of every driver, compiled or interpreted, and
+  in front of the run of a driver that produces files. A driver may set its own
+  `env` instead.
+- `post` runs when the whole suite runs, whether it is named by its suite name or
+  by its root directory (`tests.postgres.pkg`).
+- A run of one driver, or of one subdirectory, runs `pre` and leaves the fixture
+  in place, since make has no hook that runs after the goals it was given. So
+  does a run that stops at a failing driver. A `pre` that removes what an
+  earlier run left behind, and a `clean` that does the same, cover both cases.
+
+The example in `examples/prep`, suite `hooks`, writes a file in `pre`, names it
+in `env`, and removes it in `post`.
+
 ### Drivers that produce files
 
 Some drivers are not tests but generators: running them writes fixtures that
