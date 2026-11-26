@@ -74,6 +74,21 @@ tests.postgres.ext.postgres_attach.pre := tests.postgres.ext.postgres_database
 Every driver in such a chain is a test, and the chain runs every time the suite
 runs.
 
+A driver can also name targets in `post`, which run after it. These are double
+colon rules, so that the `clean` target of a driver or a directory can serve as
+one. make runs the recipe of a double colon rule after the prerequisites of that
+rule alone, and a project's `.mm` is read before mm writes its own rules. So a
+`post` target written by hand with a recipe names the driver among its own
+prerequisites:
+
+```makefile
+# after the last step, clean up, then report
+tests.dep.post.post := tests.dep.clean user-defined
+# the report waits for the clean up itself
+user-defined :: tests.dep.clean
+	${call log.info,"all done"}
+```
+
 ### Fixtures of a suite
 
 A suite whose drivers share some external state, such as a server they all talk
@@ -194,6 +209,11 @@ qed.ux.playwright.runner.launch := npx playwright test --project=readonly
 qed.ux.playwright.argv          := --reporter=line
 qed.ux.playwright.env           := CI=1
 ```
+
+**Fixtures.** A runner suite takes `pre` and `post` as well. The runner waits for
+the targets in `pre`, and the targets in `post` run after it. mm makes the `post`
+targets wait for the runner, so they are ordinary rules with a single colon. The
+suite `runner` in `examples/prep` starts a fixture for pytest this way.
 
 ### Node runners (Playwright, Vitest)
 
